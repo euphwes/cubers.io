@@ -1,0 +1,15 @@
+<html>
+    <head>
+        <title>/r/cubers Weekly Competition!</title>
+    </head>
+    <body>
+        <h2>Welcome, {{ current_user.username }}!</h2>
+        <hr>
+        <h3>Here are all the currently-registered users:</h3>
+        <ul>
+        	{% for user in users %}
+    		<li>{{ user.username }}</li>
+        	{% endfor %}
+        </ul>
+    </body>
+</html>
