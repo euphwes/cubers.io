@@ -12,6 +12,7 @@ class User(UserMixin, db.Model):
     id             = db.Column(db.Integer, primary_key=True)
     username       = db.Column(db.String(64), index=True, unique=True)
     wca_id         = db.Column(db.String(10))
+    refresh_token  = db.Column(db.String(64))
 
 @loginManager.user_loader
 def load_user(id):

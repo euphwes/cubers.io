@@ -7,6 +7,7 @@ from app.models import User
 from praw import Reddit
 
 # -------------------------------------------------------------------------------------------------
+
 reddit = Reddit(client_id = app.config['REDDIT_CLIENT_ID'], client_secret = app.config['REDDIT_CLIENT_SECRET'],
                 redirect_uri = 'http://localhost:5000/oauth', user_agent = 'test by /u/euphwes')
 
