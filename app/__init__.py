@@ -15,14 +15,15 @@ bundles = {
         output='gen/main.js'),
 
     'main_css': Bundle(
-        'css/cubers_common.less',
+        'less/cubers_common.less',
         filters="less,yui_css",
         output='gen/main.css'),
 }
 
 app = Flask(__name__)
 app.config.from_object(Config)
-app.secret_key = environ.get('FLASK_SECRET_KEY')
+
+app.secret_key = app.config['FLASK_SECRET_KEY']
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
