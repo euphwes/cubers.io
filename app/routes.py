@@ -1,10 +1,12 @@
+""" Defines some routes. """
+
 from flask import render_template, request, redirect, url_for
-from flask_login import current_user, login_user, login_required
+from flask_login import current_user, login_required, login_user, logout_user
+
+from praw import Reddit
 
 from app import app, db
-
 from app.models import User
-from praw import Reddit
 
 # -------------------------------------------------------------------------------------------------
 
@@ -14,6 +16,9 @@ reddit = Reddit(client_id = app.config['REDDIT_CLIENT_ID'], client_secret = app.
 @app.route('/')
 @app.route('/index')
 def index():
+    if current_user.is_authenticated:
+        return redirect(url_for('welcome'))
+
     return render_template('index.html')
 
 
@@ -35,8 +40,9 @@ def login():
 
 @app.route('/authorize')
 def oauth_callback():
-    state = request.args.get('state','')
-    code = request.args.get('code','')
+    """ """
+    #state = request.args.get('state', '')
+    code = request.args.get('code', '')
 
     if not reddit.user:
         return
@@ -53,3 +59,10 @@ def oauth_callback():
     login_user(user, True)
 
     return redirect(url_for('welcome'))
+
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
