@@ -9,6 +9,7 @@ Flask==1.0.2
 Flask-Login==0.4.1
 Flask-Migrate==2.1.1
 Flask-SQLAlchemy==2.3.2
+gunicorn==19.8.1
 idna==2.6
 ipython==6.4.0
 ipython-genutils==0.2.0
@@ -22,6 +23,7 @@ pickleshare==0.7.4
 praw==5.4.0
 prawcore==0.14.0
 prompt-toolkit==1.0.15
+psycopg2==2.7.4
 Pygments==2.2.0
 python-dateutil==2.7.3
 python-editor==1.0.3
