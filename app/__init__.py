@@ -1,3 +1,7 @@
+""" Main initialization point of the web app. """
+
+from os import environ
+
 from flask import Flask
 from flask_assets import Bundle, Environment
 from flask_bootstrap import Bootstrap
@@ -6,9 +10,20 @@ from flask_sqlalchemy import SQLAlchemy
 
 from config import Config
 
-from os import environ
+# -------------------------------------------------------------------------------------------------
 
-bundles = {
+CUBERS_APP = Flask(__name__)
+CUBERS_APP.config.from_object(Config)
+
+CUBERS_APP.secret_key = CUBERS_APP.config['FLASK_SECRET_KEY']
+
+DB = SQLAlchemy(CUBERS_APP)
+MIGRATE = Migrate(CUBERS_APP, DB)
+
+Bootstrap(CUBERS_APP)
+
+ASSETS = Environment(CUBERS_APP)
+ASSETS.register({
     'main_js': Bundle(
         'js/cubers_common.js',
         filters="jsmin",
@@ -18,19 +33,6 @@ bundles = {
         'less/cubers_common.less',
         filters="less,yui_css",
         output='gen/main.css'),
-}
-
-app = Flask(__name__)
-app.config.from_object(Config)
-
-app.secret_key = app.config['FLASK_SECRET_KEY']
-
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-
-Bootstrap(app)
-
-assets = Environment(app)
-assets.register(bundles)
+})
 
 from app import routes, models
