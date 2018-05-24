@@ -7,15 +7,5 @@
 </head>
 
 {% block navbar %}
-<div class="navbar cubers-navbar">
-    <div class="container-fluid">
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav navbar-right">
-                <li>
-                    <a href="{{ url_for('login') }}"><b>Login with Reddit</b></span></a>             
-                </li>
-            </ul>
-        </div><!-- /.navbar-collapse -->
-    </div><!-- /.container-fluid -->
-</div>
+    {% include 'common/navbar_basic.html' %}
 {% endblock %}
