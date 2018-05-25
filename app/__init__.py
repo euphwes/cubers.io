@@ -35,4 +35,7 @@ ASSETS.register({
         output='gen/main.css'),
 })
 
-from app import routes, models
+#pylint: disable=W0401
+#I don't want to specifically name every route I want to import here
+from app import models
+from .routes import *

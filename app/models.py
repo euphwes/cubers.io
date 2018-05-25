@@ -10,6 +10,7 @@ Text       = DB.Text
 Model      = DB.Model
 Column     = DB.Column
 String     = DB.String
+Boolean    = DB.Boolean
 Integer    = DB.Integer
 DateTime   = DB.DateTime
 ForeignKey = DB.ForeignKey
@@ -62,6 +63,7 @@ class Competition(Model):
     title            = Column(String(128), index=True, unique=True)
     start_timestamp  = Column(DateTime(timezone=True))
     end_timestamp    = Column(DateTime(timezone=True))
+    active           = Column(Boolean)
     userPointResults = Column(Text())
     events           = relationship('CompetitionEvent', backref='event',
                                     primaryjoin=id == CompetitionEvent.competition_id)
