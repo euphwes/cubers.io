@@ -6,7 +6,7 @@ from flask_login import current_user, login_user, logout_user
 from app import CUBERS_APP, DB
 from app.models import User
 
-from app.util.reddit_util import get_new_reddit, get_username_refresh_token_from_code
+from app.util.reddit_util import get_username_refresh_token_from_code, get_user_auth_url
 
 # -------------------------------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ def index():
 
 @CUBERS_APP.route("/logout")
 def logout():
-    if current_user.is_authenticated: 
+    if current_user.is_authenticated:
         logout_user()
     return redirect(url_for('index'))
 
@@ -31,10 +31,7 @@ def logout():
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
-
-    reddit = get_new_reddit()
-
-    return redirect(reddit.auth.url(['identity', 'read', 'submit'], '...', 'temporary'))
+    return redirect(get_user_auth_url())
 
 
 @CUBERS_APP.route('/authorize')
