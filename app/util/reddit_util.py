@@ -1,7 +1,9 @@
 """ Utility functions for dealing with PRAW Reddit instances. """
-
+import re
 from praw import Reddit
 from app import CUBERS_APP
+import events_util as eutil
+import times_util as tutil
 
 REDIRECT      = CUBERS_APP.config['REDDIT_REDIRECT_URI']
 USER_AGENT    = 'web:rcubersComps:v0.01 by /u/euphwes'
@@ -29,3 +31,55 @@ def get_username_refresh_token_from_code(code):
 def get_user_auth_url(state='...'):
     """ Returns a url for authenticating with Reddit. """
     return get_new_reddit().auth.url(['identity', 'read', 'submit'], state, 'temporary')
+
+def parse_comment(comment):
+    matcher = re.compile('^([^>].+?)\\:\\s*([^\\s]+).*')
+    dnf_matcher = re.compile('^([^>: ]+) *:.*')
+    times_matcher = re.compile('((\d*:?\d+\.?\d*)|(\d*\.?\d+)|(DNF))')
+    comment_matcher = re.compile('[A-Za-z]+')
+
+    results = {}
+
+    for line in comment.splitlines():
+        # Replace any * with nothing
+        content = re.sub('\\*','', line)
+        result = matcher.match(content)
+        dnf_result = dnf_matcher.match(content)
+
+        if result:
+            name = eutil.get_event_name(result.group(1)) # Group 1 is name
+            average = tutil.convert_min_sec(result.group(2))   # Group 2 is average
+
+            try:
+                results[name] = { "average": average }
+            except:
+                results[name] = { "average": "Error" }
+                continue
+
+            # Detect a list of numbers to get times
+            content = content.replace(result.group(1), "", 1).replace(result.group(2), "", 1)
+
+            for match in re.finditer(comment_matcher, content):
+                if match.group(0) != "DNF": # Edge case for if the last time is a DNF
+                    content = content[:match.start()]
+
+            times = re.findall(times_matcher, content)
+            final_times = []
+
+            for t in times:
+                if t[0] == "DNF":
+                    final_times.append(t[0])
+                else:
+                    try:
+                        final_times.append(tutil.convert_min_sec(t[0]))
+                    except ValueError:
+                        continue
+            
+            results[name]["times"] = final_times
+        elif dnf_result != None:
+            print("DNF RESULT ", dnf_result)
+            # We have a puzzle name, but no average.
+            name = eutil.get_event_name(dnf_result.group(1))
+            results[name] = { "average": "DNF", "times": [] }
+
+    return results
