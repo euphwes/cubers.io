@@ -1,24 +1,27 @@
 """ Utility functions for dealing with PRAW Reddit instances. """
 import re
+import datetime
 from praw import Reddit
 from app import CUBERS_APP
-import events_util as eutil
-import times_util as tutil
+from . import events_util
+from . import times_util
 
 REDIRECT      = CUBERS_APP.config['REDDIT_REDIRECT_URI']
 USER_AGENT    = 'web:rcubersComps:v0.01 by /u/euphwes'
 CLIENT_ID     = CUBERS_APP.config['REDDIT_CLIENT_ID']
 CLIENT_SECRET = CUBERS_APP.config['REDDIT_CLIENT_SECRET']
 
+BLACKLIST = ["CaptainCockmunch", "LorettAttran", "purplepinapples", "CuberSaiklick", "xXxSteelVenomxXx"]
 # -------------------------------------------------------------------------------------------------
-
+    
+#pylint: disable=C0111
 def get_new_reddit():
     """ Returns a new, unauthenticated Reddit instance. """
     return Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=REDIRECT,
                   user_agent = USER_AGENT)
 
-
-#pylint: disable=C0103
+    
+#pylint: disable=C0111
 def get_username_refresh_token_from_code(code):
     """ Returns the username and current refresh token for a given Reddit auth code. """
     reddit = get_new_reddit()
@@ -26,14 +29,15 @@ def get_username_refresh_token_from_code(code):
     username = reddit.user.me().name
     return username, refresh_token
 
-
-#pylint: disable=C0103
+    
+#pylint: disable=C0111
 def get_user_auth_url(state='...'):
     """ Returns a url for authenticating with Reddit. """
     return get_new_reddit().auth.url(['identity', 'read', 'submit'], state, 'temporary')
-
+    
+#pylint: disable=C0111
 def parse_comment(comment):
-    matcher = re.compile('^([^>].+?)\\:\\s*([^\\s]+).*')
+    matcher = re.compile('^([^>].+?)\\:\\s*([^\\sA-Za-z!@#\$\%^&*()_+\-=,;\\\[\]\?<>`~\|]+).*')
     dnf_matcher = re.compile('^([^>: ]+) *:.*')
     times_matcher = re.compile('((\d*:?\d+\.?\d*)|(\d*\.?\d+)|(DNF))')
     comment_matcher = re.compile('[A-Za-z]+')
@@ -47,8 +51,8 @@ def parse_comment(comment):
         dnf_result = dnf_matcher.match(content)
 
         if result:
-            name = eutil.get_event_name(result.group(1)) # Group 1 is name
-            average = tutil.convert_min_sec(result.group(2))   # Group 2 is average
+            name = events_util.get_event_name(result.group(1)) # Group 1 is name
+            average = times_util.convert_min_sec(result.group(2))   # Group 2 is average
 
             try:
                 results[name] = { "average": average }
@@ -71,7 +75,7 @@ def parse_comment(comment):
                     final_times.append(t[0])
                 else:
                     try:
-                        final_times.append(tutil.convert_min_sec(t[0]))
+                        final_times.append(times_util.convert_min_sec(t[0]))
                     except ValueError:
                         continue
             
@@ -79,7 +83,58 @@ def parse_comment(comment):
         elif dnf_result != None:
             print("DNF RESULT ", dnf_result)
             # We have a puzzle name, but no average.
-            name = eutil.get_event_name(dnf_result.group(1))
+            name = events_util.get_event_name(dnf_result.group(1))
             results[name] = { "average": "DNF", "times": [] }
 
     return results
+    
+#pylint: disable=C0111
+def is_blacklisted(reddit_user_id):
+    return reddit_user_id in BLACKLIST
+    
+#pylint: disable=C0111
+def get_root_comments(submission_id):
+    praw = get_new_reddit()
+    submission = praw.submission(submission_id)
+    submission.comments.replace_more(limit=None)
+
+    return submission.comments
+
+#pylint: disable=C0111
+def parse_post(submission_id):
+    comments = get_root_comments(submission_id)
+    entries = {}
+
+    for comment in comments:
+        if comment.author is not None:
+            if ("NOT DONE" not in comment.body) and ("WIP" not in comment.body) and ("#FORMATTINGADVICE" not in comment.body) and not is_blacklisted(comment.author.name):
+                results = parse_comment(comment.body)
+                
+                if results:
+                    entries[comment.author.name] = results
+    
+    return entries
+
+#pylint: disable=C0111
+def score_entries(entries):
+    events = {}
+
+    for user,entry in entries.items():
+        for e,o in entry.items():
+            if e in events:
+                events[e][user] = o["average"]
+            else:
+                events[e] = {}
+    
+    for event,entries in events.items():
+        # Separate times from DNFs because sorted() can't work on strings
+        to_sort = { user: avg for user,avg in entries.items() if avg != "DNF" }
+        dnfs = [ (user, avg) for user,avg in entries.items() if avg == "DNF" ]
+
+        to_sort = sorted(to_sort, key=to_sort.get) # Returns a list of keys in order
+        events[event] = [ (user, entries[user]) for user in to_sort ] # Create a list of tuples according to the order of to_sorted
+        events[event].extend(dnfs) # Appends the dnfs to the end (Last place)
+
+    return events
+
+ 

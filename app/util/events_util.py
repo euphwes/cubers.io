@@ -21,6 +21,6 @@ EVENT_NAMES = {
 
 def get_event_name(name):
     if name.lower() in EVENT_NAMES:
-        return EVENT_NAMES[name]
+        return EVENT_NAMES[name.lower()]
     else:
         return name

@@ -15,4 +15,5 @@ def convert_min_sec(time):
             return float(str(secs) + "." + str(dec))
 
     except ValueError:
-        return "Error"
+        print("Value error! ", time)
+        return "convert error"
