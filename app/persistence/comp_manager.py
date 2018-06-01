@@ -37,8 +37,8 @@ def create_new_competition(title, reddit_id, event_data):
     for data in event_data:
         event = get_event_by_name(data['name'])
         scrambles = json.dumps(data['scrambles'])
-        comp_event = CompetitionEvent(event=event, scrambles=scrambles)
-        new_comp.events.add(comp_event)
+        comp_event = CompetitionEvent(scrambles=scrambles, event_id=event.id)
+        new_comp.events.append(comp_event)
 
     DB.session.add(new_comp)
     DB.session.commit()
