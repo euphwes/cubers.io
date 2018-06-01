@@ -46,8 +46,8 @@ def authorize():
     auth_code = request.args.get('code')
 
     username, refresh_token = get_username_refresh_token_from_code(auth_code)
-
     user = update_or_create_user(username, refresh_token)
+
     login_user(user, True)
 
     return redirect(url_for('index'))

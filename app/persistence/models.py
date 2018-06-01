@@ -1,7 +1,5 @@
 """ SQLAlchemy models for all database entries. """
 
-import enum
-
 from flask_login import LoginManager, UserMixin
 from sqlalchemy.orm import relationship
 
@@ -77,7 +75,7 @@ class Competition(Model):
     end_timestamp    = Column(DateTime(timezone=True))
     active           = Column(Boolean)
     userPointResults = Column(Text())
-    events           = relationship('CompetitionEvent', backref='event',
+    events           = relationship('CompetitionEvent', backref='Competition',
                                     primaryjoin=id == CompetitionEvent.competition_id)
 
 
