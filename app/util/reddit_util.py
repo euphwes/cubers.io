@@ -27,14 +27,15 @@ def get_username_refresh_token_from_code(code):
     reddit = get_new_reddit()
     refresh_token = reddit.auth.authorize(code)
     username = reddit.user.me().name
+
     return username, refresh_token
 
     
 #pylint: disable=C0111
 def get_user_auth_url(state='...'):
     """ Returns a url for authenticating with Reddit. """
-    return get_new_reddit().auth.url(['identity', 'read', 'submit'], state, 'temporary')
-    
+    return get_new_reddit().auth.url(['identity', 'read', 'submit'], state, 'permanent')
+  
 #pylint: disable=C0111
 def parse_comment(comment):
     matcher = re.compile('^([^>].+?)\\:\\s*([^\\sA-Za-z!@#\$\%^&*()_+\-=,;\\\[\]\?<>`~\|]+).*')

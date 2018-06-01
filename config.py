@@ -9,6 +9,7 @@ class Config(object):
     REDDIT_CLIENT_SECRET = environ.get('CUBERS_SECRET')
     REDDIT_REDIRECT_URI  = environ.get('REDDIT_OAUTH_REDIRECT_URI')
     FLASK_SECRET_KEY     = environ.get('FLASK_SECRET_KEY')
+    SCRIPT_API_KEY       = environ.get('SCRIPT_API_KEY')
 
     SQLALCHEMY_DATABASE_URI = environ.get('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False

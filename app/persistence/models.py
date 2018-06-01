@@ -7,6 +7,7 @@ from app import DB, CUBERS_APP
 
 #pylint: disable=C0103
 Text       = DB.Text
+Enum       = DB.Enum
 Model      = DB.Model
 Column     = DB.Column
 String     = DB.String
@@ -14,6 +15,13 @@ Boolean    = DB.Boolean
 Integer    = DB.Integer
 DateTime   = DB.DateTime
 ForeignKey = DB.ForeignKey
+
+#pylint: disable=R0903
+class EventFormat():
+    """ Competition event formats: Average of 5, Mean of 3, or Best of 3. """
+    Ao5 = "Ao5"
+    Mo3 = "Mo3"
+    Bo3 = "Bo3"
 
 # -------------------------------------------------------------------------------------------------
 
@@ -35,6 +43,17 @@ def load_user(user_id):
 
 # -------------------------------------------------------------------------------------------------
 
+class Event(Model):
+    """ A record for a specific cubing event -- the name of the puzzle, the total number of solves
+    to be completed by a competitor, and an optional description of the event. """
+    __tablename__  = 'events'
+    id             = Column(Integer, primary_key=True)
+    name           = Column(String(64), index=True, unique=True)
+    totalSolves    = Column(Integer)
+    eventFormat    = Column(Enum("Ao5", "Mo3", "Bo3", name="eventFormat"), default="Ao5")
+    description    = Column(String(128))
+
+
 class CompetitionEvent(Model):
     """ Associative model for an event held at a competition - FKs to the competition and event,
     and a JSON array of scrambles. """
@@ -45,27 +64,18 @@ class CompetitionEvent(Model):
     scrambles      = Column(Text())
 
 
-class Event(Model):
-    """ A record for a specific cubing event -- the name of the puzzle, the total number of solves
-    to be completed by a competitor, and an optional description of the event. """
-    __tablename__  = 'events'
-    id             = Column(Integer, primary_key=True)
-    name           = Column(String(64), index=True, unique=True)
-    totalSolves    = Column(Integer)
-    description    = Column(String(128))
-
-
 class Competition(Model):
     """ A record for a competition -- the title of the competition, the start and end datetime,
     the list of events held, and a JSON field containing total user points results."""
     __tablename__    = 'competitions'
     id               = Column(Integer, primary_key=True)
     title            = Column(String(128), index=True, unique=True)
+    reddit_thread_id = Column(String(10), index=True, unique=True)
     start_timestamp  = Column(DateTime(timezone=True))
     end_timestamp    = Column(DateTime(timezone=True))
     active           = Column(Boolean)
     userPointResults = Column(Text())
-    events           = relationship('CompetitionEvent', backref='event',
+    events           = relationship('CompetitionEvent', backref='Competition',
                                     primaryjoin=id == CompetitionEvent.competition_id)
 
 
