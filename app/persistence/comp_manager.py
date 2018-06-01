@@ -17,6 +17,11 @@ def get_active_competition():
     """ Get the current active competition. """
     return Competition.query.filter(Competition.active).first()
 
+def get_competition(competition_id):
+    """ Get a competition by id """
+    comp =  Competition.query.get(competition_id)
+    #comp["events"] = CompetitionEvent.query.filter_by(competition_id = competition_id).all()
+    return comp
 
 def create_new_competition(title, reddit_id, event_data):
     """ Creates a new active competition, events for that competition, and ensures all the other

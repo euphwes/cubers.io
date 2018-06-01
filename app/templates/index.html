@@ -1,21 +1,12 @@
 {% extends "common/base.html" %}
 
-{% block title %}
-/r/cubers Weekly Competition!
-{% endblock %}
-
 {% block head %}
     {{ super() }}
-    {% assets "main_js" %}
-        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    {% endassets %}
-    {% assets "main_css" %}
-        <link rel="stylesheet" href="{{ ASSET_URL }}" />
-    {% endassets %}
 {% endblock %}
 
 {% block content %}
     <div class="container cubers-container">
+        <h1>/r/cubers Weekly Competition!</h1>
         <h3>some sort of intro/explanation/welcome here</h3>
     </div>
 {% endblock %}

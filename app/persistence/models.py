@@ -52,7 +52,7 @@ class Event(Model):
     totalSolves    = Column(Integer)
     eventFormat    = Column(Enum("Ao5", "Mo3", "Bo3", name="eventFormat"), default="Ao5")
     description    = Column(String(128))
-
+    CompEvents = relationship("CompetitionEvent", backref="Event")
 
 class CompetitionEvent(Model):
     """ Associative model for an event held at a competition - FKs to the competition and event,

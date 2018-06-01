@@ -104,4 +104,4 @@ venv.bak/
 .mypy_cache/
 
 # DXPowerDB
-cube_competitions.db
+cube_competitions.sqlite

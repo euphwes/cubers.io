@@ -7,16 +7,9 @@ from app import CUBERS_APP
 from app.persistence.user_manager import update_or_create_user, get_all_users
 
 from app.util.reddit_util import get_username_refresh_token_from_code, get_user_auth_url
-
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.route('/')
-def index():
-    """ Main page for the app. Shows the competition time entry page if logged in, or an informative
-    landing page if not. """
-    if current_user.is_authenticated:
-        return render_template('comp.html', users=get_all_users())
-    return render_template('index.html')
+
 
 
 @CUBERS_APP.route("/logout")
@@ -30,6 +23,7 @@ def logout():
 @CUBERS_APP.route('/login')
 def login():
     """ Log in a user. """
+
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     return redirect(get_user_auth_url())
@@ -42,7 +36,7 @@ def authorize():
 
     #TODO: handle error=access_denied meaning user decline OAuth
     # error = request.args.get('error')
-
+    
     auth_code = request.args.get('code')
 
     username, refresh_token = get_username_refresh_token_from_code(auth_code)
@@ -51,3 +45,4 @@ def authorize():
     login_user(user, True)
 
     return redirect(url_for('index'))
+

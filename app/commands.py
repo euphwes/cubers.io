@@ -5,7 +5,7 @@ import uuid
 from random import choice
 
 import click
-
+'''
 try:
     from pyTwistyScrambler import scrambler222, scrambler333, scrambler444, scrambler555,\
         scrambler666, scrambler777, megaminxScrambler, skewbScrambler, squareOneScrambler
@@ -20,23 +20,23 @@ try:
     scrambleSkewb = skewbScrambler.get_WCA_scramble
     scrambleSq1 = squareOneScrambler.get_WCA_scramble
     scrambleMega = megaminxScrambler.get_WCA_scramble
-
+'''
 # I don't care to import the specific execJS "no JS runtime" exception for this
 #pylint: disable=W0702
-except:
+#except:
     # our environment could possibly not have a Javascript runtime, like Heroku
     # with Python buildpack apparently... default to a dummy scrambler function
-    dummy_scrambler = lambda: ' '.join(choice('RFLUDB') for _ in range(10))
-    scramble333 = dummy_scrambler
-    scramble222 = dummy_scrambler
-    scramble444 = dummy_scrambler
-    scramble555 = dummy_scrambler
-    scramble666 = dummy_scrambler
-    scramble777 = dummy_scrambler
-    scramble3bld = dummy_scrambler
-    scrambleSkewb = dummy_scrambler
-    scrambleSq1 = dummy_scrambler
-    scrambleMega = dummy_scrambler
+dummy_scrambler = lambda: ' '.join(choice('RFLUDB') for _ in range(10))
+scramble333 = dummy_scrambler
+scramble222 = dummy_scrambler
+scramble444 = dummy_scrambler
+scramble555 = dummy_scrambler
+scramble666 = dummy_scrambler
+scramble777 = dummy_scrambler
+scramble3bld = dummy_scrambler
+scrambleSkewb = dummy_scrambler
+scrambleSq1 = dummy_scrambler
+scrambleMega = dummy_scrambler
 
 from . import CUBERS_APP
 from .persistence.comp_manager import get_event_by_name, create_new_competition

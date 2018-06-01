@@ -1,11 +1,22 @@
-{% extends "bootstrap/base.html" %}
 
-<head>
 {% block head %}
-    {{ super() }}
+    <head>
+        {% assets "main_js" %}
+            <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+        {% endassets %}
+        {% assets "main_css" %}
+            <link rel="stylesheet" href="{{ ASSET_URL }}" />
+        {% endassets %}
+        {% assets "bootstrap_css" %}
+            <link rel="stylesheet" href="{{ ASSET_URL }}" />
+        {% endassets %}
+    
+    </head>
 {% endblock %}
-</head>
 
-{% block navbar %}
-    {% include 'common/navbar_basic.html' %}
+<body>
+{% include 'common/navbar_basic.html' %}
+{% block content %}
 {% endblock %}
+
+</body>

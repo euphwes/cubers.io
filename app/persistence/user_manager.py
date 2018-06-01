@@ -2,7 +2,6 @@
 
 from app import DB
 from app.persistence.models import User
-
 # -------------------------------------------------------------------------------------------------
 
 def get_all_users():
@@ -13,6 +12,7 @@ def get_all_users():
 def update_or_create_user(username, refresh_token):
     """ Updates a user with the provided refresh token, or creates a new user. Returns the user. """
     user = get_user_by_username(username)
+
     if user:
         user.refresh_token = refresh_token
     else:

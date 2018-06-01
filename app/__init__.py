@@ -4,7 +4,6 @@ from os import environ
 
 from flask import Flask
 from flask_assets import Bundle, Environment
-from flask_bootstrap import Bootstrap
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
@@ -20,11 +19,13 @@ CUBERS_APP.secret_key = CUBERS_APP.config['FLASK_SECRET_KEY']
 DB = SQLAlchemy(CUBERS_APP)
 MIGRATE = Migrate(CUBERS_APP, DB)
 
-Bootstrap(CUBERS_APP)
+#Bootstrap(CUBERS_APP)
 
 ASSETS = Environment(CUBERS_APP)
 ASSETS.register({
     'main_js': Bundle(
+        'lib/jquery-3.3.1.min.js',
+        'lib/bootstrap.min.js',
         'js/cubers_common.js',
         filters="jsmin",
         output='gen/main.js'),
@@ -33,6 +34,11 @@ ASSETS.register({
         'less/cubers_common.less',
         filters="less,yui_css",
         output='gen/main.css'),
+
+    'bootstrap_css': Bundle(
+        'lib/bootstrap.min.css',
+        output='gen/lib.css'
+    )
 })
 
 #pylint: disable=W0401

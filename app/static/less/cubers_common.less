@@ -1,8 +1,21 @@
 
+// Variables
+@site-bg-color: #042a2b;
+@navbar-color: #001427;
+@highlight-color: #0992c4;
+
 .cubers-container {
-    background-color: #fefefe;
+    background-color: #cc4545;
 }
 
 .cubers-navbar {
     border-radius: 0;
+    background-color: @navbar-color;
+    border-width: 0px 0px 2px 0px;
+    border-style: solid;
+    border-color: @highlight-color;
+}
+
+.cubers-navbar .active a {
+    color: @highlight-color !important;
 }
