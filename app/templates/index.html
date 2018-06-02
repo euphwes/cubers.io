@@ -24,33 +24,34 @@
                     {% for competition_event in current_competition.events %}
                     <div class="tab-pane fade {% if loop.index0 == 0 %} show active {% endif %}" id="{{ competition_event.Event.name }}" role="tabpanel" aria-labelledby="{{ competition_event.Event.name }}-tab">
                         <h5 class="card-title">{{ competition_event.Event.name }}</h5>
-                        <div class="container">
-                            <div class="row justify-content-center">
-                                <div class="scrambles col-8">
-                                    {% for scramble in competition_event.scrambles %}
-                                        <div class="scramble" data-scramble-id="{{ scramble.id }}" data-scramble-num="{{ loop.index }}">
-                                            <div class="row">
-                                                <div class="col-2">{{ loop.index }}.</div>
-                                                <div class="col-8">{{ scramble.scramble }}</div>
-                                                <div class="scramble-time col-2"></div>
-                                            </div>
+                        <div class="row justify-content-center">
+                            <div class="scrambles col-12 col-md-10 col-lg-8">
+                                {% for scramble in competition_event.scrambles %}
+                                    <div class="scramble" data-scramble-id="{{ scramble.id }}" data-scramble-num="{{ loop.index }}">
+                                        <div class="row">
+                                            <div class="col-2">{{ loop.index }}.</div>
+                                            <div class="col-8">{{ scramble.scramble }}</div>
+                                            <div class="scramble-time col-2"></div>
                                         </div>
-                                    {% endfor %}
-                                </div>
+                                    </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
                 <div class="row justify-content-center">
-                    <div class="input-group col-7">
+                    <div class="input-group col-12 col-md-10 col-lg-7">
                         <div class="input-group-prepend">
-                            <button id="btn-plus-two" class="btn btn-outline-warning" type="button">+2</button>
-                            <button id="btn-dnf" class="btn btn-outline-danger" type="button">DNF</button>
+                            <button id="btn-plus-two" class="btn btn-plus-two" type="button">+2</button>
+                            <button id="btn-dnf" class="btn btn-outline-danger btn-dnf" type="button">DNF</button>
                         </div>
                         <input id="input-time" type="text" class="form-control" placeholder="Time for Scramble 1" area-label"Time for Scramble 1">
                         <div class="input-group-append">
                             <button id="btn-enter-time" class="btn btn-cubers-primary-outline" type="button">Enter</button>
+                        </div>
+                        <div class="invalid-feedback">
+                            Invalid time 
                         </div>
                     </div>
                 </div>

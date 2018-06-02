@@ -29,7 +29,7 @@ html,body {
 }
 
 .scrambles .scramble {
-    font-size: 13pt;
+    font-size: 15pt;
     width: 100%;
     display: block;
     cursor: pointer;
@@ -39,7 +39,7 @@ html,body {
 }
 
 .scramble.solved:not(.active) {
-    background-color: #28a745;
+    background-color: #3e7a4b;
     color: @site-bg-color;
 }
 
@@ -48,23 +48,23 @@ html,body {
 }
 
 .scramble.solved:not(.active):hover {
-    background-color: #2ecc52;
+    background-color: #4b9e5d;
 }
 
 .scramble.solved.dnf:not(active) {
-    background-color: #d73141;
+    background-color: #96313b;
 }
 
 .scramble.solved.dnf:not(active):hover {
-    background-color: #ff3a4d;
+    background-color: #b72d3b;
 }
 
 .scramble.solved.plus-two:not(active) {
-    background-color: #fcbe06;
+    background-color: #e28009;
 }
 
 .scramble.solved.plus-two:not(active):hover {
-    background-color: #ffce3d;
+    background-color: #ff8e05;
 }
 
 .scramble.active {
@@ -82,6 +82,28 @@ html,body {
 .btn-cubers-primary-outline:not(.disabled):hover {
     background-color: @highlight-color;
     color: @site-bg-color;
+}
+
+.btn-dnf.pressed {
+    background-color: #dc3545;
+    color: @site-bg-color;
+}
+
+.btn-plus-two {
+     background-color: transparent;
+     background-image: none;
+     border-color: #e28009;
+     color: #e28009;
+}
+
+.btn-plus-two:not(.disabled):hover {
+    background-color: #e28009;
+    color: @site-bg-color;
+}
+
+.btn-plus-two.pressed {
+    background-color: #e28009;
+    color: @site-bg-color;   
 }
 
 .btn:focus,.btn:active {
