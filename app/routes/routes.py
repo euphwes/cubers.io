@@ -12,7 +12,9 @@ def index():
     landing page if not. """
     #if current_user.is_authenticated:
         #return render_template('comp.html')
-    return render_template('index.html')
+    return render_template('index.html', current_competition = comp_manager.get_active_competition())
+
+
 
 @CUBERS_APP.route('/comp/<competition_id>')
 def competition(competition_id):

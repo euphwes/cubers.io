@@ -1,8 +1,12 @@
 
 // Variables
-@site-bg-color: #042a2b;
+@site-bg-color: #F9F9F9;
 @navbar-color: #001427;
 @highlight-color: #0992c4;
+
+html,body {
+    background-color: @site-bg-color !important;
+}
 
 .cubers-container {
     background-color: #cc4545;
@@ -19,3 +23,68 @@
 .cubers-navbar .active a {
     color: @highlight-color !important;
 }
+
+.cubers-navbar a {
+    color: @site-bg-color !important;
+}
+
+.scrambles .scramble {
+    font-size: 13pt;
+    width: 100%;
+    display: block;
+    cursor: pointer;
+    margin-bottom: 5px;
+    border-radius: 3px;
+    position: relative;
+}
+
+.scramble.solved:not(.active) {
+    background-color: #28a745;
+    color: @site-bg-color;
+}
+
+.scramble:not(.active):hover {
+    background-color: lightgray;
+}
+
+.scramble.solved:not(.active):hover {
+    background-color: #2ecc52;
+}
+
+.scramble.solved.dnf:not(active) {
+    background-color: #d73141;
+}
+
+.scramble.solved.dnf:not(active):hover {
+    background-color: #ff3a4d;
+}
+
+.scramble.solved.plus-two:not(active) {
+    background-color: #fcbe06;
+}
+
+.scramble.solved.plus-two:not(active):hover {
+    background-color: #ffce3d;
+}
+
+.scramble.active {
+    background-color: @highlight-color !important;
+    color: @site-bg-color !important;
+}
+
+.btn-cubers-primary-outline {
+    background-color: transparent;
+    background-image: none;
+    border-color: @highlight-color;
+    color: @highlight-color;
+}
+
+.btn-cubers-primary-outline:not(.disabled):hover {
+    background-color: @highlight-color;
+    color: @site-bg-color;
+}
+
+.btn:focus,.btn:active {
+    outline: none !important;
+    box-shadow: none;
+ }

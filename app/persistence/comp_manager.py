@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 from app import DB
-from app.persistence.models import Competition, CompetitionEvent, Event
+from app.persistence.models import Competition, CompetitionEvent, Event, Scramble
 
 # -------------------------------------------------------------------------------------------------
 
@@ -41,8 +41,13 @@ def create_new_competition(title, reddit_id, event_data):
 
     for data in event_data:
         event = get_event_by_name(data['name'])
-        scrambles = json.dumps(data['scrambles'])
-        comp_event = CompetitionEvent(scrambles=scrambles, event_id=event.id)
+        comp_event = CompetitionEvent(event_id=event.id)
+
+        for scramble_text in data['scrambles']:
+            scramble = Scramble(scramble = scramble_text)
+            comp_event.scrambles.append(scramble)
+
+            
         new_comp.events.append(comp_event)
 
     DB.session.add(new_comp)
