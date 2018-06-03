@@ -16,7 +16,7 @@ return null;}
 function addEvent(eventId){events[eventId]={scrambles:[],comment:""};}
 function addScramble(eventId,scrambleId){events[eventId].scrambles.push({id:scrambleId,time:0,plusTwo:false,isDNF:false,num:events[eventId].scrambles.length+1,$element:$(".scrambles .scramble[data-scramble-id="+scrambleId+"]")});}
 function onTabSwitch(eventId){selectedEvent=events[eventId]
-selectScramble(getNextScramble(selectedEvent));$("#input-time").val("");}
+selectScramble(getNextScramble(selectedEvent));$("#input-time").val("");console.log(JSON.stringify(events));}
 function setTimeInputValid(flag){if(flag){$("#input-time").removeClass("is-invalid");}else{$("#input-time").addClass("is-invalid");}}
 function convertMinutestoSeconds(timeString){var parts=timeString.split(":");if(parts.length<=1||parseFloat(parts[1])>=60){return Number.NaN;}
 console.log(parseInt(parts[0])*60+parseFloat(parts[1]));return parseInt(parts[0])*60+parseFloat(parts[1])}
