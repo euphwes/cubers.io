@@ -1,4 +1,4 @@
-var timeOverviewTemplate = '<li class="list-group-item" data-event-id="{0}">\
+var timeOverviewTemplate = '<li class="list-group-item list-group-item-action" data-event-id="{0}" style="cursor: pointer;">\
                                 <div class="row">\
                                     <div class="col-lg-2 col-md-12">\
                                         <h5 class="mb-1" style="overflow-wrap: normal">{1}</h5>\
@@ -187,6 +187,8 @@ function enterTime(scramble, time) {
 }
 
 function buildOverview() {
+    $("#overview").empty();
+
     keys = Object.keys(events);
 
     var unfinishedCount = 0;
@@ -226,12 +228,12 @@ function buildOverview() {
         }
 
         for (var j = 0; j < completedTimes.length; j++) {
-            console.log(completedTimes[j]);
             if (parseFloat(completedTimes[j]) == -1) {
                 completedTimes[j] = "DNF";
             }
         }
 
+        // Works out whether the average needs to be DNF or needs to have any times subtracted if there are >= 5 solves
         if (numDNF > 1) {
             average = "DNF";
         } else if (completedTimes.length < 5 && numDNF > 0) {
@@ -257,24 +259,38 @@ function buildOverview() {
         }
 
         if (completedTimes.length > 0) {
-            var $item = $("#overview").append(timeOverviewTemplate.format(event.id, event.name, average, completedTimes.join(", ")));
+            var $item = $(timeOverviewTemplate.format(event.id, event.name, average, completedTimes.join(", "))).appendTo($("#overview"));
             
             if (completedTimes.length != event.scrambles.length) {
                 $item.addClass("unfinished");
                 unfinishedCount++;
             }
+
+            $item.click(function() {
+
+                var eventId = $(this).data("eventId")
+
+                //$("#event-tabs .event-tab.active").removeClass(".active");
+                $("#event-tabs .event-tab[data-competition-event-id=" + eventId + "]").click();
+
+                //onTabSwitch(eventId);
+
+                $("#card-submit").fadeOut(function() {
+                    $("#card-time-entry").fadeIn();
+                });
+            });
         }
-        
-        $("#card-time-entry").fadeOut(function() {
-            $("#card-submit").fadeIn();
-        });
     }
 
     if (unfinishedCount > 0) {
         $("#unfinished-events-warning").show();
     } else {
-        $("#unfinihsed-events-warning").hide();
+        $("#unfinished-events-warning").hide();
     }
+
+    $("#card-time-entry").fadeOut(function() {
+        $("#card-submit").fadeIn();
+    });
 }
 
 $(document).ready(function() {
@@ -354,4 +370,10 @@ $(document).ready(function() {
     });
 
     $("#btn-continue").click(buildOverview);
+
+    $("#btn-cancel-submit").click(function() {
+        $("#card-submit").fadeOut(function() {
+            $("#card-time-entry").fadeIn();
+        });
+    })
 });

@@ -11,7 +11,7 @@
 
         <div id="card-time-entry" class="card text-center">
             <div class="card-header">
-                <ul class="nav nav-tabs card-header-tabs">
+                <ul id="event-tabs" class="nav nav-tabs card-header-tabs">
                     {% for competition_event in current_competition.events %}
                         <li class="nav-item">
                             <a class="event-tab nav-link {% if loop.index0 == 0 %} active {% endif %}" href="#{{ competition_event.Event.name }}" data-competition-event-id="{{ competition_event.id }}" data-toggle="tab" aria-controls="{{ competition_event.Event.name }}" aria-selected="true">{{ competition_event.Event.name }}</a>
@@ -68,10 +68,14 @@
         <div id="card-submit" class="card text-center" style="display: none">
             <div class="card-body">
                 <h4 class="card-title">Overview</h4>
-                <div class="row justify-content-center">
-                    <ul id="overview" class="list-group col-12 col-md-10 col-lg-8" style="padding: 0px"></ul>
+                <div class="d-flex align-items-center" style="min-height: 220px;">
+                    <div style="width: 100%;">
+                        <div class="row justify-content-center">
+                            <ul id="overview" class="list-group col-12 col-md-10 col-lg-8" style="padding: 0px"></ul>
+                        </div>
+                        <h6 style="margin-top: 5px">Spot an error? Click on an event to correct it!</h6>
+                    </div>
                 </div>
-                <h6 style="margin-top: 5px">Spot an error? Click on an event to correct it!</h6>
                 <hr>
                 <h5>Click Submit to submit your results to be scored.</h5>
                 <p class="mb-1">Don't worry, it's not permanent. You can come back and edit your results or compete in a new event.</p>
