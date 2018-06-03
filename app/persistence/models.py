@@ -91,6 +91,27 @@ class Competition(Model):
                                     primaryjoin=id == CompetitionEvent.competition_id)
 
 
+class UserSolve(Model):
+    """ A user's solve for a specific scramble, in a specific event, at a competition.
+    Solve times are in centiseconds (ex: 1234 = 12.34s)."""
+
+    __tablename__ = 'user_solves'
+    id            = Column(Integer, primary_key=True)
+    time          = Column(Integer)
+    is_dnf        = Column(Boolean, default=False)
+    is_plus_two   = Column(Boolean, default=False)
+    scramble_id   = Column(Integer, ForeignKey('scrambles.id'))
+    user_event_results_id = Column(Integer, ForeignKey('user_event_results.id'))
+
+    def get_friendly_time(self):
+        """ Gets a user-friendly display time for this solve. """
+
+        if self.is_dnf:
+            return 'DNF'
+        
+        return convert_centiseconds_to_friendly_time(int(self.time))
+
+
 class UserEventResults(Model):
     """ A model detailing a user's results for a single event at competition. References the user,
     the competitionEvent, the single and average result for the event. These values are either in
@@ -103,24 +124,3 @@ class UserEventResults(Model):
     single        = Column(String(10))
     average       = Column(String(10))
     solves        = relationship('UserSolve')
-
-
-class UserSolve(Model):
-    """ A user's solve for a specific scramble, in a specific event, at a competition.
-    Solve times are in centiseconds (ex: 1234 = 12.34s)."""
-
-    __tablename__ = 'user_solves'
-    id            = Column(Integer, primary_key=True)
-    time          = Column(Integer)
-    is_dnf        = Column(Boolean, default=False)
-    is_plus_two   = Column(Boolean, default=False)
-    scramble_id   = Column(Integer, ForeignKey('scrambles.id'))
-    user_event_results_id = Column(Integer, ForeignKey('users.id'))
-
-    def get_friendly_time(self):
-        """ Gets a user-friendly display time for this solve. """
-
-        if self.is_dnf:
-            return 'DNF'
-        
-        return convert_centiseconds_to_friendly_time(int(self.time))
