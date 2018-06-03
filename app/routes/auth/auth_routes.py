@@ -1,16 +1,14 @@
 """ Routes related to authentication. """
 
-from flask import render_template, request, redirect, url_for
+from flask import request, redirect, url_for
 from flask_login import current_user, login_user, logout_user
 
 from app import CUBERS_APP
-from app.persistence.user_manager import update_or_create_user, get_all_users
+from app.persistence.user_manager import update_or_create_user
 
 from app.util.reddit_util import get_username_refresh_token_from_code, get_user_auth_url
+
 # -------------------------------------------------------------------------------------------------
-
-
-
 
 @CUBERS_APP.route("/logout")
 def logout():

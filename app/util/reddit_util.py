@@ -1,6 +1,5 @@
 """ Utility functions for dealing with PRAW Reddit instances. """
 import re
-import datetime
 from praw import Reddit
 from app import CUBERS_APP
 from . import events_util
@@ -12,6 +11,7 @@ CLIENT_ID     = CUBERS_APP.config['REDDIT_CLIENT_ID']
 CLIENT_SECRET = CUBERS_APP.config['REDDIT_CLIENT_SECRET']
 
 BLACKLIST = ["CaptainCockmunch", "LorettAttran", "purplepinapples", "CuberSaiklick", "xXxSteelVenomxXx"]
+
 # -------------------------------------------------------------------------------------------------
     
 #pylint: disable=C0111
@@ -20,7 +20,7 @@ def get_new_reddit():
     return Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=REDIRECT,
                   user_agent = USER_AGENT)
 
-    
+
 #pylint: disable=C0111
 def get_username_refresh_token_from_code(code):
     """ Returns the username and current refresh token for a given Reddit auth code. """
@@ -30,12 +30,13 @@ def get_username_refresh_token_from_code(code):
 
     return username, refresh_token
 
-    
+
 #pylint: disable=C0111
 def get_user_auth_url(state='...'):
     """ Returns a url for authenticating with Reddit. """
     return get_new_reddit().auth.url(['identity', 'read', 'submit'], state, 'permanent')
-  
+
+
 #pylint: disable=C0111
 def parse_comment(comment):
     matcher = re.compile('^([^>].+?)\\:\\s*([^\\sA-Za-z!@#\$\%^&*()_+\-=,;\\\[\]\?<>`~\|]+).*')

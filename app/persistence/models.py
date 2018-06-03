@@ -54,11 +54,14 @@ class Event(Model):
     description    = Column(String(128))
     CompEvents = relationship("CompetitionEvent", backref="Event")
 
+
 class Scramble(Model):
-    __tablename__ = 'scrambles'
-    id = Column(Integer, primary_key = True)
+    """ A scramble for a specific event at a specific competition. """
+    __tablename__        = 'scrambles'
+    id                   = Column(Integer, primary_key = True)
+    scramble             = Column(Text())
     competition_event_id = Column(Integer, ForeignKey('competition_event.id'))
-    scramble = Column(Text())
+
 
 class CompetitionEvent(Model):
     """ Associative model for an event held at a competition - FKs to the competition and event,
@@ -67,7 +70,8 @@ class CompetitionEvent(Model):
     id             = Column(Integer, primary_key=True)
     competition_id = Column(Integer, ForeignKey('competitions.id'))
     event_id       = Column(Integer, ForeignKey('events.id'))
-    scrambles      = relationship('Scramble', backref='CompetitionEvent', primaryjoin = id == Scramble.competition_event_id)
+    scrambles      = relationship('Scramble', backref='CompetitionEvent', 
+                                  primaryjoin = id == Scramble.competition_event_id)
 
 
 class Competition(Model):
@@ -83,6 +87,7 @@ class Competition(Model):
     userPointResults = Column(Text())
     events           = relationship('CompetitionEvent', backref='Competition',
                                     primaryjoin=id == CompetitionEvent.competition_id)
+
 
 class UserEventResults(Model):
     """ A model detail a user's results for a single event at competition. References the user,
