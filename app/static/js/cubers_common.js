@@ -48,10 +48,10 @@ function getScramble(scrambleId) {
     keys = Object.keys(events);
 
     for (var i = 0; i < keys.length; i++) {
-        event = events[keys[i]];
-
-        for (var j = 0; j < event.length; j++) {
-            scramble = event[j];
+        var event = events[keys[i]];
+        
+        for (var j = 0; j < event.scrambles.length; j++) {
+            scramble = event.scrambles[j];
 
             if (scramble.id == scrambleId) {
                 return scramble;
@@ -63,8 +63,8 @@ function getScramble(scrambleId) {
 }
 
 function getNextScramble(event) {
-    for (var i = 0; i < event.length; i++) {
-        var scramble = event[i];
+    for (var i = 0; i < event.scrambles.length; i++) {
+        var scramble = event.scrambles[i];
 
         if (scramble.time == 0) {
             return scramble;
@@ -75,11 +75,11 @@ function getNextScramble(event) {
 }
 
 function addEvent(eventId) {
-    events[eventId] = [];
+    events[eventId] = { scrambles: [], comment: "" };
 }
 
 function addScramble(eventId, scrambleId) {
-    events[eventId].push({ id: scrambleId, time: 0, plusTwo: false, isDNF: false, num: events[eventId].length + 1, $element: $(".scrambles .scramble[data-scramble-id=" + scrambleId + "]")});
+    events[eventId].scrambles.push({ id: scrambleId, time: 0, plusTwo: false, isDNF: false, num: events[eventId].scrambles.length + 1, $element: $(".scrambles .scramble[data-scramble-id=" + scrambleId + "]")});
 }
 
 function onTabSwitch(eventId) {
@@ -189,8 +189,6 @@ $(document).ready(function() {
 
     $("#input-time").on('keypress', function (e) {
         // First () is whether it is keys 0-9. 8 and 46 are backspace and delete.
-        
-        console.log(e.which + " " + e.shiftKey + " '" + String.fromCharCode(e.which) + "'");
         if (!((e.which >= 48 && e.which <= 57) || (String.fromCharCode(e.which) == ".") || (String.fromCharCode(e.which) == ":") || (e.which == 8) | (e.which == 46))) {
             e.preventDefault();
         } else if (e.which == 13) { // Enter key

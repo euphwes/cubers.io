@@ -9,12 +9,12 @@ if(scramble!=null){selectedScramble=scramble
 scramble.$element.addClass("active");$("#btn-dnf").removeClass("disabled").removeClass("pressed");$("#btn-plus-two").removeClass("disabled").removeClass("pressed");$("#btn-enter-time").removeClass("disabled")
 $("#input-time").attr("placeholder","Time for Scramble "+scramble.num).attr("aria-label","Time for Scramble "+scramble.num).prop("disabled",false);setTimeout(function(){$("#input-time").focus();},50);}else{selectedScramble=null;$("#input-time").attr("placeholder","Please select a scramble").prop("disabled",true);$("#btn-enter-time").addClass("disabled");$("#btn-dnf").addClass("disabled").removeClass("pressed");$("#btn-plus-two").addClass("disabled").removeClass("pressed");}
 isPlusTwo=false;isDNF=false;}
-function getScramble(scrambleId){keys=Object.keys(events);for(var i=0;i<keys.length;i++){event=events[keys[i]];for(var j=0;j<event.length;j++){scramble=event[j];if(scramble.id==scrambleId){return scramble;}}}
+function getScramble(scrambleId){keys=Object.keys(events);for(var i=0;i<keys.length;i++){var event=events[keys[i]];for(var j=0;j<event.scrambles.length;j++){scramble=event.scrambles[j];if(scramble.id==scrambleId){return scramble;}}}
 return null;}
-function getNextScramble(event){for(var i=0;i<event.length;i++){var scramble=event[i];if(scramble.time==0){return scramble;}}
+function getNextScramble(event){for(var i=0;i<event.scrambles.length;i++){var scramble=event.scrambles[i];if(scramble.time==0){return scramble;}}
 return null;}
-function addEvent(eventId){events[eventId]=[];}
-function addScramble(eventId,scrambleId){events[eventId].push({id:scrambleId,time:0,plusTwo:false,isDNF:false,num:events[eventId].length+1,$element:$(".scrambles .scramble[data-scramble-id="+scrambleId+"]")});}
+function addEvent(eventId){events[eventId]={scrambles:[],comment:""};}
+function addScramble(eventId,scrambleId){events[eventId].scrambles.push({id:scrambleId,time:0,plusTwo:false,isDNF:false,num:events[eventId].scrambles.length+1,$element:$(".scrambles .scramble[data-scramble-id="+scrambleId+"]")});}
 function onTabSwitch(eventId){selectedEvent=events[eventId]
 selectScramble(getNextScramble(selectedEvent));$("#input-time").val("");}
 function setTimeInputValid(flag){if(flag){$("#input-time").removeClass("is-invalid");}else{$("#input-time").addClass("is-invalid");}}
@@ -31,6 +31,6 @@ scramble.$element.removeClass("dnf");scramble.$element.find(".scramble-time").ht
 if(isPlusTwo){scramble.$element.addClass("plus-two");}else{scramble.$element.removeClass("plus-two");}
 scramble.time=time;scramble.$element.addClass("solved");selectScramble(getNextScramble(selectedEvent));$("#input-time").val("");}
 $(document).ready(function(){$(".scramble").click(function(){selectScramble(getScramble($(this).data("scrambleId")));});$(".event-tab").click(function(){onTabSwitch($(this).data("competitionEventId"));})
-$("#btn-enter-time").click(function(){enterTime(selectedScramble,$("#input-time").val());});$("#input-time").on('keypress',function(e){console.log(e.which+" "+e.shiftKey+" '"+String.fromCharCode(e.which)+"'");if(!((e.which>=48&&e.which<=57)||(String.fromCharCode(e.which)==".")||(String.fromCharCode(e.which)==":")||(e.which==8)|(e.which==46))){e.preventDefault();}else if(e.which==13){enterTime(selectedScramble,$("#input-time").val());}else{setTimeout(function(){if(timeInputRegex.test($("#input-time").val())){setTimeInputValid(true);}else{setTimeInputValid(false);}},50);}});$("#btn-dnf").click(function(){if($(this).hasClass("disabled")){return;}
+$("#btn-enter-time").click(function(){enterTime(selectedScramble,$("#input-time").val());});$("#input-time").on('keypress',function(e){if(!((e.which>=48&&e.which<=57)||(String.fromCharCode(e.which)==".")||(String.fromCharCode(e.which)==":")||(e.which==8)|(e.which==46))){e.preventDefault();}else if(e.which==13){enterTime(selectedScramble,$("#input-time").val());}else{setTimeout(function(){if(timeInputRegex.test($("#input-time").val())){setTimeInputValid(true);}else{setTimeInputValid(false);}},50);}});$("#btn-dnf").click(function(){if($(this).hasClass("disabled")){return;}
 isDNF=!isDNF;if(isDNF){$("#input-time").prop("disabled",true).val("DNF");$(this).addClass("pressed");$("#btn-plus-two").addClass("disabled").removeClass("pressed");isPlusTwo=false;}else{$("#input-time").prop("disabled",false).val("");$(this).removeClass("pressed");$("#btn-plus-two").removeClass("disabled");}});$("#btn-plus-two").click(function(){if($(this).hasClass("disabled")){return;}
 isPlusTwo=!isPlusTwo;if(isPlusTwo){$(this).addClass("pressed");}else{$(this).removeClass("pressed");}});});

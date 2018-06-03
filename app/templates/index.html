@@ -19,7 +19,7 @@
                     {% endfor %}
                 </ul>
             </div>
-            <div class="card-body">
+            <div class="card-body" style="padding: 3px">
                 <div class="tab-content" style="margin-bottom: 20px">
                     {% for competition_event in current_competition.events %}
                     <div class="tab-pane fade {% if loop.index0 == 0 %} show active {% endif %}" id="{{ competition_event.Event.name }}" role="tabpanel" aria-labelledby="{{ competition_event.Event.name }}-tab">
@@ -29,9 +29,9 @@
                                 {% for scramble in competition_event.scrambles %}
                                     <div class="scramble" data-scramble-id="{{ scramble.id }}" data-scramble-num="{{ loop.index }}">
                                         <div class="row">
-                                            <div class="col-2">{{ loop.index }}.</div>
-                                            <div class="col-8">{{ scramble.scramble }}</div>
-                                            <div class="scramble-time col-2"></div>
+                                            <div class="col-1 col-md-2" style="text-align: left"><span style="overflow-wrap: normal; padding-left: 5px;">{{ loop.index }}.</span></div>
+                                            <div class="col-7 col-md-7"><span>{{ scramble.scramble }}</span></div>
+                                            <div class="col-3 col-md-3" style="text-align: right"><span class="scramble-time" style="overflow-wrap: normal; padding-right: 5px"></span></div>
                                         </div>
                                     </div>
                                 {% endfor %}
@@ -53,6 +53,14 @@
                         <div class="invalid-feedback">
                             Invalid time 
                         </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row justify-content-center">
+                    <div class="input-group col-12 col-md-10 col-lg-7">
+                        <center>
+                            <h5>Press the button below to proceed to submission.</h5>
+                        </center>
                     </div>
                 </div>
             </div>
