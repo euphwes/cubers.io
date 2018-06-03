@@ -23,6 +23,11 @@ def get_competition(competition_id):
     return comp
 
 
+def get_comp_event_by_id(comp_event_id):
+    """ Returns a competition_event by id. """
+    return CompetitionEvent.query.filter(CompetitionEvent.id == comp_event_id).first()
+
+
 def create_new_competition(title, reddit_id, event_data):
     """ Creates a new active competition, events for that competition, and ensures all the other
     competitions are now inactive. Returns the newly created competition. """
