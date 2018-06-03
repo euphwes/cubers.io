@@ -138,5 +138,3 @@ def score_entries(entries):
         events[event].extend(dnfs) # Appends the dnfs to the end (Last place)
 
     return events
-
- 

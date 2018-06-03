@@ -9,8 +9,18 @@
                 <a class="nav-link" href="#">Other</a>
             </li>
             {% if current_user.is_authenticated %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="#">{{ current_user.username }}</a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="#">Profile</a>
+                        <a class="dropdown-item" href="#">Settings</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
+                    </div>
+                </li>
+            {% else %}
                 <li class="nav-item">
-                    <a class="nav-link" href="#">{{ current_user.username }}</a>
+                    <a class="nav-link" href="{{ url_for('login') }}">Login with Reddit</a>
                 </li>
             {% endif %}
         </ul>
