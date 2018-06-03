@@ -62,6 +62,7 @@ class Scramble(Model):
     id                   = Column(Integer, primary_key = True)
     scramble             = Column(Text())
     competition_event_id = Column(Integer, ForeignKey('competition_event.id'))
+    solves               = relationship('UserSolve', backref='Scramble')
 
 
 class CompetitionEvent(Model):
@@ -113,6 +114,7 @@ class UserSolve(Model):
     time          = Column(Integer)
     is_dnf        = Column(Boolean, default=False)
     is_plus_two   = Column(Boolean, default=False)
+    scramble_id   = Column(Integer, ForeignKey('scrambles.id'))
     user_event_results_id = Column(Integer, ForeignKey('users.id'))
 
     def get_friendly_time(self):

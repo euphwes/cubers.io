@@ -12,18 +12,19 @@ def build_user_event_results(comp_event_id, solves):
     and associated solve times. """
 
     comp_event = get_comp_event_by_id(comp_event_id)
-    results = UserEventResults(comp_event_id = comp_event_id)
+    results = UserEventResults(comp_event_id=comp_event_id)
 
     for solve in solves:
         time = solve['time']
         if not time:
+            # time is literally zero, meaning user didn't submit a time for this solve
             continue
 
         dnf = solve['isDNF']
         time = 0 if dnf else int(solve['time'] * 100)
         plus_two = solve['plusTwo']
 
-        user_solve = UserSolve(time = time, is_dnf = dnf, is_plus_two = plus_two)
+        user_solve = UserSolve(time=time, is_dnf=dnf, is_plus_two=plus_two)
         results.solves.append(user_solve)
 
     single, average = determine_bests(results.solves, comp_event.event.eventFormat)
@@ -34,14 +35,8 @@ def build_user_event_results(comp_event_id, solves):
 def determine_bests(solves, event_format):
     """ docstring here """
 
-    dnf_count = sum([1 for solve in solves if solve.is_dnf])
-
     if event_format == EventFormat.Ao5:
-        average = ''
-        single  = ''
-
-        if dnf_count > 1:
-            average = 'DNF'
+        return determine_bests_Ao5(solves)
 
 
 def determine_bests_Ao5(solves):
