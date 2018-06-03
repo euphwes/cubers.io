@@ -10,8 +10,8 @@
         <h3>some sort of intro/explanation/welcome here</h3>
 
         <div id="card-time-entry" class="card text-center">
-            <div class="card-header">
-                <ul id="event-tabs" class="nav nav-tabs card-header-tabs">
+            <div class="card-header pb-0">
+                <ul id="event-tabs" class="nav nav-tabs nav-scroll">
                     {% for competition_event in current_competition.events %}
                         <li class="nav-item">
                             <a class="event-tab nav-link {% if loop.index0 == 0 %} active {% endif %}" href="#{{ competition_event.Event.name }}" data-competition-event-id="{{ competition_event.id }}" data-toggle="tab" aria-controls="{{ competition_event.Event.name }}" aria-selected="true">{{ competition_event.Event.name }}</a>
