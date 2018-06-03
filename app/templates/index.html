@@ -9,7 +9,7 @@
         <h1>/r/cubers Weekly Competition!</h1>
         <h3>some sort of intro/explanation/welcome here</h3>
 
-        <div class="card text-center">
+        <div id="card-time-entry" class="card text-center">
             <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs">
                     {% for competition_event in current_competition.events %}
@@ -19,7 +19,7 @@
                     {% endfor %}
                 </ul>
             </div>
-            <div class="card-body" style="padding: 3px">
+            <div class="card-body" style="padding-left: 3px; padding-right: 3px">
                 <div class="tab-content" style="margin-bottom: 20px">
                     {% for competition_event in current_competition.events %}
                     <div class="tab-pane fade {% if loop.index0 == 0 %} show active {% endif %}" id="{{ competition_event.Event.name }}" role="tabpanel" aria-labelledby="{{ competition_event.Event.name }}-tab">
@@ -30,8 +30,8 @@
                                     <div class="scramble" data-scramble-id="{{ scramble.id }}" data-scramble-num="{{ loop.index }}">
                                         <div class="row">
                                             <div class="col-1 col-md-2" style="text-align: left"><span style="overflow-wrap: normal; padding-left: 5px;">{{ loop.index }}.</span></div>
-                                            <div class="col-7 col-md-7"><span>{{ scramble.scramble }}</span></div>
-                                            <div class="col-3 col-md-3" style="text-align: right"><span class="scramble-time" style="overflow-wrap: normal; padding-right: 5px"></span></div>
+                                            <div class="col-7 col-md-8"><span>{{ scramble.scramble }}</span></div>
+                                            <div class="col-3 col-md-2" style="text-align: right"><span class="scramble-time" style="overflow-wrap: normal; padding-right: 5px"></span></div>
                                         </div>
                                     </div>
                                 {% endfor %}
@@ -57,11 +57,32 @@
                 </div>
                 <hr>
                 <div class="row justify-content-center">
-                    <div class="input-group col-12 col-md-10 col-lg-7">
-                        <center>
-                            <h5>Press the button below to proceed to submission.</h5>
-                        </center>
+                    <div class="input-group col-12 col-md-10 col-lg-8">
+                        <h5 style="width: 100%; text-align: center">Press the button below to proceed to submission or save your results for later.</h5>
+                        <button id="btn-continue" class="btn btn-lg btn-success" style="margin-left: auto; margin-right: auto; margin-top: 10px">Continue</button>
                     </div>
+                </div>
+            
+            </div>
+        </div>
+        <div id="card-submit" class="card text-center" style="display: none">
+            <div class="card-body">
+                <h4 class="card-title">Overview</h4>
+                <div class="row justify-content-center">
+                    <ul id="overview" class="list-group col-12 col-md-10 col-lg-8" style="padding: 0px"></ul>
+                </div>
+                <h6 style="margin-top: 5px">Spot an error? Click on an event to correct it!</h6>
+                <hr>
+                <h5>Click Submit to submit your results to be scored.</h5>
+                <p class="mb-1">Don't worry, it's not permanent. You can come back and edit your results or compete in a new event.</p>
+                <p id="unfinished-events-warning" class="mb-1 text-danger">You have unfinished events! They will be saved, but they will not be scored!</p>
+                <div class="row justify-content-center" style="margin-top: 25px;">
+                    <div class="col-sm-5 col-md-4 col-lg-3" style="margin-bottom: 5px;">
+                        <button id="btn-cancel-submit" class="btn btn-lg btn-outline-secondary" style="width: 100%">Cancel</button>
+                    </div>
+                    <div class="col-sm-5 col-md-4 col-lg-3">
+                        <button id="btn-submit" class="btn btn-lg btn-success" style="width: 100%">Submit</button>
+                    </div>  
                 </div>
             </div>
         </div>
@@ -69,10 +90,10 @@
 
     <script>
         {% for competition_event in current_competition.events %}
-            addEvent({{ competition_event.id }})
+            addEvent({{ competition_event.id }}, "{{ competition_event.Event.name }}");
 
             {% for scramble in competition_event.scrambles %}
-                addScramble({{ competition_event.id }}, {{ scramble.id }})
+                addScramble({{ competition_event.id }}, {{ scramble.id }});
             {% endfor %}
         {% endfor %}
 

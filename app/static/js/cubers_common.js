@@ -1,3 +1,14 @@
+var timeOverviewTemplate = '<li class="list-group-item" data-event-id="{0}">\
+                                <div class="row">\
+                                    <div class="col-lg-2 col-md-12">\
+                                        <h5 class="mb-1" style="overflow-wrap: normal">{1}</h5>\
+                                        <span class="unfinished-warning text-danger" style="text-align: right">Unfinished</span>\
+                                    </div>\
+                                    <div class="col-lg-3 col-md-12"><strong style="text-align: center">Average: {2}</strong></div>\
+                                    <div class="col-lg-7 col-md-12"><p class="mb-1" style="text-align: center">{3}</p></div>\
+                                </div>\
+                            </li>'
+
 var selectedScramble = null;
 var selectedEvent = null;
 var isDNF = false;
@@ -49,7 +60,7 @@ function getScramble(scrambleId) {
 
     for (var i = 0; i < keys.length; i++) {
         var event = events[keys[i]];
-        
+
         for (var j = 0; j < event.scrambles.length; j++) {
             scramble = event.scrambles[j];
 
@@ -74,8 +85,8 @@ function getNextScramble(event) {
     return null;
 }
 
-function addEvent(eventId) {
-    events[eventId] = { scrambles: [], comment: "" };
+function addEvent(eventId, eventName) {
+    events[eventId] = { id: eventId, name: eventName, scrambles: [], comment: "" };
 }
 
 function addScramble(eventId, scrambleId) {
@@ -156,9 +167,11 @@ function enterTime(scramble, time) {
 
         scramble.$element.removeClass("dnf");
         scramble.$element.find(".scramble-time").html(convertSecondsToMinutes(time));
+        scramble.time = time;
     } else {
         scramble.$element.addClass("dnf");
         scramble.$element.find(".scramble-time").html("DNF");
+        scramble.time = -1;
     }
 
     if (isPlusTwo) {
@@ -167,14 +180,117 @@ function enterTime(scramble, time) {
         scramble.$element.removeClass("plus-two");
     }
 
-    scramble.time = time;
     scramble.$element.addClass("solved");
 
     selectScramble(getNextScramble(selectedEvent));
     $("#input-time").val("");
 }
 
+function buildOverview() {
+    keys = Object.keys(events);
+
+    var unfinishedCount = 0;
+
+    for (var i = 0; i < keys.length; i++) {
+        var event = events[keys[i]];
+        var completedTimes = [];
+        var average = 0;
+        var averageCount = 0;
+        var maxIndex = 0;
+        var minIndex = 0;
+        var numDNF = 0;
+
+        // This loop does four things in one: It serves as a way to check if all the scrambles have been solved (if completedTimes.length == scrambles.length).
+        // It also finds the min and max times to not include them in the average by checking as it goes along.
+        // It also calculates the average (once the min and max are taken out, if it's an Ao5)
+        // Finally, it counts DNF's and makes sure that the average adjusts accordingly
+        for (var j = 0; j < event.scrambles.length; j++) {
+            var scramble = event.scrambles[j];
+
+            if (scramble.time != 0) {
+                completedTimes.push(scramble.time.toFixed(3));
+
+                if (scramble.isDNF === false) {
+                    average += scramble.time;
+                    averageCount++;
+                    
+                    if (scramble.time > completedTimes[maxIndex]) {
+                        maxIndex = completedTimes.length - 1;
+                    } else if (scramble.time < completedTimes[minIndex]) {
+                        minIndex = completedTimes.length - 1;
+                    }
+                } else {
+                    numDNF++;
+                }
+            }
+        }
+
+        for (var j = 0; j < completedTimes.length; j++) {
+            console.log(completedTimes[j]);
+            if (parseFloat(completedTimes[j]) == -1) {
+                completedTimes[j] = "DNF";
+            }
+        }
+
+        if (numDNF > 1) {
+            average = "DNF";
+        } else if (completedTimes.length < 5 && numDNF > 0) {
+            average = "DNF"
+        } else {
+            if (completedTimes.length >= 5) {
+                // Cancel out the best and worst
+                if (numDNF == 0) {
+                    average -= parseFloat(completedTimes[maxIndex]) + parseFloat(completedTimes[minIndex]);
+                    averageCount -= 2;
+                } else {
+                    average -= completedTimes[maxIndex];
+                    averageCount -= 1;
+                }
+            }
+
+            average = (average / averageCount).toFixed(3);
+        }
+
+        if (completedTimes.length >= 5) {
+            completedTimes[maxIndex] = "(" + completedTimes[maxIndex] + ")";
+            completedTimes[minIndex] = "(" + completedTimes[minIndex] + ")";
+        }
+
+        if (completedTimes.length > 0) {
+            var $item = $("#overview").append(timeOverviewTemplate.format(event.id, event.name, average, completedTimes.join(", ")));
+            
+            if (completedTimes.length != event.scrambles.length) {
+                $item.addClass("unfinished");
+                unfinishedCount++;
+            }
+        }
+        
+        $("#card-time-entry").fadeOut(function() {
+            $("#card-submit").fadeIn();
+        });
+    }
+
+    if (unfinishedCount > 0) {
+        $("#unfinished-events-warning").show();
+    } else {
+        $("#unfinihsed-events-warning").hide();
+    }
+}
+
 $(document).ready(function() {
+    // template.format(param1, param2, param3) (template is type string)
+    if (!String.prototype.format) {
+        String.prototype.format = function() {
+            var args = arguments;
+            return this.replace(/{(\d+)}/g, function(match, number) { 
+                return typeof args[number] != 'undefined'
+                    ? args[number]
+                    : match
+                ;
+            });
+        };
+    }
+
     $(".scramble").click(function() {
         selectScramble(getScramble($(this).data("scrambleId")));
     });
@@ -188,11 +304,11 @@ $(document).ready(function() {
     });
 
     $("#input-time").on('keypress', function (e) {
-        // First () is whether it is keys 0-9. 8 and 46 are backspace and delete.
-        if (!((e.which >= 48 && e.which <= 57) || (String.fromCharCode(e.which) == ".") || (String.fromCharCode(e.which) == ":") || (e.which == 8) | (e.which == 46))) {
-            e.preventDefault();
-        } else if (e.which == 13) { // Enter key
+        // First is whether it is keys 0-9. 8 and 46 are backspace and delete.
+        if (e.which == 13) { // Enter key
             enterTime(selectedScramble, $("#input-time").val());
+        } else if (!((e.which >= 48 && e.which <= 57) || (String.fromCharCode(e.which) == ".") || (String.fromCharCode(e.which) == ":") || (e.which == 8) | (e.which == 46))) {
+            e.preventDefault();
         } else {
             setTimeout(function() {
                 if (timeInputRegex.test($("#input-time").val())) {
@@ -236,4 +352,6 @@ $(document).ready(function() {
             $(this).removeClass("pressed");
         }
     });
+
+    $("#btn-continue").click(buildOverview);
 });
