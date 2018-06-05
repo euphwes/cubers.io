@@ -123,4 +123,5 @@ class UserEventResults(Model):
     comp_event_id = Column(Integer, ForeignKey('competition_event.id'))
     single        = Column(String(10))
     average       = Column(String(10))
+    comment       = Column(Text)
     solves        = relationship('UserSolve')

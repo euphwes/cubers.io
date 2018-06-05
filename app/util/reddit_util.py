@@ -12,14 +12,19 @@ CLIENT_SECRET = CUBERS_APP.config['REDDIT_CLIENT_SECRET']
 
 # -------------------------------------------------------------------------------------------------
 
-#pylint: disable=C0111
+
+def build_comment_source_from_events_results(events_results):
+    """ Builds the source of a Reddit comment that meets the formatting requirements of the
+    /r/cubers weekly competition scoring script. """
+
+
 def get_new_reddit():
     """ Returns a new, unauthenticated Reddit instance. """
     return Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=REDIRECT,
                   user_agent = USER_AGENT)
 
 
-#pylint: disable=C0111,C0103
+#pylint: disable=C0103
 def get_username_refresh_token_from_code(code):
     """ Returns the username and current refresh token for a given Reddit auth code. """
     reddit = get_new_reddit()
@@ -29,7 +34,6 @@ def get_username_refresh_token_from_code(code):
     return username, refresh_token
 
 
-#pylint: disable=C0111
 def get_user_auth_url(state='...'):
     """ Returns a url for authenticating with Reddit. """
     return get_new_reddit().auth.url(['identity', 'read', 'submit'], state, 'permanent')
