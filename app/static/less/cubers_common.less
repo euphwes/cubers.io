@@ -4,8 +4,58 @@
 @navbar-color: #001427;
 @highlight-color: #0992c4;
 
+// Screen sizes (https://getbootstrap.com/docs/4.0/layout/grid/)
+@screen-xs: 575px;
+@screen-sm: 767px;
+@screen-md: 991px;
+@screen-lg: 1199px;
+
 html,body {
     background-color: @site-bg-color !important;
+    overflow-x: hidden;
+}
+
+body {
+    padding-bottom: 50px;
+}
+
+@media (max-width: @screen-sm) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    h3 {
+        font-size: 1.25rem;
+    }
+
+    h5 {
+        font-size: 1rem;
+    }
+
+    .container {
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+
+    .scramble-num {
+        display: none;
+    }
+}
+
+.row-no-padding > [class*="col-"] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+// Because for some reason Bootstrap has !important tags... why? IDK.
+.ultra-hidden {
+    display: none !important;
+}
+
+.card {
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
+    border-radius: 2px;
+    transition-property: box-shadow, box-shadow;
 }
 
 .cubers-container {
@@ -20,24 +70,26 @@ html,body {
     border-color: @highlight-color;
 }
 
-.cubers-navbar .active a {
-    color: @highlight-color !important;
-}
+.cubers-navbar {
+    a {
+        color: @site-bg-color !important;
+    }
 
-.cubers-navbar a {
-    color: @site-bg-color !important;
+    .active a {
+        color: @highlight-color !important;
+    }
 }
 
 .nav-scroll {
     overflow-x: auto;
     overflow-y: hidden;
     white-space: nowrap;
-    display: block !important;
-}
+    display: block;
 
-.nav-scroll li {
-    display: inline-block !important;
-    float: none;
+    li {
+        display: inline-block !important;
+        float: none;
+    }
 }
 
 .scrambles .scramble {
@@ -50,40 +102,49 @@ html,body {
     position: relative;
     margin-left: none !important;
     margin-right: none !important;
-}
 
-.scramble.solved:not(.active) {
-    background-color: #3e7a4b;
-    color: @site-bg-color;
-}
+    &:hover {
+        background-color: lightgray;
+    }
 
-.scramble:not(.active):hover {
-    background-color: lightgray;
-}
+    &.solved:not(.active) {
 
-.scramble.solved:not(.active):hover {
-    background-color: #4b9e5d;
-}
+        background-color: #3e7a4b;
+        color: @site-bg-color;
 
-.scramble.solved.dnf:not(active) {
-    background-color: #96313b;
-}
+        &:hover {
+            background-color: #4b9e5d;
+        }
 
-.scramble.solved.dnf:not(active):hover {
-    background-color: #b72d3b;
-}
+        &.dnf {
+            background-color: #96313b;
 
-.scramble.solved.plus-two:not(active) {
-    background-color: #e28009;
-}
+            &:hover {
+                background-color: #b72d3b;
+            }
+        }
 
-.scramble.solved.plus-two:not(active):hover {
-    background-color: #ff8e05;
-}
+        &.plus-two {
+            background-color: #e28009;
 
-.scramble.active {
-    background-color: @highlight-color !important;
-    color: @site-bg-color !important;
+            &:hover {
+                background-color: #ff8e05;
+            }
+        }
+    }
+
+    &.active {
+        background-color: @highlight-color !important;
+        color: @site-bg-color !important;
+    }
+
+    & .dv-scramble-time {
+        display: none;
+    }
+
+    &.solved .dv-scramble-time {
+        display: block;
+    }
 }
 
 .btn-cubers-primary-outline {
@@ -91,11 +152,11 @@ html,body {
     background-image: none;
     border-color: @highlight-color;
     color: @highlight-color;
-}
 
-.btn-cubers-primary-outline:not(.disabled):hover {
-    background-color: @highlight-color;
-    color: @site-bg-color;
+    &:not(.disabled):hover {
+        background-color: @highlight-color;
+        color: @site-bg-color;
+    }
 }
 
 .btn-dnf.pressed {
@@ -108,16 +169,16 @@ html,body {
      background-image: none;
      border-color: #e28009;
      color: #e28009;
-}
 
-.btn-plus-two:not(.disabled):hover {
-    background-color: #e28009;
-    color: @site-bg-color;
-}
+     &:not(.disabled):hover {
+        background-color: #e28009;
+        color: @site-bg-color;
+     }
 
-.btn-plus-two.pressed {
-    background-color: #e28009;
-    color: @site-bg-color;   
+     &.pressed {
+        background-color: #e28009;
+        color: @site-bg-color;  
+     }
 }
 
 .btn:focus,.btn:active {
@@ -129,3 +190,31 @@ html,body {
     display: none;
 }
 
+#dv-timer {
+    .timer-time {
+        font-size: 6rem;
+        line-height: 1;
+    }
+
+    .result {
+        cursor: pointer;
+        font-size: 1.5rem;
+        border-radius: 3px;
+        display: inline-block;
+        padding-left: 5px;
+        padding-right: 5px;
+
+        &:hover {
+            background-color: @highlight-color;
+            color: @site-bg-color;
+        }
+        
+        & + .result {
+            margin-left: 10px;
+        }
+    }
+
+    .timer-scramble {
+        font-size: 2rem;
+    }
+}

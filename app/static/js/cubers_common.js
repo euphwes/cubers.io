@@ -16,6 +16,9 @@ var isPlusTwo = false;
 
 var events = {};
 
+// 0 is manual entry, 1 is timer
+var currentMode = 1;
+
 // ((..)|(..)|(..)...) is multiple alternatives
 // First group checks for any number of digits (\d+), a :, exactly 2 digits (d{2}), a decimal, and one or more digits (\d+)
 // Second group checks for any number of digits, a :, exactly two digits that are not followed by only a period ((?!.)).
@@ -375,5 +378,23 @@ $(document).ready(function() {
         $("#card-submit").fadeOut(function() {
             $("#card-time-entry").fadeIn();
         });
+    })
+
+    $(".btn-switch-mode").click(function() {
+        if (currentMode == 0) {
+            $("#dv-manual").fadeOut(function() {
+                $("#dv-timer").fadeIn();
+                $("#event-tabs").addClass("ultra-hidden");
+                $("#timer-event-tabs").removeClass("ultra-hidden");
+                currentMode = 1;
+            });
+        } else if (currentMode == 1) {
+            $("#dv-timer").fadeOut(function() {
+                $("#dv-manual").fadeIn();
+                $("#timer-event-tabs").addClass("ultra-hidden");
+                $("#event-tabs").removeClass("ultra-hidden");
+                currentMode = 0;
+            });
+        }
     })
 });
