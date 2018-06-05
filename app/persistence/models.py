@@ -4,6 +4,7 @@ from flask_login import LoginManager, UserMixin
 from sqlalchemy.orm import relationship
 
 from app import DB, CUBERS_APP
+from app.util.times_util import convert_centiseconds_to_friendly_time
 
 #pylint: disable=C0103
 Text       = DB.Text
@@ -52,13 +53,36 @@ class Event(Model):
     totalSolves    = Column(Integer)
     eventFormat    = Column(Enum("Ao5", "Mo3", "Bo3", name="eventFormat"), default="Ao5")
     description    = Column(String(128))
-    CompEvents = relationship("CompetitionEvent", backref="Event")
+    CompEvents     = relationship("CompetitionEvent", backref="Event")
+
 
 class Scramble(Model):
-    __tablename__ = 'scrambles'
-    id = Column(Integer, primary_key = True)
+    """ A scramble for a specific event at a specific competition. """
+    __tablename__        = 'scrambles'
+    id                   = Column(Integer, primary_key = True)
+    scramble             = Column(Text())
     competition_event_id = Column(Integer, ForeignKey('competition_event.id'))
-    scramble = Column(Text())
+    solves               = relationship('UserSolve', backref='Scramble')
+
+
+class UserEventResults(Model):
+    """ A model detailing a user's results for a single event at competition. References the user,
+    the competitionEvent, the single and average result for the event. These values are either in
+    centiseconds (ex: "1234" = 12.34s) or `DNF` """
+
+    __tablename__ = 'user_event_results'
+    id            = Column(Integer, primary_key=True)
+    user_id       = Column(Integer, ForeignKey('users.id'))
+    comp_event_id = Column(Integer, ForeignKey('competition_event.id'))
+    single        = Column(String(10))
+    average       = Column(String(10))
+    comment       = Column(Text)
+    solves        = relationship('UserSolve')
+
+    def is_complete(self):
+        """ Returns if the user has completed all of their solves for this event. """
+        return self.single != 'PENDING'
+
 
 class CompetitionEvent(Model):
     """ Associative model for an event held at a competition - FKs to the competition and event,
@@ -67,7 +91,10 @@ class CompetitionEvent(Model):
     id             = Column(Integer, primary_key=True)
     competition_id = Column(Integer, ForeignKey('competitions.id'))
     event_id       = Column(Integer, ForeignKey('events.id'))
-    scrambles      = relationship('Scramble', backref='CompetitionEvent', primaryjoin = id == Scramble.competition_event_id)
+    scrambles      = relationship('Scramble', backref='CompetitionEvent',
+                                  primaryjoin = id == Scramble.competition_event_id)
+    user_results   = relationship('UserEventResults', backref='CompetitionEvent',
+                                    primaryjoin=id == UserEventResults.comp_event_id)
 
 
 class Competition(Model):
@@ -84,18 +111,23 @@ class Competition(Model):
     events           = relationship('CompetitionEvent', backref='Competition',
                                     primaryjoin=id == CompetitionEvent.competition_id)
 
-class UserEventResults(Model):
-    """ A model detail a user's results for a single event at competition. References the user,
-    the competitionEvent, and has fields for best single, average, and up to five solves.
-    Solve times are in centiseconds (ex: 1234 = 12.34s). """
-    __tablename__ = 'user_event_results'
+
+class UserSolve(Model):
+    """ A user's solve for a specific scramble, in a specific event, at a competition.
+    Solve times are in centiseconds (ex: 1234 = 12.34s)."""
+
+    __tablename__ = 'user_solves'
     id            = Column(Integer, primary_key=True)
-    user_id       = Column(Integer, ForeignKey('users.id'))
-    comp_event_id = Column(Integer, ForeignKey('competition_event.id'))
-    single        = Column(Integer)
-    average       = Column(Integer)
-    solve1        = Column(Integer)
-    solve2        = Column(Integer)
-    solve3        = Column(Integer)
-    solve4        = Column(Integer)
-    solve5        = Column(Integer)
+    time          = Column(Integer)
+    is_dnf        = Column(Boolean, default=False)
+    is_plus_two   = Column(Boolean, default=False)
+    scramble_id   = Column(Integer, ForeignKey('scrambles.id'))
+    user_event_results_id = Column(Integer, ForeignKey('user_event_results.id'))
+
+    def get_friendly_time(self):
+        """ Gets a user-friendly display time for this solve. """
+
+        if self.is_dnf:
+            return 'DNF'
+
+        return convert_centiseconds_to_friendly_time(int(self.time))

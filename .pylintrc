@@ -1,5 +1,5 @@
 [TYPECHECK]
-ignored-classes=scoped_session,SQLAlchemy
+ignored-classes=scoped_session,SQLAlchemy,alembic.op
 
 [MESSAGES CONTROL]
 # Enable the message, report, category or checker with the given id(s). You can

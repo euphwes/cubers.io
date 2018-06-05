@@ -14,7 +14,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+**/lib/*
 lib64/
 parts/
 sdist/
@@ -24,6 +24,10 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+# Exception for static lib
+!**/static/lib/*
+**/static/gen/*
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

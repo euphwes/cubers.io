@@ -1,6 +1,5 @@
 """ Utility module for providing access to business logic for users. """
 
-import json
 from datetime import datetime
 
 from app import DB
@@ -17,11 +16,17 @@ def get_active_competition():
     """ Get the current active competition. """
     return Competition.query.filter(Competition.active).first()
 
+
 def get_competition(competition_id):
     """ Get a competition by id """
     comp =  Competition.query.get(competition_id)
-    #comp["events"] = CompetitionEvent.query.filter_by(competition_id = competition_id).all()
     return comp
+
+
+def get_comp_event_by_id(comp_event_id):
+    """ Returns a competition_event by id. """
+    return CompetitionEvent.query.filter(CompetitionEvent.id == comp_event_id).first()
+
 
 def create_new_competition(title, reddit_id, event_data):
     """ Creates a new active competition, events for that competition, and ensures all the other
@@ -47,7 +52,6 @@ def create_new_competition(title, reddit_id, event_data):
             scramble = Scramble(scramble = scramble_text)
             comp_event.scrambles.append(scramble)
 
-            
         new_comp.events.append(comp_event)
 
     DB.session.add(new_comp)

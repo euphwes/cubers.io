@@ -2,6 +2,7 @@
 
 from app import DB
 from app.persistence.models import User
+
 # -------------------------------------------------------------------------------------------------
 
 def get_all_users():
