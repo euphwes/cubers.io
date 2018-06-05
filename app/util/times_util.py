@@ -1,4 +1,28 @@
+""" Utility functions for working with times. """
+
+#pylint: disable=C0103
+def convert_centiseconds_to_friendly_time(centiseconds):
+    """ Converts centiseconds to a human-readable friendly time.
+    Ex: 2345 --> 23.45
+    Ex: 12345 --> 2:03.45 """
+
+    secs = centiseconds / 100.0
+
+    if secs < 60:
+        return '{0:.2f}'.format(secs)
+
+    minutes = int(secs // 60)
+    seconds = '{0:.2f}'.format(secs % 60)
+
+    return '{}:{}'.format(minutes, seconds)
+
+# -------------------------------------------------------------------------------------------------
+# TODO: Figure out if stuff below is needed. Does it belong in the scripts source? If so, doesn't
+# belong directly here in the web app
+# -------------------------------------------------------------------------------------------------
+
 def convert_min_sec(time):
+    """ Convert friendly time to seconds. Ex: 1:23:45 --> 83.45. """
     try:
         if ":" not in time:
             return float(time)
@@ -17,19 +41,3 @@ def convert_min_sec(time):
     except ValueError:
         print("Value error! ", time)
         return "convert error"
-
-
-def convert_centiseconds_to_friendly_time(centiseconds):
-    """ Converts centiseconds to a human-readable friendly time.
-    Ex: 2345 --> 23.45
-    Ex: 12345 --> 2:03.45 """
-
-    secs = centiseconds / 100.0
-
-    if secs < 60:
-        return '{0:.2f}'.format(secs)
-
-    minutes = int(secs // 60)
-    seconds = '{0:.2f}'.format(secs % 60)
-
-    return '{}:{}'.format(minutes, seconds)

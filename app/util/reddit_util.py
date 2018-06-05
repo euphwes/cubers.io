@@ -10,10 +10,8 @@ USER_AGENT    = 'web:rcubersComps:v0.01 by /u/euphwes'
 CLIENT_ID     = CUBERS_APP.config['REDDIT_CLIENT_ID']
 CLIENT_SECRET = CUBERS_APP.config['REDDIT_CLIENT_SECRET']
 
-BLACKLIST = ["CaptainCockmunch", "LorettAttran", "purplepinapples", "CuberSaiklick", "xXxSteelVenomxXx"]
-
 # -------------------------------------------------------------------------------------------------
-    
+
 #pylint: disable=C0111
 def get_new_reddit():
     """ Returns a new, unauthenticated Reddit instance. """
@@ -21,7 +19,7 @@ def get_new_reddit():
                   user_agent = USER_AGENT)
 
 
-#pylint: disable=C0111
+#pylint: disable=C0111,C0103
 def get_username_refresh_token_from_code(code):
     """ Returns the username and current refresh token for a given Reddit auth code. """
     reddit = get_new_reddit()
@@ -36,6 +34,14 @@ def get_user_auth_url(state='...'):
     """ Returns a url for authenticating with Reddit. """
     return get_new_reddit().auth.url(['identity', 'read', 'submit'], state, 'permanent')
 
+
+# -------------------------------------------------------------------------------------------------
+# TODO: Figure out if stuff below is needed. Does it belong in the scripts source? If so, doesn't
+# belong directly here in the web app
+# -------------------------------------------------------------------------------------------------
+
+BLACKLIST = ["CaptainCockmunch", "LorettAttran", "purplepinapples", "CuberSaiklick",
+             "xXxSteelVenomxXx"]
 
 #pylint: disable=C0111
 def parse_comment(comment):
@@ -53,7 +59,7 @@ def parse_comment(comment):
         dnf_result = dnf_matcher.match(content)
 
         if result:
-            name = events_util.get_event_name(result.group(1)) # Group 1 is name
+            name = events_util.get_friendly_event_name(result.group(1)) # Group 1 is name
             average = times_util.convert_min_sec(result.group(2))   # Group 2 is average
 
             try:
@@ -85,7 +91,7 @@ def parse_comment(comment):
         elif dnf_result != None:
             print("DNF RESULT ", dnf_result)
             # We have a puzzle name, but no average.
-            name = events_util.get_event_name(dnf_result.group(1))
+            name = events_util.get_friendly_event_name(dnf_result.group(1))
             results[name] = { "average": "DNF", "times": [] }
 
     return results

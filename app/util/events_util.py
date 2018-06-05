@@ -2,7 +2,89 @@
 
 from app.persistence.models import EventFormat
 
-event_names = {
+DNF = 'DNF'
+NA  = 'N/A'
+
+# -------------------------------------------------------------------------------------------------
+
+def determine_bests(solves, event_format):
+    """ Returns a tuple of (best single, average) for these solves based on the supplied
+    event format." """
+
+    bests_func_dict = {
+        EventFormat.Ao5: determine_bests_ao5,
+        EventFormat.Mo3: determine_bests_mo3,
+        EventFormat.Bo3: determine_bests_bo3,
+    }
+
+    try:
+        return bests_func_dict[event_format](solves)
+    except KeyError:
+        raise ValueError(event_format, '{event_format} is not a valid event format.')
+
+
+def determine_bests_bo3(solves):
+    """ Returns the best single for these 3 solves, and 'N/A' for the average. """
+
+    if all(solve.is_dnf for solve in solves):
+        return DNF, NA
+
+    else:
+        return min(solve.time for solve in solves if not solve.is_dnf), NA
+
+
+def determine_bests_mo3(solves):
+    """ Returns the best single and mean for these 3 solves. """
+
+    dnf_count = sum(1 for solve in solves if solve.is_dnf)
+
+    if dnf_count > 0:
+        average = DNF
+    else:
+        average = sum(solve.time for solve in solves) / 3.0
+
+    if dnf_count == 3:
+        single = DNF
+    else:
+        single = min(solve.time for solve in solves if not solve.is_dnf)
+
+    return single, average
+
+
+def determine_bests_ao5(solves):
+    """ Returns the best single and average for these 5 solves, where the average
+    is the arithmetic mean of the middle 3 solves. """
+
+    dnf_count = sum(1 for solve in solves if solve.is_dnf)
+
+    if dnf_count == 0:
+        times   = [solve.time for solve in solves]
+        best    = min(times)
+        worst   = max(times)
+        average = int((sum(times) - best - worst) / 3.0)
+
+    elif dnf_count == 1:
+        times   = [solve.time for solve in solves if not solve.is_dnf]
+        best    = min(times)
+        average = int((sum(times) - best) / 3.0)
+
+    elif dnf_count == 5:
+        average = DNF
+        best    = DNF
+
+    else:
+        times   = [solve.time for solve in solves if not solve.is_dnf]
+        average = DNF
+        best    = min(times)
+
+    return best, average
+
+# -------------------------------------------------------------------------------------------------
+# TODO: Figure out if stuff below is needed. Does it belong in the scripts source? If so, doesn't
+# belong directly here in the web app
+# -------------------------------------------------------------------------------------------------
+
+EVENT_NAMES = {
     "5x5": "5x5x5",
     "6x6": "6x6x6",
     "7x7": "7x7x7",
@@ -23,71 +105,9 @@ event_names = {
     "mirror blocks/bump": "3x3 Mirror Blocks/Bump"
 }
 
-def get_event_name(name):
-    if name.lower() in event_names:
-        return event_names[name.lower()]
+def get_friendly_event_name(name):
+    """ Get a user-friendly display name for events. """
+    if name.lower() in EVENT_NAMES:
+        return EVENT_NAMES[name.lower()]
     else:
         return name
-
-
-def determine_bests(solves, event_format):
-    """ docstring here """
-
-    if event_format == EventFormat.Ao5:
-        return determine_bests_ao5(solves)
-
-
-def determine_bests_bo3(solves):
-    """ docstring """
-
-    if all(solve.is_dnf for solve in solves):
-        return 'DNF'
-
-    else:
-        return min(solve.time for solve in solves if not solve.is_dnf)
-
-
-def determine_bests_mo3(solves):
-    """ docstring here """
-
-    dnf_count = sum(1 for solve in solves if solve.is_dnf)
-
-    if dnf_count > 0:
-        average = 'DNF'
-    else:
-        average = sum(solve.time for solve in solves) / 3.0
-
-    if dnf_count == 3:
-        single = 'DNF'
-    else:
-        single = min(solve.time for solve in solves if not solve.is_dnf)
-
-    return single, average
-
-
-def determine_bests_ao5(solves):
-    """ docstring here """
-
-    dnf_count = sum(1 for solve in solves if solve.is_dnf)
-
-    if dnf_count == 0:
-        times   = [solve.time for solve in solves]
-        best    = min(times)
-        worst   = max(times)
-        average = int((sum(times) - best - worst) / 3.0)
-
-    elif dnf_count == 1:
-        times   = [solve.time for solve in solves if not solve.is_dnf]
-        best    = min(times)
-        average = int((sum(times) - best) / 3.0)
-
-    elif dnf_count == 5:
-        average = 'DNF'
-        best    = 'DNF'
-
-    else:
-        times   = [solve.time for solve in solves if not solve.is_dnf]
-        average = 'DNF'
-        best    = min(times)
-
-    return best, average

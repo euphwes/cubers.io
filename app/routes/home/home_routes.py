@@ -6,7 +6,7 @@ from flask import render_template, abort, request
 from flask_login import current_user
 
 from app import CUBERS_APP
-from app.persistence import comp_manager
+from app.persistence import comp_manager, user_results_manager
 
 # -------------------------------------------------------------------------------------------------
 
@@ -26,32 +26,24 @@ def submit_times():
     redirect to a page where the comment source is displayed. """
 
     user_events = json.loads(request.get_data().decode('utf-8'))
+    user_results = build_user_results(user_events)
 
     if current_user.is_authenticated:
-        return handle_user_submit_times(user_events)
+        # attempt submit comment, if failure, show comment source page with no error message
+        return user_results
 
     else:
+        # redirect to comment source page
         return ""
-        #return handle_anon_submit_times(user_events)
-
-
-@CUBERS_APP.route('/comp/<competition_id>')
-def competition(competition_id):
-    try:
-        competition_id = int(competition_id)
-    except ValueError:
-        # TODO: come up with custom 404 not found page
-        return abort(404)
-
-    return render_template('comp.html', competition = comp_manager.get_competition(competition_id))
-
 
 # -------------------------------------------------------------------------------------------------
 
-def handle_user_submit_times(user_events):
+def build_user_results(user_events):
     """ docstring here """
 
-    return ""
-
+    user_results = list()
     for comp_event_id, solves in user_events.items():
-        a = 1
+        event_results = user_results_manager.build_user_event_results(comp_event_id, solves)
+        user_results.append(event_results)
+
+    return user_events
