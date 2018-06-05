@@ -12,7 +12,7 @@ def convert_centiseconds_to_friendly_time(centiseconds):
         return '{0:.2f}'.format(secs)
 
     minutes = int(secs // 60)
-    seconds = '{0:.2f}'.format(secs % 60)
+    seconds = '{0:.2f}'.format(secs % 60).zfill(5)
 
     return '{}:{}'.format(minutes, seconds)
 

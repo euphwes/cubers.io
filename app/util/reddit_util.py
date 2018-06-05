@@ -1,9 +1,15 @@
 """ Utility functions for dealing with PRAW Reddit instances. """
+
 import re
+from sys import maxsize as MAX
+
 from praw import Reddit
+
 from app import CUBERS_APP
-from . import events_util
-from . import times_util
+from app.persistence.models import EventFormat
+from app.persistence.comp_manager import get_comp_event_by_id
+from app.util.times_util import convert_centiseconds_to_friendly_time, convert_min_sec
+from app.util import events_util
 
 REDIRECT      = CUBERS_APP.config['REDDIT_REDIRECT_URI']
 USER_AGENT    = 'web:rcubersComps:v0.01 by /u/euphwes'
@@ -12,10 +18,76 @@ CLIENT_SECRET = CUBERS_APP.config['REDDIT_CLIENT_SECRET']
 
 # -------------------------------------------------------------------------------------------------
 
-
+#pylint: disable=C0103
 def build_comment_source_from_events_results(events_results):
     """ Builds the source of a Reddit comment that meets the formatting requirements of the
     /r/cubers weekly competition scoring script. """
+
+    comment_source = ''
+    event_line_template = '**{}: {}** = {}\n{}'
+
+    complete_events = [results for results in events_results if results.is_complete()]
+    for results in complete_events:
+        comp_event   = get_comp_event_by_id(results.comp_event_id)
+        event_name   = comp_event.Event.name
+        event_format = comp_event.Event.eventFormat
+        times_string = build_times_string(results.solves, event_format)
+        comment      = '\n' if not results.comment else '>' + results.comment + '\n\n'
+
+        if results.average == 'DNF':
+            average = 'DNF'
+        elif event_format == EventFormat.Bo3:
+            average = convert_centiseconds_to_friendly_time(results.single)
+        else:
+            average = convert_centiseconds_to_friendly_time(results.average)
+
+
+        line = event_line_template.format(event_name, average, times_string, comment)
+        comment_source += line
+
+    return comment_source
+
+
+def build_times_string(solves, event_format):
+    """ Builds a list of individual times, with best/worst times in parens if appropriate
+    for the given event format. """
+
+    time_convert   = convert_centiseconds_to_friendly_time
+    friendly_times = [time_convert(solve.time) for solve in solves]
+
+    curr_best   = MAX
+    curr_worst  = -1
+    best_index  = -1
+    worst_index = -1
+
+    dnf_indicies   = list()
+    have_found_dnf = False
+
+    for i, solve in enumerate(solves):
+        if (not solve.is_dnf) and (solve.time < curr_best):
+            best_index = i
+            curr_best  = solve.time
+
+        elif (not have_found_dnf) and (solve.time > curr_worst):
+            worst_index = i
+            curr_worst  = solve.time
+
+        if solve.is_dnf:
+            if not have_found_dnf:
+                worst_index = i
+                have_found_dnf = True
+            dnf_indicies.append(i)
+
+    for i in dnf_indicies:
+        friendly_times[i] = 'DNF'
+
+    friendly_times[best_index] = '({})'.format(friendly_times[best_index])
+
+    if event_format in [EventFormat.Bo3, EventFormat.Mo3]:
+        return ', '.join(friendly_times)
+
+    friendly_times[worst_index] = '({})'.format(friendly_times[worst_index])
+    return ', '.join(friendly_times)
 
 
 def get_new_reddit():
@@ -64,7 +136,7 @@ def parse_comment(comment):
 
         if result:
             name = events_util.get_friendly_event_name(result.group(1)) # Group 1 is name
-            average = times_util.convert_min_sec(result.group(2))   # Group 2 is average
+            average = convert_min_sec(result.group(2))   # Group 2 is average
 
             try:
                 results[name] = { "average": average }
@@ -87,7 +159,7 @@ def parse_comment(comment):
                     final_times.append(t[0])
                 else:
                     try:
-                        final_times.append(times_util.convert_min_sec(t[0]))
+                        final_times.append(convert_min_sec(t[0]))
                     except ValueError:
                         continue
             

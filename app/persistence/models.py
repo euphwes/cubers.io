@@ -65,6 +65,25 @@ class Scramble(Model):
     solves               = relationship('UserSolve', backref='Scramble')
 
 
+class UserEventResults(Model):
+    """ A model detailing a user's results for a single event at competition. References the user,
+    the competitionEvent, the single and average result for the event. These values are either in
+    centiseconds (ex: "1234" = 12.34s) or `DNF` """
+
+    __tablename__ = 'user_event_results'
+    id            = Column(Integer, primary_key=True)
+    user_id       = Column(Integer, ForeignKey('users.id'))
+    comp_event_id = Column(Integer, ForeignKey('competition_event.id'))
+    single        = Column(String(10))
+    average       = Column(String(10))
+    comment       = Column(Text)
+    solves        = relationship('UserSolve')
+
+    def is_complete(self):
+        """ Returns if the user has completed all of their solves for this event. """
+        return self.single != 'PENDING'
+
+
 class CompetitionEvent(Model):
     """ Associative model for an event held at a competition - FKs to the competition and event,
     and a JSON array of scrambles. """
@@ -74,6 +93,8 @@ class CompetitionEvent(Model):
     event_id       = Column(Integer, ForeignKey('events.id'))
     scrambles      = relationship('Scramble', backref='CompetitionEvent',
                                   primaryjoin = id == Scramble.competition_event_id)
+    user_results   = relationship('UserEventResults', backref='CompetitionEvent',
+                                    primaryjoin=id == UserEventResults.comp_event_id)
 
 
 class Competition(Model):
@@ -110,18 +131,3 @@ class UserSolve(Model):
             return 'DNF'
 
         return convert_centiseconds_to_friendly_time(int(self.time))
-
-
-class UserEventResults(Model):
-    """ A model detailing a user's results for a single event at competition. References the user,
-    the competitionEvent, the single and average result for the event. These values are either in
-    centiseconds (ex: "1234" = 12.34s) or `DNF` """
-
-    __tablename__ = 'user_event_results'
-    id            = Column(Integer, primary_key=True)
-    user_id       = Column(Integer, ForeignKey('users.id'))
-    comp_event_id = Column(Integer, ForeignKey('competition_event.id'))
-    single        = Column(String(10))
-    average       = Column(String(10))
-    comment       = Column(Text)
-    solves        = relationship('UserSolve')

@@ -2,11 +2,13 @@
 
 import json
 
-from flask import render_template, abort, request
+from flask import render_template, request
 from flask_login import current_user
 
 from app import CUBERS_APP
-from app.persistence import comp_manager, user_results_manager
+from app.persistence import comp_manager
+from app.persistence.user_results_manager import build_user_event_results
+from app.util.reddit_util import build_comment_source_from_events_results
 
 # -------------------------------------------------------------------------------------------------
 
@@ -25,25 +27,41 @@ def submit_times():
     thread comment. If the user is authenticated, submit the comment for them, or else
     redirect to a page where the comment source is displayed. """
 
-    user_events = json.loads(request.get_data().decode('utf-8'))
+    # -----------------------
+    # TODO: **IMPORTANT** this is definitely *not* how this data is coming in via
+    # this POST, I just needed to get something working so I could test
+    # -----------------------
+
+    data = request.get_data().decode('utf-8')
+
+    user_events = json.loads(data)
     user_results = build_user_results(user_events)
+    comment_source = build_comment_source_from_events_results(user_results)
 
     if current_user.is_authenticated:
-        # attempt submit comment, if failure, show comment source page with no error message
-        return user_results
+        # attempt submit comment
+        # if failure, show comment source page with error message
+        # if success, show success page with link to comment
+        return render_template('times_comment_source.html', comment_source = comment_source)
 
-    else:
-        # redirect to comment source page
-        return ""
+    # show comment source page
+    return render_template('times_comment_source.html', comment_source = comment_source)
 
 # -------------------------------------------------------------------------------------------------
 
 def build_user_results(user_events):
     """ docstring here """
 
+    # -----------------------
+    # TODO: **IMPORTANT** this parsing should change if we change
+    # how the input data is coming in
+    # -----------------------
+
     user_results = list()
-    for comp_event_id, solves in user_events.items():
-        event_results = user_results_manager.build_user_event_results(comp_event_id, solves)
+    for comp_event_id, solve_comment_dict in user_events.items():
+        solves = solve_comment_dict['scrambles']
+        comment = solve_comment_dict['comment']
+        event_results = build_user_event_results(comp_event_id, solves, comment)
         user_results.append(event_results)
 
-    return user_events
+    return user_results
