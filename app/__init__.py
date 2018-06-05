@@ -30,6 +30,12 @@ ASSETS.register({
         filters="jsmin",
         output='gen/main.js'),
 
+    'timer_js': Bundle(
+        'js/timer.js',
+        filters="jsmin",
+        output='gen/timer.js'
+    ),
+
     'main_css': Bundle(
         'less/cubers_common.less',
         filters="less,yui_css",
