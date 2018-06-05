@@ -124,12 +124,12 @@ function convertMinutestoSeconds(timeString) {
 
 function convertSecondsToMinutes(time) {
     if (time < 60) {
-        return time.toFixed(3);
+        return time.toFixed(2);
     } else {
         var mins = Math.floor(time / 60);
-        var secs = (time - mins * 60).toFixed(3);
+        var secs = (time - mins * 60).toFixed(2);
 
-        if (secs.length == 5) {
+        if (secs.length == 4) {
             secs = "0".concat(secs);
         }
 
@@ -213,7 +213,7 @@ function buildOverview() {
             var scramble = event.scrambles[j];
 
             if (scramble.time != 0) {
-                completedTimes.push(scramble.time.toFixed(3));
+                completedTimes.push(scramble.time.toFixed(2));
 
                 if (scramble.isDNF === false) {
                     average += scramble.time;
@@ -253,7 +253,7 @@ function buildOverview() {
                 }
             }
 
-            average = (average / averageCount).toFixed(3);
+            average = (average / averageCount).toFixed(2);
         }
 
         if (completedTimes.length >= 5) {

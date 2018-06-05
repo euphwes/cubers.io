@@ -30,7 +30,7 @@ selectScramble(getNextScramble(selectedEvent));$("#input-time").val("");}
 function setTimeInputValid(flag){if(flag){$("#input-time").removeClass("is-invalid");}else{$("#input-time").addClass("is-invalid");}}
 function convertMinutestoSeconds(timeString){var parts=timeString.split(":");if(parts.length<=1||parseFloat(parts[1])>=60){return Number.NaN;}
 console.log(parseInt(parts[0])*60+parseFloat(parts[1]));return parseInt(parts[0])*60+parseFloat(parts[1])}
-function convertSecondsToMinutes(time){if(time<60){return time.toFixed(3);}else{var mins=Math.floor(time/60);var secs=(time-mins*60).toFixed(3);if(secs.length==5){secs="0".concat(secs);}
+function convertSecondsToMinutes(time){if(time<60){return time.toFixed(2);}else{var mins=Math.floor(time/60);var secs=(time-mins*60).toFixed(2);if(secs.length==4){secs="0".concat(secs);}
 return mins+":"+secs;}}
 function enterTime(scramble,time){if(scramble==null||$("#btn-enter-time").hasClass("disabled")){return;}
 if(timeInputRegex.test(time)){setTimeInputValid(true);}else{setTimeInputValid(false);return;}
@@ -40,10 +40,10 @@ if(isPlusTwo){time+=2.0;}
 scramble.$element.removeClass("dnf");scramble.$element.find(".scramble-time").html(convertSecondsToMinutes(time));scramble.time=time;}else{scramble.$element.addClass("dnf");scramble.$element.find(".scramble-time").html("DNF");scramble.time=-1;}
 if(isPlusTwo){scramble.$element.addClass("plus-two");}else{scramble.$element.removeClass("plus-two");}
 scramble.$element.addClass("solved");selectScramble(getNextScramble(selectedEvent));$("#input-time").val("");}
-function buildOverview(){$("#overview").empty();keys=Object.keys(events);var unfinishedCount=0;for(var i=0;i<keys.length;i++){var event=events[keys[i]];var completedTimes=[];var average=0;var averageCount=0;var maxIndex=0;var minIndex=0;var numDNF=0;for(var j=0;j<event.scrambles.length;j++){var scramble=event.scrambles[j];if(scramble.time!=0){completedTimes.push(scramble.time.toFixed(3));if(scramble.isDNF===false){average+=scramble.time;averageCount++;if(scramble.time>completedTimes[maxIndex]){maxIndex=completedTimes.length-1;}else if(scramble.time<completedTimes[minIndex]){minIndex=completedTimes.length-1;}}else{numDNF++;}}}
+function buildOverview(){$("#overview").empty();keys=Object.keys(events);var unfinishedCount=0;for(var i=0;i<keys.length;i++){var event=events[keys[i]];var completedTimes=[];var average=0;var averageCount=0;var maxIndex=0;var minIndex=0;var numDNF=0;for(var j=0;j<event.scrambles.length;j++){var scramble=event.scrambles[j];if(scramble.time!=0){completedTimes.push(scramble.time.toFixed(2));if(scramble.isDNF===false){average+=scramble.time;averageCount++;if(scramble.time>completedTimes[maxIndex]){maxIndex=completedTimes.length-1;}else if(scramble.time<completedTimes[minIndex]){minIndex=completedTimes.length-1;}}else{numDNF++;}}}
 for(var j=0;j<completedTimes.length;j++){if(parseFloat(completedTimes[j])==-1){completedTimes[j]="DNF";}}
 if(numDNF>1){average="DNF";}else if(completedTimes.length<5&&numDNF>0){average="DNF"}else{if(completedTimes.length>=5){if(numDNF==0){average-=parseFloat(completedTimes[maxIndex])+parseFloat(completedTimes[minIndex]);averageCount-=2;}else{average-=completedTimes[maxIndex];averageCount-=1;}}
-average=(average/averageCount).toFixed(3);}
+average=(average/averageCount).toFixed(2);}
 if(completedTimes.length>=5){completedTimes[maxIndex]="("+completedTimes[maxIndex]+")";completedTimes[minIndex]="("+completedTimes[minIndex]+")";}
 if(completedTimes.length>0){var $item=$(timeOverviewTemplate.format(event.id,event.name,average,completedTimes.join(", "))).appendTo($("#overview"));if(completedTimes.length!=event.scrambles.length){$item.addClass("unfinished");unfinishedCount++;}
 $item.click(function(){var eventId=$(this).data("eventId")

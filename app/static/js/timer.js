@@ -1,5 +1,5 @@
-var currentTime = 0.000;
-var currentInspectionTime = 16;
+var currentTime = 1;
+var currentInspectionTime = 15;
 var isTimerRunning = false;
 var isInspection = false;
 var timerIsPlusTwo = false;
@@ -10,36 +10,64 @@ var inspectionInterval;
 
 var $timerText;
 
-function inspectionInterval() {
+function inspectionIntervalFunction() {
     currentInspectionTime -= 1;
 
     if (currentInspectionTime > 0) {
         $timerText.html(currentInspectionTime);
     } else if (currentInspectionTime <= 0 && currentInspectionTime > -2) {
         $timerText.html(currentInspectionTime + " +2");
+        timerIsPlusTwo = true;
     } else {
         $timerText.html(currentInspectionTime + " DNF");
+        timerIsDNF = true;
 
         stopInspection();
         isTimerRunning = false;
     }
 }
 
+function timerIntervalFunction() {
+    currentTime++;
+
+    $timerText.html(convertSecondsToMinutes(currentTime / 100));
+}
+
 function startInspection() {
+    isPlusTwo = false;
+    isDNF = false;
+    currentTime = 55.00;
     isTimerRunning = true;
     isInspection = true;
-    inspectionInterval = setInterval(inspectionInterval, 1000);
+    $timerText.html(currentInspectionTime);
+    inspectionInterval = setInterval(inspectionIntervalFunction, 1000);
 }
 
 function stopInspection() {
     clearInterval(inspectionInterval);
     isInspection = false;
-    currentInspectionTime = 16;
+    currentInspectionTime = 15;
+}
+
+function startTimer() {
+    timerInterval = setInterval(timerIntervalFunction, 10);
+}
+
+function stopTimer() {
+    isTimerRunning = false;
+    clearInterval(timerInterval);
 }
 
 function onTimerActionKey() {
     if (!isTimerRunning && !isInspection) {
         startInspection();
+    } else if (isTimerRunning) {
+        if (isInspection) {
+            stopInspection();
+            startTimer();
+        } else {
+            stopTimer();
+        }
     }
 }
 
