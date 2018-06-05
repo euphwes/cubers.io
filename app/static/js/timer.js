@@ -50,7 +50,7 @@ function stopInspection() {
 }
 
 function startTimer() {
-    timerInterval = setInterval(timerIntervalFunction, 10);
+    timerInterval = setInterval(timerIntervalFunction, 10); // In milliseconds
 }
 
 function stopTimer() {
