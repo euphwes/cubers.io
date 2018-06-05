@@ -27,6 +27,7 @@ MANIFEST
 
 # Exception for static lib
 !**/static/lib/*
+**/static/gen/*
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
