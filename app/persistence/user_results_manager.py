@@ -1,7 +1,8 @@
 """ Utility module for providing access to business logic for user solves. """
 
 from app import DB
-from app.persistence.models import User, UserEventResults, UserSolve, EventFormat
+from app.persistence.models import UserEventResults, UserSolve
+from app.util.events_util import determine_bests
 
 from .comp_manager import get_comp_event_by_id
 
@@ -27,45 +28,16 @@ def build_user_event_results(comp_event_id, solves):
         user_solve = UserSolve(time=time, is_dnf=dnf, is_plus_two=plus_two)
         results.solves.append(user_solve)
 
-    single, average = determine_bests(results.solves, comp_event.event.eventFormat)
+    num_expected_solves = comp_event.Event.totalSolves
+    if len(solves) < num_expected_solves:
+        results.single = 'PENDING'
+        results.average = 'PENDING'
+    else:
+        single, average = determine_bests(results.solves, comp_event.event.eventFormat)
+        results.single = single
+        results.average = average
 
     return results
-
-
-def determine_bests(solves, event_format):
-    """ docstring here """
-
-    if event_format == EventFormat.Ao5:
-        return determine_bests_Ao5(solves)
-
-
-def determine_bests_Ao5(solves):
-    """ docstring here """
-
-    dnf_count = sum(1 for solve in solves if solve.is_dnf)
-
-    if dnf_count == 0:
-        times   = [solve.time for solve in solves]
-        best    = min(times)
-        worst   = max(times)
-        average = int((sum(times) - best - worst) / 3.0)
-    
-    elif dnf_count == 1:
-        times   = [solve.time for solve in solves if not solve.is_dnf]
-        best    = min(times)
-        average = int((sum(times) - best) / 3.0)
-
-    elif dnf_count == 5:
-        average = 'DNF'
-        best    = 'DNF'
-
-    else:
-        times   = [solve.time for solve in solves if not solve.is_dnf]
-        average = 'DNF'
-        best    = min(times)
-
-    return best, average
-
 
 
 def save_event_results_for_user(comp_event_results, user):

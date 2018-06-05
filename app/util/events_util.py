@@ -1,4 +1,8 @@
-EVENT_NAMES = {
+""" Utility functions to facilitate working with events. """
+
+from app.persistence.models import EventFormat
+
+event_names = {
     "5x5": "5x5x5",
     "6x6": "6x6x6",
     "7x7": "7x7x7",
@@ -20,7 +24,70 @@ EVENT_NAMES = {
 }
 
 def get_event_name(name):
-    if name.lower() in EVENT_NAMES:
-        return EVENT_NAMES[name.lower()]
+    if name.lower() in event_names:
+        return event_names[name.lower()]
     else:
         return name
+
+
+def determine_bests(solves, event_format):
+    """ docstring here """
+
+    if event_format == EventFormat.Ao5:
+        return determine_bests_ao5(solves)
+
+
+def determine_bests_bo3(solves):
+    """ docstring """
+
+    if all(solve.is_dnf for solve in solves):
+        return 'DNF'
+
+    else:
+        return min(solve.time for solve in solves if not solve.is_dnf)
+
+
+def determine_bests_mo3(solves):
+    """ docstring here """
+
+    dnf_count = sum(1 for solve in solves if solve.is_dnf)
+
+    if dnf_count > 0:
+        average = 'DNF'
+    else:
+        average = sum(solve.time for solve in solves) / 3.0
+
+    if dnf_count == 3:
+        single = 'DNF'
+    else:
+        single = min(solve.time for solve in solves if not solve.is_dnf)
+
+    return single, average
+
+
+def determine_bests_ao5(solves):
+    """ docstring here """
+
+    dnf_count = sum(1 for solve in solves if solve.is_dnf)
+
+    if dnf_count == 0:
+        times   = [solve.time for solve in solves]
+        best    = min(times)
+        worst   = max(times)
+        average = int((sum(times) - best - worst) / 3.0)
+
+    elif dnf_count == 1:
+        times   = [solve.time for solve in solves if not solve.is_dnf]
+        best    = min(times)
+        average = int((sum(times) - best) / 3.0)
+
+    elif dnf_count == 5:
+        average = 'DNF'
+        best    = 'DNF'
+
+    else:
+        times   = [solve.time for solve in solves if not solve.is_dnf]
+        average = 'DNF'
+        best    = min(times)
+
+    return best, average

@@ -108,7 +108,7 @@ class UserSolve(Model):
 
         if self.is_dnf:
             return 'DNF'
-        
+
         return convert_centiseconds_to_friendly_time(int(self.time))
 
 
