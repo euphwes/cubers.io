@@ -93,12 +93,14 @@
                                 </div>
                                 <div class="w-100"></div>
                                 <div class="col-12 col-md-10 col-lg-11">
-                                    <div class="btn-group">
-                                        <button class="btn btn-secondary btn-lg dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            
+                                    <div class="dv-scrambles-dropdown btn-group">
+                                        <button class="btn-scrambles btn btn-secondary btn-lg dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            {{ competition_event.scrambles[0].scramble }}
                                         </button>
-                                        <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="#">Action</a>
+                                        <div class="scrambles-dropdown dropdown-menu" style"display: block">
+                                            {% for scramble in competition_event.scrambles %}
+                                                <a class="dropdown-item" href="#" aria-labelledby="Scramble {{ loop.index1 }}" value="{{ scramble.id }}">{{ scramble.scramble }}</a>
+                                            {% endfor %}
                                         </div>
                                     </div>
                                 </div>
