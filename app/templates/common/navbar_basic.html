@@ -26,10 +26,6 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('login') }}">Login with Reddit</a>
                     </li>
-                {% if current_user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">{{ current_user.username }}</a>
-                    </li>
                 {% endif %}
             </ul>
         </div>
