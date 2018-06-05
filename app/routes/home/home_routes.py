@@ -2,11 +2,13 @@
 
 import json
 
-from flask import render_template, abort, request
+from flask import render_template, request
 from flask_login import current_user
 
 from app import CUBERS_APP
 from app.persistence import comp_manager
+from app.persistence.user_results_manager import build_user_event_results
+from app.util.reddit_util import build_comment_source_from_events_results
 
 # -------------------------------------------------------------------------------------------------
 
@@ -25,33 +27,41 @@ def submit_times():
     thread comment. If the user is authenticated, submit the comment for them, or else
     redirect to a page where the comment source is displayed. """
 
-    user_events = json.loads(request.get_data().decode('utf-8'))
+    # -----------------------
+    # TODO: **IMPORTANT** this is definitely *not* how this data is coming in via
+    # this POST, I just needed to get something working so I could test
+    # -----------------------
+
+    data = request.get_data().decode('utf-8')
+
+    user_events = json.loads(data)
+    user_results = build_user_results(user_events)
+    comment_source = build_comment_source_from_events_results(user_results)
 
     if current_user.is_authenticated:
-        return handle_user_submit_times(user_events)
+        # attempt submit comment
+        # if failure, show comment source page with error message
+        # if success, show success page with link to comment
+        return render_template('times_comment_source.html', comment_source = comment_source)
 
-    else:
-        return ""
-        #return handle_anon_submit_times(user_events)
-
-
-@CUBERS_APP.route('/comp/<competition_id>')
-def competition(competition_id):
-    try:
-        competition_id = int(competition_id)
-    except ValueError:
-        # TODO: come up with custom 404 not found page
-        return abort(404)
-
-    return render_template('comp.html', competition = comp_manager.get_competition(competition_id))
-
+    # show comment source page
+    return render_template('times_comment_source.html', comment_source = comment_source)
 
 # -------------------------------------------------------------------------------------------------
 
-def handle_user_submit_times(user_events):
+def build_user_results(user_events):
     """ docstring here """
 
-    return ""
+    # -----------------------
+    # TODO: **IMPORTANT** this parsing should change if we change
+    # how the input data is coming in
+    # -----------------------
 
-    for comp_event_id, solves in user_events.items():
-        a = 1
+    user_results = list()
+    for comp_event_id, solve_comment_dict in user_events.items():
+        solves = solve_comment_dict['scrambles']
+        comment = solve_comment_dict['comment']
+        event_results = build_user_event_results(comp_event_id, solves, comment)
+        user_results.append(event_results)
+
+    return user_results
