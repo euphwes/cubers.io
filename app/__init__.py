@@ -28,7 +28,6 @@ ASSETS.register({
         'lib/popper.min.js',
         'lib/bootstrap.min.js',
         'js/cubers_common.js',
-        filters="jsmin",
         output='gen/main.js'),
 
     'timer_js': Bundle(

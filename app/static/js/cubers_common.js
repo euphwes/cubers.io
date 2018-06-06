@@ -63,7 +63,7 @@ function selectScramble(scramble) {
             } else if (selectedScramble.isDNF) {
                 $(".btn-dnf.timer-btn").addClass("pressed");
             }
-        } else {
+        } else if (selectedScramble.time == 0) {
             setModifierButtonsEnabled(false);
         }
 
@@ -327,6 +327,29 @@ function buildOverview() {
     $("#card-time-entry").fadeOut(function() {
         $("#card-submit").fadeIn();
     });
+}
+
+function submitResults() {
+    var sanitziedResults = {};
+
+    keys = Object.keys(events);
+
+    for (var i = 0; i < keys.length; i++) {
+        var event = events[keys[i]];
+
+        var o = { scrambles: [], comment: "This is a default comment. Wow! Look at that average! Isn't Petrus such a hard method? I should really learn F2L..." }
+
+        for (var j = 0; j < event.scrambles; j++) {
+            var scramble = event.scrambles[j];
+
+            o.scrambles.push({ id: scramble.id, time: scramble.time, isPlusTwo: scramble.isPlusTwo, isDNF: scramble.isDNF })
+        }
+
+        sanitziedResults[event.id] = o;
+    }
+
+    $("#input-results").val(JSON.stringify(sanitziedResults));
+    $("#form-results").submit();
 }
 
 $(document).ready(function() {

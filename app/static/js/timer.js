@@ -77,11 +77,12 @@ function stopTimer() {
     clearInterval(timerInterval);
 
     timerModifierScramble = selectedScramble;
-    setModifierButtonsEnabled(true);
 
     currentTime = currentTime / 100;
     enterTime(selectedScramble, currentTime);
     selectScramble(getNextScramble(selectedEvent));
+
+    setModifierButtonsEnabled(true);
 
 
     $(".btn-switch-mode, #btn-continue, #timer-event-tabs .event-tab, .btn-scrambles").removeClass("disabled");
@@ -149,4 +150,8 @@ $(document).ready(function() {
         }
         //$this.parent().siblings(".btn-scrambles").html($this.html());
     });
+
+    $("#btn-submit").click(function() {
+        submitResults();
+    })
 });

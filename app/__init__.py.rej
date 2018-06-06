@@ -1,0 +1,9 @@
+diff a/app/__init__.py b/app/__init__.py	(rejected hunks)
+@@ -25,6 +25,7 @@
+ ASSETS.register({
+     'main_js': Bundle(
+         'lib/jquery-3.3.1.min.js',
++        'lib/popper.min.js',
+         'lib/bootstrap.min.js',
+         'js/cubers_common.js',
+         filters="jsmin",
