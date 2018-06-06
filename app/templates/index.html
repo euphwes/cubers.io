@@ -14,14 +14,14 @@
         </div>
         <div id="card-time-entry" class="card text-center">
             <div class="card-header pb-0">
-                <ul id="event-tabs" class="nav nav-tabs nav-scroll">
+                <ul id="event-tabs" class="nav nav-tabs nav-scroll ultra-hidden">
                     {% for competition_event in current_competition.events %}
                         <li class="nav-item">
                             <a class="event-tab nav-link {% if loop.index0 == 0 %} active {% endif %}" href="#{{ competition_event.Event.name }}" data-competition-event-id="{{ competition_event.id }}" data-toggle="tab" aria-controls="{{ competition_event.Event.name }}" aria-selected="true">{{ competition_event.Event.name }}</a>
                         </li>
                     {% endfor %}
                 </ul>
-                <ul id="timer-event-tabs" class="nav nav-tabs nav-scroll ultra-hidden">
+                <ul id="timer-event-tabs" class="nav nav-tabs nav-scroll">
                     {% for competition_event in current_competition.events %}
                         <li class="nav-item">
                             <a class="event-tab nav-link {% if loop.index0 == 0 %} active {% endif %}" href="#timer-{{ competition_event.Event.name }}" data-competition-event-id="{{ competition_event.id }}" data-toggle="tab" aria-controls="{{ competition_event.Event.name }}" aria-selected="true">{{ competition_event.Event.name }}</a>
@@ -64,8 +64,8 @@
                     <div class="row justify-content-center">
                         <div class="input-group col-12 col-md-10 col-lg-7">
                             <div class="input-group-prepend">
-                                <button id="btn-plus-two" class="btn btn-plus-two" type="button">+2</button>
-                                <button id="btn-dnf" class="btn btn-outline-danger btn-dnf" type="button">DNF</button>
+                                <button class="btn btn-plus-two" type="button">+2</button>
+                                <button class="btn btn-outline-danger btn-dnf" type="button">DNF</button>
                             </div>
                             <input id="input-time" type="text" class="form-control" placeholder="Time for Scramble 1" area-label"Time for Scramble 1">
                             <div class="input-group-append">
@@ -77,7 +77,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="dv-timer" style="">
+                <div id="dv-timer">
                     <div class="tab-content" style="margin-bottom: 20px">
                         {% for competition_event in current_competition.events %}
                         <div class="tab-pane fade {% if loop.index0 == 0 %} show active {% endif %}" id="timer-{{ competition_event.Event.name }}" role="tabpanel" aria-labelledby="{{ competition_event.Event.name }}-tab">
@@ -94,12 +94,12 @@
                                 <div class="w-100"></div>
                                 <div class="col-12 col-md-10 col-lg-11">
                                     <div class="dv-scrambles-dropdown btn-group">
-                                        <button class="btn-scrambles btn btn-secondary btn-lg dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            {{ competition_event.scrambles[0].scramble }}
+                                        <button class="btn-scrambles btn btn-secondary btn-lg dropdown-toggle" type="button" data-event-id="{{ competition_event.id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            1. {{ competition_event.scrambles[0].scramble }}
                                         </button>
                                         <div class="scrambles-dropdown dropdown-menu" style"display: block">
                                             {% for scramble in competition_event.scrambles %}
-                                                <a class="dropdown-item" href="#" aria-labelledby="Scramble {{ loop.index1 }}" value="{{ scramble.id }}">{{ scramble.scramble }}</a>
+                                                <a class="dropdown-item" aria-labelledby="Scramble {{ loop.index1 }}" data-scramble-id="{{ scramble.id }}">{{ loop.index }}. {{ scramble.scramble }}</a>
                                             {% endfor %}
                                         </div>
                                     </div>
@@ -110,13 +110,15 @@
                                         ready
                                     </span>
                                 </div>
-                                <div class="w-100 mb-5"></div>
+                                <div class="w-100 mb-4"></div>
                                 <div class="col-lg-12 col-md-10 col-sm-9 col-9">
-                                    <div class="result">12:05.215</div>
-                                    <div class="result">12:05.215</div>
-                                    <div class="result">12:05.215</div>
-                                    <div class="result">12:05.215</div>
-                                    <div class="result">12:05.215</div>
+                                    <button class="btn btn-lg btn-plus-two timer-btn" type="button">+2</button>
+                                    <button class="btn btn-lg btn-outline-danger btn-dnf timer-btn" type="button">DNF</button>
+                                </div>
+                                <div class="w-100 mb-4"></div>
+                                <div class="col-lg-12 col-md-10 col-sm-9 col-9">
+                                    {% for scramble in competition_event.scrambles %}<span id="timer-result-{{ scramble.id }}" class="result card" data-scramble-id="{{ scramble.id }}"><span class="num text-muted">{{ loop.index }}. </span><span class="value-holder"></span></span>{% endfor %}
+                                    <p id="timer-helper-text" class="text-muted">Select a time or scramble to modify the result or retime.</p>
                                 </div>
                             </div>
                         </div>
@@ -160,18 +162,20 @@
         </div>
     </div>
 
-    <script>
-        {% for competition_event in current_competition.events %}
-            addEvent({{ competition_event.id }}, "{{ competition_event.Event.name }}");
-
-            {% for scramble in competition_event.scrambles %}
-                addScramble({{ competition_event.id }}, {{ scramble.id }});
-            {% endfor %}
-        {% endfor %}
-
-        onTabSwitch(1);
-    </script>
     {% assets "timer_js" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
+    <script>
+        {% for competition_event in current_competition.events %}
+        addEvent({{ competition_event.id }}, "{{ competition_event.Event.name }}");
+
+        {% for scramble in competition_event.scrambles %}
+        addScramble({{ competition_event.id }}, {{ scramble.id }}, "{{ scramble.scramble }}");
+        {% endfor %}
+        {% endfor %}
+
+        $(document).ready(function() {
+            onTabSwitch({{ current_competition.events[0].id }});
+        });
+    </script>
 {% endblock %}

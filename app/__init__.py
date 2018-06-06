@@ -25,6 +25,7 @@ ASSETS = Environment(CUBERS_APP)
 ASSETS.register({
     'main_js': Bundle(
         'lib/jquery-3.3.1.min.js',
+        'lib/popper.min.js',
         'lib/bootstrap.min.js',
         'js/cubers_common.js',
         filters="jsmin",
@@ -32,7 +33,6 @@ ASSETS.register({
 
     'timer_js': Bundle(
         'js/timer.js',
-        filters="jsmin",
         output='gen/timer.js'
     ),
 

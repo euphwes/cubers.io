@@ -54,7 +54,11 @@ body {
 
 .btn:focus,.btn:active {
     outline: none !important;
-    box-shadow: none !important;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2) !important;
+}
+
+.disabled {
+    cursor: default;
 }
 
 .card {
@@ -205,17 +209,47 @@ body {
         cursor: pointer;
         font-size: 1.5rem;
         border-radius: 3px;
+        overflow-y: hidden;
         display: inline-block;
-        padding-left: 5px;
-        padding-right: 5px;
+        line-height: 44px;
+
+        -webkit-transition:height 200ms ease-in;
+        -moz-transition:height 200ms ease-in;
+        -o-transition:height 200ms ease-in;
+        transition:height 200ms ease-in;
 
         &:hover {
-            background-color: @highlight-color;
-            color: @site-bg-color;
+            background-color:lightgray;
         }
         
-        & + .result {
+        &.solved {
+            padding-left: 15px;
+            padding-right: 15px;
+            height: 44px;
+            width: auto;
+        }
+
+        &:not(.solved) {
+            height: 0px !important;
+            width: 0px;
+        }
+
+        & + .result.solved {
             margin-left: 10px;
+        }
+
+        .num {
+            font-weight: 100;
+            font-size: 1.2rem;
+        }
+
+        &.active {
+            background-color: @highlight-color;
+            color: @site-bg-color;
+
+            .num {
+                color: ghostwhite !important;
+            }
         }
     }
 
@@ -300,10 +334,26 @@ body {
 }
 
 
-.btn {
+.btn, input {
     box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
     border-radius: 2px;
     border-width: 0px;
     transition-property: box-shadow, box-shadow, background-color, color;
+}
+
+#timer-helper-text {
+    margin-bottom: 0px;
+    height: 0px;
+    overflow-y: hidden;
+
+    -webkit-transition:height 200ms ease-in;
+    -moz-transition:height 200ms ease-in;
+    -o-transition:height 200ms ease-in;
+    transition:height 200ms ease-in;
+
+    .result.solved ~ & {
+        margin-top: 20px;
+        height: 40px;
+    }
 }
 

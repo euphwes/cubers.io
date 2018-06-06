@@ -11,8 +11,6 @@ var timeOverviewTemplate = '<li class="list-group-item list-group-item-action" d
 
 var selectedScramble = null;
 var selectedEvent = null;
-var isDNF = false;
-var isPlusTwo = false;
 
 var events = {};
 
@@ -33,14 +31,41 @@ function selectScramble(scramble) {
         selectedScramble.$element.removeClass("active");
     }
 
+    $(".result.active").removeClass("active");
+
     if (scramble != null) {
         selectedScramble = scramble
         scramble.$element.addClass("active");
 
-        $("#btn-dnf").removeClass("disabled").removeClass("pressed");
-        $("#btn-plus-two").removeClass("disabled").removeClass("pressed");
+        $(".btn-dnf").removeClass("disabled").removeClass("pressed");
+        $(".btn-plus-two").removeClass("disabled").removeClass("pressed");
         $("#btn-enter-time").removeClass("disabled")
         $("#input-time").attr("placeholder", "Time for Scramble " + scramble.num).attr("aria-label", "Time for Scramble " + scramble.num).prop("disabled", false);
+        $("#input-time").val("");
+        
+        selectedEvent.$timer.find(".btn-scrambles").html(selectedScramble.num + ". " + selectedScramble.scramble);
+
+        if (selectedScramble.time != 0) {
+            if (!selectedScramble.isDNF) {
+                $timerText.html(convertSecondsToMinutes(selectedScramble.time));
+            } else {
+                $timerText.html("DNF");
+            }
+            
+            $("#timer-result-" + selectedScramble.id).addClass("active");
+        }
+
+        if (selectedScramble.unmodifiedTime != 0) {
+            setModifierButtonsEnabled(true);
+
+            if (selectedScramble.isPlusTwo) {
+                $(".btn-plus-two.timer-btn").addClass("pressed");
+            } else if (selectedScramble.isDNF) {
+                $(".btn-dnf.timer-btn").addClass("pressed");
+            }
+        } else {
+            setModifierButtonsEnabled(false);
+        }
 
         setTimeout(function() {
             $("#input-time").focus();
@@ -50,12 +75,11 @@ function selectScramble(scramble) {
         selectedScramble = null;
         $("#input-time").attr("placeholder", "Please select a scramble").prop("disabled", true);
         $("#btn-enter-time").addClass("disabled");
-        $("#btn-dnf").addClass("disabled").removeClass("pressed");
-        $("#btn-plus-two").addClass("disabled").removeClass("pressed");
-    }
+        $(".btn-dnf").addClass("disabled").removeClass("pressed");
+        $(".btn-plus-two").addClass("disabled").removeClass("pressed");
 
-    isPlusTwo = false;
-    isDNF = false;
+        $timerText.html("done");
+    }
 }
 
 function getScramble(scrambleId) {
@@ -89,18 +113,25 @@ function getNextScramble(event) {
 }
 
 function addEvent(eventId, eventName) {
-    events[eventId] = { id: eventId, name: eventName, scrambles: [], comment: "" };
+    events[eventId] = { id: eventId, name: eventName, scrambles: [], comment: "", $timer: $("#timer-" + eventName) };
 }
 
-function addScramble(eventId, scrambleId) {
-    events[eventId].scrambles.push({ id: scrambleId, time: 0, plusTwo: false, isDNF: false, num: events[eventId].scrambles.length + 1, $element: $(".scrambles .scramble[data-scramble-id=" + scrambleId + "]")});
+function addScramble(eventId, scrambleId, scrambleValue) {
+    events[eventId].scrambles.push({ id: scrambleId, scramble: scrambleValue, time: 0, unmodifiedTime: 0, plusTwo: false, isDNF: false, num: events[eventId].scrambles.length + 1, $element: $(".scrambles .scramble[data-scramble-id=" + scrambleId + "]")});
 }
 
 function onTabSwitch(eventId) {
-    selectedEvent = events[eventId]
+    selectedEvent = events[eventId];
+
+    $timerText = $("#timer-" + selectedEvent.name + " .timer-time");
 
     selectScramble(getNextScramble(selectedEvent));
+
+    timerModifierScramble = selectedScramble;
+    setModifierButtonsEnabled(false);
+
     $("#input-time").val("");
+    
 }
 
 function setTimeInputValid(flag) {
@@ -118,7 +149,7 @@ function convertMinutestoSeconds(timeString) {
         // If we're in minute format, the seconds can't be over 60 (aka 12 minutes and 76 seconds doesn't make sense)
         return Number.NaN;
     }
-    console.log(parseInt(parts[0]) * 60 + parseFloat(parts[1]));
+
     return parseInt(parts[0]) * 60 + parseFloat(parts[1])
 }
 
@@ -149,11 +180,8 @@ function enterTime(scramble, time) {
         return;
     }
 
-    scramble.isDNF = isDNF;
-    scramble.isPlusTwo = isPlusTwo;
-
-    if (time != "DNF") {
-        if (time.indexOf(":") > -1) {
+    if (!scramble.isDNF) {
+        if (time.toString().indexOf(":") > -1) {
             time = convertMinutestoSeconds(time);
         } else {
             time = parseFloat(time);
@@ -164,29 +192,33 @@ function enterTime(scramble, time) {
             return;
         }
 
-        if (isPlusTwo) {
+        scramble.unmodifiedTime = time;
+
+        if (scramble.isPlusTwo) {
             time += 2.0;
         }
 
-        scramble.$element.removeClass("dnf");
-        scramble.$element.find(".scramble-time").html(convertSecondsToMinutes(time));
         scramble.time = time;
+
+        scramble.$element.find(".scramble-time").html(convertSecondsToMinutes(time));
+        $("#timer-result-" + scramble.id.toString() + " .value-holder").html(convertSecondsToMinutes(time));
+
     } else {
         scramble.$element.addClass("dnf");
         scramble.$element.find(".scramble-time").html("DNF");
+        $("#timer-result-" + scramble.id.toString() + " .value-holder").html("DNF");
+
         scramble.time = -1;
     }
 
-    if (isPlusTwo) {
+    if (scramble.isPlusTwo) {
         scramble.$element.addClass("plus-two");
     } else {
         scramble.$element.removeClass("plus-two");
     }
 
     scramble.$element.addClass("solved");
-
-    selectScramble(getNextScramble(selectedEvent));
-    $("#input-time").val("");
+    $("#timer-result-" + scramble.id.toString()).addClass("solved");
 }
 
 function buildOverview() {
@@ -209,6 +241,7 @@ function buildOverview() {
         // It also finds the min and max times to not include them in the average by checking as it goes along.
         // It also calculates the average (once the min and max are taken out, if it's an Ao5)
         // Finally, it counts DNF's and makes sure that the average adjusts accordingly
+
         for (var j = 0; j < event.scrambles.length; j++) {
             var scramble = event.scrambles[j];
 
@@ -320,12 +353,14 @@ $(document).ready(function() {
 
     $("#btn-enter-time").click(function() {
         enterTime(selectedScramble, $("#input-time").val());
+        selectScramble(getNextScramble(selectedEvent));
     });
 
     $("#input-time").on('keypress', function (e) {
         // First is whether it is keys 0-9. 8 and 46 are backspace and delete.
         if (e.which == 13) { // Enter key
             enterTime(selectedScramble, $("#input-time").val());
+            selectScramble(getNextScramble(selectedEvent));
         } else if (!((e.which >= 48 && e.which <= 57) || (String.fromCharCode(e.which) == ".") || (String.fromCharCode(e.which) == ":") || (e.which == 8) | (e.which == 46))) {
             e.preventDefault();
         } else {
@@ -339,40 +374,60 @@ $(document).ready(function() {
         }
     });
 
-    $("#btn-dnf").click(function() {
+    $("#dv-timer .btn-dnf").click(function() {
         if ($(this).hasClass("disabled")) {
             return;
         }
 
-        isDNF = !isDNF;
+        timerModifierScramble.isDNF = !timerModifierScramble.isDNF;
 
-        if (isDNF) {
+        if (timerModifierScramble.isDNF) {
             $("#input-time").prop("disabled", true).val("DNF");
-            $(this).addClass("pressed");
-            $("#btn-plus-two").addClass("disabled").removeClass("pressed");
-            isPlusTwo = false;
+            $(".btn-dnf").addClass("pressed");
+            $(".btn-plus-two").removeClass("pressed");
+            timerModifierScramble.isPlusTwo = false;
         } else {
             $("#input-time").prop("disabled", false).val("");
-            $(this).removeClass("pressed");
-            $("#btn-plus-two").removeClass("disabled");
+            $(".btn-dnf").removeClass("pressed");
+        }
+
+        if ($(this).hasClass("timer-btn")) {
+            enterTime(timerModifierScramble, timerModifierScramble.unmodifiedTime);
+
+            if (timerModifierScramble.isDNF) {
+                $timerText.html("DNF");
+            } else {
+                $timerText.html(convertSecondsToMinutes(timerModifierScramble.time));
+            }
         }
     });
 
-    $("#btn-plus-two").click(function() {
+    $("#dv-timer .btn-plus-two").click(function() {
         if ($(this).hasClass("disabled")) {
             return;
         }
 
-        isPlusTwo = !isPlusTwo;
+        timerModifierScramble.isPlusTwo = !timerModifierScramble.isPlusTwo;
 
-        if (isPlusTwo) {
-            $(this).addClass("pressed");
+        if (timerModifierScramble.isPlusTwo) {
+            $(".btn-plus-two").addClass("pressed");
+            $(".btn-dnf").removeClass("pressed");
+            timerModifierScramble.isDNF = false;
         } else {
-            $(this).removeClass("pressed");
+            $(".btn-plus-two").removeClass("pressed");
+        }
+
+        if ($(this).hasClass("timer-btn")) {
+            enterTime(timerModifierScramble, timerModifierScramble.unmodifiedTime);
+            $timerText.html(convertSecondsToMinutes(timerModifierScramble.time));
         }
     });
 
-    $("#btn-continue").click(buildOverview);
+    $("#btn-continue").click(function() {
+        if (!$(this).hasClass("disabled")) {
+            buildOverview();
+        }
+    });
 
     $("#btn-cancel-submit").click(function() {
         $("#card-submit").fadeOut(function() {
@@ -381,6 +436,10 @@ $(document).ready(function() {
     })
 
     $(".btn-switch-mode").click(function() {
+        if ($(this).hasClass("disabled")) {
+            return;
+        }
+
         if (currentMode == 0) {
             $("#dv-manual").fadeOut(function() {
                 $("#dv-timer").fadeIn();
@@ -396,5 +455,5 @@ $(document).ready(function() {
                 currentMode = 0;
             });
         }
-    })
+    });
 });
