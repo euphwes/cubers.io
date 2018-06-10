@@ -117,7 +117,7 @@ function addEvent(eventId, eventName) {
 }
 
 function addScramble(eventId, scrambleId, scrambleValue) {
-    events[eventId].scrambles.push({ id: scrambleId, scramble: scrambleValue, time: 0, unmodifiedTime: 0, plusTwo: false, isDNF: false, num: events[eventId].scrambles.length + 1, $element: $(".scrambles .scramble[data-scramble-id=" + scrambleId + "]")});
+    events[eventId].scrambles.push({ id: scrambleId, scramble: scrambleValue, time: 0, unmodifiedTime: 0, isPlusTwo: false, isDNF: false, num: events[eventId].scrambles.length + 1, $element: $(".scrambles .scramble[data-scramble-id=" + scrambleId + "]")});
 }
 
 function onTabSwitch(eventId) {
@@ -339,7 +339,7 @@ function submitResults() {
 
         var o = { scrambles: [], comment: "This is a default comment. Wow! Look at that average! Isn't Petrus such a hard method? I should really learn F2L..." }
 
-        for (var j = 0; j < event.scrambles; j++) {
+        for (var j = 0; j < event.scrambles.length; j++) {
             var scramble = event.scrambles[j];
 
             o.scrambles.push({ id: scramble.id, time: scramble.time, isPlusTwo: scramble.isPlusTwo, isDNF: scramble.isDNF })
