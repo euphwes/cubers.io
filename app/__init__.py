@@ -37,7 +37,7 @@ ASSETS.register({
 
     'main_css': Bundle(
         'less/cubers_common.less',
-        filters="less,yui_css",
+        filters="less,cssmin",
         output='gen/main.css'),
 
     'bootstrap_css': Bundle(
