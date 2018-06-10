@@ -12,11 +12,6 @@ def build_user_event_results(comp_event_id, solves, comment):
     """ Builds a UserEventsResult object from a competition_event ID and a list of scrambles
     and associated solve times. """
 
-    # -----------------------
-    # TODO: **IMPORTANT** this parsing will probably change if we change
-    # how the input data is coming in
-    # -----------------------
-
     comp_event = get_comp_event_by_id(comp_event_id)
     results = UserEventResults(comp_event_id=comp_event_id, comment=comment)
 
@@ -26,9 +21,9 @@ def build_user_event_results(comp_event_id, solves, comment):
             # time is literally zero, meaning user didn't submit a time for this solve
             continue
 
-        dnf         = bool(solve['isDNF'] == "true")
+        dnf         = solve['isDNF']
         time        = 0 if dnf else int(float(solve['time']) * 100)
-        plus_two    = bool(solve['plusTwo'] == "true")
+        plus_two    = solve['isPlusTwo']
         scramble_id = solve['id']
 
         user_solve = UserSolve(time=time, is_dnf=dnf, is_plus_two=plus_two, scramble_id=scramble_id)

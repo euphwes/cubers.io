@@ -68,7 +68,7 @@ def build_times_string(solves, event_format):
             best_index = i
             curr_best  = solve.time
 
-        elif (not have_found_dnf) and (solve.time > curr_worst):
+        if (not have_found_dnf) and (solve.time > curr_worst):
             worst_index = i
             curr_worst  = solve.time
 

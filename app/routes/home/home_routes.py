@@ -27,15 +27,10 @@ def submit_times():
     thread comment. If the user is authenticated, submit the comment for them, or else
     redirect to a page where the comment source is displayed. """
 
-    # -----------------------
-    # TODO: **IMPORTANT** this is definitely *not* how this data is coming in via
-    # this POST, I just needed to get something working so I could test
-    # -----------------------
+    data = request.form['input-results']
 
-    data = request.get_data().decode('utf-8')
-
-    user_events = json.loads(data)
-    user_results = build_user_results(user_events)
+    user_events    = json.loads(data)
+    user_results   = build_user_results(user_events)
     comment_source = build_comment_source_from_events_results(user_results)
 
     if current_user.is_authenticated:
@@ -51,11 +46,6 @@ def submit_times():
 
 def build_user_results(user_events):
     """ docstring here """
-
-    # -----------------------
-    # TODO: **IMPORTANT** this parsing should change if we change
-    # how the input data is coming in
-    # -----------------------
 
     user_results = list()
     for comp_event_id, solve_comment_dict in user_events.items():
