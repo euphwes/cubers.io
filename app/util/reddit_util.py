@@ -7,7 +7,8 @@ from praw import Reddit
 
 from app import CUBERS_APP
 from app.persistence.models import EventFormat
-from app.persistence.comp_manager import get_comp_event_by_id
+from app.persistence.comp_manager import get_comp_event_by_id, get_active_competition
+from app.persistence.user_manager import get_user_by_username
 from app.util.times_util import convert_centiseconds_to_friendly_time, convert_min_sec
 from app.util import events_util
 
@@ -93,7 +94,19 @@ def build_times_string(solves, event_format):
 def get_new_reddit():
     """ Returns a new, unauthenticated Reddit instance. """
     return Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=REDIRECT,
-                  user_agent = USER_AGENT)
+                  user_agent=USER_AGENT)
+
+
+def submit_comment_for_user(username, reddit_thread_id, comment_source):
+    user = get_user_by_username(username)
+
+    r = Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, refresh_token=user.refresh_token,
+               user_agent=USER_AGENT)
+    comp_submission = r.submission(id=reddit_thread_id)
+    comment = comp_submission.reply(comment_source)
+    print(comment)
+    print(dir(comment))
+    return comment
 
 
 #pylint: disable=C0103
