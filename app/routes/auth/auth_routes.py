@@ -34,7 +34,7 @@ def authorize():
 
     #TODO: handle error=access_denied meaning user decline OAuth
     # error = request.args.get('error')
-    
+
     auth_code = request.args.get('code')
 
     username, refresh_token = get_username_refresh_token_from_code(auth_code)

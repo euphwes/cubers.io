@@ -7,7 +7,7 @@ from praw import Reddit
 
 from app import CUBERS_APP
 from app.persistence.models import EventFormat
-from app.persistence.comp_manager import get_comp_event_by_id, get_active_competition
+from app.persistence.comp_manager import get_comp_event_by_id
 from app.persistence.user_manager import get_user_by_username
 from app.util.times_util import convert_centiseconds_to_friendly_time, convert_min_sec
 from app.util import events_util
@@ -16,6 +16,14 @@ REDIRECT      = CUBERS_APP.config['REDDIT_REDIRECT_URI']
 USER_AGENT    = 'web:rcubersComps:v0.01 by /u/euphwes'
 CLIENT_ID     = CUBERS_APP.config['REDDIT_CLIENT_ID']
 CLIENT_SECRET = CUBERS_APP.config['REDDIT_CLIENT_SECRET']
+APP_URL       = '({})'.format(CUBERS_APP.config['APP_URL'])
+
+COMMENT_FOOTER = '\n'.join([
+    '',
+    '----',
+    '^^^Submitted ^^^by ^^^the [^^^weekly ^^^competition ^^^web ^^^app]' + APP_URL,
+    # possible future stuff linking to the user's profile or competition history?
+])
 
 # -------------------------------------------------------------------------------------------------
 
@@ -42,10 +50,10 @@ def build_comment_source_from_events_results(events_results):
         else:
             average = convert_centiseconds_to_friendly_time(results.average)
 
-
         line = event_line_template.format(event_name, average, times_string, comment)
         comment_source += line
 
+    comment_source += COMMENT_FOOTER
     return comment_source
 
 
@@ -82,11 +90,10 @@ def build_times_string(solves, event_format):
     for i in dnf_indicies:
         friendly_times[i] = 'DNF'
 
-    friendly_times[best_index] = '({})'.format(friendly_times[best_index])
-
     if event_format in [EventFormat.Bo3, EventFormat.Mo3]:
         return ', '.join(friendly_times)
 
+    friendly_times[best_index] = '({})'.format(friendly_times[best_index])
     friendly_times[worst_index] = '({})'.format(friendly_times[worst_index])
     return ', '.join(friendly_times)
 

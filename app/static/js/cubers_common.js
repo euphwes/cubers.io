@@ -337,7 +337,8 @@ function submitResults() {
     for (var i = 0; i < keys.length; i++) {
         var event = events[keys[i]];
 
-        var o = { scrambles: [], comment: "This is a default comment. Wow! Look at that average! Isn't Petrus such a hard method? I should really learn F2L..." }
+        //var o = { scrambles: [], comment: "This is a default comment. Wow! Look at that average! Isn't Petrus such a hard method? I should really learn F2L..." }
+        var o = { scrambles: [], comment: "" }
 
         for (var j = 0; j < event.scrambles.length; j++) {
             var scramble = event.scrambles[j];
