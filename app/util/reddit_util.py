@@ -21,7 +21,7 @@ APP_URL       = '({})'.format(CUBERS_APP.config['APP_URL'])
 COMMENT_FOOTER = '\n'.join([
     '',
     '----',
-    '^^^Submitted ^^^by ^^^the [^^^weekly ^^^competition ^^^web ^^^app]' + APP_URL,
+    '^^^Submitted ^^^via ^^^the [^^^weekly ^^^competition ^^^web ^^^app]' + APP_URL,
     # possible future stuff linking to the user's profile or competition history?
 ])
 
@@ -106,14 +106,15 @@ def get_new_reddit():
 
 def submit_comment_for_user(username, reddit_thread_id, comment_source):
     user = get_user_by_username(username)
-
     r = Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, refresh_token=user.refresh_token,
                user_agent=USER_AGENT)
     comp_submission = r.submission(id=reddit_thread_id)
-    comment = comp_submission.reply(comment_source)
-    print(comment)
-    print(dir(comment))
-    return comment
+    return comp_submission.reply(comment_source)
+
+
+def get_permalink_for_comp_thread(reddit_thread_id):
+    return Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=REDIRECT,
+                  user_agent=USER_AGENT).submission(id=reddit_thread_id).permalink
 
 
 #pylint: disable=C0103

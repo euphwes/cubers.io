@@ -8,7 +8,7 @@ from flask_login import current_user
 from app import CUBERS_APP
 from app.persistence import comp_manager
 from app.persistence.user_results_manager import build_user_event_results
-from app.util.reddit_util import build_comment_source_from_events_results, submit_comment_for_user
+from app.util.reddit_util import build_comment_source_from_events_results, submit_comment_for_user, get_permalink_for_comp_thread
 
 # -------------------------------------------------------------------------------------------------
 
@@ -33,22 +33,21 @@ def submit_times():
     user_results   = build_user_results(user_events)
     comment_source = build_comment_source_from_events_results(user_results)
 
+    comp_reddit_id = comp_manager.get_active_competition().reddit_thread_id
+    comp_thread_url = 'http://www.reddit.com' + get_permalink_for_comp_thread(comp_reddit_id)
+
     if current_user.is_authenticated:
-        # attempt submit comment
-        # if failure, show comment source page with error message
-        # if success, show success page with link to comment
         try:
-            comp_reddit_id = comp_manager.get_active_competition().reddit_thread_id
             comment = submit_comment_for_user(current_user.username, comp_reddit_id, comment_source)
-            return render_template('times_comment_source.html', comment_source = str(comment))
+            comment_url = 'http://www.reddit.com' + comment.permalink
+            return render_template('comment_submit_success.html', comment_url=comment_url)
         except:
             # TODO figure out what PRAW can actually throw here
-            import sys
-            return render_template('times_comment_source.html', comment_source = str(sys.exc_info()[0]))
-        return render_template('times_comment_source.html', comment_source = comment_source)
+            return render_template('comment_submit_failure.html', comment_source=comment_source,
+                                   comp_url=comp_thread_url)
 
     # show comment source page
-    return render_template('times_comment_source.html', comment_source = comment_source)
+    return render_template('times_comment_source.html', comment_source=comment_source, comp_url=comp_thread_url)
 
 # -------------------------------------------------------------------------------------------------
 
