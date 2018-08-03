@@ -583,8 +583,9 @@ $(document).ready(function() {
         }
     });
 
-    $(".timer-start-zone").click(function() {
+    $(".timer-start-zone").click(function(e) {
         onTimerActionKey();
+        e.stopPropagation();
     });
 
     $("#btn-submit").click(function() {
