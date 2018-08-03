@@ -25,6 +25,8 @@ COMMENT_FOOTER = '\n'.join([
     # possible future stuff linking to the user's profile or competition history?
 ])
 
+REDDIT_URL_ROOT = 'http://www.reddit.com'
+
 # -------------------------------------------------------------------------------------------------
 
 #pylint: disable=C0103
@@ -104,17 +106,31 @@ def get_new_reddit():
                   user_agent=USER_AGENT)
 
 
-def submit_comment_for_user(username, reddit_thread_id, comment_source):
+def get_authed_reddit_for_user(user):
+    """ Returns a PRAW instance for this user using their refresh token. """
+    return Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET,
+                  refresh_token=user.refresh_token, user_agent=USER_AGENT)
+
+
+def get_non_user_reddit():
+    """ Returns a PRAW instance for cases where we do not need to be authed as a user. """
+    return Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=REDIRECT,
+                  user_agent=USER_AGENT)
+
+
+def submit_comment_for_user(username, reddit_thread_id, comment_body):
+    """ Submits the comment with the specified body on behalf of the user and returns a URL
+    for the comment. """
     user = get_user_by_username(username)
-    r = Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, refresh_token=user.refresh_token,
-               user_agent=USER_AGENT)
-    comp_submission = r.submission(id=reddit_thread_id)
-    return comp_submission.reply(comment_source)
+    comp_submission = get_authed_reddit_for_user(user).submission(id=reddit_thread_id)
+    comment = comp_submission.reply(comment_body)
+    return REDDIT_URL_ROOT + comment.permalink
 
 
 def get_permalink_for_comp_thread(reddit_thread_id):
-    return Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=REDIRECT,
-                  user_agent=USER_AGENT).submission(id=reddit_thread_id).permalink
+    """ Returns the permalink for the competition thread specified by the ID above. """
+    comp = get_non_user_reddit().submission(id=reddit_thread_id)
+    return REDDIT_URL_ROOT + comp.permalink
 
 
 #pylint: disable=C0103

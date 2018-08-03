@@ -29,8 +29,7 @@ def determine_bests_bo3(solves):
     if all(solve.is_dnf for solve in solves):
         return DNF, NA
 
-    else:
-        return min(solve.time for solve in solves if not solve.is_dnf), NA
+    return min(solve.time for solve in solves if not solve.is_dnf), NA
 
 
 def determine_bests_mo3(solves):
