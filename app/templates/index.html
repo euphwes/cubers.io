@@ -140,7 +140,7 @@
                 <h4 class="card-title">Overview</h4>
                 <div class="d-flex align-items-center" style="min-height: 220px;">
                     <div style="width: 100%;">
-                        <div class="justify-content-center px-3">
+                        <div class="row justify-content-center px-3">
                             <ul id="overview" class="list-group col-12 col-md-10 col-lg-8" style="padding: 0px"></ul>
                         </div>
                         <h6 style="margin-top: 5px">Spot an error? Click on an event to correct it!</h6>
@@ -155,7 +155,7 @@
                         <button id="btn-cancel-submit" class="btn btn-lg btn-outline-secondary" style="width: 100%">Cancel</button>
                     </div>
                     <div class="col-sm-5 col-md-4 col-lg-3">
-                        <form action="/submit" method="POST" id="form-results">
+                        <form action="/submit" method="POST" id="form-results" style="display: none">
                             <input type="hidden" id="input-results" />
                         </form>
                         <button id="btn-submit" class="btn btn-lg btn-success" style="width: 100%">Submit</button>

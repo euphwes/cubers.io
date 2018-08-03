@@ -212,12 +212,21 @@ $(document).ready(function() {
 
     $("#btn-continue").click(function() {
         if (!$(this).hasClass("disabled")) {
+            $("#card-time-entry").fadeOut(function() {
+                $("#card-submit").fadeIn();
+            });
             buildOverview();
         }
     });
 
     $("#btn-submit").click(function() {
         submitResults();
+    })
+
+    $("#btn-cancel-submit").click(function() {
+        $("#card-submit").fadeOut(function() {
+            $("#card-time-entry").fadeIn();
+        });
     })
 });
 var currentTime = 0;

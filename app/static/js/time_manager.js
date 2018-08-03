@@ -143,9 +143,12 @@ function buildOverview() {
             average = (average / averageCount).toFixed(2);
         }
 
-        if (completedTimes.length >= 5) {
+        if (average != "DNF" && completedTimes.length >= 5) {
             completedTimes[maxIndex] = "(" + completedTimes[maxIndex] + ")";
-            completedTimes[minIndex] = "(" + completedTimes[minIndex] + ")";
+            
+            if (numDNF == 0) {
+                completedTimes[minIndex] = "(" + completedTimes[minIndex] + ")";
+            }
         }
 
         if (completedTimes.length > 0) {
@@ -212,11 +215,20 @@ $(document).ready(function() {
 
     $("#btn-continue").click(function() {
         if (!$(this).hasClass("disabled")) {
+            $("#card-time-entry").fadeOut(function() {
+                $("#card-submit").fadeIn();
+            });
             buildOverview();
         }
     });
 
     $("#btn-submit").click(function() {
         submitResults();
+    })
+
+    $("#btn-cancel-submit").click(function() {
+        $("#card-submit").fadeOut(function() {
+            $("#card-time-entry").fadeIn();
+        });
     })
 });
