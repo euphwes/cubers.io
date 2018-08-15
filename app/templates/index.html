@@ -14,6 +14,7 @@
         </div>
         <div id="card-time-entry" class="card text-center">
             <div class="card-header pb-0">
+                <!--
                 <ul id="event-tabs" class="nav nav-tabs nav-scroll ultra-hidden">
                     {% for competition_event in current_competition.events %}
                         <li class="nav-item">
@@ -28,6 +29,27 @@
                         </li>
                     {% endfor %}
                 </ul>
+                -->
+                <div class="row justify-content-center">
+                    {% for competition_event in current_competition.events %}
+                        <div class="col-2 mb-5">
+                            <div class="event-card card">
+                                <div style="position: relative;">
+                                    <div class="card-img-top py-3" style="min-height: 153px">
+                                        <img src="./static/images/cube-{{ competition_event.Event.id }}.png">
+                                    </div>
+                                    <div class="card-img-top py-3 selected-image" style="position: absolute; top: 0; left: 0; min-height: 153px">
+                                        <img src="./static/images/cube-{{ competition_event.Event.id }}-selected.png">
+                                    </div>
+                                </div>
+                                <div class="card-body pt-0 pb-1">
+                                    <hr class="my-0">
+                                    <h5 class="card-title mt-2">{{ competition_event.Event.name }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div class>
             </div>
             <div class="card-body" style="padding-left: 3px; padding-right: 3px">
                 <div id="dv-manual" style="display: none">

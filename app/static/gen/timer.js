@@ -57,7 +57,7 @@ function convertMinutestoSeconds(timeString) {
         return Number.NaN;
     }
 
-    return parseInt(parts[0]) * 60 + parseFloat(parts[1])
+    return parseInt(parts[0]) * 60 + parseFloat(parts[1]);
 }
 
 function convertSecondsToMinutes(time) {
@@ -143,9 +143,12 @@ function buildOverview() {
             average = (average / averageCount).toFixed(2);
         }
 
-        if (completedTimes.length >= 5) {
+        if (average != "DNF" && completedTimes.length >= 5) {
             completedTimes[maxIndex] = "(" + completedTimes[maxIndex] + ")";
-            completedTimes[minIndex] = "(" + completedTimes[minIndex] + ")";
+            
+            if (numDNF == 0) {
+                completedTimes[minIndex] = "(" + completedTimes[minIndex] + ")";
+            }
         }
 
         if (completedTimes.length > 0) {

@@ -57,7 +57,7 @@ function convertMinutestoSeconds(timeString) {
         return Number.NaN;
     }
 
-    return parseInt(parts[0]) * 60 + parseFloat(parts[1])
+    return parseInt(parts[0]) * 60 + parseFloat(parts[1]);
 }
 
 function convertSecondsToMinutes(time) {
