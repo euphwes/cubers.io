@@ -27,10 +27,10 @@ ASSETS.register({
         'lib/jquery-3.3.1.min.js',
         'lib/popper.min.js',
         'lib/bootstrap.min.js',
-        'js/cubers_common.js',
         output='gen/main.js'),
 
     'timer_js': Bundle(
+        'js/time_manager.js',
         'js/timer.js',
         output='gen/timer.js'
     ),

@@ -55,7 +55,6 @@ class Event(Model):
     description    = Column(String(128))
     CompEvents     = relationship("CompetitionEvent", backref="Event")
 
-
 class Scramble(Model):
     """ A scramble for a specific event at a specific competition. """
     __tablename__        = 'scrambles'
