@@ -1,0 +1,133 @@
+<div class="card-body" style="padding-left: 3px; padding-right: 3px">
+        <div id="dv-manual" style="display: none">
+            <div class="tab-content" style="margin-bottom: 20px">
+                {% for competition_event in current_competition.events %}
+                <div class="tab-pane fade {% if loop.index0 == 0 %} show active {% endif %}" id="{{ competition_event.Event.name }}" role="tabpanel" aria-labelledby="{{ competition_event.Event.name }}-tab">
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-10 col-lg-8">
+                            <div class="container">
+                                <div class="justify-content-between form-group form-inline px-3">
+                                    <label for="btn-switch-mode" style="font-size: 1.5rem">{{ competition_event.Event.name }}</label>
+                                    <button class="btn-switch-mode btn btn-outline-secondary">Switch to Timer</button>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="scrambles">
+                                {% for scramble in competition_event.scrambles %}
+                                    <div class="scramble" data-scramble-id="{{ scramble.id }}" data-scramble-num="{{ loop.index }}">
+                                        <div class="container">
+                                            <div class="row justify-content-center">
+                                                <div class="scramble-num col-1 col-sm-2 col-md-1 col-lg-1" style="text-align: center"><span style="overflow-wrap: normal; padding-left: 5px;">{{ loop.index }}.</span></div>
+                                                <div class="col-8 col-sm-9 col-md-8 col-lg-8"><span>{{ scramble.scramble }}</span></div>
+                                                <div class="dv-scramble-time col-4 col-sm-3 col-md-3 col-lg-3" style="text-align: left"><span class="scramble-time" style="overflow-wrap: normal; padding-right: 5px"></span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="row justify-content-center">
+                <div class="input-group col-12 col-md-10 col-lg-7">
+                    <div class="input-group-prepend">
+                        <button class="btn btn-plus-two" type="button">+2</button>
+                        <button class="btn btn-outline-danger btn-dnf" type="button">DNF</button>
+                    </div>
+                    <input id="input-time" type="text" class="form-control" placeholder="Time for Scramble 1" area-label"Time for Scramble 1">
+                    <div class="input-group-append">
+                        <button id="btn-enter-time" class="btn btn-cubers-primary-outline" type="button">Enter</button>
+                    </div>
+                    <div class="invalid-feedback">
+                        Invalid time 
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="dv-timer">
+            <div class="tab-content" style="margin-bottom: 20px">
+                {% for competition_event in current_competition.events %}
+                <div class="tab-pane fade {% if loop.index0 == 0 %} show active {% endif %}" id="timer-{{ competition_event.Event.name }}" role="tabpanel" aria-labelledby="{{ competition_event.Event.name }}-tab">
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-10 col-lg-8">
+                            <div class="container">
+                                <div class="justify-content-between form-group form-inline px-3">
+                                    <label for="btn-switch-mode" style="font-size: 1.5rem">{{ competition_event.Event.name }}</label>
+                                    <button class="btn-switch-mode btn btn-outline-secondary">Switch to Manual</button>
+                                </div>
+                            </div>
+                            <hr>
+                        </div>
+                        <div class="w-100"></div>
+                        <div class="col-12 col-md-10 col-lg-11">
+                            <div class="dv-scrambles-dropdown btn-group">
+                                <button class="btn-scrambles btn btn-secondary btn-lg dropdown-toggle" type="button" data-event-id="{{ competition_event.id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    1. {{ competition_event.scrambles[0].scramble }}
+                                </button>
+                                <div class="scrambles-dropdown dropdown-menu" style"display: block">
+                                    {% for scramble in competition_event.scrambles %}
+                                        <a class="dropdown-item" aria-labelledby="Scramble {{ loop.index1 }}" data-scramble-id="{{ scramble.id }}">{{ loop.index }}. {{ scramble.scramble }}</a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-100 mb-4"></div>
+                        <div class="timer-start-zone w-100">
+                            <span class="timer-time">
+                                ready
+                            </span>
+                        </div>
+                        <div class="w-100 mb-4"></div>
+                        <div class="col-lg-12 col-md-10 col-sm-9 col-9">
+                            <button class="btn btn-lg btn-plus-two timer-btn" type="button">+2</button>
+                            <button class="btn btn-lg btn-outline-danger btn-dnf timer-btn" type="button">DNF</button>
+                        </div>
+                        <div class="w-100 mb-4"></div>
+                        <div class="col-lg-12 col-md-10 col-sm-9 col-9">
+                            {% for scramble in competition_event.scrambles %}<span id="timer-result-{{ scramble.id }}" class="result card" data-scramble-id="{{ scramble.id }}"><span class="num text-muted">{{ loop.index }}. </span><span class="value-holder"></span></span>{% endfor %}
+                            <p id="timer-helper-text" class="text-muted">Select a time or scramble to modify the result or retime.</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="card-footer text-muted">
+        <div class="row justify-content-center">
+            <div class="input-group col-12 col-md-10 col-lg-8 row justify-content-center">
+                <h5 class="col-11 text-center">Press the button below to proceed to submission or save your results for later.</h5>
+                <button id="btn-continue" class="btn btn-lg btn-outline-success col-lg-3 col-md-5 col-sm-8 col-11" style="margin-left: auto; margin-right: auto; margin-top: 10px">Continue</button>
+            </div>
+        </div>
+    </div>
+<div id="card-submit" class="card text-center" style="display: none">
+    <div class="card-body">
+        <h4 class="card-title">Overview</h4>
+        <div class="d-flex align-items-center" style="min-height: 220px;">
+            <div style="width: 100%;">
+                <div class="row justify-content-center px-3">
+                    <ul id="overview" class="list-group col-12 col-md-10 col-lg-8" style="padding: 0px"></ul>
+                </div>
+                <h6 style="margin-top: 5px">Spot an error? Click on an event to correct it!</h6>
+            </div>
+        </div>
+        <hr>
+        <h5>Click Submit to submit your results to be scored.</h5>
+        <p class="mb-1">Don't worry, it's not permanent. You can come back and edit your results or compete in a new event.</p>
+        <p id="unfinished-events-warning" class="mb-1 text-danger">You have unfinished events! They will be saved, but they will not be scored!</p>
+        <div class="row justify-content-center" style="margin-top: 25px;">
+            <div class="col-sm-5 col-md-4 col-lg-3" style="margin-bottom: 5px;">
+                <button id="btn-cancel-submit" class="btn btn-lg btn-outline-secondary" style="width: 100%">Cancel</button>
+            </div>
+            <div class="col-sm-5 col-md-4 col-lg-3">
+                <form action="/submit" method="POST" id="form-results">
+                    <input type="hidden" name="input-results" id="input-results" />
+                </form>
+                <button id="btn-submit" class="btn btn-lg btn-success" style="width: 100%">Submit</button>
+            </div>  
+        </div>
+    </div>
+</div>

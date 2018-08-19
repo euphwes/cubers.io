@@ -367,6 +367,14 @@ body {
     justify-content: center!important;
 }
 
+#times-submit {
+    visibility: hidden;
+
+    &.visible {
+        visibility: visible;
+    }
+}
+
 .event-card {
     cursor: pointer;
 
@@ -428,6 +436,7 @@ body {
 
     .event-name h5 {
         margin-bottom: 0;
+        font-family: 'Roboto', sans-serif;
     }
 
     &.complete {
