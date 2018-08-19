@@ -373,17 +373,20 @@ body {
     text-align: center;
 
     margin: 15px;
-    padding: 15px 15px 5px 15px;
+    padding: 15px;
     
     -webkit-transition: all 250ms ease;
     -moz-transition: all 250ms ease;
     -o-transition: all 250ms ease;
     transition: all 250ms ease;
 
-    .event-image {
+    .event-image-container {
         height: 135px;
         width: 135px;
+        position: relative;
+    }
 
+    .event-image {
         -webkit-filter: saturate(0%) brightness(1.40);
         filter: saturate(0%) brightness(1.40);
 
@@ -393,8 +396,47 @@ body {
         transition: filter 250ms ease;
     }
 
+    .icon {
+        color: #28a745;
+        font-size: 100px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        text-align: center;
+      }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 135px;
+        width: 135px;
+        opacity: 0;
+        transition: all 250ms ease;
+    }
+
+    &.complete {
+        .overlay {
+            opacity: 0.75;
+            transition: all 250ms ease;
+        }
+    }
+
     .event-name h5 {
-        margin-bottom: none;
+        margin-bottom: 0;
+    }
+
+    &.complete {
+        &:hover {
+            .icon {
+                color: white;
+                transition: all 250ms ease;
+            }
+        }
     }
 
     &:hover {

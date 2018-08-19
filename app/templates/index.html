@@ -165,6 +165,9 @@
 
         $(document).ready(function() {
             //onTabSwitch({{ current_competition.events[0].id }});
+            $('.event-card').click(function(){
+                $(this).toggleClass('complete');
+            })
         });
     </script>
 {% endblock %}

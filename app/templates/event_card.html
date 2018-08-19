@@ -1,7 +1,10 @@
 <div class="event-card card">
-    <div>
-        <div class="event-image">
-            <img src="./static/images/cube-{{ competition_event.Event.id }}-selected.png">
+    <div class="event-image-container">
+        <img class="event-image" src="./static/images/cube-{{ competition_event.Event.id }}-selected.png">
+        <div class="overlay">
+            <a href="#" class="icon">
+                <i class="fas fa-check"></i>
+            </a>
         </div>
     </div>
     <div class="event-name">
