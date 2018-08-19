@@ -6,51 +6,16 @@
 
 {% block content %}
     <div class="container">
-        <div class="card text-center my-2">
-            <div class="card-body">
-                <h4 class="card-title">/r/cubers Weekly Competition!</h5>
-                <a class="card-text">some sort of intro/explanation/welcome here</a>
-            </div>
+        <div class="row comp-info">
+            <h3>
+                {{ current_competition.title }}
+            </h3>
         </div>
-        <div id="card-time-entry" class="card text-center">
-            <div class="card-header pb-0">
-                <!--
-                <ul id="event-tabs" class="nav nav-tabs nav-scroll ultra-hidden">
-                    {% for competition_event in current_competition.events %}
-                        <li class="nav-item">
-                            <a class="event-tab nav-link {% if loop.index0 == 0 %} active {% endif %}" href="#{{ competition_event.Event.name }}" data-competition-event-id="{{ competition_event.id }}" data-toggle="tab" aria-controls="{{ competition_event.Event.name }}" aria-selected="true">{{ competition_event.Event.name }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-                <ul id="timer-event-tabs" class="nav nav-tabs nav-scroll">
-                    {% for competition_event in current_competition.events %}
-                        <li class="nav-item">
-                            <a class="event-tab nav-link {% if loop.index0 == 0 %} active {% endif %}" href="#timer-{{ competition_event.Event.name }}" data-competition-event-id="{{ competition_event.id }}" data-toggle="tab" aria-controls="{{ competition_event.Event.name }}" aria-selected="true">{{ competition_event.Event.name }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-                -->
-                <div class="row justify-content-center">
-                    {% for competition_event in current_competition.events %}
-                        <div class="col-2 mb-5">
-                            <div class="event-card card">
-                                <div style="position: relative;">
-                                    <div class="card-img-top py-3" style="min-height: 153px">
-                                        <img src="./static/images/cube-{{ competition_event.Event.id }}.png">
-                                    </div>
-                                    <div class="card-img-top py-3 selected-image" style="position: absolute; top: 0; left: 0; min-height: 153px">
-                                        <img src="./static/images/cube-{{ competition_event.Event.id }}-selected.png">
-                                    </div>
-                                </div>
-                                <div class="card-body pt-0 pb-1">
-                                    <hr class="my-0">
-                                    <h5 class="card-title mt-2">{{ competition_event.Event.name }}</h5>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div class>
-            </div>
+        <div class="row event-cards">
+            {% for competition_event in current_competition.events %}
+                {% include "event_card.html" %}
+            {% endfor %}
+        </div>
             <div class="card-body" style="padding-left: 3px; padding-right: 3px">
                 <div id="dv-manual" style="display: none">
                     <div class="tab-content" style="margin-bottom: 20px">
@@ -156,7 +121,6 @@
                     </div>
                 </div>
             </div>
-        </div>
         <div id="card-submit" class="card text-center" style="display: none">
             <div class="card-body">
                 <h4 class="card-title">Overview</h4>

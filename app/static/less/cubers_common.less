@@ -357,24 +357,58 @@ body {
     }
 }
 
+.comp-info {
+    margin-top: 15px;
+    text-align: center;
+    justify-content: center!important;
+}
+
+.event-cards {
+    justify-content: center!important;
+}
+
 .event-card {
     cursor: pointer;
 
-    .selected-image {
-        opacity: 0;
+    text-align: center;
 
-        -webkit-transition:opacity 100ms ease-in;
-        -moz-transition:opacity 100ms ease-in;
-        -o-transition:opacity 100ms ease-in;
-        transition:opacity 100ms ease-in;
+    margin: 15px;
+    padding: 15px 15px 5px 15px;
+    
+    -webkit-transition: all 250ms ease;
+    -moz-transition: all 250ms ease;
+    -o-transition: all 250ms ease;
+    transition: all 250ms ease;
+
+    .event-image {
+        height: 135px;
+        width: 135px;
+
+        -webkit-filter: saturate(0%) brightness(1.40);
+        filter: saturate(0%) brightness(1.40);
+
+        -webkit-transition: filter 250ms ease;
+        -moz-transition: filter 250ms ease;
+        -o-transition: filter 250ms ease;
+        transition: filter 250ms ease;
+    }
+
+    .event-name h5 {
+        margin-bottom: none;
     }
 
     &:hover {
-        background-color: @site-bg-color; 
+        transform: translate(0px, -10px);
         box-shadow: 0 5px 5px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
 
-        .selected-image {
-            opacity: 1;
+        -webkit-transition: all 250ms ease;
+        -moz-transition: all 250ms ease;
+        -o-transition: all 250ms ease;
+        transition: all 250ms ease;
+
+        .event-image {
+            -webkit-filter: saturate(75%);
+            filter: saturate(75%);
         }
     }
 }
