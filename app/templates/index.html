@@ -7,38 +7,24 @@
 {% block content %}
     <div class="container">
         <div class="row comp-info">
-            <h3>
-                {{ current_competition.title }}
-            </h3>
+            <h3>{{ current_competition.title }}</h3>
         </div>
         <div class="row event-cards">
             {% for competition_event in current_competition.events %}
                 {% include "event_card.html" %}
             {% endfor %}
         </div>
+        <div id="times-submit">
+                <button class="btn btn-lg btn-info" style="position: fixed; bottom: 20px; right: 20px;">
+                    Submit solve times
+                </button>
+        </div>
     </div>
-    <div id="times-submit">
-        <button class="btn btn-lg btn-info" style="position: fixed; bottom: 20px; right: 20px;">
-            Submit solve times
-        </button>
-    </div>
-    {% assets "timer_js" %}
+
+    {% assets "app_js" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
     <script>
-        $(document).ready(function() {
-            {% for competition_event in current_competition.events %}
-            addEvent({{ competition_event.id }}, "{{ competition_event.Event.name }}");
-
-            {% for scramble in competition_event.scrambles %}
-            addScramble({{ competition_event.id }}, {{ scramble.id }}, "{{ scramble.scramble }}");
-            {% endfor %}
-            {% endfor %}
-
-            $('.event-card').click(function(){
-                $(this).toggleClass('complete');
-                $('#times-submit').toggleClass('visible');
-            })
-        });
+        events_data = {{ events_data|tojson }}
     </script>
 {% endblock %}

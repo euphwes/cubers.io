@@ -29,10 +29,9 @@ ASSETS.register({
         'lib/bootstrap.min.js',
         output='gen/main.js'),
 
-    'timer_js': Bundle(
-        'js/time_manager.js',
-        'js/timer.js',
-        output='gen/timer.js'
+    'app_js': Bundle(
+        'js/app.js',
+        output='gen/app.js'
     ),
 
     'main_css': Bundle(

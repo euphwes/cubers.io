@@ -42,7 +42,7 @@ function getNextScramble(event) {
 }
 
 function addEvent(eventId, eventName) {
-    events[eventId] = { id: eventId, name: eventName, scrambles: [], comment: "" , $timer: $("#timer-" + eventName)};
+    events[eventId] = { id: eventId, name: eventName, scrambles: [], comment: ""};
 }
 
 function addScramble(eventId, scrambleId, scrambleValue) {

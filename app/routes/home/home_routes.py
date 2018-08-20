@@ -24,7 +24,22 @@ def index():
     """ Main page for the app. Shows the competition time entry page if logged in, or an informative
     landing page if not. """
     comp = comp_manager.get_active_competition()
-    return render_template('index.html', current_competition = comp)
+
+    events_data = list()
+    for comp_event in comp.events:
+        event = {
+            'id':        comp_event.id,
+            'name':      comp_event.Event.name,
+            'scrambles': list()
+        }
+        for scram in comp_event.scrambles:
+            event['scrambles'].append({
+                'id':       scram.id,
+                'scramble': scram.scramble
+            })
+        events_data.append(event)
+
+    return render_template('index.html', current_competition=comp, events_data=events_data)
 
 
 @CUBERS_APP.route('/submit', methods=['POST'])
