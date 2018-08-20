@@ -32,12 +32,23 @@ $(function(){
      */
     var CompManagerApp = {
         events: events_data,
+        timer: {},
 
         wire_js_events: function() {
-            $('.event-card').click(function(){
-                $(this).toggleClass('complete');
-                $('#times-submit').toggleClass('visible');
-            })
+            $('.event-card').click(function(e){
+                var $event     = $(e.target).closest('.event-card');
+                var event_id   = $event.data('event_id');
+                var event_name = $event.data('event_name');
+                var scrambles  = this.events[event_id]['scrambles'];
+
+                this.setup_timer_modal_for_event(event_name, scrambles);
+                $('#time_entry_modal').modal();
+            }.bind(this));
+        },
+
+        setup_timer_modal_for_event: function(name, scrambles) {
+            $('#time_entry_modal_title').text(name);
+            $('#time_entry_modal_scrambles').text(scrambles[0]['scramble']);
         },
 
         init: function() {

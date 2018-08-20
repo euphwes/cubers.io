@@ -25,10 +25,9 @@ def index():
     landing page if not. """
     comp = comp_manager.get_active_competition()
 
-    events_data = list()
+    events_data = dict()
     for comp_event in comp.events:
         event = {
-            'id':        comp_event.id,
             'name':      comp_event.Event.name,
             'scrambles': list()
         }
@@ -37,7 +36,7 @@ def index():
                 'id':       scram.id,
                 'scramble': scram.scramble
             })
-        events_data.append(event)
+        events_data[str(comp_event.id)] = event
 
     return render_template('index.html', current_competition=comp, events_data=events_data)
 

@@ -14,12 +14,14 @@
                 {% include "event_card.html" %}
             {% endfor %}
         </div>
+        {% include "time_entry_modal.html" %}
         <div id="times-submit">
                 <button class="btn btn-lg btn-info" style="position: fixed; bottom: 20px; right: 20px;">
                     Submit solve times
                 </button>
         </div>
     </div>
+
 
     {% assets "app_js" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
