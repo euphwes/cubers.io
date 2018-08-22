@@ -1,26 +1,79 @@
 $(function(){
 
 // ---------------------------------------------------------------------------------------------------------------------
+// Below is utility code
+// ---------------------------------------------------------------------------------------------------------------------
+
+    var convertSecondsToMinutes = function(seconds) {
+        var s = parseFloat(seconds);
+
+        var minutes = Math.floor(s / 60);
+        var seconds = s % 60;
+
+        if (minutes > 0) {
+            return minutes + ':' + ("" + seconds).padStart(2, "0");
+        } else {
+            return seconds;
+        }
+    }
+
+// ---------------------------------------------------------------------------------------------------------------------
 // Below is the code related to the timer
 // ---------------------------------------------------------------------------------------------------------------------
 
     /**
      * Represents a timer which records times for a specific competition event.
-     * 
-     * @constructor
-     * @param {string} event_name 
-     * @param {object} scrambles_data 
      */
-    var Timer = function(event_name, scrambles_data){
+    var Timer = function(event_name, comp_event_id){
         this.event_name = event_name;
-        this.scrambles_data = scrambles_data;
+        this.comp_event_id = comp_event_id;
+
+        this.$seconds = $('#seconds');
+        this.$centiseconds = $('#centiseconds');
+        this.$singleSolveTimeElem = null;
+
+        this.startTime = 0;
+        this.elapsedTime = 0;
+        this.timerInterval = null;
     };
 
-    /**
-     * Test function for logging the competition event name to the console.
-     */
-    Timer.prototype.log_name = function() {
-        console.log(this.event_name);
+    Timer.prototype.attach = function(solveTimeElem) {
+        this.$singleSolveTimeElem = solveTimeElem;
+    }
+
+    Timer.prototype.start = function() {
+        this.startTime = new Date();
+        this.timerInterval = setInterval(this.timerIntervalFunction.bind(this), 10); // In milliseconds
+    };
+
+    Timer.prototype.stop = function() {
+        clearInterval(this.timerInterval);
+
+        var now = new Date();
+        this.elapsedTime = now - this.startTime;
+        var s = this.elapsedTime.getSecondsFromMs();
+        var cs = this.elapsedTime.getTwoDigitCentisecondsFromMs();
+        var full_time = convertSecondsToMinutes(s) + "." + cs;
+
+        this.$singleSolveTimeElem.addClass('complete');
+        this.$singleSolveTimeElem.find('.time-value').html(full_time);
+    };
+
+    Timer.prototype.reset = function() {
+        this.startTime = 0;
+        clearInterval(this.timerInterval);
+        this.$seconds.html('0');
+        this.$centiseconds.html('00');
+    };
+
+    Timer.prototype.timerIntervalFunction = function() {
+        var now = new Date();
+        var diff = now - this.startTime;
+        var s = diff.getSecondsFromMs();
+        var cs = diff.getTwoDigitCentisecondsFromMs();
+
+        this.$seconds.html(convertSecondsToMinutes(s));
+        this.$centiseconds.html(cs);
     };
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -55,6 +108,42 @@ $(function(){
 
             $timerDiv.html($(this.timerPanelTemplate(data)));
             $eventsDiv.ultraHide(); $timerDiv.ultraShow();
+
+            this.timer = new Timer(data.event_name, data.comp_event_id);
+            this.timer.attach($('.single-time.active'));
+            this.prepare_timer_events();
+        },
+
+        prepare_timer_events: function() {
+            var spaceDownTime = 0;
+
+            $(document).keydown(function (e) {
+                if (e.which != 32) { return; }
+                if (spaceDownTime > 0) {
+                    var now = new Date().getTime();
+                    if ((now - spaceDownTime) > 750) {
+                        $('.timer-wrapper').addClass('ready');
+                    }
+                    return; 
+                }
+                spaceDownTime = new Date().getTime();
+                this.timer.reset();
+            }.bind(this));
+        
+            $(document).keyup(function (e) {
+                if (e.which != 32) { return; }
+                var x = new Date().getTime() - spaceDownTime;
+                spaceDownTime = 0;
+                if (x > 750) {
+                    $(document).off('keydown');
+                    $(document).off('keyup');
+                    $('.timer-wrapper').removeClass('ready');
+                    this.timer.start();
+                    $(document).on('keypress', function(){
+                        this.timer.stop();
+                    }.bind(this));
+                } else { }
+            }.bind(this));
         },
 
         init: function() {
@@ -73,40 +162,20 @@ $(function(){
 // Below is code that's executed on page load, mostly just setup stuff
 // ---------------------------------------------------------------------------------------------------------------------
 
+    Number.prototype.getSecondsFromMs = function (){
+        return ("" + Math.floor(this / 1000));
+    };
+
+    Number.prototype.getTwoDigitCentisecondsFromMs = function (){
+        return ("" + this % 1000).slice(0, -1).padStart(2, "0");
+    };
+
     // Utility jQuery functions to "show or hide" based on display: none via ultra-hidden CSS class
     // `visibility: hidden` still takes up space, but `display: none` does not
     $.fn.extend({
         ultraHide: function(){ $(this).addClass('ultra-hidden'); },
         ultraShow: function(){ $(this).removeClass('ultra-hidden'); },
     });
-
-    // Animate.css-related extensions to jQuery, to facilitate applying an animation to an element
-    $.fn.extend({
-        animateCss: function(animationName, callback) {
-          var animationEnd = (function(el) {
-            var animations = {
-              animation: 'animationend',
-              OAnimation: 'oAnimationEnd',
-              MozAnimation: 'mozAnimationEnd',
-              WebkitAnimation: 'webkitAnimationEnd',
-            };
-      
-            for (var t in animations) {
-              if (el.style[t] !== undefined) {
-                return animations[t];
-              }
-            }
-          })(document.createElement('div'));
-      
-          this.addClass('animated ' + animationName).one(animationEnd, function() {
-            $(this).removeClass('animated ' + animationName);
-      
-            if (typeof callback === 'function') callback();
-          });
-      
-          return this;
-        },
-      });
 
     CompManagerApp.init();
 });
