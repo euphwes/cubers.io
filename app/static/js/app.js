@@ -52,8 +52,8 @@ $(function(){
         if (emptyScramble) {
             $scrambleHolder.text(newScramble);
         } else {
-            $scrambleHolder.fadeOut(200, function() {
-                $(this).text(newScramble).delay(100).fadeIn(200);
+            $scrambleHolder.fadeOut(100, function() {
+                $(this).text(newScramble).delay(100).fadeIn(100);
             });
         }
     };
@@ -134,6 +134,17 @@ $(function(){
             }.bind(this));
         },
 
+        wire_solve_card_click: function() {
+            var _this = this;
+            $('.single-time').click(function(e) {
+                $('.single-time.active').removeClass('active');
+                $(this).addClass('active');
+                _this.timer.reset();
+                _this.timer.attach($(this));
+                setTimeout(_this.prepare_timer_for_start.bind(_this), 200);
+            });
+        },
+
         show_timer_for_event: function($selected_event) {
             var comp_event_id = $selected_event.data('comp_event_id');
             var data = {
@@ -157,6 +168,7 @@ $(function(){
             $firstIncomplete.addClass('active');
             this.timer.attach($firstIncomplete);
             this.prepare_timer_for_start();
+            this.wire_solve_card_click();
         },
 
         auto_advance_timer_scramble: function() {
