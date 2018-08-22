@@ -26,6 +26,7 @@ ASSETS.register({
         'lib/popper.min.js',
         'lib/bootstrap.min.js',
         'lib/fitty.min.js',
+        'lib/keydrown.min.js',
         output='gen/main.js'),
 
     'app_js': Bundle(

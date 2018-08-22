@@ -58,7 +58,9 @@ $(function(){
      */
     Timer.prototype.stop = function() {
         clearInterval(this.timerInterval);
-        $(document).off('keydown keyup keypress');
+        kd.SPACE.unbindDown();
+        kd.SPACE.unbindUp();
+        kd.SPACE.unbindPress();
 
         var now = new Date();
         this.elapsedTime = now - this.startTime;
@@ -142,13 +144,12 @@ $(function(){
         prepare_timer_for_start: function() {
             var spaceDownTime = 0;
 
-            $(document).keydown(function (e) {
-                if (e.which != 32) { return; }
-                $('.timer-wrapper').addClass('notReady');
+            kd.SPACE.down(function () {
+                //$('.timer-wrapper').addClass('notReady');
                 if (spaceDownTime > 0) {
                     var now = new Date().getTime();
-                    if ((now - spaceDownTime) > 750) {
-                        $('.timer-wrapper').removeClass('notReady');
+                    if ((now - spaceDownTime) > 100) {
+                        //$('.timer-wrapper').removeClass('notReady');
                         $('.timer-wrapper').addClass('ready');
                     }
                     return; 
@@ -157,25 +158,27 @@ $(function(){
                 this.timer.reset();
             }.bind(this));
         
-            $(document).keyup(function (e) {
-                if (e.which != 32) { return; }
+            kd.SPACE.up(function (e) {
                 var x = new Date().getTime() - spaceDownTime;
                 spaceDownTime = 0;
-                if (x > 750) {
-                    $(document).off('keydown keyup');
+                if (x > 100) {
+                    kd.SPACE.unbindDown();
+                    kd.SPACE.unbindUp();
                     $('.timer-wrapper').removeClass('ready');
                     this.timer.start();
-                    $(document).on('keypress', function(){
+                    kd.SPACE.press(function(){
                         this.timer.stop();
                     }.bind(this));
                 } else {
-                    $('.timer-wrapper').removeClass('notReady');
+                    //$('.timer-wrapper').removeClass('notReady');
                     this.timer.reset();
                 }
             }.bind(this));
         },
 
         init: function() {
+            kd.run(function () { kd.tick(); });
+
             this.wire_js_events();
 
             Handlebars.registerHelper("inc", function(value, options){ return parseInt(value) + 1; });
