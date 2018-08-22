@@ -142,37 +142,12 @@ $(function(){
         },
 
         prepare_timer_for_start: function() {
-            var spaceDownTime = 0;
-
-            kd.SPACE.down(function () {
-                //$('.timer-wrapper').addClass('notReady');
-                if (spaceDownTime > 0) {
-                    var now = new Date().getTime();
-                    if ((now - spaceDownTime) > 100) {
-                        //$('.timer-wrapper').removeClass('notReady');
-                        $('.timer-wrapper').addClass('ready');
-                    }
-                    return; 
-                }
-                spaceDownTime = new Date().getTime();
-                this.timer.reset();
-            }.bind(this));
-        
             kd.SPACE.up(function (e) {
-                var x = new Date().getTime() - spaceDownTime;
-                spaceDownTime = 0;
-                if (x > 100) {
-                    kd.SPACE.unbindDown();
-                    kd.SPACE.unbindUp();
-                    $('.timer-wrapper').removeClass('ready');
-                    this.timer.start();
-                    kd.SPACE.press(function(){
-                        this.timer.stop();
-                    }.bind(this));
-                } else {
-                    //$('.timer-wrapper').removeClass('notReady');
-                    this.timer.reset();
-                }
+                kd.SPACE.unbindUp();
+                this.timer.start();
+                kd.SPACE.press(function(){
+                    this.timer.stop();
+                }.bind(this));
             }.bind(this));
         },
 
