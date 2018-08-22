@@ -32,31 +32,81 @@ $(function(){
      */
     var CompManagerApp = {
         events: events_data,
-        timer: {},
+        timer: null,
+        timerPanelTemplate: null,
 
         wire_js_events: function() {
             $('.event-card').click(function(e){
-                var $event     = $(e.target).closest('.event-card');
-                var event_id   = $event.data('event_id');
-                var event_name = $event.data('event_name');
-                var scrambles  = this.events[event_id]['scrambles'];
-
-                this.setup_timer_modal_for_event(event_name, scrambles);
-                $('#time_entry_modal').modal();
+                var $event = $(e.target).closest('.event-card');
+                this.show_timer_for_event($event);
             }.bind(this));
         },
 
-        setup_timer_modal_for_event: function(name, scrambles) {
-            $('#time_entry_modal_title').text(name);
-            $('#time_entry_modal_scrambles').text(scrambles[0]['scramble']);
+        show_timer_for_event: function($selected_event) {
+            var data = {};
+            data.event_id       = $selected_event.data('event_id');
+            data.event_name     = $selected_event.data('event_name');
+            data.comp_event_id  = $selected_event.data('comp_event_id');
+            data.scrambles      = this.events[data.comp_event_id]['scrambles'];
+            data.first_scramble = data.scrambles[0].scramble
+            
+            var $timerDiv  = $('#timer_panel');
+            var $eventsDiv = $('#event_list_panel');
+
+            $timerDiv.html($(this.timerPanelTemplate(data)));
+            $eventsDiv.ultraHide(); $timerDiv.ultraShow();
         },
 
         init: function() {
             this.wire_js_events();
+
+            Handlebars.registerHelper("inc", function(value, options){ return parseInt(value) + 1; });
+            Handlebars.registerHelper("eq", function(a, b, options){ return a == b; });
+
+            this.timerPanelTemplate = Handlebars.compile($('#timer-template').html());
             //var timer = new Timer("test_event", {});
             //timer.log_name();
         },
     };
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Below is code that's executed on page load, mostly just setup stuff
+// ---------------------------------------------------------------------------------------------------------------------
+
+    // Utility jQuery functions to "show or hide" based on display: none via ultra-hidden CSS class
+    // `visibility: hidden` still takes up space, but `display: none` does not
+    $.fn.extend({
+        ultraHide: function(){ $(this).addClass('ultra-hidden'); },
+        ultraShow: function(){ $(this).removeClass('ultra-hidden'); },
+    });
+
+    // Animate.css-related extensions to jQuery, to facilitate applying an animation to an element
+    $.fn.extend({
+        animateCss: function(animationName, callback) {
+          var animationEnd = (function(el) {
+            var animations = {
+              animation: 'animationend',
+              OAnimation: 'oAnimationEnd',
+              MozAnimation: 'mozAnimationEnd',
+              WebkitAnimation: 'webkitAnimationEnd',
+            };
+      
+            for (var t in animations) {
+              if (el.style[t] !== undefined) {
+                return animations[t];
+              }
+            }
+          })(document.createElement('div'));
+      
+          this.addClass('animated ' + animationName).one(animationEnd, function() {
+            $(this).removeClass('animated ' + animationName);
+      
+            if (typeof callback === 'function') callback();
+          });
+      
+          return this;
+        },
+      });
 
     CompManagerApp.init();
 });

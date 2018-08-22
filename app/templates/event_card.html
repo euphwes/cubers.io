@@ -1,4 +1,8 @@
-<div class="event-card card" id="event-{{competition_event.id}}>" data-event_id="{{competition_event.id}}" data-event_name="{{ competition_event.Event.name }}">
+<div class="event-card card" id="event-{{competition_event.id}}>"
+    data-comp_event_id="{{competition_event.id}}"
+    data-event_name="{{competition_event.Event.name}}"
+    data-event_id="{{competition_event.Event.id}}">
+
     <div class="event-image-container">
         <img class="event-image" src="./static/images/cube-{{ competition_event.Event.id }}-selected.png">
         <div class="overlay">

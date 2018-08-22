@@ -1,0 +1,42 @@
+{% raw %}
+<script id='timer-template' type='text/x-handlebars-template'>
+    <div class="row">
+        <div class="col-md-2">
+            <div class="event-image-container">
+                <img class="event-image" src="./static/images/cube-{{ event_id }}-selected.png">
+            </div>
+            <div class="times-wrapper">
+                {{#each scrambles}}
+                    {{#if (eq @index 0)}}
+                        <div class="single-time active" data-id="{{id}}" data-scramble="{{scramble}}">
+                    {{else}}
+                        <div class="single-time" data-id="{{id}}" data-scramble="{{scramble}}">
+                    {{/if}}
+                            <div class="value-wrapper">#{{ inc @index }}.</div>
+                            <div class="time-value">00.00</div>
+                        </div>
+                {{/each}}
+            </div>
+        </div>
+        <div class="col-md-10">
+            <div class="row scramble-wrapper">
+                <div>{{ first_scramble }}</div>
+            </div>
+            <hr>
+            <div class="row timer-wrapper">
+                <div>
+                    <div id="seconds" class="timer-element">0</div>
+                    <div id="dot" class="timer-element">.</div>
+                    <div id="centiseconds" class="timer-element">00</div>
+                </div>
+            </div>
+            <div class="row buttons-wrapper">
+                <div>
+                    <button class="btn btn-lg btn-dark btn-timer btn-plustwo">+2</button>
+                    <button class="btn btn-lg btn-dark btn-timer btn-dnf">DNF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+{% endraw %}
