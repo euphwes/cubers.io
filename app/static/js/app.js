@@ -44,11 +44,20 @@ $(function(){
     Timer.prototype.attach = function(solveTimeElem) {
         this.$singleSolveTimeElem = solveTimeElem;
         this.$singleSolveTimeElem.addClass('active');
-
         var newScramble = this.$singleSolveTimeElem.data('scramble');
-        $('.scramble-wrapper>span').text(newScramble);
-    }
 
+        var $scrambleHolder = $('.scramble-wrapper>span');
+        var emptyScramble = $scrambleHolder.text().length === 0;
+
+        if (emptyScramble) {
+            $scrambleHolder.text(newScramble);
+        } else {
+            $scrambleHolder.fadeOut(200, function() {
+                $(this).text(newScramble).delay(100).fadeIn(200);
+            });
+        }
+    };
+ 
     /**
      * Starts the timer.
      */
