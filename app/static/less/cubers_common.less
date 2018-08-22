@@ -126,39 +126,6 @@ body {
         align-items: center;
         justify-content: center;
     }
-
-    .buttons-wrapper {
-        height: ~"calc(10% - 75px)";
-        width: 100%;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        .btn-timer {
-            width: 100px;
-            margin: 30px;
-            border-width: 3px;
-            //font-weight: bold;
-
-            &.selected {
-                color: #343a40;
-                border-color: #343a40;
-            }
-        }
-
-        .btn-dnf {
-            &.selected {
-                background-color: rgb(194, 111, 111);
-            }
-        }
-
-        .btn-plustwo {
-            &.selected {
-                background-color: rgb(219, 173, 120);
-            }
-        }
-    }
 }
 
 .cubers-container {
@@ -194,7 +161,19 @@ body {
         margin: 10px 0px;
         min-height: 75px;
 
+        border: 1px solid rgba(0, 0, 0, 0.125);
+        border-radius: 2px;
         border-left: 5px solid rgb(218, 159, 159);
+
+        -webkit-transition: all 250ms ease;
+        -moz-transition: all 250ms ease;
+        -o-transition: all 250ms ease;
+        transition: all 250ms ease;
+
+        background-color: white;
+        cursor: pointer;
+
+        box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
 
         display: flex;
         align-items: center;
@@ -208,7 +187,17 @@ body {
         &.active {
             border-left-color: rgb(163, 214, 163);
             background-color: lighten(rgb(163, 214, 163), 15%);
-            border-radius: 0px 15px 15px 0px;
+            box-shadow: 0 5px 5px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
+            transform: translate(10px);
+        }
+
+        &:hover {
+            box-shadow: 0 5px 5px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
+            transform: translate(10px);
+            -webkit-transition: all 250ms ease;
+            -moz-transition: all 250ms ease;
+            -o-transition: all 250ms ease;
+            transition: all 250ms ease;
         }
 
         .value-wrapper {
@@ -315,7 +304,7 @@ body {
     align-items: center;
     justify-content: center;
     
-    font-family: 'lcd';
+    font-family: 'Roboto', sans-serif;
 
     width: 100%;
     min-height: ~"calc(60% - 75px)";
@@ -323,6 +312,10 @@ body {
 
     &.ready {
         color: rgb(0, 221, 0);
+    }
+
+    &.notReady {
+        color: rgb(221, 0, 0);
     }
 
     .timer-element {

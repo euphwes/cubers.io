@@ -19,8 +19,6 @@ CUBERS_APP.secret_key = CUBERS_APP.config['FLASK_SECRET_KEY']
 DB = SQLAlchemy(CUBERS_APP)
 MIGRATE = Migrate(CUBERS_APP, DB)
 
-#Bootstrap(CUBERS_APP)
-
 ASSETS = Environment(CUBERS_APP)
 ASSETS.register({
     'main_js': Bundle(
