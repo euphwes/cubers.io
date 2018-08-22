@@ -2,18 +2,29 @@
 #pylint: disable=C0103
 
 import uuid
-from random import choice
 
 import click
+
+from pyTwistyScrambler import scrambler222, scrambler333, scrambler444, scrambler555,\
+     scrambler666, scrambler777, megaminxScrambler, skewbScrambler, squareOneScrambler
 
 from . import CUBERS_APP
 from .persistence.comp_manager import get_event_by_name, create_new_competition
 
 # -------------------------------------------------------------------------------------------------
 
-DUMMY_SCRAMBLER = lambda: ' '.join(choice('RFLUDB') for _ in range(10))
-
-EVENTS_LIST = ["3x3", "2x2", "4x4", "5x5", "6x6", "7x7", "3BLD", "Skewb", "Square-1", "Megaminx"]
+EVENTS_HELPER = {
+    "3x3":      scrambler333.get_WCA_scramble,
+    "2x2":      scrambler222.get_WCA_scramble,
+    "4x4":      scrambler444.get_WCA_scramble,
+    "5x5":      scrambler555.get_WCA_scramble,
+    "6x6":      scrambler666.get_WCA_scramble,
+    "7x7":      scrambler777.get_WCA_scramble,
+    "3BLD":     scrambler333.get_3BLD_scramble,
+    "Skewb":    skewbScrambler.get_WCA_scramble,
+    "Square-1": squareOneScrambler.get_WCA_scramble,
+    "Megaminx": megaminxScrambler.get_WCA_scramble,
+}
 
 @CUBERS_APP.cli.command()
 @click.option('--title', '-t', type=str)
@@ -22,10 +33,10 @@ def create_new_test_comp(title, reddit_id):
     """ Creates a new dummy competition for testing purposes. """
 
     event_data = []
-    for event_name in EVENTS_LIST:
+    for event_name, scrambler in EVENTS_HELPER.items():
         data = dict()
         num_solves = get_event_by_name(event_name).totalSolves
-        data['scrambles'] = [DUMMY_SCRAMBLER() for _ in range(num_solves)]
+        data['scrambles'] = [scrambler() for _ in range(num_solves)]
         data['name'] = event_name
         event_data.append(data)
 
