@@ -145,6 +145,37 @@ $(function(){
             });
         },
 
+        wire_return_to_events: function() {
+            var _this = this;
+            $('#return-to-events').click(function(e){
+                delete _this.timer;
+                kd.SPACE.unbindUp(); kd.SPACE.unbindDown();
+
+                var compEventId = $('#timer_panel .timerEventDataContainer').data('compeventid');
+                var totalSolves = $('#timer_panel .timerEventDataContainer').data('totalsolves');
+
+                var countSolvesComplete = $('.single-time.complete').length;
+                $('.single-time.complete').each(function(i){
+                    var solveCs = parseInt($(this).attr("data-rawTimeCentiseconds"));
+                    var scrambleId = $(this).data('id');
+
+                    $.each(_this.events[compEventId].scrambles, function(j, currScramble) {
+                        if( currScramble.id != scrambleId ){ return true; }
+                        currScramble.time = solveCs;
+                        return false;
+                    })
+                });
+
+                var $timerDiv  = $('#timer_panel');
+                var $eventsDiv = $('#event_list_panel');
+                $timerDiv.ultraHide(); $eventsDiv.ultraShow();
+
+                if (countSolvesComplete == totalSolves) {
+                    $('#event-'+compEventId).addClass('complete');
+                }
+            });
+        },
+
         show_timer_for_event: function($selected_event) {
             var comp_event_id = $selected_event.data('comp_event_id');
             var data = {
@@ -152,6 +183,7 @@ $(function(){
                 event_id      : $selected_event.data('event_id'),
                 event_name    : $selected_event.data('event_name'),
                 scrambles     : this.events[comp_event_id]['scrambles'],
+                total_solves   : this.events[comp_event_id]['scrambles'].length,
             };
             
             var $timerDiv  = $('#timer_panel');
@@ -164,11 +196,18 @@ $(function(){
 
             this.timer = new Timer(data.event_name, data.comp_event_id);
 
-            var $firstIncomplete = $('.single-time:not(.complete)').first();
-            $firstIncomplete.addClass('active');
-            this.timer.attach($firstIncomplete);
+            var $firstSolveToAttach = null;
+            if ($('.single-time:not(.complete)').length === 0) {
+                $firstSolveToAttach = $('.single-time').first();
+            } else {
+                $firstSolveToAttach = $('.single-time:not(.complete)').first();
+            }
+            $firstSolveToAttach.addClass('active');
+            this.timer.attach($firstSolveToAttach);
+
             this.prepare_timer_for_start();
             this.wire_solve_card_click();
+            this.wire_return_to_events();
         },
 
         auto_advance_timer_scramble: function() {
@@ -207,6 +246,12 @@ $(function(){
 
             Handlebars.registerHelper("inc", function(value, options){ return parseInt(value) + 1; });
             Handlebars.registerHelper("eq", function(a, b, options){ return a == b; });
+            Handlebars.registerHelper("convertRawCs", function(value, options){
+                var cs = parseInt(value);
+                var s = Math.floor(cs / 100);
+                var remainingCs = cs % 100;
+                return "" + convertSecondsToMinutes(s) + "." + remainingCs;
+            });
 
             this.timerPanelTemplate = Handlebars.compile($('#timer-template').html());
             //var timer = new Timer("test_event", {});

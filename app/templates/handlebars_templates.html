@@ -1,5 +1,6 @@
 {% raw %}
 <script id='timer-template' type='text/x-handlebars-template'>
+    <div class="ultra-hidden timerEventDataContainer" data-compEventId="{{ comp_event_id }}" data-totalSolves="{{ total_solves }}"></div>
     <div class="row">
         <div class="col-md-2">
             <div class="event-image-container">
@@ -7,10 +8,17 @@
             </div>
             <div class="times-wrapper">
                 {{#each scrambles}}
+                    {{#if time}}
+                        <div class="single-time complete" data-id="{{id}}" data-scramble="{{scramble}}" data-rawTimeCentiseconds="{{time}}" data-isPlusTwo="false" data-isDNF="false">
+                            <div class="value-wrapper">#{{ inc @index }}.</div>
+                            <div class="time-value">{{convertRawCs time}}</div>
+                        </div>
+                    {{else}}
                         <div class="single-time" data-id="{{id}}" data-scramble="{{scramble}}" data-rawTimeCentiseconds="" data-isPlusTwo="false" data-isDNF="false">
                             <div class="value-wrapper">#{{ inc @index }}.</div>
                             <div class="time-value">—</div>
                         </div>
+                    {{/if}}
                 {{/each}}
             </div>
         </div>
@@ -25,6 +33,11 @@
                     <div id="dot" class="timer-element">.</div>
                     <div id="centiseconds" class="timer-element">00</div>
                 </div>
+            </div>
+            <div id="return-to-events">
+                <button class="btn btn-lg btn-info" style="position: fixed; bottom: 20px; right: 20px;">
+                    Go back to events
+                </button>
             </div>
         </div>
     </div>
