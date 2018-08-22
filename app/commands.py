@@ -6,7 +6,8 @@ import uuid
 import click
 
 from pyTwistyScrambler import scrambler222, scrambler333, scrambler444, scrambler555,\
-     scrambler666, scrambler777, megaminxScrambler, skewbScrambler, squareOneScrambler
+     scrambler666, scrambler777, megaminxScrambler, skewbScrambler, squareOneScrambler,\
+     pyraminxScrambler
 
 from . import CUBERS_APP
 from .persistence.comp_manager import get_event_by_name, create_new_competition
@@ -24,6 +25,7 @@ EVENTS_HELPER = {
     "Skewb":    skewbScrambler.get_WCA_scramble,
     "Square-1": squareOneScrambler.get_WCA_scramble,
     "Megaminx": megaminxScrambler.get_WCA_scramble,
+    "Pyraminx": pyraminxScrambler.get_WCA_scramble,
 }
 
 @CUBERS_APP.cli.command()
