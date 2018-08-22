@@ -107,6 +107,8 @@ $(function(){
             var $eventsDiv = $('#event_list_panel');
 
             $timerDiv.html($(this.timerPanelTemplate(data)));
+            fitty('.scramble-wrapper>span', {maxSize: 45});
+
             $eventsDiv.ultraHide(); $timerDiv.ultraShow();
 
             this.timer = new Timer(data.event_name, data.comp_event_id);

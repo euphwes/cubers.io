@@ -27,6 +27,7 @@ ASSETS.register({
         'lib/jquery-3.3.1.min.js',
         'lib/popper.min.js',
         'lib/bootstrap.min.js',
+        'lib/fitty.min.js',
         output='gen/main.js'),
 
     'app_js': Bundle(
