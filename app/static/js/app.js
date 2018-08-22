@@ -43,6 +43,10 @@ $(function(){
      */
     Timer.prototype.attach = function(solveTimeElem) {
         this.$singleSolveTimeElem = solveTimeElem;
+        this.$singleSolveTimeElem.addClass('active');
+
+        var newScramble = this.$singleSolveTimeElem.data('scramble');
+        $('.scramble-wrapper>span').text(newScramble);
     }
 
     /**
@@ -60,7 +64,6 @@ $(function(){
         clearInterval(this.timerInterval);
         kd.SPACE.unbindDown();
         kd.SPACE.unbindUp();
-        kd.SPACE.unbindPress();
 
         var now = new Date();
         this.elapsedTime = now - this.startTime;
@@ -68,7 +71,7 @@ $(function(){
         var cs = this.elapsedTime.getTwoDigitCentisecondsFromMs();
         var full_time = convertSecondsToMinutes(s) + "." + cs;
 
-        this.$singleSolveTimeElem.addClass('complete');
+        this.$singleSolveTimeElem.addClass('complete').removeClass('active');
         this.$singleSolveTimeElem.find('.time-value').html(full_time);
         this.$singleSolveTimeElem.attr("data-rawTimeCentiseconds", parseInt(s*100) + parseInt(cs))
     };
@@ -112,7 +115,11 @@ $(function(){
         timerPanelTemplate: null,
 
         wire_js_events: function() {
-            $('.event-card').click(function(e){
+            this.wire_event_card_click();
+        },
+
+        wire_event_card_click: function() {
+            $('.event-card').click(function(e) {
                 var $event = $(e.target).closest('.event-card');
                 this.show_timer_for_event($event);
             }.bind(this));
@@ -125,7 +132,6 @@ $(function(){
                 event_id      : $selected_event.data('event_id'),
                 event_name    : $selected_event.data('event_name'),
                 scrambles     : this.events[comp_event_id]['scrambles'],
-                first_scramble: this.events[comp_event_id]['scrambles'][0].scramble,
             };
             
             var $timerDiv  = $('#timer_panel');
@@ -137,16 +143,38 @@ $(function(){
             $eventsDiv.ultraHide(); $timerDiv.ultraShow();
 
             this.timer = new Timer(data.event_name, data.comp_event_id);
-            this.timer.attach($('.single-time.active'));
+
+            var $firstIncomplete = $('.single-time:not(.complete)').first();
+            $firstIncomplete.addClass('active');
+            this.timer.attach($firstIncomplete);
             this.prepare_timer_for_start();
         },
 
+        auto_advance_timer_scramble: function() {
+            var $incompletes = $('.single-time:not(.complete)');
+            if ($incompletes.length === 0) { return; }
+
+            var $firstIncomplete = $incompletes.first();
+            this.timer.attach($firstIncomplete);
+            setTimeout(this.prepare_timer_for_start.bind(this), 200);
+        },
+
         prepare_timer_for_start: function() {
-            kd.SPACE.up(function (e) {
-                kd.SPACE.unbindUp();
+            if (kd.SPACE.isDown()) {
+                setTimeout(this.prepare_timer_for_start.bind(this), 200);
+                return;
+            }
+            var armed = false;
+            kd.SPACE.down(function() {
+                armed = true;
+            });
+            kd.SPACE.up(function() {
+                if (!armed) { return; }
+                kd.SPACE.unbindUp(); kd.SPACE.unbindDown();
                 this.timer.start();
-                kd.SPACE.press(function(){
+                kd.SPACE.down(function(){
                     this.timer.stop();
+                    this.auto_advance_timer_scramble();
                 }.bind(this));
             }.bind(this));
         },

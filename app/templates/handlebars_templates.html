@@ -7,11 +7,7 @@
             </div>
             <div class="times-wrapper">
                 {{#each scrambles}}
-                    {{#if (eq @index 0)}}
-                        <div class="single-time active" data-id="{{id}}" data-scramble="{{scramble}}"  data-rawTimeCentiseconds="" data-isPlusTwo="false" data-isDNF="false">
-                    {{else}}
                         <div class="single-time" data-id="{{id}}" data-scramble="{{scramble}}" data-rawTimeCentiseconds="" data-isPlusTwo="false" data-isDNF="false">
-                    {{/if}}
                             <div class="value-wrapper">#{{ inc @index }}.</div>
                             <div class="time-value">—</div>
                         </div>
@@ -20,7 +16,7 @@
         </div>
         <div class="col-md-10">
             <div class="row scramble-wrapper">
-                <span>{{ first_scramble }}</span>
+                <span></span>
             </div>
             <hr>
             <div class="row timer-wrapper">
