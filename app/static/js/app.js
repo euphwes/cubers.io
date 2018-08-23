@@ -3,7 +3,15 @@ $(function(){
 // ---------------------------------------------------------------------------------------------------------------------
 // Below is utility code
 // ---------------------------------------------------------------------------------------------------------------------
-
+    
+    /**
+     * Converts an integer number of seconds into a string denoting minutes and seconds.
+     * Ex: 120 --> 2:00
+     *      90 --> 1:30
+     *      65 --> 1:05
+     *      51 -->   51
+     *       9 -->    9
+     */
     var convertSecondsToMinutes = function(seconds) {
         var s = parseFloat(seconds);
 
@@ -15,6 +23,22 @@ $(function(){
         } else {
             return seconds;
         }
+    }
+    
+    /**
+     * Converts an integer number of centiseconds to a string representing the
+     * time in minutes, seconds, and centiseconds for use in a timer panel solve card.
+     *
+     * Ex: 1234 -->   12.34
+     *      600 -->    6.00
+     *     7501 --> 1:15.01
+     *    13022 --> 2:10.22
+     */
+    var convertRawCsForSolveCard = function(value, options){
+        var cs = parseInt(value);
+        var s = Math.floor(cs / 100);
+        var remainingCs = cs % 100;
+        return "" + convertSecondsToMinutes(s) + "." + ("" + remainingCs).padStart(2, "0");
     }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -47,11 +71,18 @@ $(function(){
         var newScramble = this.$singleSolveTimeElem.data('scramble');
 
         var $scrambleHolder = $('.scramble-wrapper>span');
-        var emptyScramble = $scrambleHolder.text().length === 0;
 
-        if (emptyScramble) {
+        if ($scrambleHolder.text().length === 0) {
+            // If there's nothing in the scramble div, this is the first time we're
+            // placing something in there, so just put it right in
+            
             $scrambleHolder.text(newScramble);
         } else {
+            // If there's something already there, we're moving from one scramble
+            // to another. Fade the old one out, replace it, and fade the new one in,
+            // so the transition isn't as jarring if the scramble length is sufficiently
+            // different to make the text visibly jump
+        
             $scrambleHolder.fadeOut(100, function() {
                 $(this).text(newScramble).delay(100).fadeIn(100);
             });
@@ -59,27 +90,35 @@ $(function(){
     };
  
     /**
-     * Starts the timer.
+     * Starts the timer. Captures the start time so we can determine elapsed time on
+     * subsequent ticks.
      */
     Timer.prototype.start = function() {
         this.startTime = new Date();
-        this.timerInterval = setInterval(this.timerIntervalFunction.bind(this), 10); // In milliseconds
+        this.timerInterval = setInterval(this.timerIntervalFunction.bind(this), 10);
     };
 
     /**
-     * Stops the timer, and sets the timer selement
+     * Stops the timer, determines the elapsed time, and updates the attached solve element
+     * with a user-friendly representation of the elapsed time. Also marks the solve complete,
+     * and sets the data attribute for raw time in centiseconds.
      */
     Timer.prototype.stop = function() {
+    
+        // stop the recurring tick function which continuously updates the timer, and unbind
+        // the keyboard space keypress events which handle the timer start/top
         clearInterval(this.timerInterval);
-        kd.SPACE.unbindDown();
-        kd.SPACE.unbindUp();
+        kd.SPACE.unbindDown(); kd.SPACE.unbindUp();
 
-        var now = new Date();
-        this.elapsedTime = now - this.startTime;
+        // calculate elapsed time, separate seconds and centiseconds, and get the
+        // "full time" string as seconds converted to minutes + decimal + centiseconds
+        this.elapsedTime = (new Date()) - this.startTime;
         var s = this.elapsedTime.getSecondsFromMs();
         var cs = this.elapsedTime.getTwoDigitCentisecondsFromMs();
         var full_time = convertSecondsToMinutes(s) + "." + cs;
 
+        // mark the attached solve card as complete and no longer active, set the solve time on
+        // the card, and set the data attribute for raw time in centiseconds
         this.$singleSolveTimeElem.addClass('complete').removeClass('active');
         this.$singleSolveTimeElem.find('.time-value').html(full_time);
         this.$singleSolveTimeElem.attr("data-rawTimeCentiseconds", parseInt(s*100) + parseInt(cs))
@@ -90,16 +129,16 @@ $(function(){
      * to the zero state.
      */
     Timer.prototype.reset = function() {
+        clearInterval(this.timerInterval);
         this.startTime = 0;
         this.elapsedTime = 0;
-        clearInterval(this.timerInterval);
         this.$seconds.html('0');
         this.$centiseconds.html('00');
     };
 
     /**
-     * Fires approximately every 10ms, keeps checking current time against start time to determine
-     * elapsed time, and updates the visible timer elements accordingly.
+     * Checks the current time against the start time to determine
+     * elapsed time, and updates the visible timer accordingly.
      */
     Timer.prototype.timerIntervalFunction = function() {
         var now = new Date();
@@ -119,14 +158,22 @@ $(function(){
      * The application which manages the competition, stores times for all competition events, creates timer instances
      */
     var CompManagerApp = {
-        events: events_data,
         timer: null,
         timerPanelTemplate: null,
+        
+        // this is the events_data object that is rendered into the home page template
+        events: events_data,  
 
+        /**
+         * Wires up the events associated with page elements.
+         */
         wire_js_events: function() {
             this.wire_event_card_click();
         },
 
+        /**
+         * When clicking on an event card, shows the timer panel for the selected event
+         */
         wire_event_card_click: function() {
             $('.event-card').click(function(e) {
                 var $event = $(e.target).closest('.event-card');
@@ -134,28 +181,48 @@ $(function(){
             }.bind(this));
         },
 
+        /**
+         * When clicking on the solve card, manually attach the timer to that solve
+         */
         wire_solve_card_click: function() {
             var _this = this;
             $('.single-time').click(function(e) {
+                // Remove active status from whichever solve is currently active, if any.
+                // Set the selected solve as active.
                 $('.single-time.active').removeClass('active');
                 $(this).addClass('active');
+                
+                // Reset the timer, and attach it to this solve card
                 _this.timer.reset();
                 _this.timer.attach($(this));
+                
+                // Wait a beat then attempt to prepare the timer for the user to start it
                 setTimeout(_this.prepare_timer_for_start.bind(_this), 200);
             });
         },
 
+        /**
+         * When clicking the button to return to the events panel, store complete solve times,
+         * update the card for the current event to the correct state, then hide the timer panel
+         * and show the events panel
+         */
         wire_return_to_events: function() {
             var _this = this;
             $('#return-to-events').click(function(e){
+                
+                // nuke the current timer object, and unbind any bound timer event handlers
                 delete _this.timer;
                 kd.SPACE.unbindUp(); kd.SPACE.unbindDown();
 
                 var compEventId = $('#timer_panel .timerEventDataContainer').data('compeventid');
                 var totalSolves = $('#timer_panel .timerEventDataContainer').data('totalsolves');
 
-                var countSolvesComplete = $('.single-time.complete').length;
+                // iterate through each completed solve, grab the scramble ID and raw solve time
+                // in centiseconds, and set the solve time for that scramble in the events data object
                 $('.single-time.complete').each(function(i){
+                    
+                    // need to read rawTimeCentiseconds via attr rather than data, since
+                    // we create and set that data attribute after the DOM was built
                     var solveCs = parseInt($(this).attr("data-rawTimeCentiseconds"));
                     var scrambleId = $(this).data('id');
 
@@ -166,16 +233,23 @@ $(function(){
                     })
                 });
 
+                // hide the timer panel and show the events panel
                 var $timerDiv  = $('#timer_panel');
                 var $eventsDiv = $('#event_list_panel');
                 $timerDiv.ultraHide(); $eventsDiv.ultraShow();
 
-                if (countSolvesComplete == totalSolves) {
-                    $('#event-'+compEventId).addClass('complete');
+                // if the number of complete solves matches the total number of scrambles
+                // for this event, mark it as complete
+                if ($('.single-time.complete').length == totalSolves) {
+                    $('#event-'+compEventId).removeClass('incomplete').addClass('complete');
                 }
             });
         },
 
+        /**
+         * Aggregate all the necessary event-related data, use it to render a new timer panel,
+         * and then hide the events panel and show the timer panel
+         */
         show_timer_for_event: function($selected_event) {
             var comp_event_id = $selected_event.data('comp_event_id');
             var data = {
@@ -189,48 +263,88 @@ $(function(){
             var $timerDiv  = $('#timer_panel');
             var $eventsDiv = $('#event_list_panel');
 
+            // Render the Handlebars tempalte for the timer panel with the event-related data
+            // collected above, and set it as the new html for the timer panel div
             $timerDiv.html($(this.timerPanelTemplate(data)));
-            fitty('.scramble-wrapper>span', {minSize: 18, maxSize: 45});
-
+            
+            // Hide the events panel and show the timer panel
             $eventsDiv.ultraHide(); $timerDiv.ultraShow();
 
+            // Create the new timer object for this timer panel for selected event
             this.timer = new Timer(data.event_name, data.comp_event_id);
 
+            // Determine the first solve/scramble that should be attached to the timer,
+            // set it as active, and attach it. If all solves are already complete (because
+            // the user is returning to this event after completing them, for whatever reason)
+            // then just choose the first one. Otherwise, choose the first incomplete solve.
             var $firstSolveToAttach = null;
             if ($('.single-time:not(.complete)').length === 0) {
                 $firstSolveToAttach = $('.single-time').first();
             } else {
                 $firstSolveToAttach = $('.single-time:not(.complete)').first();
             }
-            $firstSolveToAttach.addClass('active');
             this.timer.attach($firstSolveToAttach);
+            
+            // Adjust the font size for the current scramble to make sure it's as large
+            // as possible and still fits in the scramble area
+            fitty('.scramble-wrapper>span', {minSize: 18, maxSize: 45});
 
-            this.prepare_timer_for_start();
+            // Wire the solve card and return button events, and get the timer ready to go
             this.wire_solve_card_click();
             this.wire_return_to_events();
+            this.prepare_timer_for_start();
         },
 
+        /**
+         * Automatically advances the timer to the next incomplete solve.
+         */
         auto_advance_timer_scramble: function() {
+            // if there are no more incomplete solves, bail out early without doing anything
             var $incompletes = $('.single-time:not(.complete)');
             if ($incompletes.length === 0) { return; }
 
+            // otherwise attach the timer to the first incomplete solve and prepare the timer
+            // to start
             var $firstIncomplete = $incompletes.first();
             this.timer.attach($firstIncomplete);
             setTimeout(this.prepare_timer_for_start.bind(this), 200);
         },
 
+        /**
+         * Prepares the timer to start by setting up keyboard events related to starting
+         * and stopping the timer.
+         */
         prepare_timer_for_start: function() {
+        
+            // If the spacebar is already down when entering here, that probably means
+            // that the user held it after completing the previous solve. Wait for the
+            // user to release the spacebar by setting a short timeout to revisit this function
             if (kd.SPACE.isDown()) {
                 setTimeout(this.prepare_timer_for_start.bind(this), 200);
                 return;
             }
+            
+            // Pressing the spacebar down "arms" the timer to prepare it to start when
+            // the user releases the spacebar
+            // TODO: figure out if I need this anymore, now that I'm ensuring the spacebar
+            // isn't already down by the time we get here
             var armed = false;
             kd.SPACE.down(function() {
                 armed = true;
             });
+            
+            // When the spacebar is released, unbind the spacebar keydown and keyup events
+            // and bind a new keydown event which will stop the timer
             kd.SPACE.up(function() {
+            
+                // do nothing if the timerisn't armed yet by a spacebar keydown
                 if (!armed) { return; }
+                
+                // unbind the current events
                 kd.SPACE.unbindUp(); kd.SPACE.unbindDown();
+                
+                // start the timer, and bind a new event to spacebar keydown 
+                // to stop the timer and then automatically advance to the next scramble
                 this.timer.start();
                 kd.SPACE.down(function(){
                     this.timer.stop();
@@ -239,23 +353,29 @@ $(function(){
             }.bind(this));
         },
 
+        /**
+         * Setup stuff when the competition manager app is initialized
+         */
         init: function() {
+        
+            // keydrown.js's keyboard state manager is tick-based
+            // this is boilerplate to make sure the kd namespace has a recurring tick
             kd.run(function () { kd.tick(); });
 
+            // wire up all the javascript events we need to handle immediately
             this.wire_js_events();
 
+            // Register Handlebars helper functions to help with rendering timer panel template
+            //          inc: increments the supplied integer by 1 and returns
+            //           eq: compares two values for equality and returns the result
+            // convertRawCs: returns a user-friendly representation of the supplied centiseconds
             Handlebars.registerHelper("inc", function(value, options){ return parseInt(value) + 1; });
             Handlebars.registerHelper("eq", function(a, b, options){ return a == b; });
-            Handlebars.registerHelper("convertRawCs", function(value, options){
-                var cs = parseInt(value);
-                var s = Math.floor(cs / 100);
-                var remainingCs = cs % 100;
-                return "" + convertSecondsToMinutes(s) + "." + remainingCs;
-            });
+            Handlebars.registerHelper("convertRawCs", convertRawCsForSolveCard);
 
+            // Compile the Handlebars template for the timer panel, and store the renderer
+            // so we can render the timer panel later
             this.timerPanelTemplate = Handlebars.compile($('#timer-template').html());
-            //var timer = new Timer("test_event", {});
-            //timer.log_name();
         },
     };
 
@@ -263,20 +383,43 @@ $(function(){
 // Below is code that's executed on page load, mostly just setup stuff
 // ---------------------------------------------------------------------------------------------------------------------
 
+    /**
+     * Interpret the number as milliseconds and return the number of
+     * whole seconds it represents as a string
+     *
+     * Ex: 1234 -->  1
+     *     2000 -->  2
+     *     2001 -->  2
+     *    75777 --> 75
+     */
     Number.prototype.getSecondsFromMs = function (){
         return ("" + Math.floor(this / 1000));
     };
 
+    /**
+     * Interpret the number as milliseconds and return the number of
+     * centiseconds remaining after whole seconds are removed, as a string
+     * and left-padded with zeros for a total length of 2
+     *
+     * Ex: 1234 --> 23
+     *     2000 --> 00
+     *     2001 --> 00
+     *    75777 --> 77
+     */
     Number.prototype.getTwoDigitCentisecondsFromMs = function (){
         return ("" + this % 1000).slice(0, -1).padStart(2, "0");
     };
 
-    // Utility jQuery functions to "show or hide" based on display: none via ultra-hidden CSS class
-    // `visibility: hidden` still takes up space, but `display: none` does not
+    /**
+     * Shows or hides the element via the ultra-hidden CSS class.
+     * This different than $('thing').hide() or $('thing').show, because that uses `visibility: visible/hidden`
+     * which still takes up space, whereas `.ultra-hidden` uses `display: none` which does not take up space
+     */
     $.fn.extend({
         ultraHide: function(){ $(this).addClass('ultra-hidden'); },
         ultraShow: function(){ $(this).removeClass('ultra-hidden'); },
     });
 
+    // Let's get this party started!
     CompManagerApp.init();
 });
