@@ -209,8 +209,6 @@ body {
 
     margin: 15px;
     padding: 15px;
-    border: 2px solid white;
-    border-width: 2px!important;
     
     -webkit-transition: all 250ms ease;
     -moz-transition: all 250ms ease;
@@ -256,7 +254,6 @@ body {
     }
 
     &.complete {
-        border-color: desaturate(rgb(116, 116, 116), 0%);
         .icon {
             color: desaturate(#2be724, 35%);
         }
@@ -267,9 +264,8 @@ body {
     }
 
     &.incomplete {
-        border-color: desaturate(rgb(116, 116, 116), 0%);
         .icon {
-            color: desaturate(#edff48, 0%);
+            color: desaturate(#3A8AAF, 0%);
         }
         .incomplete-overlay {
             opacity: 1;
@@ -284,8 +280,8 @@ body {
 
     &.complete, &.incomplete {
         &:hover {
-            .icon {
-                color: white;
+            .overlay {
+                opacity: 0;
                 transition: all 250ms ease;
             }
         }
