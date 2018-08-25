@@ -240,8 +240,13 @@ $(function(){
 
                 // if the number of complete solves matches the total number of scrambles
                 // for this event, mark it as complete
-                if ($('.single-time.complete').length == totalSolves) {
+                var completedSolves = $('.single-time.complete').length;
+                if (completedSolves == totalSolves) {
                     $('#event-'+compEventId).removeClass('incomplete').addClass('complete');
+                } else if (completedSolves > 0) {
+                    $('#event-'+compEventId).removeClass('complete').addClass('incomplete');
+                } else {
+                    $('#event-'+compEventId).removeClass('complete incomplete');
                 }
             });
         },

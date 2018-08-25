@@ -209,6 +209,8 @@ body {
 
     margin: 15px;
     padding: 15px;
+    border: 2px solid white;
+    border-width: 2px!important;
     
     -webkit-transition: all 250ms ease;
     -moz-transition: all 250ms ease;
@@ -232,7 +234,6 @@ body {
     }
 
     .icon {
-        color: #28a745;
         font-size: 100px;
         position: absolute;
         top: 50%;
@@ -255,8 +256,23 @@ body {
     }
 
     &.complete {
-        .overlay {
-            opacity: 0.75;
+        border-color: desaturate(rgb(116, 116, 116), 0%);
+        .icon {
+            color: desaturate(#2be724, 35%);
+        }
+        .complete-overlay {
+            opacity: 1;
+            transition: all 250ms ease;
+        }
+    }
+
+    &.incomplete {
+        border-color: desaturate(rgb(116, 116, 116), 0%);
+        .icon {
+            color: desaturate(#edff48, 0%);
+        }
+        .incomplete-overlay {
+            opacity: 1;
             transition: all 250ms ease;
         }
     }

@@ -5,9 +5,14 @@
 
     <div class="event-image-container">
         <img class="event-image" src="./static/images/cube-{{ competition_event.Event.id }}-selected.png">
-        <div class="overlay">
+        <div class="overlay complete-overlay">
             <a href="#" class="icon">
                 <i class="fas fa-check"></i>
+            </a>
+        </div>
+        <div class="overlay incomplete-overlay">
+            <a href="#" class="icon">
+                <i class="far fa-clock"></i>
             </a>
         </div>
     </div>
