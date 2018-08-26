@@ -248,6 +248,9 @@ $(function(){
                     })
                 });
 
+                var comment = $('#comment_'+compEventId).val();
+                _this.events[compEventId].comment = comment;
+
                 // hide the timer panel and show the events panel
                 var $timerDiv  = $('#timer_panel');
                 var $eventsDiv = $('#event_list_panel');
@@ -277,7 +280,8 @@ $(function(){
                 event_id      : $selected_event.data('event_id'),
                 event_name    : $selected_event.data('event_name'),
                 scrambles     : this.events[comp_event_id]['scrambles'],
-                total_solves   : this.events[comp_event_id]['scrambles'].length,
+                total_solves  : this.events[comp_event_id]['scrambles'].length,
+                comment       : this.events[comp_event_id].comment,
             };
             
             var $timerDiv  = $('#timer_panel');
@@ -431,13 +435,13 @@ $(function(){
             }
             
             // Pressing the spacebar down "arms" the timer to prepare it to start when
-            // the user releases the spacebar
-            // TODO: figure out if I need this anymore, now that I'm ensuring the spacebar
-            // isn't already down by the time we get here
+            // the user releases the spacebar. Don't arm the timer if the comment input
+            // box has focus.
             var armed = false;
             kd.SPACE.down(function() {
+                if ($('#comment_' + this.timer.comp_event_id).is(":focus")) { return; }
                 armed = true;
-            });
+            }.bind(this));
             
             // When the spacebar is released, unbind the spacebar keydown and keyup events
             // and bind a new keydown event which will stop the timer
