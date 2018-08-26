@@ -122,6 +122,8 @@ $(function(){
         this.$singleSolveTimeElem.addClass('complete').removeClass('active');
         this.$singleSolveTimeElem.find('.time-value').html(full_time);
         this.$singleSolveTimeElem.attr("data-rawTimeCentiseconds", parseInt(s*100) + parseInt(cs))
+        this.$singleSolveTimeElem.attr("data-isPlusTwo", "false")
+        this.$singleSolveTimeElem.attr("data-isDNF", "false")
     };
 
     /**
@@ -179,26 +181,6 @@ $(function(){
                 var $event = $(e.target).closest('.event-card');
                 this.show_timer_for_event($event);
             }.bind(this));
-        },
-
-        /**
-         * When clicking on the solve card, manually attach the timer to that solve
-         */
-        wire_solve_card_click: function() {
-            var _this = this;
-            $('.single-time').click(function(e) {
-                // Remove active status from whichever solve is currently active, if any.
-                // Set the selected solve as active.
-                $('.single-time.active').removeClass('active');
-                $(this).addClass('active');
-                
-                // Reset the timer, and attach it to this solve card
-                _this.timer.reset();
-                _this.timer.attach($(this));
-                
-                // Wait a beat then attempt to prepare the timer for the user to start it
-                setTimeout(_this.prepare_timer_for_start.bind(_this), 200);
-            });
         },
 
         /**
@@ -294,8 +276,70 @@ $(function(){
             // as possible and still fits in the scramble area
             fitty('.scramble-wrapper>span', {minSize: 18, maxSize: 45});
 
+            var _appContext = this;
+            $.contextMenu({
+                selector: '.single-time',
+                trigger: 'left',
+                items: {
+                    "clear": {
+                        name: "Clear Penalty",
+                        icon: "far fa-thumbs-up",
+                        callback: function(itemKey, opt, e) {
+                            var $solveClicked = $(opt.$trigger);
+                            $solveClicked.attr('data-isPlusTwo', 'false');
+                            $solveClicked.attr('data-isDNF', 'false');
+
+                            var cs = parseInt($solveClicked.attr("data-rawTimeCentiseconds"));
+                            $solveClicked.find('.time-value').html(convertRawCsForSolveCard(cs));
+                        }
+                    },
+                    "dnf": {
+                        name: "DNF",
+                        icon: "fas fa-times",
+                        callback: function(itemKey, opt, e) {
+                            var $solveClicked = $(opt.$trigger);
+                            $solveClicked.attr('data-isPlusTwo', 'false');
+                            $solveClicked.attr('data-isDNF', 'true');
+                            $solveClicked.find('.time-value').html("DNF");
+                        }
+                    },
+                    "+2": {
+                        name: "+2",
+                        icon: "fas fa-plus",
+                        callback: function(itemKey, opt, e) {
+                            var $solveClicked = $(opt.$trigger);
+                            $solveClicked.attr('data-isPlusTwo', 'true');
+                            $solveClicked.attr('data-isDNF', 'false');
+
+                            var cs = parseInt($solveClicked.attr("data-rawTimeCentiseconds"));
+                            $solveClicked.find('.time-value').html(convertRawCsForSolveCard(cs + 200) + "+");
+                        }
+                    },
+                    "sep1": "---------",
+                    "retry": {
+                        name: "Retry Solve",
+                        icon: "fas fa-redo",
+                        callback: function(itemKey, opt, e) {
+                            // Remove active status from whichever solve is currently active, if any.
+                            // Set the selected solve as active.
+                            var $solveClicked = $(opt.$trigger);
+                            $('.single-time.active').removeClass('active');
+
+                            $solveClicked.addClass('active');
+
+                            // Reset the timer, and attach it to this solve card
+                            _appContext.timer.reset();
+                            _appContext.timer.attach($solveClicked);
+
+                            // Wait a beat then attempt to prepare the timer for the user to start it
+                            setTimeout(_appContext.prepare_timer_for_start.bind(_appContext), 200);
+                        }
+                    },
+                }
+            });
+
             // Wire the solve card and return button events, and get the timer ready to go
-            this.wire_solve_card_click();
+            //this.wire_solve_card_click();
             this.wire_return_to_events();
             this.prepare_timer_for_start();
         },
