@@ -9,6 +9,9 @@
                 <img class="event-image" src="./static/images/cube-{{ event_id }}-selected.png">
             </div>
             <div class="times-wrapper">
+                <div class="notes">
+                    Click to add or remove penalties
+                </div>
                 {{#each scrambles}}
                     {{#if time}}
                         <div class="single-time complete" data-id="{{id}}"
@@ -17,7 +20,7 @@
                                                           data-isPlusTwo="{{isPlusTwo}}"
                                                           data-isDNF="{{isDNF}}">
                             <div class="value-wrapper">#{{ inc @index }}.</div>
-                            <div class="time-value">{{convertRawCs time}}</div>
+                            <div class="time-value">{{ renderTime this }}</div>
                         </div>
                     {{else}}
                         <div class="single-time" data-id="{{id}}"
