@@ -2,19 +2,30 @@
 <script id='timer-template' type='text/x-handlebars-template'>
     <div class="ultra-hidden timerEventDataContainer" data-compEventId="{{ comp_event_id }}" data-totalSolves="{{ total_solves }}"></div>
     <div class="row">
-        <div class="col-md-2">
+
+        <!-- left column -->
+        <div class="col-md-3">
             <div class="event-image-container">
                 <img class="event-image" src="./static/images/cube-{{ event_id }}-selected.png">
             </div>
             <div class="times-wrapper">
                 {{#each scrambles}}
                     {{#if time}}
-                        <div class="single-time complete" data-id="{{id}}" data-scramble="{{scramble}}" data-rawTimeCentiseconds="{{time}}" data-isPlusTwo="false" data-isDNF="false">
+                        <div class="single-time complete" data-id="{{id}}"
+                                                          data-scramble="{{scramble}}"
+                                                          data-rawTimeCentiseconds="{{time}}"
+                                                          data-isPlusTwo="{{isPlusTwo}}"
+                                                          data-isDNF="{{isDNF}}">
                             <div class="value-wrapper">#{{ inc @index }}.</div>
                             <div class="time-value">{{convertRawCs time}}</div>
                         </div>
                     {{else}}
-                        <div class="single-time" data-id="{{id}}" data-scramble="{{scramble}}" data-rawTimeCentiseconds="" data-isPlusTwo="false" data-isDNF="false">
+                        <div class="single-time" data-id="{{id}}"
+                                                 data-scramble="{{scramble}}"
+                                                 data-rawTimeCentiseconds=""
+                                                 data-isPlusTwo="false"
+                                                 data-isDNF="false">
+
                             <div class="value-wrapper">#{{ inc @index }}.</div>
                             <div class="time-value">—</div>
                         </div>
@@ -22,9 +33,13 @@
                 {{/each}}
             </div>
         </div>
-        <div class="col-md-10">
-            <div class="row scramble-wrapper">
-                <span></span>
+
+        <!-- right column -->
+        <div class="col-md-9">
+            <div class="row">
+                <div class="col-md-12 scramble-wrapper">
+                    <span></span>
+                </div>
             </div>
             <hr>
             <div class="row timer-wrapper">
@@ -35,11 +50,12 @@
                 </div>
             </div>
             <div id="return-to-events">
-                <button class="btn btn-lg btn-info" style="position: fixed; bottom: 20px; right: 20px;">
+                <button class="btn btn-lg btn-return">
                     Go back to events
                 </button>
             </div>
         </div>
+
     </div>
 </script>
 {% endraw %}
