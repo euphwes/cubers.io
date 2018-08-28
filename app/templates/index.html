@@ -15,12 +15,19 @@
     <div class="container ultra-hidden" id="timer_panel"></div>
 
     <!-- Results summary panel -->
-    <div class="container ultra-hidden" id="review_panel"></div>
+    <div class="container ultra-hidden" id="summary_panel"></div>
 
 </div>
 
 {% include 'timer/timer_handlebars_template.html' %}
+{% include 'summary/summary_handlebars_template.html' %}
+
 <script>
-    events_data = {{ events_data|tojson }}
+    events_data = {{ events_data|tojson }};
+    {% if current_user.is_authenticated %}
+    user_logged_in = true;
+    {% else %}
+    user_logged_in = false;
+    {% endif %}
 </script>
 {% endblock %}

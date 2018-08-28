@@ -1,4 +1,5 @@
 <div class="container" id="event_list_panel">
+    <div id="eventsPanelDataContainer" class="ultra-hidden" data-compname="{{current_competition.title}}"></div>
     <div class="row comp-info">
         <h3>{{ current_competition.title }}</h3>
     </div>
@@ -8,7 +9,7 @@
         {% endfor %}
     </div>
     <div id="times-submit">
-        <button class="btn btn-lg btn-info ultra-hidden" style="position: fixed; bottom: 20px; right: 20px;">
+        <button class="btn btn-lg btn-info" style="position: fixed; bottom: 20px; right: 20px;">
             Review solves and submit
         </button>
     </div>

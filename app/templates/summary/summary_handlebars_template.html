@@ -1,74 +1,58 @@
 {% raw %}
-<script id='timer-template' type='text/x-handlebars-template'>
-    <div class="ultra-hidden timerEventDataContainer" data-compEventId="{{ comp_event_id }}" data-totalSolves="{{ total_solves }}"></div>
-    <div class="row">
-
-        <!-- left column -->
-        <div class="col-md-3">
-            <div class="event-image-container">
-                <img class="event-image" src="./static/images/cube-{{ event_id }}-selected.png">
-            </div>
-            <div class="times-wrapper">
-                <div class="notes">
-                    Click to add or remove penalties
-                </div>
-                {{#each scrambles}}
-                    {{#if time}}
-                        <div class="single-time complete" data-id="{{id}}"
-                                                          data-scramble="{{scramble}}"
-                                                          data-rawTimeCentiseconds="{{time}}"
-                                                          data-isPlusTwo="{{isPlusTwo}}"
-                                                          data-isDNF="{{isDNF}}">
-                            <div class="value-wrapper">#{{ inc @index }}.</div>
-                            <div class="time-value">{{ renderTime this }}</div>
-                        </div>
-                    {{else}}
-                        <div class="single-time" data-id="{{id}}"
-                                                 data-scramble="{{scramble}}"
-                                                 data-rawTimeCentiseconds=""
-                                                 data-isPlusTwo="false"
-                                                 data-isDNF="false">
-
-                            <div class="value-wrapper">#{{ inc @index }}.</div>
-                            <div class="time-value">—</div>
-                        </div>
-                    {{/if}}
-                {{/each}}
-            </div>
-        </div>
-
-        <!-- right column -->
-        <div class="col-md-9">
-            <div class="row">
-                <div class="col-md-12 scramble-wrapper">
-                    <span></span>
-                </div>
-            </div>
-            <hr>
-            <div class="row timer-wrapper">
-                <div>
-                    <div id="seconds" class="timer-element">0</div>
-                    <div id="dot" class="timer-element">.</div>
-                    <div id="centiseconds" class="timer-element">00</div>
-                </div>
-            </div>
-            <hr>
-            <div class="row comment-wrapper">
-                <div class="col-md-12">
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="far fa-comment input-icon"></i></span>
-                        </div>
-                        <input type="text" class="form-control" id="comment_{{comp_event_id}}" placeholder="Type an optional comment about {{event_name}} here!" value="{{comment}}">
-                    </div>
-                </div>
-            </div>
-            <div id="return-to-events">
-                <button class="btn btn-lg btn-return">
-                    Go back to events
-                </button>
-            </div>
+<script id='summary-template' type='text/x-handlebars-template'>
+    <div class="row comp-info">
+        <div class="col-md-12">
+            <h3>Review {{comp_title}}</h3>
         </div>
     </div>
+    {{#if complete_events}}
+    <div class="row">
+        <h4>Complete Events</h4>
+        {{#if logged_in}}
+        <span>
+            We'll submit a comment to the /r/cubers thread for this week's competition on your behalf,
+            which will include the results for the events below.
+        </span>
+        {{else}}
+        <span>
+            We'll generate the comment source for the /r/cubers competition thread for the events shown below.
+            You can copy this comment source and submit the comment yourself! Or next time, log-in for a more
+            streamlined experience.
+        </span>
+        {{/if}}
+        <div class="event_summary_wrapper">
+            <div class="event_summary row" id="comp_event_1">
+                <div class="col-md-1">
+                    <img class="event-image" src="./static/images/cube-1-selected.png">
+                </div>
+                <div class="col-md-2 event_name"><b>3x3</b></div>
+                <div class="col-md-4 summary">21.13 = 21.23, (20.12), 21.98, (22.00), 21.44</div>
+                <div class="col-md-5 comment">Short comment</div>
+            </div>
+        </div>
+        <div class="event_summary_wrapper">
+            <div class="event_summary row" id="comp_event_2">
+                <div class="col-md-1">
+                    <img class="event-image" src="./static/images/cube-2-selected.png">
+                </div>
+                <div class="col-md-2 event_name"><b>2x2</b></div>
+                <div class="col-md-4 summary">21.13 = 21.23, (20.12), 21.98, (22.00), 21.44</div>
+                <div class="col-md-5 comment">something really really really really long, like so long I think it probably won't fit into the space provided</div>
+            </div>
+        </div>
+        <div class="event_summary_wrapper">
+            <div class="event_summary row" id="comp_event_3">
+                <div class="col-md-1">
+                    <img class="event-image" src="./static/images/cube-8-selected.png">
+                </div>
+                <div class="col-md-2 event_name"><b>Square-1</b></div>
+                <div class="col-md-4 summary">21.13 = 21.23, (20.12), 21.98, (22.00), 21.44</div>
+                <div class="col-md-5 comment">something else short</div>
+            </div>
+        </div>
+        {{#each complete_events}}
+        {{/each}}
+    </div>
+    {{/if}}
 </script>
 {% endraw %}

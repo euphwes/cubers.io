@@ -191,6 +191,7 @@ $(function(){
     var CompManagerApp = {
         timer: null,
         timerPanelTemplate: null,
+        summaryPanelTemplate: null,
         
         // this is the events_data object that is rendered into the home page template
         events: events_data,  
@@ -200,6 +201,28 @@ $(function(){
          */
         wire_js_events: function() {
             this.wire_event_card_click();
+            this.wire_submit_button_click();
+        },
+
+        wire_submit_button_click: function() {
+            $('#times-submit').click(function() {
+                var $summaryDiv  = $('#summary_panel');
+                var $eventsDiv = $('#event_list_panel');
+
+                var data = {
+                    logged_in: user_logged_in,
+                    comp_title: $('#eventsPanelDataContainer').data('compname'),
+                    complete_events: [1, 2, 3],
+                    incomplete_events: [],
+                };
+
+                // Render the Handlebars template for the summary panel, and set it as
+                // the new html for the summary panel div
+                $summaryDiv.html($(this.summaryPanelTemplate(data)));
+
+                // Hide the events panel and show the summary panel
+                $eventsDiv.ultraHide(); $summaryDiv.ultraShow();
+            }.bind(this));
         },
 
         /**
@@ -483,9 +506,10 @@ $(function(){
             Handlebars.registerHelper("eq", function(a, b, options){ return a == b; });
             Handlebars.registerHelper("renderTime", renderTime);
 
-            // Compile the Handlebars template for the timer panel, and store the renderer
-            // so we can render the timer panel later
+            // Compile the Handlebars template for the timer panel and summary panel
+            // and store the renderers so we can render them later
             this.timerPanelTemplate = Handlebars.compile($('#timer-template').html());
+            this.summaryPanelTemplate = Handlebars.compile($('#summary-template').html());
         },
     };
 
