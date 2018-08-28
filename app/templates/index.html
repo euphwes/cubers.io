@@ -35,9 +35,6 @@
 
     {% include 'handlebars_templates.html' %}
 
-    {% assets "app_js" %}
-        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    {% endassets %}
     <script>
         events_data = {{ events_data|tojson }}
     </script>

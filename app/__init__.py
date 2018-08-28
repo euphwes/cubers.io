@@ -21,28 +21,15 @@ MIGRATE = Migrate(CUBERS_APP, DB)
 
 ASSETS = Environment(CUBERS_APP)
 ASSETS.register({
-    'main_js': Bundle(
-        'lib/jquery-3.3.1.min.js',
-        'lib/popper.min.js',
-        'lib/bootstrap.min.js',
-        'lib/fitty.min.js',
-        'lib/keydrown.min.js',
-        output='gen/main.js'),
-
     'app_js': Bundle(
         'js/app.js',
         output='gen/app.js'
     ),
 
-    'main_css': Bundle(
+    'app_css': Bundle(
         'less/cubers_common.less',
         filters="less,cssmin",
-        output='gen/main.css'),
-
-    'bootstrap_css': Bundle(
-        'lib/bootstrap.min.css',
-        output='gen/lib.css'
-    )
+        output='gen/app.css'),
 })
 
 #pylint: disable=W0401
