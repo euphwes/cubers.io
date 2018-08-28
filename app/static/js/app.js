@@ -237,6 +237,20 @@ $(function(){
                 event.summary = summary_data[event.comp_event_id];
             });
 
+            $.each(incomplete_events, function(i, event) {
+                var solves = [];
+                $.each(event.scrambles, function(i, scramble) {
+                    if (scramble.time) {
+                        var timeStr = "DNF";
+                        if (!scramble.isDNF) {
+                            timeStr = convertRawCsForSolveCard(scramble.time, scramble.isPlusTwo);
+                        }
+                        solves.push(timeStr);
+                    }
+                });
+                event.summary = "? = " + solves.join(", ");
+            });
+
             var data = {
                 logged_in: user_logged_in,
                 comp_title: $('#eventsPanelDataContainer').data('compname'),
