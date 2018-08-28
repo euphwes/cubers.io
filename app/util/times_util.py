@@ -6,6 +6,9 @@ def convert_centiseconds_to_friendly_time(centiseconds):
     Ex: 2345 --> 23.45
     Ex: 12345 --> 2:03.45 """
 
+    if str(centiseconds) == centiseconds:
+        return centiseconds
+
     secs = centiseconds / 100.0
 
     if secs < 60:

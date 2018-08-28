@@ -131,3 +131,8 @@ class UserSolve(Model):
             return 'DNF'
 
         return convert_centiseconds_to_friendly_time(int(self.time))
+
+    def get_total_time(self):
+        """ Returns the solve's time with +2s penality counted, if applicable. """
+
+        return (self.time + 200) if self.is_plus_two else self.time

@@ -205,24 +205,54 @@ $(function(){
         },
 
         wire_submit_button_click: function() {
+            var _appContext = this;
+
             $('#times-submit').click(function() {
-                var $summaryDiv  = $('#summary_panel');
-                var $eventsDiv = $('#event_list_panel');
+                var completeEvents = [];
+                var incompleteEvents = [];
+                $.each(this.events, function(i, event){
+                    if (event.status === 'complete') {
+                        completeEvents.push(event);
+                    } else if (event.status === 'incomplete') {
+                        incompleteEvents.push(event);
+                    }
+                });
 
-                var data = {
-                    logged_in: user_logged_in,
-                    comp_title: $('#eventsPanelDataContainer').data('compname'),
-                    complete_events: [1, 2, 3],
-                    incomplete_events: [],
-                };
+                $.ajax({
+                    url: "/eventSummaries",
+                    type: "POST",
+                    data: JSON.stringify(completeEvents),
+                    contentType: "application/json",
+                    success: function(data) {
+                        data = JSON.parse(data);
+                        _appContext
+                            .show_summary_panel.bind(_appContext)(data, completeEvents, incompleteEvents);
+                    },
+                });
+            }.bind(_appContext));
+        },
 
-                // Render the Handlebars template for the summary panel, and set it as
-                // the new html for the summary panel div
-                $summaryDiv.html($(this.summaryPanelTemplate(data)));
+        show_summary_panel: function(summary_data, complete_events, incomplete_events) {
+            $.each(complete_events, function(i, event) {
+                event.summary = summary_data[event.comp_event_id];
+            });
 
-                // Hide the events panel and show the summary panel
-                $eventsDiv.ultraHide(); $summaryDiv.ultraShow();
-            }.bind(this));
+            var data = {
+                logged_in: user_logged_in,
+                comp_title: $('#eventsPanelDataContainer').data('compname'),
+                complete_events: complete_events,
+                incomplete_events: incomplete_events,
+            };
+
+            var $summaryDiv  = $('#summary_panel');
+            var $eventsDiv = $('#event_list_panel');
+
+            // Render the Handlebars template for the summary panel, and set it as
+            // the new html for the summary panel div
+            $summaryDiv.html($(this.summaryPanelTemplate(data)));
+
+            // Hide the events panel and show the summary panel
+            $eventsDiv.ultraHide(); $summaryDiv.ultraShow();
         },
 
         /**
@@ -284,10 +314,13 @@ $(function(){
                 var completedSolves = $('.single-time.complete').length;
                 if (completedSolves == totalSolves) {
                     $('#event-'+compEventId).removeClass('incomplete').addClass('complete');
+                    _this.events[compEventId].status = 'complete';
                 } else if (completedSolves > 0) {
                     $('#event-'+compEventId).removeClass('complete').addClass('incomplete');
+                    _this.events[compEventId].status = 'incomplete';
                 } else {
                     $('#event-'+compEventId).removeClass('complete incomplete');
+                    _this.events[compEventId].status = 'unstarted;';
                 }
             });
         },

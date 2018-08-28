@@ -29,7 +29,7 @@ def determine_bests_bo3(solves):
     if all(solve.is_dnf for solve in solves):
         return DNF, NA
 
-    return min(solve.time for solve in solves if not solve.is_dnf), NA
+    return min(solve.get_total_time() for solve in solves if not solve.is_dnf), NA
 
 
 def determine_bests_mo3(solves):
@@ -40,12 +40,12 @@ def determine_bests_mo3(solves):
     if dnf_count > 0:
         average = DNF
     else:
-        average = sum(solve.time for solve in solves) / 3.0
+        average = sum(solve.get_total_time() for solve in solves) / 3.0
 
     if dnf_count == 3:
         single = DNF
     else:
-        single = min(solve.time for solve in solves if not solve.is_dnf)
+        single = min(solve.get_total_time() for solve in solves if not solve.is_dnf)
 
     return single, average
 
@@ -57,13 +57,13 @@ def determine_bests_ao5(solves):
     dnf_count = sum(1 for solve in solves if solve.is_dnf)
 
     if dnf_count == 0:
-        times   = [solve.time for solve in solves]
+        times   = [solve.get_total_time() for solve in solves]
         best    = min(times)
         worst   = max(times)
         average = int((sum(times) - best - worst) / 3.0)
 
     elif dnf_count == 1:
-        times   = [solve.time for solve in solves if not solve.is_dnf]
+        times   = [solve.get_total_time() for solve in solves if not solve.is_dnf]
         best    = min(times)
         average = int((sum(times) - best) / 3.0)
 
@@ -72,7 +72,7 @@ def determine_bests_ao5(solves):
         best    = DNF
 
     else:
-        times   = [solve.time for solve in solves if not solve.is_dnf]
+        times   = [solve.get_total_time() for solve in solves if not solve.is_dnf]
         average = DNF
         best    = min(times)
 

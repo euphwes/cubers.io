@@ -59,12 +59,15 @@ def build_comment_source_from_events_results(events_results):
     return comment_source
 
 
-def build_times_string(solves, event_format):
+def build_times_string(solves, event_format, raw=False):
     """ Builds a list of individual times, with best/worst times in parens if appropriate
     for the given event format. """
 
     time_convert   = convert_centiseconds_to_friendly_time
-    friendly_times = [time_convert(solve.time) for solve in solves]
+    friendly_times = [time_convert(solve.get_total_time()) for solve in solves]
+    for i, solve in enumerate(solves):
+        if solve.is_plus_two:
+            friendly_times[i] = friendly_times[i] + "+"
 
     curr_best   = MAX
     curr_worst  = -1
@@ -75,13 +78,13 @@ def build_times_string(solves, event_format):
     have_found_dnf = False
 
     for i, solve in enumerate(solves):
-        if (not solve.is_dnf) and (solve.time < curr_best):
+        if (not solve.is_dnf) and (solve.get_total_time() < curr_best):
             best_index = i
-            curr_best  = solve.time
+            curr_best  = solve.get_total_time()
 
-        if (not have_found_dnf) and (solve.time > curr_worst):
+        if (not have_found_dnf) and (solve.get_total_time() > curr_worst):
             worst_index = i
-            curr_worst  = solve.time
+            curr_worst  = solve.get_total_time()
 
         if solve.is_dnf:
             if not have_found_dnf:

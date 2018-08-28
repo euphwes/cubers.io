@@ -20,37 +20,17 @@
             streamlined experience.
         </span>
         {{/if}}
-        <div class="event_summary_wrapper">
-            <div class="event_summary row" id="comp_event_1">
-                <div class="col-md-1">
-                    <img class="event-image" src="./static/images/cube-1-selected.png">
-                </div>
-                <div class="col-md-2 event_name"><b>3x3</b></div>
-                <div class="col-md-4 summary">21.13 = 21.23, (20.12), 21.98, (22.00), 21.44</div>
-                <div class="col-md-5 comment">Short comment</div>
-            </div>
-        </div>
-        <div class="event_summary_wrapper">
-            <div class="event_summary row" id="comp_event_2">
-                <div class="col-md-1">
-                    <img class="event-image" src="./static/images/cube-2-selected.png">
-                </div>
-                <div class="col-md-2 event_name"><b>2x2</b></div>
-                <div class="col-md-4 summary">21.13 = 21.23, (20.12), 21.98, (22.00), 21.44</div>
-                <div class="col-md-5 comment">something really really really really long, like so long I think it probably won't fit into the space provided</div>
-            </div>
-        </div>
-        <div class="event_summary_wrapper">
-            <div class="event_summary row" id="comp_event_3">
-                <div class="col-md-1">
-                    <img class="event-image" src="./static/images/cube-8-selected.png">
-                </div>
-                <div class="col-md-2 event_name"><b>Square-1</b></div>
-                <div class="col-md-4 summary">21.13 = 21.23, (20.12), 21.98, (22.00), 21.44</div>
-                <div class="col-md-5 comment">something else short</div>
-            </div>
-        </div>
         {{#each complete_events}}
+        <div class="event_summary_wrapper">
+                <div class="event_summary row" id="comp_event_{{comp_event_id}}">
+                    <div class="col-md-1">
+                        <img class="event-image" src="./static/images/cube-{{event_id}}-selected.png">
+                    </div>
+                    <div class="col-md-2 name"><b>{{name}}</b></div>
+                    <div class="col-md-4 summary">{{summary}}</div>
+                    <div class="col-md-5 comment">{{comment}}</div>
+                </div>
+            </div>
         {{/each}}
     </div>
     {{/if}}

@@ -22,7 +22,7 @@ def build_user_event_results(comp_event_id, solves, comment):
             continue
 
         dnf         = solve['isDNF']
-        time        = 0 if dnf else int(float(solve['time']) * 100)
+        time        = 0 if dnf else int(solve['time'])
         plus_two    = solve['isPlusTwo']
         scramble_id = solve['id']
 

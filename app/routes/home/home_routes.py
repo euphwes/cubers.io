@@ -9,7 +9,8 @@ from app import CUBERS_APP
 from app.persistence import comp_manager
 from app.persistence.user_results_manager import build_user_event_results
 from app.util.reddit_util import build_comment_source_from_events_results,\
-     submit_comment_for_user, get_permalink_for_comp_thread
+     submit_comment_for_user, get_permalink_for_comp_thread, build_times_string,\
+     convert_centiseconds_to_friendly_time
 
 # -------------------------------------------------------------------------------------------------
 
@@ -28,8 +29,10 @@ def index():
     events_data = dict()
     for comp_event in comp.events:
         event = {
-            'name':      comp_event.Event.name,
-            'scrambles': list()
+            'name':          comp_event.Event.name,
+            'scrambles':     list(),
+            'event_id':      comp_event.Event.id,
+            'comp_event_id': comp_event.id,
         }
         for scram in comp_event.scrambles:
             event['scrambles'].append({
@@ -68,6 +71,28 @@ def submit_times():
 
     # show comment source page
     return render_template(COMMENT_SOURCE_TEMPLATE, comment_source=comment_source, comp_url=comp_thread_url)
+
+
+@CUBERS_APP.route('/eventSummaries', methods=['POST'])
+def get_event_summaries():
+    """ A route for building a time list/summary for an event. TODO: fill out more here. """
+
+    data = request.get_json()
+
+    build_results = build_user_event_results
+    friendly = convert_centiseconds_to_friendly_time
+
+    summaries = dict()
+    for event in data:
+        results = build_results(event['comp_event_id'], event['scrambles'], event['comment'])
+        event_format = comp_manager.get_event_by_name(event['name']).eventFormat
+
+        best = friendly(results.average) if (event_format != 'Bo3') else friendly(results.single)
+        times_string = build_times_string(results.solves, event_format)
+
+        summaries[event['comp_event_id']] = "{} = {}".format(best, times_string)
+
+    return json.dumps(summaries)
 
 # -------------------------------------------------------------------------------------------------
 
