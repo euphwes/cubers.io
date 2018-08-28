@@ -5,37 +5,22 @@
 {% endblock %}
 
 {% block content %}
+<!-- Main competition event listing panel -->
+<div class="cubers-container">
+
+    <!-- Events cards container panel -->
+    {% include 'events/events_container.html' %}
     
-    <!-- Main competition event listing panel -->
-    <div class="cubers-container">
-        <div class="container" id="event_list_panel">
-            <div class="row comp-info">
-                <h3>{{ current_competition.title }}</h3>
-            </div>
-            <div class="row event-cards">
-                {% for competition_event in current_competition.events %}
-                    {% include "event_card.html" %}
-                {% endfor %}
-            </div>
-            {% include "time_entry_modal.html" %}
-            <div id="times-submit">
-                <button class="btn btn-lg btn-info ultra-hidden" style="position: fixed; bottom: 20px; right: 20px;">
-                    Review solves and submit
-                </button>
-            </div>
-        </div>
-        
-        <!-- Timer container panel -->
-        <div class="container ultra-hidden" id="timer_panel"></div>
-    
-        <!-- Results summary panel -->
-        <div class="container ultra-hidden" id="review_panel"></div>
-    </div>
+    <!-- Timer container panel -->
+    <div class="container ultra-hidden" id="timer_panel"></div>
 
+    <!-- Results summary panel -->
+    <div class="container ultra-hidden" id="review_panel"></div>
 
-    {% include 'handlebars_templates.html' %}
+</div>
 
-    <script>
-        events_data = {{ events_data|tojson }}
-    </script>
+{% include 'timer/timer_handlebars_template.html' %}
+<script>
+    events_data = {{ events_data|tojson }}
+</script>
 {% endblock %}

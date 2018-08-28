@@ -1,0 +1,15 @@
+<div class="container" id="event_list_panel">
+    <div class="row comp-info">
+        <h3>{{ current_competition.title }}</h3>
+    </div>
+    <div class="row event-cards">
+        {% for competition_event in current_competition.events %}
+            {% include "events/event_card.html" %}
+        {% endfor %}
+    </div>
+    <div id="times-submit">
+        <button class="btn btn-lg btn-info ultra-hidden" style="position: fixed; bottom: 20px; right: 20px;">
+            Review solves and submit
+        </button>
+    </div>
+</div>
