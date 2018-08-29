@@ -22,11 +22,11 @@ COMMENT_SOURCE_TEMPLATE  = 'times_comment_source.html'
 
 @CUBERS_APP.route('/')
 def index():
-    """ Main page for the app. Shows the competition time entry page if logged in, or an informative
-    landing page if not. """
+    """ Main page for the app. Shows cards for every event in the current competition."""
+
     comp = comp_manager.get_active_competition()
 
-    events_data = dict()
+    events_for_json = dict()
     for comp_event in comp.events:
         event = {
             'name':          comp_event.Event.name,
@@ -39,9 +39,13 @@ def index():
                 'id':       scram.id,
                 'scramble': scram.scramble
             })
-        events_data[str(comp_event.id)] = event
+        events_for_json[str(comp_event.id)] = event
 
-    return render_template('index.html', current_competition=comp, events_data=events_data)
+    ordered_comp_events = list([comp_event for comp_event in comp.events])
+    ordered_comp_events.sort(key=lambda c: c.event_id)
+
+    return render_template('index.html', current_competition=comp, events_data=events_for_json,
+                           ordered_comp_events=ordered_comp_events)
 
 
 @CUBERS_APP.route('/submit', methods=['POST'])

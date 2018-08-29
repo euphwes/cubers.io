@@ -4,7 +4,7 @@
         <h3>{{ current_competition.title }}</h3>
     </div>
     <div class="row event-cards">
-        {% for competition_event in current_competition.events %}
+        {% for competition_event in ordered_comp_events %}
             {% include "events/event_card.html" %}
         {% endfor %}
     </div>
