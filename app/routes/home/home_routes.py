@@ -7,6 +7,7 @@ from flask_login import current_user
 
 from app import CUBERS_APP
 from app.persistence import comp_manager
+from app.persistence.models import EventFormat
 from app.persistence.user_results_manager import build_user_event_results
 from app.util.reddit_util import build_comment_source_from_events_results,\
      submit_comment_for_user, get_permalink_for_comp_thread, build_times_string,\
@@ -74,7 +75,8 @@ def submit_times():
                                    comp_url=comp_thread_url)
 
     # show comment source page
-    return render_template(COMMENT_SOURCE_TEMPLATE, comment_source=comment_source, comp_url=comp_thread_url)
+    return render_template(COMMENT_SOURCE_TEMPLATE, comment_source=comment_source,
+                           comp_url=comp_thread_url)
 
 
 @CUBERS_APP.route('/eventSummaries', methods=['POST'])
@@ -91,10 +93,15 @@ def get_event_summaries():
         results = build_results(event['comp_event_id'], event['scrambles'], event['comment'])
         event_format = comp_manager.get_event_by_name(event['name']).eventFormat
 
-        best = friendly(results.average) if (event_format != 'Bo3') else friendly(results.single)
-        times_string = build_times_string(results.solves, event_format)
+        if event_format == EventFormat.Bo1:
+            summary = friendly(results.single)
 
-        summaries[event['comp_event_id']] = "{} = {}".format(best, times_string)
+        else:
+            best = results.single if (event_format == EventFormat.Bo3) else results.average
+            times_string = build_times_string(results.solves, event_format)
+            summary = "{} = {}".format(friendly(best), times_string)
+
+        summaries[event['comp_event_id']] = summary
 
     return json.dumps(summaries)
 

@@ -15,12 +15,24 @@ def determine_bests(solves, event_format):
         EventFormat.Ao5: determine_bests_ao5,
         EventFormat.Mo3: determine_bests_mo3,
         EventFormat.Bo3: determine_bests_bo3,
+        EventFormat.Bo1: determine_bests_bo1,
     }
 
     try:
         return bests_func_dict[event_format](solves)
     except KeyError:
         raise ValueError(event_format, '{event_format} is not a valid event format.')
+
+
+def determine_bests_bo1(solves):
+    """ Returns just the one single. """
+
+    solve = solves[0]
+
+    if solve.is_dnf:
+        return DNF, NA
+
+    return solve.get_total_time(), NA
 
 
 def determine_bests_bo3(solves):

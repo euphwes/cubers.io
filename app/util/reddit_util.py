@@ -47,7 +47,7 @@ def build_comment_source_from_events_results(events_results):
 
         if results.average == 'DNF':
             average = 'DNF'
-        elif event_format == EventFormat.Bo3:
+        elif event_format in [EventFormat.Bo3, EventFormat.Bo1]:
             average = convert_centiseconds_to_friendly_time(results.single)
         else:
             average = convert_centiseconds_to_friendly_time(results.average)
@@ -59,11 +59,17 @@ def build_comment_source_from_events_results(events_results):
     return comment_source
 
 
-def build_times_string(solves, event_format, raw=False):
+def build_times_string(solves, event_format):
     """ Builds a list of individual times, with best/worst times in parens if appropriate
     for the given event format. """
 
-    time_convert   = convert_centiseconds_to_friendly_time
+    time_convert = convert_centiseconds_to_friendly_time
+
+    # Bo1 is special, just return the friendly representation of the one time
+    if event_format == EventFormat.Bo1:
+        return 'DNF' if solves[0].is_dnf else time_convert(solves[0].get_total_time())
+
+    # Any other event format, and work through the logic below to determine best, worst, etc
     friendly_times = [time_convert(solve.get_total_time()) for solve in solves]
     for i, solve in enumerate(solves):
         if solve.is_plus_two:

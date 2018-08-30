@@ -99,13 +99,18 @@ $(function(){
         this.$singleSolveTimeElem.addClass('active');
         var newScramble = this.$singleSolveTimeElem.data('scramble');
 
+        var renderedScramble = "";
+        $.each(newScramble.split('\n'), function(i, piece){
+            renderedScramble += "<p>" + piece + "</p>";
+        });
+
         var $scrambleHolder = $('.scramble-wrapper>span');
 
         if ($scrambleHolder.text().length === 0) {
             // If there's nothing in the scramble div, this is the first time we're
             // placing something in there, so just put it right in
             
-            $scrambleHolder.text(newScramble);
+            $scrambleHolder.html(renderedScramble);
         } else {
             // If there's something already there, we're moving from one scramble
             // to another. Fade the old one out, replace it, and fade the new one in,
@@ -113,7 +118,7 @@ $(function(){
             // different to make the text visibly jump
         
             $scrambleHolder.fadeOut(100, function() {
-                $(this).text(newScramble).delay(100).fadeIn(100);
+                $(this).html(renderedScramble).delay(100).fadeIn(100);
             });
         }
     };
@@ -379,7 +384,7 @@ $(function(){
             
             // Adjust the font size for the current scramble to make sure it's as large
             // as possible and still fits in the scramble area
-            fitty('.scramble-wrapper>span', {minSize: 18, maxSize: 45});
+            fitty('.scramble-wrapper>span', {minSize: 18, maxSize: 30});
 
             // Wire the solve card and return button events, and get the timer ready to go
             this.wire_return_to_events();

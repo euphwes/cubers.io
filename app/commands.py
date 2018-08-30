@@ -22,7 +22,7 @@ def get_2_3_4_relay_scramble():
 
 def get_3_relay_of_3():
     scrambles = [scrambler333.get_WCA_scramble() for i in range(3)]
-    return "1. {}\n 2. {}\n3. {}".format(*scrambles)
+    return "1. {}\n2. {}\n3. {}".format(*scrambles)
 
 def get_COLL_scramble():
     return "COLL E" + str(random.choice(range(1,15)))
