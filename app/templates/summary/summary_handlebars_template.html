@@ -1,10 +1,12 @@
 {% raw %}
 <script id='summary-template' type='text/x-handlebars-template'>
-    <div class="row comp-info">
-        <div class="col-md-12">
-            <h3>Review {{comp_title}}</h3>
-        </div>
+    {{#if no_solves}}
+    <div class="row summary-row">
+        <h5>
+            You haven't recorded any solves yet! Go complete some solves, ya goober.
+        </h5>
     </div>
+    {{/if}}
     {{#if complete_events}}
     <div class="row summary-row">
         <h4>Complete Events</h4><br/>
@@ -15,9 +17,9 @@
         </span>
         {{else}}
         <span>
-            We'll generate the comment source for the /r/cubers competition thread for the events shown below.
-            You can copy this comment source and submit the comment yourself! Or next time, log-in for a more
-            streamlined experience.
+            We'll generate the comment source for the events shown below.
+            You can copy this comment source and submit the comment yourself to the /r/cubers thread for this week's competition.
+            Next time, log-in for a more streamlined experience; we'll submit the post for you!
         </span>
         {{/if}}
         {{#each complete_events}}
@@ -39,13 +41,13 @@
         <h4>Incomplete Events</h4><br/>
         {{#if logged_in}}
         <span>
-            These events aren't complete, but we'll save what you've done so far so you can pick
-            it back up later!
+            These events aren't complete, but we'll save the solves you've complete so far.
+            When you return later, you can pick back up where you left off.
         </span>
         {{else}}
         <span>
-            These events aren't complete, so you'll lose these if you continue. To save progress for
-            incomplete events in the future, login with your Reddit account!
+            These events aren't complete, so we can't save your progress. To save progress for
+            incomplete events in the future, please login with your Reddit account.
         </span>
         {{/if}}
         {{#each incomplete_events}}
@@ -62,5 +64,15 @@
         {{/each}}
     </div>
     {{/if}}
+    <div id="summary-buttons">
+        <button class="btn btn-lg btn-return">
+            Go back
+        </button>
+        {{#if show_submit_button}}
+        <button class="btn btn-lg btn-submit">
+            Submit results!
+        </button>
+        {{/if}}
+    </div>
 </script>
 {% endraw %}

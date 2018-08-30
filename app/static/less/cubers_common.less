@@ -317,11 +317,13 @@ html,body {
     }
 }
 
-.btn-return {
+#return-to-events, #summary-buttons {
     position: fixed;
     bottom: 20px;
     right: 20px;
+}
 
+.btn-return {
     background-color: #3A8AAF;
     border-color: #3A8AAF;
     color: white;
@@ -329,6 +331,17 @@ html,body {
     &:hover {
         background-color: darken(#3A8AAF, 10%);
         border-color: darken(#3A8AAF, 10%);
+    }
+}
+
+.btn-submit {
+    background-color: rgb(58, 175, 58);
+    border-color: rgb(58, 175, 58);
+    color: white;
+
+    &:hover {
+        background-color: darken(rgb(58, 175, 58), 10%);
+        border-color: darken(rgb(58, 175, 58), 10%);
     }
 }
 

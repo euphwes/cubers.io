@@ -256,11 +256,16 @@ $(function(){
                 event.summary = "? = " + solves.join(", ");
             });
 
+            var logged_in_with_any_solves = (user_logged_in && (complete_events.length > 0 || incomplete_events.length > 0));
+            var show_submit_button = (complete_events.length > 0 || logged_in_with_any_solves);
+
             var data = {
                 logged_in: user_logged_in,
                 comp_title: $('#eventsPanelDataContainer').data('compname'),
                 complete_events: complete_events,
                 incomplete_events: incomplete_events,
+                show_submit_button: show_submit_button,
+                no_solves: (complete_events.length == 0 && incomplete_events.length == 0),
             };
 
             var $summaryDiv  = $('#summary_panel');
