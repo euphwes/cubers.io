@@ -212,7 +212,7 @@ $(function(){
         wire_submit_button_click: function() {
             var _appContext = this;
 
-            $('#times-submit').click(function() {
+            $('#times-submit>.btn-summary').click(function() {
                 var completeEvents = [];
                 var incompleteEvents = [];
                 $.each(this.events, function(i, event){
@@ -249,7 +249,7 @@ $(function(){
                         var timeStr = "DNF";
                         if (!scramble.isDNF) {
                             timeStr = convertRawCsForSolveCard(scramble.time, scramble.isPlusTwo);
-                        }
+                        } 
                         solves.push(timeStr);
                     }
                 });
@@ -277,6 +277,20 @@ $(function(){
 
             // Hide the events panel and show the summary panel
             $eventsDiv.ultraHide(); $summaryDiv.ultraShow();
+
+            this.wire_return_to_events_from_summary();
+        },
+
+        /**
+         * 
+         */
+        wire_return_to_events_from_summary: function() {
+            $('#summary-buttons>.btn-return').click(function(e){
+                // hide the summary panel and show the events panel
+                var $summaryDiv  = $('#summary_panel');
+                var $eventsDiv = $('#event_list_panel');
+                $summaryDiv.ultraHide(); $eventsDiv.ultraShow();
+            });
         },
 
         /**
@@ -294,9 +308,9 @@ $(function(){
          * update the card for the current event to the correct state, then hide the timer panel
          * and show the events panel
          */
-        wire_return_to_events: function() {
+        wire_return_to_events_from_timer: function() {
             var _this = this;
-            $('#return-to-events').click(function(e){
+            $('#return-to-events>.btn-return').click(function(e){
                 
                 // nuke the current timer object, and unbind any bound timer event handlers
                 delete _this.timer;
@@ -392,7 +406,7 @@ $(function(){
             fitty('.scramble-wrapper>span', {minSize: 18, maxSize: 30});
 
             // Wire the solve card and return button events, and get the timer ready to go
-            this.wire_return_to_events();
+            this.wire_return_to_events_from_timer();
             this.wire_solve_context_menu();
         },
 
