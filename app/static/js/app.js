@@ -279,6 +279,7 @@ $(function(){
             $eventsDiv.ultraHide(); $summaryDiv.ultraShow();
 
             this.wire_return_to_events_from_summary();
+            this.wire_submit_button();
         },
 
         /**
@@ -290,6 +291,19 @@ $(function(){
                 var $summaryDiv  = $('#summary_panel');
                 var $eventsDiv = $('#event_list_panel');
                 $summaryDiv.ultraHide(); $eventsDiv.ultraShow();
+            });
+        },
+
+        /**
+         * 
+         */
+        wire_submit_button: function() {
+            var _appContext = this;
+            $('#summary-buttons>.btn-submit').click(function(e){
+                console.log(_appContext.events);
+                console.log(JSON.stringify(_appContext.events));
+                $("#input-results").val(JSON.stringify(_appContext.events));
+                $("#form-results").submit();
             });
         },
 

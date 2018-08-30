@@ -15,9 +15,9 @@ from app.util.reddit_util import build_comment_source_from_events_results,\
 
 # -------------------------------------------------------------------------------------------------
 
-COMMENT_SUCCESS_TEMPLATE = 'comment_submit_success.html'
-COMMENT_FAILURE_TEMPLATE = 'comment_submit_failure.html'
-COMMENT_SOURCE_TEMPLATE  = 'times_comment_source.html'
+COMMENT_SUCCESS_TEMPLATE = 'submit/comment_submit_success.html'
+COMMENT_FAILURE_TEMPLATE = 'submit/comment_submit_failure.html'
+COMMENT_SOURCE_TEMPLATE  = 'submit/times_comment_source.html'
 
 # -------------------------------------------------------------------------------------------------
 
@@ -34,11 +34,13 @@ def index():
             'scrambles':     list(),
             'event_id':      comp_event.Event.id,
             'comp_event_id': comp_event.id,
+            'comment':       '',
         }
         for scram in comp_event.scrambles:
             event['scrambles'].append({
                 'id':       scram.id,
-                'scramble': scram.scramble
+                'scramble': scram.scramble,
+                'time':     0
             })
         events_for_json[str(comp_event.id)] = event
 
@@ -62,21 +64,22 @@ def submit_times():
     user_results   = build_user_results(user_events)
     comment_source = build_comment_source_from_events_results(user_results)
 
-    comp_reddit_id = comp_manager.get_active_competition().reddit_thread_id
+    comp = comp_manager.get_active_competition()
+    comp_reddit_id = comp.reddit_thread_id
     comp_thread_url = get_permalink_for_comp_thread(comp_reddit_id)
 
     if current_user.is_authenticated:
         try:
             url = submit_comment_for_user(current_user.username, comp_reddit_id, comment_source)
-            return render_template(COMMENT_SUCCESS_TEMPLATE, comment_url=url)
-        except:
-            # TODO figure out what PRAW can actually throw here
+            return render_template(COMMENT_SUCCESS_TEMPLATE, comment_url=url,
+                                   current_competition=comp)
+        except Exception as e:
             return render_template(COMMENT_FAILURE_TEMPLATE, comment_source=comment_source,
-                                   comp_url=comp_thread_url)
+                                   comp_url=comp_thread_url, current_competition=comp)
 
     # show comment source page
     return render_template(COMMENT_SOURCE_TEMPLATE, comment_source=comment_source,
-                           comp_url=comp_thread_url)
+                           comp_url=comp_thread_url, current_competition=comp)
 
 
 @CUBERS_APP.route('/eventSummaries', methods=['POST'])
@@ -111,9 +114,10 @@ def build_user_results(user_events):
     """ docstring here """
 
     user_results = list()
+
     for comp_event_id, solve_comment_dict in user_events.items():
         solves = solve_comment_dict['scrambles']
-        comment = solve_comment_dict['comment']
+        comment = solve_comment_dict.get('comment', '')
         event_results = build_user_event_results(comp_event_id, solves, comment)
         user_results.append(event_results)
 
