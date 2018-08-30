@@ -19,10 +19,11 @@ ForeignKey = DB.ForeignKey
 
 #pylint: disable=R0903
 class EventFormat():
-    """ Competition event formats: Average of 5, Mean of 3, or Best of 3. """
+    """ Competition event formats: Average of 5, Mean of 3, Best of 3, Best of 1. """
     Ao5 = "Ao5"
     Mo3 = "Mo3"
     Bo3 = "Bo3"
+    Bo1 = "Bo1"
 
 # -------------------------------------------------------------------------------------------------
 
@@ -51,7 +52,7 @@ class Event(Model):
     id             = Column(Integer, primary_key=True)
     name           = Column(String(64), index=True, unique=True)
     totalSolves    = Column(Integer)
-    eventFormat    = Column(Enum("Ao5", "Mo3", "Bo3", name="eventFormat"), default="Ao5")
+    eventFormat    = Column(Enum("Ao5", "Mo3", "Bo3", "Bo1", name="eventFormat"), default="Ao5")
     description    = Column(String(128))
     CompEvents     = relationship("CompetitionEvent", backref="Event")
 
