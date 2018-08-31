@@ -37,20 +37,23 @@ def build_comment_source_from_events_results(events_results):
     comment_source = ''
     event_line_template = '**{}: {}** = {}\n{}'
 
+    convert_to_friendly = convert_centiseconds_to_friendly_time
+
     complete_events = [results for results in events_results if results.is_complete()]
     for results in complete_events:
         comp_event   = get_comp_event_by_id(results.comp_event_id)
         event_name   = comp_event.Event.name
         event_format = comp_event.Event.eventFormat
-        times_string = build_times_string(results.solves, event_format)
+        isFMC        = event_name == 'FMC'
+        times_string = build_times_string(results.solves, event_format, isFMC)
         comment      = '\n' if not results.comment else '>' + results.comment + '\n\n'
 
         if results.average == 'DNF':
             average = 'DNF'
         elif event_format in [EventFormat.Bo3, EventFormat.Bo1]:
-            average = convert_centiseconds_to_friendly_time(results.single)
+            average = convert_to_friendly(results.single)
         else:
-            average = convert_centiseconds_to_friendly_time(results.average)
+            average = results.average if isFMC else convert_to_friendly(results.average)
 
         line = event_line_template.format(event_name, average, times_string, comment)
         comment_source += line
@@ -59,7 +62,7 @@ def build_comment_source_from_events_results(events_results):
     return comment_source
 
 
-def build_times_string(solves, event_format):
+def build_times_string(solves, event_format, isFMC=False):
     """ Builds a list of individual times, with best/worst times in parens if appropriate
     for the given event format. """
 
@@ -69,8 +72,13 @@ def build_times_string(solves, event_format):
     if event_format == EventFormat.Bo1:
         return 'DNF' if solves[0].is_dnf else time_convert(solves[0].get_total_time())
 
-    # Any other event format, and work through the logic below to determine best, worst, etc
-    friendly_times = [time_convert(solve.get_total_time()) for solve in solves]
+    # FMC is special, the 'time' is actually the number of moves, not number of centiseconds
+    # so don't convert to "friendly times" because that makes no sense
+    if not isFMC:
+        friendly_times = [time_convert(solve.get_total_time()) for solve in solves]
+    else:
+        friendly_times = [str(solve.get_total_time()) for solve in solves]
+
     for i, solve in enumerate(solves):
         if solve.is_plus_two:
             friendly_times[i] = friendly_times[i] + "+"
