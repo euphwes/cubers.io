@@ -82,20 +82,28 @@ html,body {
     border-width: 0px 0px 2px 0px;
     border-style: solid;
     border-color: @highlight-color;
-}
 
-.cubers-navbar {
     a {
         color: @site-bg-color !important;
     }
 
-    .active a {
-        color: @highlight-color !important;
+    .dropdown-menu {
+        a {
+            color: black !important;
+        }
     }
-}
 
-.cubers-navbar .nav-link {
-    color: @site-bg-color !important;
+    .nav-link {
+        color: @site-bg-color !important;
+    }
+
+    .nav-item {
+        margin: 0px 10px;
+
+        &:last-of-type {
+            margin-right: 0px;
+        }
+    }
 }
 
 .nav-scroll {
