@@ -141,7 +141,7 @@ def submit_comment_for_user(username, reddit_thread_id, comment_body):
     user = get_user_by_username(username)
     comp_submission = get_authed_reddit_for_user(user).submission(id=reddit_thread_id)
     comment = comp_submission.reply(comment_body)
-    return REDDIT_URL_ROOT + comment.permalink
+    return (REDDIT_URL_ROOT + comment.permalink), comment.id
 
 
 def get_permalink_for_comp_thread(reddit_thread_id):

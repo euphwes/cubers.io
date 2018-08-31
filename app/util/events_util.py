@@ -52,7 +52,7 @@ def determine_bests_mo3(solves):
     if dnf_count > 0:
         average = DNF
     else:
-        average = sum(solve.get_total_time() for solve in solves) / 3.0
+        average = int(sum(solve.get_total_time() for solve in solves) / 3.0)
 
     if dnf_count == 3:
         single = DNF

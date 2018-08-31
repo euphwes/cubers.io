@@ -642,10 +642,30 @@ $(function(){
             }.bind(this));
         },
 
+        update_events_completeness_status: function() {
+            $.each(this.events, function(i, event){
+                var totalSolves = 0;
+                var completeSolves = 0;
+                $.each(event.scrambles, function(j, scramble){
+                    totalSolves += 1;
+                    if (scramble.time) { completeSolves += 1; }
+                });
+                if (totalSolves == completeSolves) {
+                    $('#event-'+event.comp_event_id).addClass('complete');
+                    event.status = 'complete';
+                } else if (completeSolves > 0) {
+                    $('#event-'+event.comp_event_id).addClass('incomplete');
+                    event.status = 'incomplete';
+                }
+            });
+        },
+
         /**
          * Setup stuff when the competition manager app is initialized
          */
         init: function() {
+
+            this.update_events_completeness_status();
         
             // keydrown.js's keyboard state manager is tick-based
             // this is boilerplate to make sure the kd namespace has a recurring tick

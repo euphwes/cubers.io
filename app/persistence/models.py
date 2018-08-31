@@ -70,15 +70,15 @@ class UserEventResults(Model):
     """ A model detailing a user's results for a single event at competition. References the user,
     the competitionEvent, the single and average result for the event. These values are either in
     centiseconds (ex: "1234" = 12.34s) or `DNF` """
-
-    __tablename__ = 'user_event_results'
-    id            = Column(Integer, primary_key=True)
-    user_id       = Column(Integer, ForeignKey('users.id'))
-    comp_event_id = Column(Integer, ForeignKey('competition_event.id'))
-    single        = Column(String(10))
-    average       = Column(String(10))
-    comment       = Column(Text)
-    solves        = relationship('UserSolve')
+    __tablename__     = 'user_event_results'
+    id                = Column(Integer, primary_key=True)
+    user_id           = Column(Integer, ForeignKey('users.id'))
+    comp_event_id     = Column(Integer, ForeignKey('competition_event.id'))
+    single            = Column(String(10))
+    average           = Column(String(10))
+    comment           = Column(Text)
+    solves            = relationship('UserSolve')
+    reddit_comment    = Column(String(10))
 
     def is_complete(self):
         """ Returns if the user has completed all of their solves for this event. """

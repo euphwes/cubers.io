@@ -22,12 +22,15 @@ def build_user_event_results(comp_event_id, solves, comment):
             continue
 
         dnf         = solve['isDNF']
-        time        = 0 if dnf else int(solve['time'])
+        time        = int(solve['time'])
         plus_two    = solve['isPlusTwo']
         scramble_id = solve['id']
 
         user_solve = UserSolve(time=time, is_dnf=dnf, is_plus_two=plus_two, scramble_id=scramble_id)
         results.solves.append(user_solve)
+
+    if not results.solves:
+        return None
 
     num_expected_solves = comp_event.Event.totalSolves
     if len(results.solves) < num_expected_solves:
@@ -41,8 +44,30 @@ def build_user_event_results(comp_event_id, solves, comment):
     return results
 
 
+def get_event_results_for_user_and_comp_event(comp_event_id, user):
+    """ Retrieves a UserEventResults for a specific user and competition event. """
+    return UserEventResults.query.filter(UserEventResults.user_id == user.id)\
+                                 .filter(UserEventResults.comp_event_id == comp_event_id)\
+                                 .first()
+
+
 def save_event_results_for_user(comp_event_results, user):
-    """ Associates a UserEventResults with a specific user and saves it to the database. """
+    """ Associates a UserEventResults with a specific user and saves it to the database.
+    If the user already has an EventResults for this competition, update it instead. """
+
+    # if an existing record exists, update that
+    existing_results = get_event_results_for_user_and_comp_event(comp_event_results.comp_event_id, user)
+    if existing_results:
+        existing_results.single = comp_event_results.single
+        existing_results.average = comp_event_results.average
+        existing_results.comment = comp_event_results.comment
+        existing_results.reddit_comment = comp_event_results.reddit_comment
+        for solve in existing_results.solves:
+            DB.session.delete(solve)
+        for solve in comp_event_results.solves:
+            existing_results.solves.append(solve)
+        DB.session.commit()
+        return existing_results
 
     comp_event_results.user_id = user.id
 

@@ -8,7 +8,9 @@ from flask_login import current_user
 from app import CUBERS_APP
 from app.persistence import comp_manager
 from app.persistence.models import EventFormat
-from app.persistence.user_results_manager import build_user_event_results
+from app.persistence.user_manager import get_user_by_username
+from app.persistence.user_results_manager import build_user_event_results,\
+     save_event_results_for_user, get_event_results_for_user_and_comp_event
 from app.util.reddit_util import build_comment_source_from_events_results,\
      submit_comment_for_user, get_permalink_for_comp_thread, build_times_string,\
      convert_centiseconds_to_friendly_time
@@ -40,8 +42,14 @@ def index():
             event['scrambles'].append({
                 'id':       scram.id,
                 'scramble': scram.scramble,
-                'time':     0
+                'time':     0,
+                'isPlusTwo': False,
+                'isDNF': False,
             })
+
+        if current_user.is_authenticated:
+            event = fill_any_existing_user_data(current_user, event)
+
         events_for_json[str(comp_event.id)] = event
 
     ordered_comp_events = list([comp_event for comp_event in comp.events])
@@ -70,10 +78,16 @@ def submit_times():
 
     if current_user.is_authenticated:
         try:
-            url = submit_comment_for_user(current_user.username, comp_reddit_id, comment_source)
+            url, comment_id = submit_comment_for_user(current_user.username, comp_reddit_id, comment_source)
+            user = get_user_by_username(current_user.username)
+            for result in user_results:
+                result.reddit_comment = comment_id
+                save_event_results_for_user(result, user)
             return render_template(COMMENT_SUCCESS_TEMPLATE, comment_url=url,
                                    current_competition=comp)
         except Exception as e:
+            import sys
+            print(e, file=sys.stderr)
             return render_template(COMMENT_FAILURE_TEMPLATE, comment_source=comment_source,
                                    comp_url=comp_thread_url, current_competition=comp)
 
@@ -123,6 +137,27 @@ def build_user_results(user_events):
         solves = solve_comment_dict['scrambles']
         comment = solve_comment_dict.get('comment', '')
         event_results = build_user_event_results(comp_event_id, solves, comment)
-        user_results.append(event_results)
+        if event_results:
+            user_results.append(event_results)
 
     return user_results
+
+
+def fill_any_existing_user_data(curr_user, event):
+    """ asd """
+    user = get_user_by_username(curr_user.username)
+    prev = get_event_results_for_user_and_comp_event(event['comp_event_id'], user)
+    if not prev:
+        return event
+
+    event['comment'] = prev.comment
+    for solve in prev.solves:
+        scramble_id = solve.scramble_id
+        for scram in event['scrambles']:
+            if scram['id'] != scramble_id:
+                continue
+            scram['time'] = solve.time
+            scram['isPlusTwo'] = solve.is_plus_two
+            scram['isDNF'] = solve.is_dnf
+
+    return event

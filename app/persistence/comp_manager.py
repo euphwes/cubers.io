@@ -19,8 +19,7 @@ def get_active_competition():
 
 def get_competition(competition_id):
     """ Get a competition by id """
-    comp =  Competition.query.get(competition_id)
-    return comp
+    return Competition.query.get(competition_id)
 
 
 def get_comp_event_by_id(comp_event_id):
