@@ -13,7 +13,7 @@ from app.persistence.user_results_manager import build_user_event_results,\
      save_event_results_for_user, get_event_results_for_user_and_comp_event
 from app.util.reddit_util import build_comment_source_from_events_results,\
      submit_comment_for_user, get_permalink_for_comp_thread, build_times_string,\
-     convert_centiseconds_to_friendly_time
+     convert_centiseconds_to_friendly_time, update_comment_for_user
 
 # -------------------------------------------------------------------------------------------------
 
@@ -77,12 +77,27 @@ def submit_times():
     comp_thread_url = get_permalink_for_comp_thread(comp_reddit_id)
 
     if current_user.is_authenticated:
+        user = get_user_by_username(current_user.username)
+
+        is_resubmit = False
+        old_reddit_comment_id = None
+        for result in user_results:
+            prev_result = get_event_results_for_user_and_comp_event(result.comp_event_id, user)
+            if prev_result:
+                is_resubmit = True
+                old_reddit_comment_id = prev_result.reddit_comment
+
         try:
-            url, comment_id = submit_comment_for_user(current_user.username, comp_reddit_id, comment_source)
-            user = get_user_by_username(current_user.username)
-            for result in user_results:
-                result.reddit_comment = comment_id
-                save_event_results_for_user(result, user)
+            if not is_resubmit:
+                url, comment_id = submit_comment_for_user(user, comp_reddit_id, comment_source)
+                for result in user_results:
+                    result.reddit_comment = comment_id
+                    save_event_results_for_user(result, user)
+            else:
+                url, comment_id = update_comment_for_user(user, old_reddit_comment_id, comment_source)
+                for result in user_results:
+                    result.reddit_comment = comment_id
+                    save_event_results_for_user(result, user)
             return render_template(COMMENT_SUCCESS_TEMPLATE, comment_url=url,
                                    current_competition=comp)
         except Exception as e:

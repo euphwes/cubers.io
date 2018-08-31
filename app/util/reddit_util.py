@@ -135,12 +135,20 @@ def get_non_user_reddit():
                   user_agent=USER_AGENT)
 
 
-def submit_comment_for_user(username, reddit_thread_id, comment_body):
+def submit_comment_for_user(user, reddit_thread_id, comment_body):
     """ Submits the comment with the specified body on behalf of the user and returns a URL
     for the comment. """
-    user = get_user_by_username(username)
     comp_submission = get_authed_reddit_for_user(user).submission(id=reddit_thread_id)
     comment = comp_submission.reply(comment_body)
+    return (REDDIT_URL_ROOT + comment.permalink), comment.id
+
+
+def update_comment_for_user(user, comment_thread_id, comment_body):
+    """ Updates the comment with the specified body on behalf of the user and returns a URL
+    for the comment. """
+    r = get_authed_reddit_for_user(user)
+    comment = r.comment(id=comment_thread_id)
+    comment.edit(comment_body)
     return (REDDIT_URL_ROOT + comment.permalink), comment.id
 
 
@@ -162,7 +170,7 @@ def get_username_refresh_token_from_code(code):
 
 def get_user_auth_url(state='...'):
     """ Returns a url for authenticating with Reddit. """
-    return get_new_reddit().auth.url(['identity', 'read', 'submit'], state, 'permanent')
+    return get_new_reddit().auth.url(['identity', 'read', 'submit', 'edit'], state, 'permanent')
 
 
 # -------------------------------------------------------------------------------------------------
