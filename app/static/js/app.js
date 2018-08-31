@@ -391,6 +391,14 @@ $(function(){
                 total_solves  : this.events[comp_event_id]['scrambles'].length,
                 comment       : this.events[comp_event_id].comment,
             };
+
+            // FMC requires manual entry of integer times, and no timer
+            // Gotta do something completely different
+            if (data.event_name === 'FMC') {
+                data.isFMC = true;
+                this.show_entry_for_fmc(data);
+                return
+            }
             
             var $timerDiv  = $('#timer_panel');
             var $eventsDiv = $('#event_list_panel');
@@ -422,6 +430,69 @@ $(function(){
             // Wire the solve card and return button events, and get the timer ready to go
             this.wire_return_to_events_from_timer();
             this.wire_solve_context_menu();
+        },
+
+        /**
+         * 
+         */
+        show_entry_for_fmc: function(data) {
+            var $timerDiv  = $('#timer_panel');
+            var $eventsDiv = $('#event_list_panel');
+
+            // Render the Handlebars tempalte for the timer panel with the event-related data
+            // collected above, and set it as the new html for the timer panel div
+            $timerDiv.html($(this.timerPanelTemplate(data)));
+            
+            // Hide the events panel and show the timer panel
+            $eventsDiv.ultraHide(); $timerDiv.ultraShow();
+
+            // swallow tab key, prevent tabbing into next contenteditable div
+            $(".single-time.fmc>.time-value").keydown(function (e) {
+                var code = (e.keyCode ? e.keyCode : e.which);
+                if (code == 9) {
+                    e.preventDefault();
+                    return;
+                }
+            });
+
+            // integers only, and update complete status and raw "time" attribute
+            $(".single-time.fmc>.time-value").on("keypress keyup blur",function (e) {
+                $(this).val($(this).text().replace(/[^\d].+/, ""));
+                if (parseInt($(this).text()) > 0) {
+                   $(this).parent().addClass('complete');
+                   $(this).parent().attr("data-rawTimeCentiseconds", parseInt($(this).text()));
+                } else {
+                   $(this).parent().removeClass('complete'); 
+                   $(this).parent().attr("data-rawTimeCentiseconds", null);
+                }
+                if ((e.which < 48 || e.which > 57)) {
+                    e.preventDefault();
+                }
+            });
+
+            $(".single-time.fmc").click(function(){
+
+                $('.single-time.active').removeClass('active');
+                $(this).addClass('active');
+
+                var newScramble = $(this).data('scramble');
+
+                var renderedScramble = "";
+                $.each(newScramble.split('\n'), function(i, piece){
+                    renderedScramble += "<p>" + piece + "</p>";
+                });
+
+                var $scrambleHolder = $('.scramble-wrapper>span');
+                if ($scrambleHolder.text().length === 0) {                   
+                    $scrambleHolder.html(renderedScramble);
+                } else {                
+                    $scrambleHolder.fadeOut(100, function() {
+                        $(this).html(renderedScramble).delay(100).fadeIn(100);
+                    });
+                }
+            })
+
+            this.wire_return_to_events_from_timer();
         },
 
         /**
@@ -481,7 +552,7 @@ $(function(){
             }
 
             $.contextMenu({
-                selector: '.single-time',
+                selector: '.single-time:not(.fmc)',
                 trigger: 'left',
                 items: {
                     "clear": {

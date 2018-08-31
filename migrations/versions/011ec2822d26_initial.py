@@ -120,7 +120,7 @@ def upgrade():
             {'totalSolves': 5, 'eventFormat': EventFormat.Ao5, 'name': '3x3x2'                 },
             {'totalSolves': 5, 'eventFormat': EventFormat.Ao5, 'name': 'Void Cube'             },
             {'totalSolves': 1, 'eventFormat': EventFormat.Bo1, 'name': '2-3-4 Relay'           },
-            {'totalSolves': 5, 'eventFormat': EventFormat.Ao5, 'name': 'FMC'                   },
+            {'totalSolves': 3, 'eventFormat': EventFormat.Mo3, 'name': 'FMC'                   },
             {'totalSolves': 5, 'eventFormat': EventFormat.Ao5, 'name': '3x3 With Feet'         },
             {'totalSolves': 1, 'eventFormat': EventFormat.Bo1, 'name': '3x3 Relay of 3'        },
             {'totalSolves': 1, 'eventFormat': EventFormat.Bo1, 'name': 'PLL Time Attack'       },
