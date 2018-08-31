@@ -137,15 +137,29 @@ html,body {
     .scramble-wrapper {
         font-family: 'Roboto', sans-serif;
         font-size: 24px;
-        height: ~"calc(25% - 75px)";
         width: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
+        text-align: center;
 
         p {
             margin-bottom: 5px;
         }
+    }
+
+    .scramble-row {
+        height: ~"calc(20% - 75px)";
+    }
+
+    .timer-row {
+        height: ~"calc(80% - 75px)";
+    }
+
+    .flex-col {
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 }
 
@@ -168,9 +182,9 @@ html,body {
 }
 
 .times-wrapper {
-    padding-top: 25px;
 
     text-align: center;
+    width: 100%;
 
     .single-time {
         margin: 10px 20px;
@@ -370,8 +384,7 @@ html,body {
     
     font-family: 'Roboto', sans-serif;
 
-    width: 100%;
-    height: ~"calc(65% - 75px)";
+    height: 85%;
 
     .timer-element {
         display: inline-block;

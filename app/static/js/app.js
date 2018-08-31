@@ -104,7 +104,7 @@ $(function(){
             renderedScramble += "<p>" + piece + "</p>";
         });
 
-        var $scrambleHolder = $('.scramble-wrapper>span');
+        var $scrambleHolder = $('.scramble-wrapper>div');
 
         if ($scrambleHolder.text().length === 0) {
             // If there's nothing in the scramble div, this is the first time we're
@@ -425,7 +425,7 @@ $(function(){
             
             // Adjust the font size for the current scramble to make sure it's as large
             // as possible and still fits in the scramble area
-            fitty('.scramble-wrapper>span', {minSize: 18, maxSize: 30});
+            fitty('.scramble-wrapper>div', {minSize: 18, maxSize: 24});
 
             // Wire the solve card and return button events, and get the timer ready to go
             this.wire_return_to_events_from_timer();
@@ -482,7 +482,7 @@ $(function(){
                     renderedScramble += "<p>" + piece + "</p>";
                 });
 
-                var $scrambleHolder = $('.scramble-wrapper>span');
+                var $scrambleHolder = $('.scramble-wrapper>div');
                 if ($scrambleHolder.text().length === 0) {                   
                     $scrambleHolder.html(renderedScramble);
                 } else {                

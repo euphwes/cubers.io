@@ -1,17 +1,14 @@
 {% raw %}
 <script id='timer-template' type='text/x-handlebars-template'>
     <div class="ultra-hidden timerEventDataContainer" data-compEventId="{{ comp_event_id }}" data-totalSolves="{{ total_solves }}"></div>
-    <div class="row">
-
+    <div class="row scramble-row">
+        <div class="col-md-12 scramble-wrapper"><div></div></div>
+    </div>
+    <hr>
+    <div class="row timer-row">
         <!-- left column -->
-        <div class="col-md-3">
-            <div class="event-image-container">
-                <img class="event-image" src="./static/images/cube-{{ event_id }}.png">
-            </div>
+        <div class="col-md-3 flex-col">
             <div class="times-wrapper">
-                <div class="notes">
-                    Click to add or remove penalties
-                </div>
                 {{#each scrambles}}
                     {{#if time}}
                         {{#if ../isFMC}}
@@ -62,42 +59,35 @@
 
         <!-- right column -->
         <div class="col-md-9">
-            <div class="row">
-                <div class="col-md-12 scramble-wrapper">
-                    <span></span>
-                </div>
-            </div>
-            <hr>
-            <div class="row timer-wrapper">
-                {{#if isFMC}}
-                <div>
-                    <h4>Please manually enter your solutions length in <a href="https://www.speedsolving.com/wiki/index.php/Half_Turn_Metric">HTM (Half-Turn Metric)</a>.</h4>
-                </div>
-                {{else}}
-                <div>
-                    <div id="seconds" class="timer-element">0</div>
-                    <div id="dot" class="timer-element">.</div>
-                    <div id="centiseconds" class="timer-element">00</div>
-                </div>
-                {{/if}}
-            </div>
-            <hr>
-            <div class="row comment-wrapper">
-                <div class="col-md-12">
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="far fa-comment input-icon"></i></span>
-                        </div>
-                        <input type="text" class="form-control" id="comment_{{comp_event_id}}" placeholder="Type an optional comment about {{event_name}} here!" value="{{comment}}">
+            <div class="flex-col timer-wrapper">
+                <div class="row">
+                    {{#if isFMC}}
+                    <div>
+                        <h4>Please manually enter your solutions length in <a href="https://www.speedsolving.com/wiki/index.php/Half_Turn_Metric">HTM (Half-Turn Metric)</a>.</h4>
                     </div>
+                    {{else}}
+                    <div>
+                        <div id="seconds" class="timer-element">0</div>
+                        <div id="dot" class="timer-element">.</div>
+                        <div id="centiseconds" class="timer-element">00</div>
+                    </div>
+                    {{/if}}
                 </div>
             </div>
-            <div id="return-to-events">
-                <button class="btn btn-lg btn-return">
-                    Go back to events
-                </button>
+            <div class="row comment-wrapper">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="far fa-comment input-icon"></i></span>
+                    </div>
+                    <input type="text" class="form-control" id="comment_{{comp_event_id}}" placeholder="Type an optional comment about {{event_name}} here!" value="{{comment}}">
+                </div>
             </div>
         </div>
+    </div>
+    <div id="return-to-events">
+        <button class="btn btn-lg btn-return">
+            Go back to events
+        </button>
     </div>
 </script>
 {% endraw %}
