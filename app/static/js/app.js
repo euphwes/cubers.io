@@ -23,7 +23,7 @@ $(function(){
         } else {
             return seconds;
         }
-    }
+    };
     
     /**
      * Converts an integer number of centiseconds to a string representing the
@@ -34,14 +34,14 @@ $(function(){
      *     7501 --> 1:15.01
      *    13022 --> 2:10.22
      */
-    var convertRawCsForSolveCard = function(value, plusTwo=false){
+    var convertRawCsForSolveCard = function(value, plusTwo){
         var cs = parseInt(value);
         if (plusTwo) { cs += 200; }
 
         var s = Math.floor(cs / 100);
         var remainingCs = cs % 100;
         return "" + convertSecondsToMinutes(s) + "." + ("" + remainingCs).padStart(2, "0");
-    }
+    };
 
     /**
      * Converts a string to a boolean based on the value of the string, not the presence of the string.
@@ -55,7 +55,7 @@ $(function(){
      */
     var evaluateBool = function(val) {
         return !!JSON.parse(String(val).toLowerCase());
-    }
+    };
 
     /**
      * Renders a solve time as a human-friendly string, based on penalty status and raw solve time
@@ -68,7 +68,7 @@ $(function(){
             return convertRawCsForSolveCard(solve.time, true) + "+";
         }
         return convertRawCsForSolveCard(solve.time);
-    }
+    };
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Below is the code related to the timer
@@ -729,6 +729,25 @@ $(function(){
         ultraHide: function(){ $(this).addClass('ultra-hidden'); },
         ultraShow: function(){ $(this).removeClass('ultra-hidden'); },
     });
+
+    // https://github.com/uxitten/polyfill/blob/master/string.polyfill.js
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
+    if (!String.prototype.padStart) {
+        String.prototype.padStart = function padStart(targetLength,padString) {
+            targetLength = targetLength>>0; //truncate if number or convert non-number to 0;
+            padString = String((typeof padString !== 'undefined' ? padString : ' '));
+            if (this.length > targetLength) {
+                return String(this);
+            }
+            else {
+                targetLength = targetLength-this.length;
+                if (targetLength > padString.length) {
+                    padString += padString.repeat(targetLength/padString.length); //append to original to ensure we are longer than needed
+                }
+                return padString.slice(0,targetLength) + String(this);
+            }
+        };
+    }
 
     // Let's get this party started!
     CompManagerApp.init();
