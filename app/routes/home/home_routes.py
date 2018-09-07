@@ -124,17 +124,17 @@ def get_event_summaries():
     for event in data:
         results = build_results(event['comp_event_id'], event['scrambles'], event['comment'])
         event_format = comp_manager.get_event_by_name(event['name']).eventFormat
-        isFMC = event['name'] == 'FMC'
+        is_fmc = event['name'] == 'FMC'
 
         if event_format == EventFormat.Bo1:
             summary = friendly(results.single)
 
         else:
             best = results.single if (event_format == EventFormat.Bo3) else results.average
-            if not isFMC:
+            if not is_fmc:
                 best = friendly(best)
-            
-            times_string = build_times_string(results.solves, event_format, isFMC)
+
+            times_string = build_times_string(results.solves, event_format, is_fmc)
             summary = "{} = {}".format(best, times_string)
 
         summaries[event['comp_event_id']] = summary

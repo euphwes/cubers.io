@@ -35,6 +35,8 @@ $(function(){
      *    13022 --> 2:10.22
      */
     var convertRawCsForSolveCard = function(value, plusTwo){
+        plusTwo = plusTwo || false; // default value of false
+
         var cs = parseInt(value);
         if (plusTwo) { cs += 200; }
 
