@@ -104,7 +104,7 @@ def upgrade():
             {'totalSolves': 3, 'eventFormat': EventFormat.Bo3, 'name': '3BLD'                  },
             {'totalSolves': 5, 'eventFormat': EventFormat.Ao5, 'name': 'Square-1'              },
             {'totalSolves': 5, 'eventFormat': EventFormat.Ao5, 'name': 'Clock'                 },
-            {'totalSolves': 5, 'eventFormat': EventFormat.Ao5, 'name': '3x3OH'                 },
+            {'totalSolves': 5, 'eventFormat': EventFormat.Ao5, 'name': '3x3OH'                },
             {'totalSolves': 5, 'eventFormat': EventFormat.Ao5, 'name': 'Pyraminx'              },
             {'totalSolves': 5, 'eventFormat': EventFormat.Ao5, 'name': 'Megaminx'              },
             {'totalSolves': 5, 'eventFormat': EventFormat.Ao5, 'name': 'Kilominx'              },

@@ -1,7 +1,10 @@
 """ Utility Flask commands for testing the app. """
 #pylint: disable=C0103
 
-import uuid, random
+import uuid
+import random
+import json
+import base64
 
 import click
 
@@ -15,16 +18,20 @@ from .persistence.comp_manager import get_event_by_name, create_new_competition
 # -------------------------------------------------------------------------------------------------
 
 def get_2_3_4_relay_scramble():
+    """ Get a single scramble for a 2-3-4 relay event, which consists of individual scrambles
+    for 2x2, 3x3, and 4x4. """
     s2 = scrambler222.get_WCA_scramble()
     s3 = scrambler333.get_WCA_scramble()
     s4 = scrambler444.get_WCA_scramble()
     return "2x2: {}\n3x3: {}\n4x4: {}".format(s2, s3, s4)
 
 def get_3_relay_of_3():
+    """ Get a single scramble for a 3x3 relay of 3 event, which is 3 individual 3x3 scrambles. """
     scrambles = [scrambler333.get_WCA_scramble() for i in range(3)]
     return "1. {}\n2. {}\n3. {}".format(*scrambles)
 
 def get_COLL_scramble():
+    """ Return a 'COLL' scramble, which just calls out a specific COLL to perform. """
     return "COLL E" + str(random.choice(range(1,15)))
 
 EVENTS_HELPER = {
@@ -59,6 +66,8 @@ EVENTS_HELPER = {
     "3x3 Mirror Blocks/Bump": scrambler333.get_WCA_scramble,
 }
 
+# -------------------------------------------------------------------------------------------------
+
 @CUBERS_APP.cli.command()
 @click.option('--title', '-t', type=str)
 @click.option('--reddit_id', '-r', type=str, default='')
@@ -76,4 +85,22 @@ def create_new_test_comp(title, reddit_id):
     if not reddit_id:
         reddit_id = str(uuid.uuid4()).replace('-','')[:10]
 
+    create_new_competition(title, reddit_id, event_data)
+
+
+@CUBERS_APP.cli.command()
+@click.option('--data', '-d', type=str)
+def create_new_comp_from_b64_data(data):
+    """ Creates a competition based on the data provided. """
+
+    json_data = base64.b64decode(data).decode()
+    import sys
+    print(json_data, file=sys.stderr)
+
+    data = json.loads(json_data)
+
+    title     = data['title']
+    reddit_id = data['reddit_id']
+    event_data = [event_info for event_info in data['events']]
+    
     create_new_competition(title, reddit_id, event_data)
