@@ -66,6 +66,11 @@ def submit_times():
     thread comment. If the user is authenticated, submit the comment for them, or else
     redirect to a page where the comment source is displayed. """
 
+    #TODO Clean this garbage up, my god
+
+    #TODO Figure out how to handle it if authenticated user is only submitting incomplete events
+    # nothing to submit to reddit, but still need to save to database
+
     data = request.form['input-results']
 
     user_events    = json.loads(data)
@@ -75,6 +80,12 @@ def submit_times():
     comp = comp_manager.get_active_competition()
     comp_reddit_id = comp.reddit_thread_id
     comp_thread_url = get_permalink_for_comp_thread(comp_reddit_id)
+
+    any_complete_to_post = False
+    for results in user_results:
+        if results.is_complete():
+            any_complete_to_post = True
+            break
 
     if current_user.is_authenticated:
         user = get_user_by_username(current_user.username)
@@ -86,6 +97,7 @@ def submit_times():
             if prev_result:
                 is_resubmit = True
                 old_reddit_comment_id = prev_result.reddit_comment
+                break
 
         try:
             if not is_resubmit:

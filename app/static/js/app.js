@@ -145,6 +145,7 @@ $(function(){
         // the keyboard space keypress events which handle the timer start/top
         clearInterval(this.timerInterval);
         kd.SPACE.unbindDown(); kd.SPACE.unbindUp();
+        $(document).unbind("keydown");
 
         // calculate elapsed time, separate seconds and centiseconds, and get the
         // "full time" string as seconds converted to minutes + decimal + centiseconds
@@ -637,7 +638,13 @@ $(function(){
                 // start the timer, and bind a new event to spacebar keydown 
                 // to stop the timer and then automatically advance to the next scramble
                 this.timer.start();
-                kd.SPACE.down(function(){
+                $(document).keydown(function(e) {
+                    //var code = (e.keyCode ? e.keyCode : e.which);
+                    //if (code == 27) {
+                    //    //TODO: 27 == esc, cancel the timer and don't record time
+                    //    e.preventDefault();
+                    //    return;
+                    //}
                     this.timer.stop();
                     this.auto_advance_timer_scramble();
                 }.bind(this));

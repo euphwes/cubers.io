@@ -94,13 +94,10 @@ def create_new_comp_from_b64_data(data):
     """ Creates a competition based on the data provided. """
 
     json_data = base64.b64decode(data).decode()
-    import sys
-    print(json_data, file=sys.stderr)
-
     data = json.loads(json_data)
 
     title     = data['title']
     reddit_id = data['reddit_id']
     event_data = [event_info for event_info in data['events']]
-    
+
     create_new_competition(title, reddit_id, event_data)
