@@ -85,6 +85,7 @@ $(function(){
 
         this.$seconds = $('#seconds');
         this.$centiseconds = $('#centiseconds');
+        this.$dot = $('#dot');
         this.$singleSolveTimeElem = null;
 
         this.startTime = 0;
@@ -131,6 +132,7 @@ $(function(){
      */
     Timer.prototype.start = function() {
         this.startTime = new Date();
+        this.$dot.html('.');
         this.timerInterval = setInterval(this.timerIntervalFunction.bind(this), 10);
     };
 
@@ -154,6 +156,10 @@ $(function(){
         var cs = this.elapsedTime.getTwoDigitCentisecondsFromMs();
         var full_time = convertSecondsToMinutes(s) + "." + cs;
 
+        // ensure the timer display shows the same time as the solve card
+        this.$seconds.html(convertSecondsToMinutes(s));
+        this.$centiseconds.html(cs);
+
         // mark the attached solve card as complete and no longer active, set the solve time on
         // the card, and set the data attribute for raw time in centiseconds
         this.$singleSolveTimeElem.addClass('complete').removeClass('active');
@@ -172,6 +178,7 @@ $(function(){
         this.startTime = 0;
         this.elapsedTime = 0;
         this.$seconds.html('0');
+        this.$dot.html('.');
         this.$centiseconds.html('00');
     };
 
