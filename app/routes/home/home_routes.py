@@ -2,7 +2,7 @@
 
 import json
 
-from flask import render_template, request
+from flask import render_template, request, redirect, url_for
 from flask_login import current_user
 
 from app import CUBERS_APP
@@ -26,6 +26,9 @@ COMMENT_SOURCE_TEMPLATE  = 'submit/times_comment_source.html'
 @CUBERS_APP.route('/')
 def index():
     """ Main page for the app. Shows cards for every event in the current competition."""
+
+    if (not current_user.is_authenticated) and (not 'nologin' in request.args):
+        return redirect(url_for(".prompt_login"))
 
     comp = comp_manager.get_active_competition()
 
@@ -57,6 +60,13 @@ def index():
 
     return render_template('index.html', current_competition=comp, events_data=events_for_json,
                            ordered_comp_events=ordered_comp_events)
+
+
+@CUBERS_APP.route('/prompt_login')
+def prompt_login():
+    """ Prompts the user to login for the best experience. """
+    comp = comp_manager.get_active_competition()
+    return render_template('prompt_login/prompt_login.html', current_competition=comp)
 
 
 @CUBERS_APP.route('/submit', methods=['POST'])

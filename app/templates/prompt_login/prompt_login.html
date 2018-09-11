@@ -1,0 +1,23 @@
+{% extends "common/base.html" %}
+
+{% block head %}
+    {{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="container cubers-container" style="margin-top: 15px;">
+    <h2>Welcome to cubers.io!</h2>
+    <p>
+        For the best user experience, please login with Reddit using the link above!
+        Here are some of the benefits you'll see if you log in:
+        <ul>
+            <li>Your solves are saved for you!</li>
+            <li>Come back later and pick up where you left off.</li>
+            <li>Automatic Reddit comment generation and submission.</li>
+            <li>[Coming soon] Personal profile, timer settings, and competition participation history.</li>
+            <li>[Coming soon] Optional notification when new competitions are posted.</li>
+        </ul>
+    </p>
+    <p>If you still want to continue without logging in, please <a class="bold" href="/?nologin">click here.</a></p>
+</div>
+{% endblock %}
