@@ -1,9 +1,10 @@
 """ Routes related to authentication. """
 
-from flask import request, redirect, url_for
+from flask import request, redirect, url_for, render_template
 from flask_login import current_user, login_user, logout_user
 
 from app import CUBERS_APP
+from app.persistence import comp_manager
 from app.persistence.user_manager import update_or_create_user
 
 from app.util.reddit_util import get_username_refresh_token_from_code, get_user_auth_url
@@ -32,8 +33,9 @@ def authorize():
     """ Handle the callback from Reddit's OAuth. Create a user if necessary, update their refresh
     token, and log the user in. """
 
-    #TODO: handle error=access_denied meaning user decline OAuth
-    # error = request.args.get('error')
+    error = request.args.get('error', None)
+    if error == 'access_denied':
+        return redirect(url_for('denied'))
 
     auth_code = request.args.get('code')
 
@@ -44,3 +46,10 @@ def authorize():
 
     return redirect(url_for('index'))
 
+
+@CUBERS_APP.route('/denied')
+def denied():
+    """ For when the user declines Reddit OAuth. """
+
+    comp = comp_manager.get_active_competition()
+    return render_template('prompt_login/denied.html', current_competition=comp)
