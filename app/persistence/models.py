@@ -60,7 +60,7 @@ class Event(Model):
 class Scramble(Model):
     """ A scramble for a specific event at a specific competition. """
     __tablename__        = 'scrambles'
-    id                   = Column(Integer, primary_key = True)
+    id                   = Column(Integer, primary_key=True)
     scramble             = Column(Text())
     competition_event_id = Column(Integer, ForeignKey('competition_event.id'))
     solves               = relationship('UserSolve', backref='Scramble')
@@ -108,9 +108,27 @@ class Competition(Model):
     start_timestamp  = Column(DateTime(timezone=True))
     end_timestamp    = Column(DateTime(timezone=True))
     active           = Column(Boolean)
-    userPointResults = Column(Text())
     events           = relationship('CompetitionEvent', backref='Competition',
                                     primaryjoin=id == CompetitionEvent.competition_id)
+
+
+class CompetitionGenResources(Model):
+    """ A record for maintaining the current state of the competition generation. """
+    __tablename__       = 'comp_gen_resources'
+    id                  = Column(Integer, primary_key=True)
+    current_comp_id     = Column(Integer, ForeignKey('competitions.id'))
+    previous_comp_id    = Column(Integer, ForeignKey('competitions.id'))
+    prev_comp_thread_id = Column(String(10))
+    current_comp_num    = Column(String(10))
+    current_bonus_index = Column(Integer)
+    current_OLL_index   = Column(Integer)
+
+
+class Blacklist(Model):
+    """ A record for holding the username of a person who's blacklisted from the results. """
+    __tablename__ = 'blacklist'
+    id            = Column(Integer, primary_key=True)
+    username      = Column(String(64))
 
 
 class UserSolve(Model):
