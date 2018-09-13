@@ -21,7 +21,7 @@ APP_URL       = '({})'.format(CUBERS_APP.config['APP_URL'])
 COMMENT_FOOTER = '\n'.join([
     '',
     '----',
-    '^^^Submitted ^^^via ^^^the [ ^^^weekly ^^^competition ^^^web ^^^app ]' + APP_URL,
+    '^^^Submitted ^^^by [ ^^^cubers.io ]' + APP_URL,
     # possible future stuff linking to the user's profile or competition history?
 ])
 
