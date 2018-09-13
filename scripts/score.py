@@ -32,10 +32,6 @@ def score_post(r, submission, data, rerun):
                     posttime = datetime.datetime.fromtimestamp(submission.created)
                     if (commenttime <= posttime + datetime.timedelta(days = 7)):
                         competitors.append(Competitor(entry))
-
-
-
-
     '''
     for competitor in competitors:
         competitor.fix_times()
