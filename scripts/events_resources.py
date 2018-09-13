@@ -133,6 +133,16 @@ __COLL_LIST = [
 
 # -------------------------------------------------------------------------------------------------
 
+def get_num_COLLs():
+    """ Returns the length of the COLLs list. """
+    return len(__COLL_LIST)
+
+
+def get_num_bonus_events():
+    """ Returns the length of the bonus events list. """
+    return len(__NON_WCA_EVENTS)
+
+
 def get_WCA_events():
     """ Return all the WCA events. """
     return __WCA_EVENTS

@@ -1,11 +1,23 @@
-""" Utility module for providing access to business logic for users. """
+""" Utility module for providing access to business logic for competitions, events, etc. """
 
 from datetime import datetime
 
 from app import DB
-from app.persistence.models import Competition, CompetitionEvent, Event, Scramble
+from app.persistence.models import Competition, CompetitionEvent, Event, Scramble,\
+CompetitionGenResources
 
 # -------------------------------------------------------------------------------------------------
+
+def get_competition_gen_resources():
+    """ Gets the current competition generation resources record. """
+    return CompetitionGenResources.query.one()
+
+
+def save_competition_gen_resources(comp_gen_resource):
+    """ Saves the competition generation resources record. """
+    DB.session.add(comp_gen_resource)
+    DB.session.commit()
+
 
 def get_event_by_name(name):
     """ Returns an event by name. """
