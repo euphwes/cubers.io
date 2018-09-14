@@ -1,13 +1,13 @@
 """ Logic for creating a new competition based on the last one. """
 
 from app.persistence.comp_manager import get_competition_gen_resources,\
-save_competition_gen_resources, create_new_competition
+save_competition_gen_resources, save_new_competition
 
 from app.util.events_resources import get_WCA_events, get_bonus_events_rotation_starting_at,\
 get_COLL_at_index, get_bonus_events_without_current, get_num_COLLs, get_num_bonus_events,\
 EVENT_COLL
 
-from post_comp import post_competition
+from app.util.post_comp import post_competition
 
 # -------------------------------------------------------------------------------------------------
 
@@ -46,8 +46,8 @@ def generate_new_competition():
 
     # Get the next COLL index and number if we're doing COLL this week
     if EVENT_COLL in bonus_events:
-        comp_gen_data.current_oll_index = (comp_gen_data.current_oll_index + 1) % get_num_COLLs()
-        coll_index  = comp_gen_data.current_oll_index
+        comp_gen_data.current_OLL_index = (comp_gen_data.current_OLL_index + 1) % get_num_COLLs()
+        coll_index  = comp_gen_data.current_OLL_index
         coll_number = get_COLL_at_index(coll_index)
 
     # Generate scrambles for the bonus events in this comp
@@ -68,4 +68,9 @@ def generate_new_competition():
     reddit_id = post_competition(comp_name, comp_number, event_data, bonus_names, upcoming_bonus_names)
 
     # 3. save new competition to database
-    # save_competition(title, reddit_id, event_data)
+    new_db_competition = save_new_competition(comp_name, reddit_id, event_data)
+
+    # 4. save competition gen resource to database
+    comp_gen_data.previous_comp_id = comp_gen_data.current_comp_id
+    comp_gen_data.current_comp_id = new_db_competition.id
+    save_competition_gen_resources(comp_gen_data)

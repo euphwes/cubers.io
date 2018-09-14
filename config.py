@@ -14,7 +14,8 @@ class Config(object):
     SCRIPT_API_KEY          = environ.get('SCRIPT_API_KEY')
     APP_URL                 = environ.get('APP_URL', 'http://fake.url.com')
     CUBERS_IO_ACCT          = environ.get('CUBERS_IO_ACCT')
-    CUBERS_IO_ACCT_PASSWORD = environ.get('CUBERS_IO_ACCT_PASSWORD')
+    CUBERS_IO_REFRESH_TOKEN = environ.get('CUBERS_IO_REFRESH_TOKEN')
+    TARGET_SUBREDDIT        = environ.get('TARGET_SUBREDDIT', 'cubecomps')
 
     SQLALCHEMY_DATABASE_URI = environ.get('DATABASE_URL')
     if not SQLALCHEMY_DATABASE_URI:

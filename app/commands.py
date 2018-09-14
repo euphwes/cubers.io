@@ -13,7 +13,9 @@ from pyTwistyScrambler import scrambler222, scrambler333, scrambler444, scramble
      pyraminxScrambler, clockScrambler, cuboidsScrambler
 
 from . import CUBERS_APP
-from .persistence.comp_manager import get_event_by_name, create_new_competition
+from .persistence.comp_manager import get_event_by_name, save_new_competition
+
+from app.util.generate_comp import generate_new_competition
 
 # -------------------------------------------------------------------------------------------------
 
@@ -85,13 +87,13 @@ def create_new_test_comp(title, reddit_id):
     if not reddit_id:
         reddit_id = str(uuid.uuid4()).replace('-','')[:10]
 
-    create_new_competition(title, reddit_id, event_data)
+    save_new_competition(title, reddit_id, event_data)
 
 
 @CUBERS_APP.cli.command()
 @click.option('--data', '-d', type=str)
-def create_new_comp_from_b64_data(data):
-    """ Creates a competition based on the data provided. """
+def create_new_test_comp_from_b64_data(data):
+    """ Creates a test competition based on the data provided. """
 
     json_data = base64.b64decode(data).decode()
     data = json.loads(json_data)
@@ -100,4 +102,11 @@ def create_new_comp_from_b64_data(data):
     reddit_id = data['reddit_id']
     event_data = [event_info for event_info in data['events']]
 
-    create_new_competition(title, reddit_id, event_data)
+    save_new_competition(title, reddit_id, event_data)
+
+
+@CUBERS_APP.cli.command()
+def test_generate_comp():
+    """ Generates a new competition based on the previous one. """
+
+    generate_new_competition()

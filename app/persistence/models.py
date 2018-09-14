@@ -119,7 +119,7 @@ class CompetitionGenResources(Model):
     current_comp_id     = Column(Integer, ForeignKey('competitions.id'))
     previous_comp_id    = Column(Integer, ForeignKey('competitions.id'))
     prev_comp_thread_id = Column(String(10))
-    current_comp_num    = Column(String(10))
+    current_comp_num    = Column(Integer)
     current_bonus_index = Column(Integer)
     current_OLL_index   = Column(Integer)
 

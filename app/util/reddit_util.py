@@ -1,4 +1,5 @@
 """ Utility functions for dealing with PRAW Reddit instances. """
+#pylint: disable=C0103
 
 import re
 from sys import maxsize as MAX
@@ -8,7 +9,6 @@ from praw import Reddit
 from app import CUBERS_APP
 from app.persistence.models import EventFormat
 from app.persistence.comp_manager import get_comp_event_by_id
-from app.persistence.user_manager import get_user_by_username
 from app.util.times_util import convert_centiseconds_to_friendly_time, convert_min_sec
 from app.util import events_util
 
@@ -17,6 +17,9 @@ USER_AGENT    = 'web:rcubersComps:v0.01 by /u/euphwes'
 CLIENT_ID     = CUBERS_APP.config['REDDIT_CLIENT_ID']
 CLIENT_SECRET = CUBERS_APP.config['REDDIT_CLIENT_SECRET']
 APP_URL       = '({})'.format(CUBERS_APP.config['APP_URL'])
+
+TARGET_SUBREDDIT     = CUBERS_APP.config['TARGET_SUBREDDIT']
+CUBERS_IO_ACCT_TOKEN = CUBERS_APP.config['CUBERS_IO_REFRESH_TOKEN']
 
 COMMENT_FOOTER = '\n'.join([
     '',
@@ -125,7 +128,8 @@ def get_new_reddit():
 
 def get_authed_reddit_for_cubersio_acct():
     """ Returns a PRAW instance for the cubers_io Reddit account. """
-    
+    return Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET,
+                  refresh_token=CUBERS_IO_ACCT_TOKEN, user_agent=USER_AGENT)
 
 
 def get_authed_reddit_for_user(user):
@@ -157,19 +161,24 @@ def update_comment_for_user(user, comment_thread_id, comment_body):
     return (REDDIT_URL_ROOT + comment.permalink), comment.id
 
 
+def submit_competition_post(title, post_body):
+    """ Posts a Submission for the competition, and returns a Reddit submission ID. """
+    r = get_authed_reddit_for_cubersio_acct()
+    cubers = r.subreddit(TARGET_SUBREDDIT)
+    return cubers.submit(title=title, selftext=post_body, send_replies=False).id
+
+
 def get_permalink_for_comp_thread(reddit_thread_id):
     """ Returns the permalink for the competition thread specified by the ID above. """
     comp = get_non_user_reddit().submission(id=reddit_thread_id)
     return REDDIT_URL_ROOT + comp.permalink
 
 
-#pylint: disable=C0103
 def get_username_refresh_token_from_code(code):
     """ Returns the username and current refresh token for a given Reddit auth code. """
     reddit = get_new_reddit()
     refresh_token = reddit.auth.authorize(code)
     username = reddit.user.me().name
-
     return username, refresh_token
 
 
