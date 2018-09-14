@@ -3,13 +3,14 @@
 from arrow import utcnow
 
 from app.util.reddit_util import submit_competition_post
+from app.util.events_resources import EVENT_COLL
 
 # -------------------------------------------------------------------------------------------------
 
 POST_TEMPLATE = """##Welcome to competition #{comp_num}!
 
 If you're new, please read the entire post before competing. This competition will run until {due_date}
-US/Eastern time.
+US Eastern time (GMT{tz_offset}).
 
 We'll hold (almost) every WCA event weekly. We are not currently holding 4BLD, 5BLD, and MBLD, but
 if there is enough interest we will add them. We'll rotate through a list of bonus events every week.
@@ -51,14 +52,16 @@ EVENT_NAME_LINE_TEMPLATE = '\n\n**{}:**\n\n'
 def post_competition(comp_title, comp_num, event_data, curr_bonus, upcoming_bonus):
     """ Post the competition to Reddit and return the Reddit ID. """
 
-    due_date = utcnow().to('US/Eastern').format('hh:MM A on dddd, MMMM Do YYYY')
+    now = utcnow().to('US/Eastern')
+    due_date  = now.format('hh:MM A on dddd, MMMM Do YYYY')
+    tz_offset = now.format('ZZ')
 
     curr_bonus_events     = '\n\n> * ' + '\n\n> * '.join(curr_bonus)
     upcoming_bonus_events = '\n\n> * ' + '\n\n> * '.join(upcoming_bonus)
 
     event_section = ''
     for event in event_data:
-        if event['name'] == 'COLL':
+        if event['name'] == EVENT_COLL.name:
             event_section += EVENT_NAME_LINE_TEMPLATE.format(event['name'])
             event_section += SCRAMBLE_LINE_TEMPLATE.format(event['scrambles'][0] + ' (5 times)')
             continue
@@ -72,7 +75,8 @@ def post_competition(comp_title, comp_num, event_data, curr_bonus, upcoming_bonu
         comp_num = comp_num,
         curr_bonus_events = curr_bonus_events,
         upcoming_bonus_events = upcoming_bonus_events,
-        formatted_events_with_scrambles = event_section
+        formatted_events_with_scrambles = event_section,
+        tz_offset = tz_offset
     )
 
     new_comp_id = submit_competition_post(comp_title, post_body)

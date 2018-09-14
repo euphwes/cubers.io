@@ -174,6 +174,11 @@ def get_permalink_for_comp_thread(reddit_thread_id):
     return REDDIT_URL_ROOT + comp.permalink
 
 
+def get_submission_with_id(reddit_thread_id):
+    """ Returns the Submission object for a given Reddit thread ID. """
+    return get_non_user_reddit().submission(id=reddit_thread_id)
+
+
 def get_username_refresh_token_from_code(code):
     """ Returns the username and current refresh token for a given Reddit auth code. """
     reddit = get_new_reddit()

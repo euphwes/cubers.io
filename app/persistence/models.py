@@ -95,7 +95,7 @@ class CompetitionEvent(Model):
     scrambles      = relationship('Scramble', backref='CompetitionEvent',
                                   primaryjoin = id == Scramble.competition_event_id)
     user_results   = relationship('UserEventResults', backref='CompetitionEvent',
-                                    primaryjoin=id == UserEventResults.comp_event_id)
+                                  primaryjoin=id == UserEventResults.comp_event_id)
 
 
 class Competition(Model):

@@ -34,6 +34,11 @@ def get_competition(competition_id):
     return Competition.query.get(competition_id)
 
 
+def get_competition_by_reddit_id(reddit_id):
+    """ Get a competition by reddit thread id """
+    return Competition.query.filter(Competition.reddit_thread_id == reddit_id).first()
+
+
 def get_comp_event_by_id(comp_event_id):
     """ Returns a competition_event by id. """
     return CompetitionEvent.query.filter(CompetitionEvent.id == comp_event_id).first()
