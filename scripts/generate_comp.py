@@ -7,6 +7,8 @@ from scripts.events_resources import get_WCA_events, get_non_WCA_events,\
 get_bonus_events_rotation_starting_at, get_COLL_at_index, get_bonus_events_without_current,\
 get_num_COLLs, get_num_bonus_events, EVENT_COLL
 
+from post_comp import post_competition
+
 # -------------------------------------------------------------------------------------------------
 
 BONUS_EVENT_COUNT = 5
@@ -21,24 +23,32 @@ def generate_new_competition():
     comp_gen_data = get_competition_gen_resources()
 
     # Figure out next competition number and name
-    comp_number = comp_gen_data.current_comp_num + 1
-    competition_name = COMPETITION_NAME_TEMPLATE.format(comp_number)
+    comp_gen_data.current_comp_num += 1
+    comp_number = comp_gen_data.current_comp_num
+    comp_name = COMPETITION_NAME_TEMPLATE.format(comp_number)
 
     # Generate scrambles for every WCA event
     event_data = []
     for wca_event in get_WCA_events():
         event_data.append(dict({
-            'event':     wca_event,
             'name':      wca_event.name,
             'scrambles': wca_event.get_scrambles()
         }))
 
-    # Get the next COLL index and number
-    coll_index   = (comp_gen_data.current_oll_index + 1) % get_num_COLLs()
-    coll_number = get_COLL_at_index(coll_index)
-
-    bonus_index = (comp_gen_data.current_bonus_index + BONUS_EVENT_COUNT) % get_num_bonus_events()
+    # Update start index for bonus events and get the list of bonus events
+    comp_gen_data.current_bonus_index = (comp_gen_data.current_bonus_index + BONUS_EVENT_COUNT) % get_num_bonus_events()
+    bonus_index  = comp_gen_data.current_bonus_index
     bonus_events = get_bonus_events_rotation_starting_at(bonus_index, BONUS_EVENT_COUNT)
+    bonus_names  = [e.name for e in bonus_events]
+
+    # Get list of names of upcoming bonus events
+    upcoming_bonus_names = [e.name for e in get_bonus_events_without_current(bonus_events)]
+
+    # Get the next COLL index and number if we're doing COLL this week
+    if EVENT_COLL in bonus_events:
+        comp_gen_data.current_oll_index = (comp_gen_data.current_oll_index + 1) % get_num_COLLs()
+        coll_index  = comp_gen_data.current_oll_index
+        coll_number = get_COLL_at_index(coll_index)
 
     # Generate scrambles for the bonus events in this comp
     for bonus_event in bonus_events:
@@ -47,9 +57,15 @@ def generate_new_competition():
         else:
             scrambles = bonus_event.get_scrambles()
         event_data.append(dict({
-            'event':     bonus_event,
             'name':      bonus_event.name,
             'scrambles': scrambles
         }))
 
-    #competition_post = post_comp_to_reddit(competition_name, event_data)
+    # 1. score previous competition
+    # score_competition()
+
+    # 2. post competition to reddit
+    reddit_id = post_competition(comp_name, comp_number, event_data, bonus_names, upcoming_bonus_names)
+
+    # 3. save new competition to database
+    # save_competition(title, reddit_id, event_data)
