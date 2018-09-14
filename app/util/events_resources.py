@@ -11,18 +11,18 @@ from pyTwistyScrambler import scrambler333, scrambler222, scrambler444, scramble
 class Event:
     """ Encapsulates everything we need to know about an event. """
 
-    def __init__(self, name, scramble_func, num_scrambles, is_wca, has_explanation=False, has_scramble_generator=False):
+    def __init__(self, name, scramble_func, num_scrambles, is_wca, has_explanation=False, scramble_generator=False):
         self.name = name
         self.scramble_func = scramble_func
         self.num_scrambles = num_scrambles
         self.is_wca = is_wca
         self.has_explanation = has_explanation
-        self.has_scramble_generator = has_scramble_generator
+        self.scramble_generator = scramble_generator
 
     def get_scrambles(self, *args):
         """ Gets the scrambles for this event. """
 
-        if self.has_scramble_generator:
+        if self.scramble_generator:
             return [s for s in self.scramble_func(*args)]
         
         return [self.scramble_func(*args) for _ in range(self.num_scrambles)]
@@ -76,8 +76,8 @@ EVENT_4x4OH     = Event("4x4 OH", scrambler444.get_WCA_scramble, 5, False)
 EVENT_3x3x2     = Event("3x3x2", cuboidsScrambler.get_3x3x2_scramble, 5, False)
 EVENT_3x3x4     = Event("3x3x4", cuboidsScrambler.get_3x3x4_scramble, 5, False)
 EVENT_3x3x5     = Event("3x3x4", cuboidsScrambler.get_3x3x5_scramble, 5, False)
-EVENT_234Relay  = Event("2-3-4 Relay", scrambler_234_relay, 3, False, has_scramble_generator=True)
-EVENT_333Relay = Event("3x3 Relay of 3", scrambler_333_relay, 3, False, has_scramble_generator=True)
+EVENT_234Relay  = Event("2-3-4 Relay", scrambler_234_relay, 3, False, scramble_generator=True)
+EVENT_333Relay  = Event("3x3 Relay of 3", scrambler_333_relay, 3, False, scramble_generator=True)
 EVENT_PLLAttack = Event("PLL Time Attack", lambda: 'Do all the PLLs!', 1, False)
 
 # -------------------------------------------------------------------------------------------------

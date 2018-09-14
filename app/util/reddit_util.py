@@ -123,6 +123,11 @@ def get_new_reddit():
                   user_agent=USER_AGENT)
 
 
+def get_authed_reddit_for_cubersio_acct():
+    """ Returns a PRAW instance for the cubers_io Reddit account. """
+    
+
+
 def get_authed_reddit_for_user(user):
     """ Returns a PRAW instance for this user using their refresh token. """
     return Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET,

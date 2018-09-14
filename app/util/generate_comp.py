@@ -3,9 +3,9 @@
 from app.persistence.comp_manager import get_competition_gen_resources,\
 save_competition_gen_resources, create_new_competition
 
-from scripts.events_resources import get_WCA_events, get_non_WCA_events,\
-get_bonus_events_rotation_starting_at, get_COLL_at_index, get_bonus_events_without_current,\
-get_num_COLLs, get_num_bonus_events, EVENT_COLL
+from app.util.events_resources import get_WCA_events, get_bonus_events_rotation_starting_at,\
+get_COLL_at_index, get_bonus_events_without_current, get_num_COLLs, get_num_bonus_events,\
+EVENT_COLL
 
 from post_comp import post_competition
 
