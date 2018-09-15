@@ -112,7 +112,6 @@ def score_and_generate_new_comp():
     generate_new_competition()
 
 
-
 @CUBERS_APP.cli.command()
 @click.option('--reddit_id', '-r', type=str, default='')
 def score_comp_only(reddit_id):

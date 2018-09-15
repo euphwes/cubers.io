@@ -11,6 +11,7 @@ from app.persistence.models import EventFormat
 from app.persistence.comp_manager import get_comp_event_by_id
 from app.util.times_util import convert_centiseconds_to_friendly_time, convert_min_sec
 from app.util import events_util
+from app.persistence.user_manager import get_user_by_username
 
 REDIRECT      = CUBERS_APP.config['REDDIT_REDIRECT_URI']
 USER_AGENT    = 'web:rcubersComps:v0.01 by /u/euphwes'
@@ -19,7 +20,6 @@ CLIENT_SECRET = CUBERS_APP.config['REDDIT_CLIENT_SECRET']
 APP_URL       = '({})'.format(CUBERS_APP.config['APP_URL'])
 
 TARGET_SUBREDDIT     = CUBERS_APP.config['TARGET_SUBREDDIT']
-CUBERS_IO_ACCT_TOKEN = CUBERS_APP.config['CUBERS_IO_REFRESH_TOKEN']
 
 COMMENT_FOOTER = '\n'.join([
     '',
@@ -128,8 +128,9 @@ def get_new_reddit():
 
 def get_authed_reddit_for_cubersio_acct():
     """ Returns a PRAW instance for the cubers_io Reddit account. """
+    token = get_user_by_username('cubers_io').refresh_token
     return Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET,
-                  refresh_token=CUBERS_IO_ACCT_TOKEN, user_agent=USER_AGENT)
+                  refresh_token=token, user_agent=USER_AGENT)
 
 
 def get_authed_reddit_for_user(user):
