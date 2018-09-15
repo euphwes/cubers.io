@@ -103,7 +103,7 @@ class Competition(Model):
     the list of events held, and a JSON field containing total user points results."""
     __tablename__    = 'competitions'
     id               = Column(Integer, primary_key=True)
-    title            = Column(String(128), index=True, unique=True)
+    title            = Column(String(128))
     reddit_thread_id = Column(String(10), index=True, unique=True)
     start_timestamp  = Column(DateTime(timezone=True))
     end_timestamp    = Column(DateTime(timezone=True))

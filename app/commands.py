@@ -106,16 +106,17 @@ def create_new_test_comp_from_b64_data(data):
 
 
 @CUBERS_APP.cli.command()
-def score_previous_comp_and_generate_new_comp():
+def score_and_generate_new_comp():
     """ Scores the previous competition, and generates a new competition based on the
     previous one. """
-
-    score_previous_competition()
     generate_new_competition()
+
 
 
 @CUBERS_APP.cli.command()
 @click.option('--reddit_id', '-r', type=str, default='')
-def score_comp_only(reddit_it):
+def score_comp_only(reddit_id):
     """ """
+    if not reddit_id:
+        raise ValueError('Please supply a Reddit thread ID for the competition to be scored.')
     pass
