@@ -12,10 +12,12 @@ from pyTwistyScrambler import scrambler222, scrambler333, scrambler444, scramble
      scrambler666, scrambler777, megaminxScrambler, skewbScrambler, squareOneScrambler,\
      pyraminxScrambler, clockScrambler, cuboidsScrambler
 
+from app.util.generate_comp import generate_new_competition
+from app.util.score_comp import score_previous_competition
+
 from . import CUBERS_APP
 from .persistence.comp_manager import get_event_by_name, save_new_competition
 
-from app.util.generate_comp import generate_new_competition
 
 # -------------------------------------------------------------------------------------------------
 
@@ -113,9 +115,8 @@ def score_and_generate_new_comp():
 
 
 @CUBERS_APP.cli.command()
-@click.option('--reddit_id', '-r', type=str, default='')
-def score_comp_only(reddit_id):
+@click.option('--comp_id', '-i', type=str, default='')
+@click.option('--rerun', '-r', type=bool, default=False)
+def score_comp_only(comp_id, rerun):
     """ """
-    if not reddit_id:
-        raise ValueError('Please supply a Reddit thread ID for the competition to be scored.')
-    pass
+    score_previous_competition(is_rerun=rerun, comp_id=comp_id)

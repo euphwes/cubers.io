@@ -3,8 +3,9 @@
 import re
 from time import sleep
 
-from app.persistence.comp_manager import get_active_competition, get_competition_by_reddit_id
-from app.util.reddit_util import get_submission_with_id, submit_competition_post
+from app.persistence.comp_manager import get_active_competition, get_competition
+from app.util.reddit_util import get_submission_with_id, submit_competition_post,\
+get_permalink_for_comp_thread
 
 # -------------------------------------------------------------------------------------------------
 
@@ -22,7 +23,7 @@ def filter_entries_with_no_events(entries, event_names):
     """ Returns a filtered list of competition entries (which here are PRAW Comments) which do
     not mention any events from the competition. """
 
-    return [e for e in entries if find_events(entries, event_names)]
+    return [e for e in entries if find_events(e, event_names)]
 
 
 def filter_entries_that_are_wip(entries):
@@ -33,19 +34,19 @@ def filter_entries_that_are_wip(entries):
 
 # -------------------------------------------------------------------------------------------------
 
-def score_previous_competition(is_rerun=False, reddit_id=None):
+def score_previous_competition(is_rerun=False, comp_id=None):
     """ Score the previous competition and post the results. """
 
-    # Get the reddit thread ID and the competition model for the competition to be score
-    if reddit_id:
-        submission_id = reddit_id
-        competition_being_scored = get_competition_by_reddit_id(submission_id)
+    # Get the reddit thread ID and the competition model for the competition to be scored
+    if comp_id:
+        competition_being_scored = get_competition(comp_id)
     else:
         competition_being_scored = get_active_competition()
-        submission_id = competition_being_scored.reddit_thread_id
+
+    submission_id = competition_being_scored.reddit_thread_id
 
     # Build a list of event names that were in this competition
-    event_names = [comp_event.event.name for comp_event in competition_being_scored.events]
+    event_names = [comp_event.Event.name for comp_event in competition_being_scored.events]
 
     # Get the PRAW Submission object and make sure we have all the top-level comments
     submission = get_submission_with_id(submission_id)
@@ -69,7 +70,7 @@ def score_previous_competition(is_rerun=False, reddit_id=None):
 
     # Creating a competitor record automatically removes any broken times/events
     # Filter out any competitors without any events left
-    competitors = [c for c in competitors if c.get_events()]
+    competitors = [c for c in competitors if c.events]
 
     # Remove duplicate users
     competitors = list(set(competitors))
@@ -84,21 +85,33 @@ def score_previous_competition(is_rerun=False, reddit_id=None):
             if event_name in competitor.events:
                 time = competitor.event_time_map[event_name]
                 participating_users.append((competitor.name, time, competitor))
-        participating_users.sort(lambda x: x[1])
+        if not participating_users:
+            continue
+        participating_users.sort(key=lambda x: x[1])
         num_event_participants = len(participating_users)
         for i, record in enumerate(participating_users):
-            record[2] += (num_event_participants - (i+1) + 1)
+            record[2].points += (num_event_participants - (i+1) + 1)
         comp_event_results[event_name] = participating_users
 
-    post_body = ''
+    permalink  = get_permalink_for_comp_thread(submission_id)
+    comp_title = competition_being_scored.title
+    post_body = 'Results for [{}]({})!'.format(comp_title, permalink)
+
     for event_name in event_names:
-        post_body += '\n\n{}\n\n'.format(event_name)
-        for participant in comp_event_results[event_name]:
-            post_body += '> 1. {}: {}\n\n'.format(participant[0], participant[1])
-    
-    post_body += '---\n\nPoints this week (each event: `# of participants - place + 1`)\n\n'
+        if not event_name in comp_event_results.keys():
+            continue
+        participants = comp_event_results[event_name]
+        if not participants:
+            continue
+        post_body += '\n\n**{}**\n\n'.format(event_name)
+        for participant in participants:
+            post_body += '1. {}: {}\n\n'.format(participant[0], participant[1])
+
+    post_body += '---\n\n**Total points this week**'
+    post_body += '\n\nEach event gives `# of participants - place + 1` points\n\n'
+    competitors.sort(key=lambda c: c.points, reverse=True)
     for competitor in competitors:
-        post_body += '> 1. {}: {}'.format(competitor.name, competitor.points)
+        post_body += '1. {}: {}\n\n'.format(competitor.name, competitor.points)
 
     title = 'Results for {}!'.format(competition_being_scored.title)
     new_post_id = submit_competition_post(title, post_body)
@@ -115,7 +128,7 @@ class Competitor:
         parse_results = parse(entry.body)
         self.events = parse_results[1]
         self.times = parse_results[0]
-        self.name = entry.author.name
+        self.name = '/u/{}'.format(entry.author.name)
         self.points = 0
         self.fix_times()
         self.event_time_map = dict(zip(self.events, self.times))
