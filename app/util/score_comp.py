@@ -6,6 +6,7 @@ from time import sleep
 from app.persistence.comp_manager import get_active_competition, get_competition, save_competition
 from app.util.reddit_util import get_submission_with_id, submit_competition_post,\
 get_permalink_for_comp_thread
+from app.util.times_util import convert_seconds_to_friendly_time
 
 # -------------------------------------------------------------------------------------------------
 
@@ -84,7 +85,7 @@ def score_previous_competition(is_rerun=False, comp_id=None):
         for competitor in competitors:
             if event_name in competitor.events:
                 time = competitor.event_time_map[event_name]
-                participating_users.append((competitor.name, time, competitor))
+                participating_users.append((competitor.name, float(time), competitor))
         if not participating_users:
             continue
         participating_users.sort(key=lambda x: x[1])
@@ -95,7 +96,7 @@ def score_previous_competition(is_rerun=False, comp_id=None):
 
     permalink  = get_permalink_for_comp_thread(submission_id)
     comp_title = competition_being_scored.title
-    post_body = 'Results for [{}]({})!'.format(comp_title, permalink)
+    post_body = 'Results for [{}]({})'.format(comp_title, permalink)
 
     for event_name in event_names:
         if not event_name in comp_event_results.keys():
@@ -105,7 +106,7 @@ def score_previous_competition(is_rerun=False, comp_id=None):
             continue
         post_body += '\n\n**{}**\n\n'.format(event_name)
         for participant in participants:
-            post_body += '1. {}: {}\n\n'.format(participant[0], participant[1])
+            post_body += '1. {}: {}\n\n'.format(participant[0], convert_seconds_to_friendly_time(participant[1]))
 
     post_body += '---\n\n**Total points this week**'
     post_body += '\n\nEach event gives `# of participants - place + 1` points\n\n'
@@ -113,7 +114,7 @@ def score_previous_competition(is_rerun=False, comp_id=None):
     for competitor in competitors:
         post_body += '1. {}: {}\n\n'.format(competitor.name, competitor.points)
 
-    title = 'Results for {}!'.format(competition_being_scored.title)
+    title = 'Results for {}'.format(competition_being_scored.title)
 
     if not is_rerun:
         new_post_id = submit_competition_post(title, post_body)

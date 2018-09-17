@@ -19,6 +19,11 @@ def convert_centiseconds_to_friendly_time(centiseconds):
 
     return '{}:{}'.format(minutes, seconds)
 
+
+def convert_seconds_to_friendly_time(seconds):
+    """ Converts seconds to human-readable friendly time. """
+    return convert_centiseconds_to_friendly_time(seconds * 100)
+
 # -------------------------------------------------------------------------------------------------
 # TODO: Figure out if stuff below is needed. Does it belong in the scripts source? If so, doesn't
 # belong directly here in the web app
