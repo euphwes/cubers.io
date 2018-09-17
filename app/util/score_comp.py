@@ -3,13 +3,13 @@
 import re
 from time import sleep
 
-from app.persistence.comp_manager import get_active_competition, get_competition
+from app.persistence.comp_manager import get_active_competition, get_competition, save_competition
 from app.util.reddit_util import get_submission_with_id, submit_competition_post,\
 get_permalink_for_comp_thread
 
 # -------------------------------------------------------------------------------------------------
 
-def filter_empty_author_and_blacklist(entries):
+def filter_no_author_and_blacklist(entries):
     """ Returns a filtered list of competition entries (which here are PRAW Comments) which do
     not contain any author=None or authors from the blacklist. """
 
@@ -61,7 +61,7 @@ def score_previous_competition(is_rerun=False, comp_id=None):
     entries = submission.comments
 
     # Filter out all the entry comments we don't want
-    entries = filter_empty_author_and_blacklist(entries)
+    entries = filter_no_author_and_blacklist(entries)
     entries = filter_entries_with_no_events(entries, event_names)
     entries = filter_entries_that_are_wip(entries)
 
@@ -114,7 +114,11 @@ def score_previous_competition(is_rerun=False, comp_id=None):
         post_body += '1. {}: {}\n\n'.format(competitor.name, competitor.points)
 
     title = 'Results for {}!'.format(competition_being_scored.title)
-    new_post_id = submit_competition_post(title, post_body)
+
+    if not is_rerun:
+        new_post_id = submit_competition_post(title, post_body)
+        competition_being_scored.result_thread_id = new_post_id
+        save_competition(competition_being_scored)
 
 
 def find_events(comment, events):
@@ -134,8 +138,9 @@ class Competitor:
         self.event_time_map = dict(zip(self.events, self.times))
 
     def fix_times(self):
-        while("Error" in self.times):
-            self.events.pop(self.times.index("Error"))
+        """ Remove the entries in the events and times lists where the entry is 'Error' """
+        while 'Error' in self.times:
+            self.events.pop(self.times.index('Error'))
             self.times.pop(self.times.index("Error"))
 
     def __eq__(self, other):

@@ -39,6 +39,12 @@ def get_competition_by_reddit_id(reddit_id):
     return Competition.query.filter(Competition.reddit_thread_id == reddit_id).first()
 
 
+def save_competition(competition):
+    """ Save a modified competition object. """
+    DB.session.add(competition)
+    DB.session.commit()
+
+
 def get_comp_event_by_id(comp_event_id):
     """ Returns a competition_event by id. """
     return CompetitionEvent.query.filter(CompetitionEvent.id == comp_event_id).first()

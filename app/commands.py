@@ -111,6 +111,7 @@ def create_new_test_comp_from_b64_data(data):
 def score_and_generate_new_comp():
     """ Scores the previous competition, and generates a new competition based on the
     previous one. """
+    score_previous_competition()
     generate_new_competition()
 
 
@@ -118,5 +119,5 @@ def score_and_generate_new_comp():
 @click.option('--comp_id', '-i', type=str, default='')
 @click.option('--rerun', '-r', type=bool, default=False)
 def score_comp_only(comp_id, rerun):
-    """ """
+    """ TODO: docstring """
     score_previous_competition(is_rerun=rerun, comp_id=comp_id)
