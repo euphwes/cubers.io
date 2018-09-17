@@ -121,3 +121,9 @@ def score_and_generate_new_comp():
 def score_comp_only(comp_id, rerun):
     """ TODO: docstring """
     score_previous_competition(is_rerun=rerun, comp_id=comp_id)
+
+
+@CUBERS_APP.cli.command()
+def generate_new_comp_only():
+    """ TODO: docstring """
+    generate_new_competition()
