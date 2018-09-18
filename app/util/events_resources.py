@@ -154,8 +154,11 @@ def get_non_WCA_events():
 
 
 def get_bonus_events_rotation_starting_at(starting_index, count=5):
-    """ Gets a list of `count` non-WCA events starting at the specified index. """
-    return __NON_WCA_EVENTS[starting_index : starting_index + count]
+    """ Gets a list of `count` non-WCA events starting at the specified index. Use a doubled list
+    of bonus events as a 'trick' to wrap around to the beginning if the starting index and count
+    bring us past the end of the list. """
+    double_wide = __NON_WCA_EVENTS * 2
+    return double_wide[starting_index : starting_index + count]
 
 
 def get_bonus_events_without_current(bonus_events):
