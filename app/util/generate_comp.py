@@ -5,7 +5,7 @@ save_competition_gen_resources, save_new_competition
 
 from app.util.events_resources import get_WCA_events, get_bonus_events_rotation_starting_at,\
 get_COLL_at_index, get_bonus_events_without_current, get_num_COLLs, get_num_bonus_events,\
-EVENT_COLL
+EVENT_COLL, EVENT_234Relay, EVENT_333Relay
 
 from app.util.post_comp import post_competition
 
@@ -61,16 +61,27 @@ def generate_new_competition():
             'scrambles': scrambles
         }))
 
-    # 1. score previous competition
-    # score_competition()
-
-    # 2. post competition to reddit
+    # Post competition to reddit
     reddit_id = post_competition(comp_name, comp_number, event_data, bonus_names, upcoming_bonus_names)
 
-    # 3. save new competition to database
+    # Save new competition to database
+    event_data = correct_relays_scrambles_for_database(event_data)
     new_db_competition = save_new_competition(comp_name, reddit_id, event_data)
 
-    # 4. save competition gen resource to database
+    # Save competition gen resource to database
     comp_gen_data.previous_comp_id = comp_gen_data.current_comp_id
     comp_gen_data.current_comp_id = new_db_competition.id
     save_competition_gen_resources(comp_gen_data)
+
+
+def correct_relays_scrambles_for_database(event_data):
+    """ The relay events should display the scrambles as 3 individual scrambles for the
+    Reddit competition post, but just one 'triple scramble' for the database. Fix that here. """
+
+    for event in event_data:
+        if event['name'] == EVENT_333Relay.name:
+            event['scrambles'] = ['1: {}\n2: {}\n3: {}'.format(*event['scrambles'])]
+        if event['name'] == EVENT_234Relay.name:
+            event['scrambles'] = ['2x2: {}\n3x3: {}\n4x4: {}'.format(*event['scrambles'])]
+
+    return event_data

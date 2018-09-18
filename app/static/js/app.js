@@ -295,8 +295,6 @@ $(function(){
         wire_submit_button: function() {
             var _appContext = this;
             $('#summary-buttons>.btn-submit').click(function(e){
-                console.log(_appContext.events);
-                console.log(JSON.stringify(_appContext.events));
                 $("#input-results").val(JSON.stringify(_appContext.events));
                 $("#form-results").submit();
             });
@@ -377,8 +375,6 @@ $(function(){
          * and then hide the events panel and show the timer panel
          */
         show_timer_for_event: function($selected_event) {
-            console.log('show timer');
-
             var comp_event_id = $selected_event.data('comp_event_id');
             var data = {
                 comp_event_id : comp_event_id,
@@ -547,8 +543,6 @@ $(function(){
                 // Wait a beat then attempt to prepare the timer for the user to start it
                 setTimeout(_appContext.prepare_timer_for_start.bind(_appContext), 200);
             }
-
-            console.log('about to enable context menu');
 
             $.contextMenu({
                 selector: '.single-time:not(.fmc)',
