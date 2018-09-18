@@ -476,14 +476,8 @@ $(function(){
                 });
 
                 var $scrambleHolder = $('.scramble-wrapper>div');
-                if ($scrambleHolder.text().length === 0) {                   
-                    $scrambleHolder.html(renderedScramble);
-                } else {                
-                    $scrambleHolder.fadeOut(100, function() {
-                        $(this).html(renderedScramble).delay(100).fadeIn(100);
-                    });
-                }
-            })
+                $scrambleHolder.html(renderedScramble);
+            });
 
             this.wire_return_to_events_from_timer();
         },
