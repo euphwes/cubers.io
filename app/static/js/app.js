@@ -108,22 +108,7 @@ $(function(){
         });
 
         var $scrambleHolder = $('.scramble-wrapper>div');
-
-        if ($scrambleHolder.text().length === 0) {
-            // If there's nothing in the scramble div, this is the first time we're
-            // placing something in there, so just put it right in
-            
-            $scrambleHolder.html(renderedScramble);
-        } else {
-            // If there's something already there, we're moving from one scramble
-            // to another. Fade the old one out, replace it, and fade the new one in,
-            // so the transition isn't as jarring if the scramble length is sufficiently
-            // different to make the text visibly jump
-        
-            $scrambleHolder.fadeOut(100, function() {
-                $(this).html(renderedScramble).delay(100).fadeIn(100);
-            });
-        }
+        $scrambleHolder.html(renderedScramble);
     };
  
     /**
@@ -568,6 +553,7 @@ $(function(){
             $.contextMenu({
                 selector: '.single-time:not(.fmc)',
                 trigger: 'left',
+                hideOnSecondTrigger: true,
                 items: {
                     "clear": {
                         name: "Clear penalty",
