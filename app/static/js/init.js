@@ -58,6 +58,7 @@
     function init() {
         window.app.timer = new window.app.Timer();
         window.app.solveCardManager = new window.app.SolveCardManager();
+        window.app.eventScramblesManager = new window.app.EventScramblesManager();
     };
 
     $(init);

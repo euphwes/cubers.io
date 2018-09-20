@@ -386,21 +386,6 @@ $(function(){
             });
         },
 
-        /**
-         * Automatically advances the timer to the next incomplete solve.
-         */
-        auto_advance_timer_scramble: function() {
-            // if there are no more incomplete solves, bail out early without doing anything
-            var $incompletes = $('.single-time:not(.complete)');
-            if ($incompletes.length === 0) { return; }
-
-            // otherwise attach the timer to the first incomplete solve and prepare the timer
-            // to start
-            var $firstIncomplete = $incompletes.first();
-            window.app.timer.attachToScramble(parseInt($firstIncomplete.attr("data-id")));
-            setTimeout(this.prepare_timer_for_start.bind(this), 200);
-        },
-
         update_events_completeness_status: function() {
             $.each(this.events, function(i, event){
                 var totalSolves = 0;

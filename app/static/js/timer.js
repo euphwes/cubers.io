@@ -89,6 +89,8 @@
         this.scrambleId = scrambleId;
         this.emit(EVENT_TIMER_ATTACHED, scrambleId);
 
+        setTimeout(this._enable.bind(this), 200);
+
         // ---------------------------------------------------------------
         // this stuff below belongs to something else
 
@@ -150,8 +152,6 @@
         eventData.rawTimeCs            = parseInt(s*100) + parseInt(cs);
 
         this.emit(EVENT_TIMER_STOP, eventData);
-        this._reset();
-        setTimeout(this._enable.bind(this), 1000);
 
         // ---------------------------------------------------------------
         // this stuff below belongs to something else
