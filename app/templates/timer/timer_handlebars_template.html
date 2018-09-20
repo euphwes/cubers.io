@@ -12,7 +12,9 @@
                 {{#each scrambles}}
                     {{#if time}}
                         {{#if ../isFMC}}
-                        <div class="single-time fmc complete" data-id="{{id}}"
+                        <div class="single-time fmc complete"
+                                                            id="scramble_{{id}}"
+                                                            data-id="{{id}}"
                                                             data-scramble="{{scramble}}"
                                                             data-rawTimeCentiseconds="{{time}}"
                                                             data-isPlusTwo="{{isPlusTwo}}"
@@ -21,7 +23,9 @@
                             <div class="time-value" contenteditable="true">{{ time }}</div>
                         </div>
                         {{else}}
-                        <div class="single-time complete" data-id="{{id}}"
+                        <div class="single-time complete"
+                                                    id="scramble_{{id}}"
+                                                    data-id="{{id}}"
                                                     data-scramble="{{scramble}}"
                                                     data-rawTimeCentiseconds="{{time}}"
                                                     data-isPlusTwo="{{isPlusTwo}}"
@@ -32,7 +36,9 @@
                         {{/if}}
                     {{else}}
                         {{#if ../isFMC}}
-                        <div class="single-time fmc" data-id="{{id}}"
+                        <div class="single-time fmc"
+                                                id="scramble_{{id}}"                      
+                                                data-id="{{id}}"
                                                 data-scramble="{{scramble}}"
                                                 data-rawTimeCentiseconds=""
                                                 data-isPlusTwo="false"
@@ -42,7 +48,9 @@
                             <div class="time-value" contenteditable="true"></div>
                         </div>
                         {{else}}
-                        <div class="single-time" data-id="{{id}}"
+                        <div class="single-time"
+                                                id="scramble_{{id}}"
+                                                data-id="{{id}}"
                                                 data-scramble="{{scramble}}"
                                                 data-rawTimeCentiseconds=""
                                                 data-isPlusTwo="false"

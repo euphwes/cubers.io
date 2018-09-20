@@ -138,8 +138,6 @@ $(function(){
             var _this = this;
             $('#return-to-events>.btn-return').click(function(e){
                 
-                // nuke the current timer object, and unbind any bound timer event handlers
-                delete _this.timer;
                 kd.SPACE.unbindUp(); kd.SPACE.unbindDown();
 
                 var compEventId = $('#timer_panel .timerEventDataContainer').data('compeventid');
@@ -222,16 +220,13 @@ $(function(){
             // Hide the events panel and show the timer panel
             $eventsDiv.ultraHide(); $timerDiv.ultraShow();
 
-            // Create the new timer object for this timer panel for selected event
-            this.timer = new Timer(data.event_name, data.comp_event_id);
-
             // Determine the first solve/scramble that should be attached to the timer,
             // set it as active, and attach it. If all solves are already complete (because
             // the user is returning to this event after completing them, for whatever reason)
             // then don't attach the timer. Otherwise, choose the first incomplete solve.
             if ($('.single-time:not(.complete)').length != 0) {
                 var $firstSolveToAttach = $('.single-time:not(.complete)').first();
-                this.timer.attach($firstSolveToAttach);
+                window.app.timer.attachToScramble(parseInt($firstSolveToAttach.attr("data-id")));
                 this.prepare_timer_for_start();
             }
             
@@ -350,8 +345,8 @@ $(function(){
                 $solveClicked.addClass('active');
 
                 // Reset the timer, and attach it to this solve card
-                _appContext.timer.reset();
-                _appContext.timer.attach($solveClicked);
+                window.app.timer.reset();
+                window.app.timer.attachToScramble(parseInt($solveClicked.attr("data-id")));
 
                 // Wait a beat then attempt to prepare the timer for the user to start it
                 setTimeout(_appContext.prepare_timer_for_start.bind(_appContext), 200);
@@ -402,7 +397,7 @@ $(function(){
             // otherwise attach the timer to the first incomplete solve and prepare the timer
             // to start
             var $firstIncomplete = $incompletes.first();
-            this.timer.attach($firstIncomplete);
+            window.app.timer.attachToScramble(parseInt($firstIncomplete.attr("data-id")));
             setTimeout(this.prepare_timer_for_start.bind(this), 200);
         },
 
@@ -425,7 +420,7 @@ $(function(){
             // box has focus.
             var armed = false;
             kd.SPACE.down(function() {
-                if ($('#comment_' + this.timer.comp_event_id).is(":focus")) { return; }
+                //if ($('#comment_' + this.timer.comp_event_id).is(":focus")) { return; }
                 armed = true;
             }.bind(this));
             
@@ -441,7 +436,7 @@ $(function(){
                 
                 // start the timer, and bind a new event to spacebar keydown 
                 // to stop the timer and then automatically advance to the next scramble
-                this.timer.start();
+                window.app.timer.start();
                 $(document).keydown(function(e) {
                     //var code = (e.keyCode ? e.keyCode : e.which);
                     //if (code == 27) {
@@ -449,7 +444,7 @@ $(function(){
                     //    e.preventDefault();
                     //    return;
                     //}
-                    this.timer.stop();
+                    window.app.timer.stop();
                     this.auto_advance_timer_scramble();
                 }.bind(this));
             }.bind(this));
