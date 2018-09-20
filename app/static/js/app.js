@@ -227,7 +227,7 @@ $(function(){
             if ($('.single-time:not(.complete)').length != 0) {
                 var $firstSolveToAttach = $('.single-time:not(.complete)').first();
                 window.app.timer.attachToScramble(parseInt($firstSolveToAttach.attr("data-id")));
-                this.prepare_timer_for_start();
+                //this.prepare_timer_for_start();
             }
             
             // Adjust the font size for the current scramble to make sure it's as large
@@ -349,7 +349,7 @@ $(function(){
                 window.app.timer.attachToScramble(parseInt($solveClicked.attr("data-id")));
 
                 // Wait a beat then attempt to prepare the timer for the user to start it
-                setTimeout(_appContext.prepare_timer_for_start.bind(_appContext), 200);
+                //setTimeout(_appContext.enable.bind(_appContext), 200);
             }
 
             $.contextMenu({
@@ -399,55 +399,6 @@ $(function(){
             var $firstIncomplete = $incompletes.first();
             window.app.timer.attachToScramble(parseInt($firstIncomplete.attr("data-id")));
             setTimeout(this.prepare_timer_for_start.bind(this), 200);
-        },
-
-        /**
-         * Prepares the timer to start by setting up keyboard events related to starting
-         * and stopping the timer.
-         */
-        prepare_timer_for_start: function() {
-        
-            // If the spacebar is already down when entering here, that probably means
-            // that the user held it after completing the previous solve. Wait for the
-            // user to release the spacebar by setting a short timeout to revisit this function
-            if (kd.SPACE.isDown()) {
-                setTimeout(this.prepare_timer_for_start.bind(this), 200);
-                return;
-            }
-            
-            // Pressing the spacebar down "arms" the timer to prepare it to start when
-            // the user releases the spacebar. Don't arm the timer if the comment input
-            // box has focus.
-            var armed = false;
-            kd.SPACE.down(function() {
-                //if ($('#comment_' + this.timer.comp_event_id).is(":focus")) { return; }
-                armed = true;
-            }.bind(this));
-            
-            // When the spacebar is released, unbind the spacebar keydown and keyup events
-            // and bind a new keydown event which will stop the timer
-            kd.SPACE.up(function() {
-            
-                // do nothing if the timerisn't armed yet by a spacebar keydown
-                if (!armed) { return; }
-                
-                // unbind the current events
-                kd.SPACE.unbindUp(); kd.SPACE.unbindDown();
-                
-                // start the timer, and bind a new event to spacebar keydown 
-                // to stop the timer and then automatically advance to the next scramble
-                window.app.timer.start();
-                $(document).keydown(function(e) {
-                    //var code = (e.keyCode ? e.keyCode : e.which);
-                    //if (code == 27) {
-                    //    //TODO: 27 == esc, cancel the timer and don't record time
-                    //    e.preventDefault();
-                    //    return;
-                    //}
-                    window.app.timer.stop();
-                    this.auto_advance_timer_scramble();
-                }.bind(this));
-            }.bind(this));
         },
 
         update_events_completeness_status: function() {

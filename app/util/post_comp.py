@@ -53,8 +53,8 @@ def post_competition(comp_title, comp_num, event_data, curr_bonus, upcoming_bonu
     """ Post the competition to Reddit and return the Reddit ID. """
 
     now = utcnow().to('US/Eastern')
-    due_date  = now.format('hh:MM A on dddd, MMMM Do YYYY')
-    tz_offset = now.format('ZZ')
+    due_date  = now.shift(weeks=1).format('hh:MM A on dddd, MMMM Do YYYY')
+    tz_offset = now.shift(weeks=1).format('ZZ')
 
     curr_bonus_events     = '\n\n> * ' + '\n\n> * '.join(curr_bonus)
     upcoming_bonus_events = '\n\n> * ' + '\n\n> * '.join(upcoming_bonus)
