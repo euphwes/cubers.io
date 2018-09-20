@@ -43,8 +43,6 @@ def upgrade():
         comp_gen_table,
         [
             {
-                'current_comp_id'    : 1,
-                'previous_comp_id'   : 1,
                 'prev_comp_thread_id': '',
                 'current_comp_num'   : 293,
                 'current_bonus_index': -5,

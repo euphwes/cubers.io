@@ -117,8 +117,8 @@ class CompetitionGenResources(Model):
     """ A record for maintaining the current state of the competition generation. """
     __tablename__       = 'comp_gen_resources'
     id                  = Column(Integer, primary_key=True)
-    current_comp_id     = Column(Integer, ForeignKey('competitions.id'))
-    previous_comp_id    = Column(Integer, ForeignKey('competitions.id'))
+    current_comp_id     = Column(Integer)
+    previous_comp_id    = Column(Integer)
     current_comp_num    = Column(Integer)
     current_bonus_index = Column(Integer)
     current_OLL_index   = Column(Integer)
