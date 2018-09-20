@@ -227,7 +227,7 @@ $(function(){
             if ($('.single-time:not(.complete)').length != 0) {
                 var $firstSolveToAttach = $('.single-time:not(.complete)').first();
                 window.app.timer.attachToScramble(parseInt($firstSolveToAttach.attr("data-id")));
-                //this.prepare_timer_for_start();
+                window.app.timer.setCompEventId(comp_event_id);
             }
             
             // Adjust the font size for the current scramble to make sure it's as large
@@ -301,6 +301,8 @@ $(function(){
          * solve penalties (DNF, +2), and retrying a solve.
          */
         wire_solve_context_menu: function() {
+            return;
+
             var _appContext = this;
 
             // Clear all the penalties, set visible time back to the time of the solve

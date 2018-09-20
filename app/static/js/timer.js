@@ -10,23 +10,25 @@
     function Timer() {
         window.app.EventEmitter.call(this);  // Timer is an EventEmitter
 
-        //this.$seconds = $('#seconds');
-        //this.$centiseconds = $('#centiseconds');
-        //this.$dot = $('#dot');
-        //this.$singleSolveTimeElem = null;
-
         this.startTime = 0;
         this.elapsedTime = 0;
         this.timerInterval = null;
         this.scrambleId = 0;
+        this.compEventId = 0;
 
         // wire event handlers to listen which screens are being shown
         // disable timer when screens other than timer panel are shown
         // enable timer when timer panel is shown
-
         this._enable();
     };
     Timer.prototype = Object.create(window.app.EventEmitter.prototype);
+
+    /**
+     * Set's the timer's competition event ID.
+     */
+    Timer.prototype.setCompEventId = function(compEventId) {
+        this.compEventId = compEventId;
+    }
 
     /**
      * Enables the timer by setting up keyboard event listeners for starting
@@ -74,9 +76,6 @@
                 //    return;
                 //}
                 this._stop();
-
-                // TODO: this belongs somewhere else, in a scramble display manager?
-                //this.auto_advance_timer_scramble();
             }.bind(this));
         }.bind(this));
     };
@@ -87,24 +86,7 @@
      */
     Timer.prototype.attachToScramble = function(scrambleId) {
         this.scrambleId = scrambleId;
-        this.emit(EVENT_TIMER_ATTACHED, scrambleId);
-
         setTimeout(this._enable.bind(this), 200);
-
-        // ---------------------------------------------------------------
-        // this stuff below belongs to something else
-
-        //this.$singleSolveTimeElem = solveTimeElem;
-        //this.$singleSolveTimeElem.addClass('active');
-        //var newScramble = this.$singleSolveTimeElem.data('scramble');
-
-        //var renderedScramble = "";
-        //$.each(newScramble.split('\n'), function(i, piece){
-        //    renderedScramble += "<p>" + piece + "</p>";
-        //});
-
-        //var $scrambleHolder = $('.scramble-wrapper>div');
-        //$scrambleHolder.html(renderedScramble);
     };
  
     /**
@@ -115,11 +97,6 @@
         this.startTime = new Date();
         this.timerInterval = setInterval(this._timerIntervalFunction.bind(this), 42);
         this.emit(EVENT_TIMER_START);
-
-        // ---------------------------------------------------------------
-        // this stuff below belongs to something else
-
-        //this.$dot.html('.');
     };
 
     /**
@@ -143,22 +120,18 @@
         var cs = this.elapsedTime.getTwoDigitCentisecondsFromMs();
         var friendlySeconds = window.app.convertSecondsToMinutes(s);
 
-        var eventData = {};
-        eventData.elapsedTime          = this.elapsedTime;
-        eventData.scrambleId           = this.scrambleId;
-        eventData.friendlySeconds      = friendlySeconds;
-        eventData.friendlyCentiseconds = cs;
-        eventData.friendlyTimeFull     = friendlySeconds + "." + cs;
-        eventData.rawTimeCs            = parseInt(s*100) + parseInt(cs);
+        var data = {};
+        data.elapsedTime          = this.elapsedTime;
+        data.scrambleId           = this.scrambleId;
+        data.compEventId          = this.compEventId;
+        data.friendlySeconds      = friendlySeconds;
+        data.friendlyCentiseconds = cs;
+        data.friendlyTimeFull     = friendlySeconds + "." + cs;
+        data.rawTimeCs            = parseInt(s*100) + parseInt(cs);
+        data.isDNF                = false;
+        data.isPlusTwo            = false;
 
-        this.emit(EVENT_TIMER_STOP, eventData);
-
-        // ---------------------------------------------------------------
-        // this stuff below belongs to something else
-
-        // ensure the timer display shows the same time as the solve card
-        //this.$seconds.html(window.app.convertSecondsToMinutes(s));
-        //this.$centiseconds.html(cs);
+        this.emit(EVENT_TIMER_STOP, data);
     };
 
     /**
@@ -168,15 +141,7 @@
     Timer.prototype._reset = function() {
         this.startTime = 0;
         this.elapsedTime = 0;
-
         this.emit(EVENT_TIMER_RESET);
-
-        // ---------------------------------------------------------------
-        // this stuff below belongs to something else
-
-        //this.$seconds.html('0');
-        //this.$dot.html('.');
-        //this.$centiseconds.html('00');
     };
 
     /**
@@ -194,12 +159,6 @@
         eventData.friendlyCentiseconds = cs;
 
         this.emit(EVENT_TIMER_INTERVAL, eventData);
-
-        // ---------------------------------------------------------------
-        // this stuff below belongs to something else
-
-        //this.$seconds.html(window.app.convertSecondsToMinutes(s));
-        //this.$centiseconds.html(cs);
     };
 
     // Make timer and event names visible at app scope

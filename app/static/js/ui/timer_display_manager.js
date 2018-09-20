@@ -8,19 +8,23 @@
     };
 
     /**
-     * Event handler for the timer's start event - gets rid of the start "hit spacebar"
+     * Displays the specified time on the timer display.
      */
-    TimerDisplayManager.prototype._updateCardWithTime = function(timerStopData) {
-        var $solveCard = this._getSolveCardElement(timerStopData.scrambleId);
+    TimerDisplayManager.prototype._displayTime = function(seconds, centiseconds) {     
+        var $dot = $('#dot');
+        var $seconds = $('#seconds');
+        var $centiseconds = $('#centiseconds');
 
-        // mark the attached solve card as complete and no longer active
-        $solveCard.addClass('complete').removeClass('active');
+        $dot.html('.');
+        $seconds.html(window.app.convertSecondsToMinutes(seconds));
+        $centiseconds.html(centiseconds);
+    }
 
-        // set the visible solve time on the card, and set the data attribute for raw time in centiseconds
-        $solveCard.find('.time-value').html(timerStopData.friendlyTimeFull);
-        $solveCard.attr("data-rawTimeCentiseconds", timerStopData.rawTimeCs)
-        $solveCard.attr("data-isPlusTwo", "false")
-        $solveCard.attr("data-isDNF", "false")
+    /**
+     * Event handler for the timer's stop event - updates display time
+     */
+    TimerDisplayManager.prototype._handleTimerStop = function(timerStopData) {
+        this._displayTime(timerStopData.friendlySeconds, timerStopData.friendlyCentiseconds);
     };
 
     /**
@@ -29,8 +33,8 @@
     TimerDisplayManager.prototype._registerTimerEventHandlers = function() {
         var app = window.app;
         app.timer.on(app.EVENT_TIMER_STOP, this._handleTimerStop.bind(this));
-        app.timer.on(app.EVENT_TIMER_START, this._handleTimerStart.bind(this));
-        app.timer.on(app.EVENT_TIMER_INTERVAL, this._handleTimerInterval.bind(this));
+        //app.timer.on(app.EVENT_TIMER_START, this._handleTimerStart.bind(this));
+        //app.timer.on(app.EVENT_TIMER_INTERVAL, this._handleTimerInterval.bind(this));
     };
 
     window.app.TimerDisplayManager = TimerDisplayManager;

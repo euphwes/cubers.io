@@ -3,14 +3,16 @@
     /**
      * Manages the solves for the currently-active event
      */
-    function EventScramblesManager() {
+    function CurrentScramblesManager() {
         this._registerTimerEventHandlers();
     };
 
     /**
      * Event handler for when the timer stops - advance the currently attached scrammble to the next one.
      */
-    EventScramblesManager.prototype._advanceToNextScramble = function() {
+    CurrentScramblesManager.prototype._advanceToNextScramble = function() {
+        console.log("_advanceToNextScramble");
+
         // if there are no more incomplete solves, bail out early without doing anything
         var $incompletes = $('.single-time:not(.complete)');
         if ($incompletes.length === 0) { return; }
@@ -23,10 +25,10 @@
     /**
      * Register handlers for timer events.
      */
-    EventScramblesManager.prototype._registerTimerEventHandlers = function() {
+    CurrentScramblesManager.prototype._registerTimerEventHandlers = function() {
         var app = window.app;
         app.timer.on(app.EVENT_TIMER_STOP, this._advanceToNextScramble.bind(this));
     };
 
-    window.app.EventScramblesManager = EventScramblesManager;
+    window.app.CurrentScramblesManager = CurrentScramblesManager;
 })();

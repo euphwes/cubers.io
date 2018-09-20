@@ -23,10 +23,18 @@ ASSETS = Environment(CUBERS_APP)
 ASSETS.register({
     'app_js': Bundle(
         'js/event_emitter.js',
-        'js/convert_format_util.js',
+
+        'js/util/time_convert_format.js',
+        'js/util/extensions_and_polyfill.js',
+
         'js/timer.js',
-        'js/controller/event_scrambles_manager.js',
+
+        'js/controller/events_data_manager.js',
+        'js/controller/current_scrambles_manager.js',
+
         'js/ui/solve_card_manager.js',
+        'js/ui/timer_display_manager.js',
+
         'js/app.js',
         'js/init.js',
         #filters="jsmin",
