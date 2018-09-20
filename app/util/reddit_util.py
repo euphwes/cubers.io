@@ -19,7 +19,8 @@ CLIENT_ID     = CUBERS_APP.config['REDDIT_CLIENT_ID']
 CLIENT_SECRET = CUBERS_APP.config['REDDIT_CLIENT_SECRET']
 APP_URL       = '({})'.format(CUBERS_APP.config['APP_URL'])
 
-TARGET_SUBREDDIT     = CUBERS_APP.config['TARGET_SUBREDDIT']
+TARGET_SUBREDDIT = CUBERS_APP.config['TARGET_SUBREDDIT']
+IS_DEVO          = CUBERS_APP.config['IS_DEVO']
 
 COMMENT_FOOTER = '\n'.join([
     '',
@@ -127,8 +128,13 @@ def get_new_reddit():
 
 
 def get_authed_reddit_for_cubersio_acct():
-    """ Returns a PRAW instance for the cubers_io Reddit account. """
-    token = get_user_by_username('cubers_io').refresh_token
+    """ Returns a PRAW instance for the Reddit account to post the competition under. """
+
+    if IS_DEVO:
+        token = get_user_by_username('cubers_io_test').refresh_token
+    else:
+        token = get_user_by_username('cubers_io').refresh_token
+
     return Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET,
                   refresh_token=token, user_agent=USER_AGENT)
 

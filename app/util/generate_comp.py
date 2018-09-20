@@ -1,5 +1,7 @@
 """ Logic for creating a new competition based on the last one. """
 
+from app import CUBERS_APP
+
 from app.persistence.comp_manager import get_competition_gen_resources,\
 save_competition_gen_resources, save_new_competition
 
@@ -12,7 +14,12 @@ from app.util.post_comp import post_competition
 # -------------------------------------------------------------------------------------------------
 
 BONUS_EVENT_COUNT = 5
+
 COMPETITION_NAME_TEMPLATE = 'Cubing Competition {}!'
+
+IS_DEVO = CUBERS_APP.config['IS_DEVO']
+if IS_DEVO:
+    COMPETITION_NAME_TEMPLATE = '[TEST] ' + COMPETITION_NAME_TEMPLATE
 
 # -------------------------------------------------------------------------------------------------
 

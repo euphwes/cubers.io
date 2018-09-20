@@ -3,6 +3,12 @@
 import os
 from os import environ
 
+# -------------------------------------------------------------------------------------------------
+
+TEST_SUBREDDIT = 'cubecomps'
+
+# -------------------------------------------------------------------------------------------------
+
 class Config(object):
     """ A config object whose attributes and their values get converted to key/value pairs
     in the web app's config dict. """
@@ -13,7 +19,8 @@ class Config(object):
     FLASK_SECRET_KEY        = environ.get('FLASK_SECRET_KEY')
     SCRIPT_API_KEY          = environ.get('SCRIPT_API_KEY')
     APP_URL                 = environ.get('APP_URL', 'http://fake.url.com')
-    TARGET_SUBREDDIT        = environ.get('TARGET_SUBREDDIT', 'cubecomps')
+    TARGET_SUBREDDIT        = environ.get('TARGET_SUBREDDIT', TEST_SUBREDDIT)
+    IS_DEVO                 = TARGET_SUBREDDIT == TEST_SUBREDDIT
 
     SQLALCHEMY_DATABASE_URI = environ.get('DATABASE_URL')
     if not SQLALCHEMY_DATABASE_URI:
