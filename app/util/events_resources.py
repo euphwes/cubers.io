@@ -24,7 +24,7 @@ class Event:
 
         if self.scramble_generator:
             return [s for s in self.scramble_func(*args)]
-        
+
         return [self.scramble_func(*args) for _ in range(self.num_scrambles)]
 
 # -------------------------------------------------------------------------------------------------
@@ -32,6 +32,13 @@ class Event:
 def COLL_scrambler(coll_num):
     """ Get a 'scramble' for the current COLL, which just says which one we're doing. """
     return "This week we're doing COLL {}".format(coll_num)
+
+def FMC_scrambler():
+    """ Returns an FMC scramble, which is just a normal WCA scramble with R' U' F padding. """
+    scramble = scrambler333.get_WCA_scramble().strip()
+    while scramble.startswith(("F", "F2", "F'")) or scramble.endswith(("R", "R'", "R2")):
+        scramble = scrambler333.get_WCA_scramble().strip()
+    return "R' U' F {} R' U' F".format(scramble)
 
 def scrambler_234_relay():
     """ Get a scramble for the 2-3-4 relay event. """
@@ -62,7 +69,7 @@ EVENT_Megaminx  = Event("Megaminx", megaminxScrambler.get_WCA_scramble, 5, True)
 EVENT_Skewb     = Event("Skewb", skewbScrambler.get_WCA_scramble, 5, True)
 EVENT_Clock     = Event("Clock", clockScrambler.get_WCA_scramble, 5, True)
 EVENT_3x3_Feet  = Event("3x3 With Feet", scrambler333.get_WCA_scramble, 5, True)
-EVENT_FMC       = Event("FMC", scrambler333.get_WCA_scramble, 3, True)
+EVENT_FMC       = Event("FMC", FMC_scrambler, 3, True)
 
 # non-WCA event definitions (current count = 14)
 EVENT_2GEN      = Event("2GEN", scrambler333.get_2genRU_scramble, 5, False)
