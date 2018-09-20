@@ -23,11 +23,12 @@
 {% include 'summary/summary_handlebars_template.html' %}
 
 <script>
-    events_data = {{ events_data|tojson }};
+    window.app = {};
+    window.app.events_data = {{ events_data|tojson }};
     {% if current_user.is_authenticated %}
-    user_logged_in = true;
+    window.app.user_logged_in = true;
     {% else %}
-    user_logged_in = false;
+    window.app.user_logged_in = false;
     {% endif %}
 </script>
 {% endblock %}

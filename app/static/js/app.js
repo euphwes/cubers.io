@@ -1,78 +1,6 @@
 $(function(){
 
 // ---------------------------------------------------------------------------------------------------------------------
-// Below is utility code
-// ---------------------------------------------------------------------------------------------------------------------
-    
-    /**
-     * Converts an integer number of seconds into a string denoting minutes and seconds.
-     * Ex: 120 --> 2:00
-     *      90 --> 1:30
-     *      65 --> 1:05
-     *      51 -->   51
-     *       9 -->    9
-     */
-    var convertSecondsToMinutes = function(seconds) {
-        var s = parseFloat(seconds);
-
-        var minutes = Math.floor(s / 60);
-        var seconds = s % 60;
-
-        if (minutes > 0) {
-            return minutes + ':' + ("" + seconds).padStart(2, "0");
-        } else {
-            return seconds;
-        }
-    };
-    
-    /**
-     * Converts an integer number of centiseconds to a string representing the
-     * time in minutes, seconds, and centiseconds for use in a timer panel solve card.
-     *
-     * Ex: 1234 -->   12.34
-     *      600 -->    6.00
-     *     7501 --> 1:15.01
-     *    13022 --> 2:10.22
-     */
-    var convertRawCsForSolveCard = function(value, plusTwo){
-        plusTwo = plusTwo || false; // default value of false
-
-        var cs = parseInt(value);
-        if (plusTwo) { cs += 200; }
-
-        var s = Math.floor(cs / 100);
-        var remainingCs = cs % 100;
-        return "" + convertSecondsToMinutes(s) + "." + ("" + remainingCs).padStart(2, "0");
-    };
-
-    /**
-     * Converts a string to a boolean based on the value of the string, not the presence of the string.
-     *
-     * Ex: "0" --> false
-     *     "1" --> true
-     *  "true" --> true
-     *  "TRUE" --> true
-     * "false" --> false
-     * "FALSE" --> false
-     */
-    var evaluateBool = function(val) {
-        return !!JSON.parse(String(val).toLowerCase());
-    };
-
-    /**
-     * Renders a solve time as a human-friendly string, based on penalty status and raw solve time
-     */
-    var renderTime = function(solve) {
-        if (solve.isDNF) {
-            return "DNF";
-        }
-        if (solve.isPlusTwo) {
-            return convertRawCsForSolveCard(solve.time, true) + "+";
-        }
-        return convertRawCsForSolveCard(solve.time);
-    };
-
-// ---------------------------------------------------------------------------------------------------------------------
 // Below is the code related to the timer
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -139,10 +67,10 @@ $(function(){
         this.elapsedTime = (new Date()) - this.startTime;
         var s = this.elapsedTime.getSecondsFromMs();
         var cs = this.elapsedTime.getTwoDigitCentisecondsFromMs();
-        var full_time = convertSecondsToMinutes(s) + "." + cs;
+        var full_time = window.app.convertSecondsToMinutes(s) + "." + cs;
 
         // ensure the timer display shows the same time as the solve card
-        this.$seconds.html(convertSecondsToMinutes(s));
+        this.$seconds.html(window.app.convertSecondsToMinutes(s));
         this.$centiseconds.html(cs);
 
         // mark the attached solve card as complete and no longer active, set the solve time on
@@ -177,7 +105,7 @@ $(function(){
         var s = diff.getSecondsFromMs();
         var cs = diff.getTwoDigitCentisecondsFromMs();
 
-        this.$seconds.html(convertSecondsToMinutes(s));
+        this.$seconds.html(window.app.convertSecondsToMinutes(s));
         this.$centiseconds.html(cs);
     };
 
@@ -194,7 +122,7 @@ $(function(){
         summaryPanelTemplate: null,
         
         // this is the events_data object that is rendered into the home page template
-        events: events_data,  
+        events: window.app.events_data,  
 
         /**
          * Wires up the events associated with page elements.
@@ -243,7 +171,7 @@ $(function(){
                     if (scramble.time) {
                         var timeStr = "DNF";
                         if (!scramble.isDNF) {
-                            timeStr = convertRawCsForSolveCard(scramble.time, scramble.isPlusTwo);
+                            timeStr = window.app.convertRawCsForSolveCard(scramble.time, scramble.isPlusTwo);
                         } 
                         solves.push(timeStr);
                     }
@@ -251,11 +179,11 @@ $(function(){
                 event.summary = "? = " + solves.join(", ");
             });
 
-            var logged_in_with_any_solves = (user_logged_in && (complete_events.length > 0 || incomplete_events.length > 0));
+            var logged_in_with_any_solves = (window.app.user_logged_in && (complete_events.length > 0 || incomplete_events.length > 0));
             var show_submit_button = (complete_events.length > 0 || logged_in_with_any_solves);
 
             var data = {
-                logged_in: user_logged_in,
+                logged_in: window.app.user_logged_in,
                 comp_title: $('#eventsPanelDataContainer').data('compname'),
                 complete_events: complete_events,
                 incomplete_events: incomplete_events,
@@ -333,8 +261,8 @@ $(function(){
                     // need to read rawTimeCentiseconds via attr rather than data, since
                     // we create and set that data attribute after the DOM was built
                     var solveCs = parseInt($(this).attr("data-rawTimeCentiseconds"));
-                    var isDNF = evaluateBool($(this).attr("data-isDNF"));
-                    var isPlusTwo = evaluateBool($(this).attr("data-isPlusTwo"));
+                    var isDNF = window.app.evaluateBool($(this).attr("data-isDNF"));
+                    var isPlusTwo = window.app.evaluateBool($(this).attr("data-isPlusTwo"));
                     var scrambleId = $(this).data('id');
 
                     $.each(_this.events[compEventId].scrambles, function(j, currScramble) {
@@ -495,7 +423,7 @@ $(function(){
                 $solveClicked.attr('data-isDNF', 'false');
 
                 var cs = parseInt($solveClicked.attr("data-rawTimeCentiseconds"));
-                $solveClicked.find('.time-value').html(convertRawCsForSolveCard(cs));
+                $solveClicked.find('.time-value').html(window.app.convertRawCsForSolveCard(cs));
             };
 
             // Add DNF penalty, set visible time to 'DNF'
@@ -511,17 +439,17 @@ $(function(){
                 $solveClicked.attr('data-isDNF', 'false');
 
                 var cs = parseInt($solveClicked.attr("data-rawTimeCentiseconds"));
-                $solveClicked.find('.time-value').html(convertRawCsForSolveCard(cs + 200) + "+");
+                $solveClicked.find('.time-value').html(window.app.convertRawCsForSolveCard(cs + 200) + "+");
             }
 
             // Check if the selected solve is complete
             var isComplete = function($solveClicked) { return $solveClicked.hasClass('complete'); }
 
             // Check if the selected solve has DNF penalty
-            var hasDNF = function($solveClicked) { return evaluateBool($solveClicked.attr('data-isDNF')); }
+            var hasDNF = function($solveClicked) { return window.app.evaluateBool($solveClicked.attr('data-isDNF')); }
 
             // Check if the selected solve has +2 penalty
-            var hasPlusTwo = function($solveClicked) { return evaluateBool($solveClicked.attr('data-isPlusTwo')); }     
+            var hasPlusTwo = function($solveClicked) { return window.app.evaluateBool($solveClicked.attr('data-isPlusTwo')); }     
 
             // Retry the selected solve - set it as the only active solve, attach the timer, prepare the timer
             var retrySolve = function($solveClicked) {
@@ -674,7 +602,7 @@ $(function(){
             // convertRawCs: returns a user-friendly representation of the supplied centiseconds
             Handlebars.registerHelper("inc", function(value, options){ return parseInt(value) + 1; });
             Handlebars.registerHelper("eq", function(a, b, options){ return a == b; });
-            Handlebars.registerHelper("renderTime", renderTime);
+            Handlebars.registerHelper("renderTime", window.app.renderTime);
 
             // Compile the Handlebars template for the timer panel and summary panel
             // and store the renderers so we can render them later

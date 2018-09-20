@@ -22,7 +22,10 @@ MIGRATE = Migrate(CUBERS_APP, DB)
 ASSETS = Environment(CUBERS_APP)
 ASSETS.register({
     'app_js': Bundle(
+        'js/event_emitter.js',
         'js/app.js',
+        'js/convert_format_util.js',
+        filters="jsmin",
         output='gen/app.js'
     ),
 
