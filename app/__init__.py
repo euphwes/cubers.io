@@ -25,6 +25,7 @@ ASSETS.register({
         'js/event_emitter.js',
         'js/app.js',
         'js/convert_format_util.js',
+        'js/init.js',
         filters="jsmin",
         output='gen/app.js'
     ),
