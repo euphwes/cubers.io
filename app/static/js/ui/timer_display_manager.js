@@ -28,13 +28,19 @@
     };
 
     /**
+     * Event handler for the timer's interval event - updates display time
+     */
+    TimerDisplayManager.prototype._handleTimerInterval = function(intervalData) {
+        this._displayTime(intervalData.friendlySeconds, intervalData.friendlyCentiseconds);
+    };
+
+    /**
      * Register handlers for timer events.
      */
     TimerDisplayManager.prototype._registerTimerEventHandlers = function() {
         var app = window.app;
         app.timer.on(app.EVENT_TIMER_STOP, this._handleTimerStop.bind(this));
-        //app.timer.on(app.EVENT_TIMER_START, this._handleTimerStart.bind(this));
-        //app.timer.on(app.EVENT_TIMER_INTERVAL, this._handleTimerInterval.bind(this));
+        app.timer.on(app.EVENT_TIMER_INTERVAL, this._handleTimerInterval.bind(this));
     };
 
     window.app.TimerDisplayManager = TimerDisplayManager;

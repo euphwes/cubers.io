@@ -7,11 +7,10 @@
      * Manages the solves for the currently-active event
      */
     function CurrentScramblesManager() {
-        window.app.EventEmitter.call(this);  // CurrentScramblesManager is an EventEmitter
-
+        app.EventEmitter.call(this);  // CurrentScramblesManager is an EventEmitter
         this._registerTimerEventHandlers();
     };
-    CurrentScramblesManager.prototype = Object.create(window.app.EventEmitter.prototype);
+    CurrentScramblesManager.prototype = Object.create(app.EventEmitter.prototype);
 
     /**
      * Event handler for events data gets updated. Advance the timer scramble to the next incomplete one

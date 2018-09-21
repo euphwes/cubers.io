@@ -1,14 +1,14 @@
 (function() {
+    var app = window.app;
 
     var EVENT_TIMER_START    = 'event_timer_start';
     var EVENT_TIMER_INTERVAL = 'event_timer_interval';
     var EVENT_TIMER_STOP     = 'event_timer_stop';
-    var EVENT_TIMER_ATTACHED = 'event_timer_attached';
     var EVENT_TIMER_RESET    = 'event_timer_reset';
     var EVENT_TIMER_ARMED    = 'event_timer_armed';
 
     function Timer() {
-        window.app.EventEmitter.call(this);  // Timer is an EventEmitter
+        app.EventEmitter.call(this);  // Timer is an EventEmitter
 
         this.startTime = 0;
         this.elapsedTime = 0;
@@ -21,7 +21,7 @@
         // enable timer when timer panel is shown
         this._enable();
     };
-    Timer.prototype = Object.create(window.app.EventEmitter.prototype);
+    Timer.prototype = Object.create(app.EventEmitter.prototype);
 
     /**
      * Set's the timer's competition event ID.
@@ -118,7 +118,7 @@
 
         var s = this.elapsedTime.getSecondsFromMs();
         var cs = this.elapsedTime.getTwoDigitCentisecondsFromMs();
-        var friendlySeconds = window.app.convertSecondsToMinutes(s);
+        var friendlySeconds = app.convertSecondsToMinutes(s);
 
         var data = {};
         data.elapsedTime          = this.elapsedTime;
@@ -155,18 +155,17 @@
         var cs = diff.getTwoDigitCentisecondsFromMs();
 
         var eventData = {};
-        eventData.friendlySeconds = window.app.convertSecondsToMinutes(s);
+        eventData.friendlySeconds = app.convertSecondsToMinutes(s);
         eventData.friendlyCentiseconds = cs;
 
         this.emit(EVENT_TIMER_INTERVAL, eventData);
     };
 
     // Make timer and event names visible at app scope
-    window.app.Timer = Timer;
-    window.app.EVENT_TIMER_STOP     = EVENT_TIMER_STOP;
-    window.app.EVENT_TIMER_START    = EVENT_TIMER_START;
-    window.app.EVENT_TIMER_INTERVAL = EVENT_TIMER_INTERVAL;
-    window.app.EVENT_TIMER_ATTACHED = EVENT_TIMER_ATTACHED;
-    window.app.EVENT_TIMER_RESET    = EVENT_TIMER_RESET;
-    window.app.EVENT_TIMER_ARMED    = EVENT_TIMER_ARMED;
+    app.Timer = Timer;
+    app.EVENT_TIMER_STOP     = EVENT_TIMER_STOP;
+    app.EVENT_TIMER_START    = EVENT_TIMER_START;
+    app.EVENT_TIMER_INTERVAL = EVENT_TIMER_INTERVAL;
+    app.EVENT_TIMER_RESET    = EVENT_TIMER_RESET;
+    app.EVENT_TIMER_ARMED    = EVENT_TIMER_ARMED;
 })();
