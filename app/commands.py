@@ -18,7 +18,6 @@ from app.util.score_comp import score_previous_competition
 from . import CUBERS_APP
 from .persistence.comp_manager import get_event_by_name, save_new_competition
 
-
 # -------------------------------------------------------------------------------------------------
 
 def get_2_3_4_relay_scramble():

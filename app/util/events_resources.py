@@ -36,9 +36,39 @@ def COLL_scrambler(coll_num):
 def FMC_scrambler():
     """ Returns an FMC scramble, which is just a normal WCA scramble with R' U' F padding. """
     scramble = scrambler333.get_WCA_scramble().strip()
-    while scramble.startswith(("F", "F2", "F'")) or scramble.endswith(("R", "R'", "R2")):
+    while does_FMC_scramble_have_cancellations(scramble):
         scramble = scrambler333.get_WCA_scramble().strip()
     return "R' U' F {} R' U' F".format(scramble)
+
+def does_FMC_scramble_have_cancellations(scramble):
+    """ Returns whether the supplied scramble would have cancellations when padding with
+    R' U' F at the beginning and end, as FMC regulations require. """
+    scramble = scramble.split(' ') # turn it into a list of moves
+
+    # check if there are any obvious cancellations: F touch F at the beginning,
+    # or R touching R at the end
+    first, last = scramble[0], scramble[-1]
+    if first in ("F", "F2", "F'") or last in ("R", "R'", "R2"):
+        return True
+
+    # if there are no "obvious" cancellations, next check if there are less obvious ones like:
+    # ex: [R' U' F] B F' <rest>   --> F B F', the F-moves cancel
+    # ex: <rest> R' L' [R' U' F]  --> R' L R', the R-moves cancel
+
+    # if the first move is a B, then the following move being an F would result in a cancellation
+    if first in ("B", "B'", "B2"):
+        # if the first or last move is a B or L respectively, it's possible the 2nd
+        # or next-to-last moves form a cancellation with the padding
+        if scramble[1] in ("F", "F2", "F'"):
+            return True
+
+    # if the last move is a L, then the preceding move being an R would result in a cancellation
+    if last in ("L", "L'", "L2"):
+        if scramble[-2] in ("R", "R'", "R2"):
+            return True
+
+    # no cancellations! woohoo, we can use this scramble
+    return False
 
 def scrambler_234_relay():
     """ Get a scramble for the 2-3-4 relay event. """
