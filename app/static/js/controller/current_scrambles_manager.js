@@ -1,34 +1,40 @@
 (function() {
+    var app = window.app;
+
+    var EVENT_NEW_SCRAMBLE_ATTACHED = "event_new_scramble_attached";
 
     /**
      * Manages the solves for the currently-active event
      */
     function CurrentScramblesManager() {
+        window.app.EventEmitter.call(this);  // CurrentScramblesManager is an EventEmitter
+
         this._registerTimerEventHandlers();
     };
+    CurrentScramblesManager.prototype = Object.create(window.app.EventEmitter.prototype);
 
     /**
-     * Event handler for when the timer stops - advance the currently attached scrammble to the next one.
+     * Event handler for events data gets updated. Advance the timer scramble to the next incomplete one
+     * for the current competition event.
      */
-    CurrentScramblesManager.prototype._advanceToNextScramble = function() {
-        console.log("_advanceToNextScramble");
+    CurrentScramblesManager.prototype._advanceToNextScramble = function(timerStopData) {
+        var compEventId = timerStopData.compEventId;
+        var nextIncompleteScramble = app.eventsDataManager.getNextIncompleteScramble(compEventId);
 
-        // if there are no more incomplete solves, bail out early without doing anything
-        var $incompletes = $('.single-time:not(.complete)');
-        if ($incompletes.length === 0) { return; }
-
-        // otherwise attach the timer to the first incomplete solve
-        var $firstIncomplete = $incompletes.first();
-        window.app.timer.attachToScramble(parseInt($firstIncomplete.attr("data-id")));
+        if (nextIncompleteScramble) {
+            app.timer.attachToScramble(nextIncompleteScramble.id);
+            this.emit(EVENT_NEW_SCRAMBLE_ATTACHED, nextIncompleteScramble.id);
+        }
     };
 
     /**
      * Register handlers for timer events.
      */
     CurrentScramblesManager.prototype._registerTimerEventHandlers = function() {
-        var app = window.app;
-        app.timer.on(app.EVENT_TIMER_STOP, this._advanceToNextScramble.bind(this));
+        app.eventsDataManager.on(app.EVENT_SOLVE_RECORD_UPDATED, this._advanceToNextScramble.bind(this));
     };
 
-    window.app.CurrentScramblesManager = CurrentScramblesManager;
+    // Make CurrentScramblesManager and event names visible at app scope
+    app.CurrentScramblesManager = CurrentScramblesManager;
+    app.EVENT_NEW_SCRAMBLE_ATTACHED = EVENT_NEW_SCRAMBLE_ATTACHED;
 })();

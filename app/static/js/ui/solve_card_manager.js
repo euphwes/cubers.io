@@ -1,15 +1,13 @@
 (function() {
-
-    var EVENT_SOLVE_CARDS_UPDATED = "event_solve_cards_updated";
+    var app = window.app;
 
     /**
      * Manages the state of the solve cards
      */
     function SolveCardManager() {
-        window.app.EventEmitter.call(this);  // SolveCardManager is an EventEmitter
-        this._registerTimerEventHandlers();
+        this._registerEventsDataMangerEventHandlers();
+        this._registerCurrentScramblesManagerEventHandlers();
     };
-    SolveCardManager.prototype = Object.create(window.app.EventEmitter.prototype);
 
     /**
      * Returns a jQuery reference to the solve card for the specified scramble ID.
@@ -30,18 +28,29 @@
 
         // set the visible solve time on the card
         $solveCard.find('.time-value').html(eventData.friendlyTimeFull);
-
-        this.emit(EVENT_SOLVE_CARDS_UPDATED);
     };
 
     /**
-     * Register handlers for timer events.
+     * Event handler for the timer's stop event - updates the solve cards
+     * with the correct time
      */
-    SolveCardManager.prototype._registerTimerEventHandlers = function() {
-        var app = window.app;
+    SolveCardManager.prototype._setCardAsActive = function(scrambleId) {
+        this._getSolveCardElement(scrambleId).addClass('complete');
+    };
+
+    /**
+     * Register handlers for EventsDataManager events.
+     */
+    SolveCardManager.prototype._registerEventsDataMangerEventHandlers = function() {
         app.eventsDataManager.on(app.EVENT_SOLVE_RECORD_UPDATED, this._updateCardWithTime.bind(this));
     };
 
-    window.app.SolveCardManager = SolveCardManager;
-    window.app.EVENT_SOLVE_CARDS_UPDATED = EVENT_SOLVE_CARDS_UPDATED;
+    /**
+     * Register handlers for CurrentScramblesManager events.
+     */
+    SolveCardManager.prototype._registerCurrentScramblesManagerEventHandlers = function() {
+        app.currentScramblesManager.on(app.EVENT_NEW_SCRAMBLE_ATTACHED, this._setCardAsActive.bind(this));
+    };
+
+    app.SolveCardManager = SolveCardManager;
 })();
