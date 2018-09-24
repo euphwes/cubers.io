@@ -20,7 +20,7 @@
                                                             data-isPlusTwo="{{isPlusTwo}}"
                                                             data-isDNF="{{isDNF}}">
                             <div class="value-wrapper">#{{ inc @index }}.</div>
-                            <div class="time-value" contenteditable="true">{{ time }}</div>
+                            <div class="time-value" contenteditable="true">{{ int_str (math time '/' 100) }}</div>
                         </div>
                         {{else}}
                         <div class="single-time complete"

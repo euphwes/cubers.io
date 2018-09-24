@@ -5,7 +5,7 @@ from app import CUBERS_APP
 from app.persistence.comp_manager import get_competition_gen_resources,\
 save_competition_gen_resources, save_new_competition
 
-from app.util.events_resources import get_WCA_events, get_bonus_events_rotation_starting_at,\
+from app.util.events_resources import get_weekly_events, get_bonus_events_rotation_starting_at,\
 get_COLL_at_index, get_bonus_events_without_current, get_num_COLLs, get_num_bonus_events,\
 EVENT_COLL, EVENT_234Relay, EVENT_333Relay
 
@@ -36,10 +36,10 @@ def generate_new_competition():
 
     # Generate scrambles for every WCA event
     event_data = []
-    for wca_event in get_WCA_events():
+    for weekly_event in get_weekly_events():
         event_data.append(dict({
-            'name':      wca_event.name,
-            'scrambles': wca_event.get_scrambles()
+            'name':      weekly_event.name,
+            'scrambles': weekly_event.get_scrambles()
         }))
 
     # Update start index for bonus events and get the list of bonus events

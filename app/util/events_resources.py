@@ -11,11 +11,11 @@ from pyTwistyScrambler import scrambler333, scrambler222, scrambler444, scramble
 class Event:
     """ Encapsulates everything we need to know about an event. """
 
-    def __init__(self, name, scramble_func, num_scrambles, is_wca, has_explanation=False, scramble_generator=False):
+    def __init__(self, name, scramble_func, num_scrambles, is_weekly, has_explanation=False, scramble_generator=False):
         self.name = name
         self.scramble_func = scramble_func
         self.num_scrambles = num_scrambles
-        self.is_wca = is_wca
+        self.is_weekly = is_weekly
         self.has_explanation = has_explanation
         self.scramble_generator = scramble_generator
 
@@ -84,7 +84,7 @@ def scrambler_333_relay():
 
 # -------------------------------------------------------------------------------------------------
 
-# WCA event definitions (current count = 15)
+# Weekly event definitions (current count = 17)
 EVENT_2x2       = Event("2x2", scrambler222.get_WCA_scramble, 5, True)
 EVENT_3x3       = Event("3x3", scrambler333.get_WCA_scramble, 5, True)
 EVENT_4x4       = Event("4x4", scrambler444.get_WCA_scramble, 5, True)
@@ -100,10 +100,10 @@ EVENT_Skewb     = Event("Skewb", skewbScrambler.get_WCA_scramble, 5, True)
 EVENT_Clock     = Event("Clock", clockScrambler.get_WCA_scramble, 5, True)
 EVENT_3x3_Feet  = Event("3x3 With Feet", scrambler333.get_WCA_scramble, 5, True)
 EVENT_FMC       = Event("FMC", FMC_scrambler, 3, True)
+EVENT_2GEN      = Event("2GEN", scrambler333.get_2genRU_scramble, 5, True)
+EVENT_LSE       = Event("LSE", scrambler333.get_2genMU_scramble, 5, True)
 
-# non-WCA event definitions (current count = 14)
-EVENT_2GEN      = Event("2GEN", scrambler333.get_2genRU_scramble, 5, False)
-EVENT_LSE       = Event("LSE", scrambler333.get_2genMU_scramble, 5, False)
+# Bonus event definitions (current count = 12)
 EVENT_COLL      = Event("COLL", COLL_scrambler, 5, False)
 EVENT_F2L       = Event("F2L", scrambler333.get_WCA_scramble, 5, False)
 EVENT_Void      = Event("Void Cube", scrambler333.get_3BLD_scramble, 5, False)
@@ -153,9 +153,9 @@ __ALL_EVENTS = [
     EVENT_PLLAttack,
 ]
 
-# Important! Don't change how these WCA and non-WCA lists are built, we rely on the order
-__WCA_EVENTS = [event for event in __ALL_EVENTS if event.is_wca]
-__NON_WCA_EVENTS = [event for event in __ALL_EVENTS if not event.is_wca]
+# Important! Don't change how these weekly and bonus lists are built, we rely on the order
+__WEEKLY_EVENTS = [event for event in __ALL_EVENTS if event.is_weekly]
+__BONUS_EVENTS = [event for event in __ALL_EVENTS if not event.is_weekly]
 
 # Important! Don't change the order of these
 __COLL_LIST = [
@@ -177,30 +177,30 @@ def get_num_COLLs():
 
 def get_num_bonus_events():
     """ Returns the length of the bonus events list. """
-    return len(__NON_WCA_EVENTS)
+    return len(__BONUS_EVENTS)
 
 
-def get_WCA_events():
-    """ Return all the WCA events. """
-    return __WCA_EVENTS
+def get_weekly_events():
+    """ Return all the weekly events. """
+    return __WEEKLY_EVENTS
 
 
-def get_non_WCA_events():
-    """ Return all the non-WCA events. """
-    return __NON_WCA_EVENTS
+def get_bonus_events():
+    """ Return all the bonus events. """
+    return __BONUS_EVENTS
 
 
 def get_bonus_events_rotation_starting_at(starting_index, count=5):
-    """ Gets a list of `count` non-WCA events starting at the specified index. Use a doubled list
+    """ Gets a list of `count` bonus events starting at the specified index. Use a doubled list
     of bonus events as a 'trick' to wrap around to the beginning if the starting index and count
     bring us past the end of the list. """
-    double_wide = __NON_WCA_EVENTS * 2
+    double_wide = __BONUS_EVENTS * 2
     return double_wide[starting_index : starting_index + count]
 
 
 def get_bonus_events_without_current(bonus_events):
     """ Gets a list of the bonus events except for the current ones. """
-    return [e for e in __NON_WCA_EVENTS if e not in bonus_events]
+    return [e for e in __BONUS_EVENTS if e not in bonus_events]
 
 
 def get_COLL_at_index(index):
