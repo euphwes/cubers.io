@@ -453,7 +453,7 @@ $(function(){
                 $(this).val($(this).text().replace(/[^\d].+/, ""));
                 if (parseInt($(this).text()) > 0) {
                    $(this).parent().addClass('complete');
-                   $(this).parent().attr("data-rawTimeCentiseconds", parseInt($(this).text()));
+                   $(this).parent().attr("data-rawTimeCentiseconds", parseInt($(this).text() * 100));
                 } else {
                    $(this).parent().removeClass('complete'); 
                    $(this).parent().attr("data-rawTimeCentiseconds", null);
@@ -675,6 +675,30 @@ $(function(){
             Handlebars.registerHelper("inc", function(value, options){ return parseInt(value) + 1; });
             Handlebars.registerHelper("eq", function(a, b, options){ return a == b; });
             Handlebars.registerHelper("renderTime", renderTime);
+
+            // General-purpose handlebars helper for performing mathematical operations.
+            Handlebars.registerHelper("math", function(lvalue, operator, rvalue, options) {
+                if (arguments.length < 4) {
+                    // Operator omitted, assuming "+"
+                    options = rvalue;
+                    rvalue = operator;
+                    operator = "+";
+                }
+
+                lvalue = parseFloat(lvalue);
+                rvalue = parseFloat(rvalue);
+
+                return {
+                    "+": lvalue + rvalue,
+                    "-": lvalue - rvalue,
+                    "*": lvalue * rvalue,
+                    "/": lvalue / rvalue,
+                    "%": lvalue % rvalue
+                }[operator];
+            });
+
+            // Converts the value coming in to an integer, then returns the string representation
+            Handlebars.registerHelper("int_str", function(value, options){ return "" + parseInt(value); });
 
             // Compile the Handlebars template for the timer panel and summary panel
             // and store the renderers so we can render them later

@@ -91,7 +91,6 @@ def submit_times():
     comp_reddit_id = comp.reddit_thread_id
     comp_thread_url = get_permalink_for_comp_thread(comp_reddit_id)
 
-    any_complete_to_post = False
     for results in user_results:
         if results.is_complete():
             any_complete_to_post = True
@@ -155,6 +154,10 @@ def get_event_summaries():
             best = results.single if (event_format == EventFormat.Bo3) else results.average
             if not is_fmc:
                 best = friendly(best)
+            else:
+                best = (best/100)
+                if best == int(best):
+                    best = int(best)
 
             times_string = build_times_string(results.solves, event_format, is_fmc)
             summary = "{} = {}".format(best, times_string)

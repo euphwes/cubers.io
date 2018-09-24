@@ -57,7 +57,10 @@ def build_comment_source_from_events_results(events_results):
         elif event_format in [EventFormat.Bo3, EventFormat.Bo1]:
             average = convert_to_friendly(results.single)
         else:
-            average = results.average if isFMC else convert_to_friendly(results.average)
+            average = (results.average / 100) if isFMC else convert_to_friendly(results.average)
+            if isFMC:
+                if average == int(average):
+                    average = int(average)
 
         line = event_line_template.format(event_name, average, times_string, comment)
         comment_source += line
@@ -81,7 +84,7 @@ def build_times_string(solves, event_format, isFMC=False):
     if not isFMC:
         friendly_times = [time_convert(solve.get_total_time()) for solve in solves]
     else:
-        friendly_times = [str(solve.get_total_time()) for solve in solves]
+        friendly_times = [str(int(solve.get_total_time() / 100)) for solve in solves]
 
     for i, solve in enumerate(solves):
         if solve.is_plus_two:
