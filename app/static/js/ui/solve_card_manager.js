@@ -34,8 +34,8 @@
      * Event handler for the timer's stop event - updates the solve cards
      * with the correct time
      */
-    SolveCardManager.prototype._setCardAsActive = function(scrambleId) {
-        this._getSolveCardElement(scrambleId).addClass('complete');
+    SolveCardManager.prototype._setCardAsActive = function(scramble) {
+        this._getSolveCardElement(scramble.id).addClass('complete');
     };
 
     /**

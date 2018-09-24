@@ -22,12 +22,12 @@
 
         if (nextIncompleteScramble) {
             app.timer.attachToScramble(nextIncompleteScramble.id);
-            this.emit(EVENT_NEW_SCRAMBLE_ATTACHED, nextIncompleteScramble.id);
+            this.emit(EVENT_NEW_SCRAMBLE_ATTACHED, nextIncompleteScramble);
         }
     };
 
     /**
-     * Register handlers for timer events.
+     * Register handlers for events data manager events.
      */
     CurrentScramblesManager.prototype._registerTimerEventHandlers = function() {
         app.eventsDataManager.on(app.EVENT_SOLVE_RECORD_UPDATED, this._advanceToNextScramble.bind(this));

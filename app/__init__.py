@@ -34,6 +34,7 @@ ASSETS.register({
 
         'js/ui/solve_card_manager.js',
         'js/ui/timer_display_manager.js',
+        'js/ui/scramble_display_manager.js',
 
         'js/app.js',
         'js/init.js',

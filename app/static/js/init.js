@@ -9,6 +9,7 @@
 
         window.app.solveCardManager = new window.app.SolveCardManager();
         window.app.timerDisplayManager = new window.app.TimerDisplayManager();
+        window.app.scrambleDisplayManager = new window.app.ScrambleDisplayManager();
     };
 
     $(init);
