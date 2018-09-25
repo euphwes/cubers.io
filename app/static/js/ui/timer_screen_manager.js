@@ -9,9 +9,13 @@
     };
 
     /**
-     * Hides the timer screen.
+     * Destroys the context menu and hides the timer screen.
      */
     TimerScreenManager.prototype._hideTimerScreen = function() {
+        // Destroy the context menu so the click events are rewired with the new
+        // competition ID variable next time this page is shown.
+        $.contextMenu('destroy', '.single-time:not(.fmc)');
+
         this.$timerDiv.ultraHide();
     };
 
@@ -20,7 +24,7 @@
      */
     TimerScreenManager.prototype._showTimerScreen = function($selected_event) {
         var events = app.eventsDataManager.getEventsData();
-        var comp_event_id = $selected_event.data('comp_event_id');
+        var comp_event_id = $selected_event.attr('data-comp_event_id');
         var data = {
             comp_event_id : comp_event_id,
             event_id      : $selected_event.data('event_id'),
@@ -100,7 +104,6 @@
             $(this).val($(this).text().replace(/[^\d].+/, ""));
             if (parseInt($(this).text()) > 0) {
                 $(this).parent().addClass('complete');
-                console.log($(this).parent());
                 $(this).parent().attr("data-rawTimeCentiseconds", parseInt($(this).text() * 100));
             } else {
                 $(this).parent().removeClass('complete'); 

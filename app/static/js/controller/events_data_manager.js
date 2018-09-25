@@ -74,13 +74,13 @@
     EventsDataManager.prototype._recordIncompleteSummaryForEvent = function(event) {
         var solves = [];
         $.each(event.scrambles, function(i, scramble) {
-            if (scramble.time) {
-                var timeStr = "DNF";
-                if (!scramble.isDNF) {
-                    timeStr = app.convertRawCsForSolveCard(scramble.time, scramble.isPlusTwo);
-                }
-                solves.push(timeStr);
+            if (!scramble.time) { return true; }
+            var timeStr = "DNF";
+            if (!scramble.isDNF) {
+                timeStr = app.convertRawCsForSolveCard(scramble.time, scramble.isPlusTwo);
+                if (scramble.isPlusTwo) { timeStr += '+'; }
             }
+            solves.push(timeStr);
         });
         event.summary = "? = " + solves.join(", ");
     };
