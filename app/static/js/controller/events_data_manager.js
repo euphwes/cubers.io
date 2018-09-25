@@ -24,21 +24,29 @@
      */
     EventsDataManager.prototype.updateEventsDataCompleteness = function() {
         $.each(this.events_data, function(i, event){
-            var totalSolves = 0;
-            var completeSolves = 0;
-            $.each(event.scrambles, function(j, scramble){
-                totalSolves += 1;
-                if (scramble.time) { completeSolves += 1; }
-            });
-            if (totalSolves == completeSolves) {
-                event.status = 'complete';
-                this.emit(EVENT_SET_COMPLETE, event.comp_event_id);
-            } else if (completeSolves > 0) {
-                event.status = 'incomplete';
-                this.emit(EVENT_SET_INCOMPLETE, event.comp_event_id);
-            }
+            this._update_event_completeness(event);
         }.bind(this));
-    },
+    };
+
+    /**
+    * Iterate over all the scrambles for this event, and see if the event is complete
+     * or in-progress/incomplete.
+     */
+    EventsDataManager.prototype._update_event_completeness = function(event) {
+        var totalSolves = 0;
+        var completeSolves = 0;
+        $.each(event.scrambles, function(i, scramble){
+            totalSolves += 1;
+            if (scramble.time) { completeSolves += 1; }
+        });
+        if (totalSolves == completeSolves) {
+            event.status = 'complete';
+            this.emit(EVENT_SET_COMPLETE, event.comp_event_id);
+        } else if (completeSolves > 0) {
+            event.status = 'incomplete';
+            this.emit(EVENT_SET_INCOMPLETE, event.comp_event_id);
+        }
+    };
 
     /**
      * Checks each scramble on load to see if a time is set. If yes, set status to complete,
@@ -90,6 +98,7 @@
             currScramble.status    = "complete";
             return false;
         });
+        this._update_event_completeness(this.events_data[compEventId]);
 
         this.emit(EVENT_SOLVE_RECORD_UPDATED, timerStopData);
     };
