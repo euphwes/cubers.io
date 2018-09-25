@@ -34,6 +34,14 @@
     };
 
     /**
+     * Removes both 'incomplete' and 'complete' class from event card.
+     */
+    MainScreenManager.prototype._setEventCardNoStatus = function(compEventId) {
+        this._getEventCardElementForCompEventId(compEventId)
+            .removeClass('complete incomplete');
+    };
+
+    /**
      * Hides the main screen.
      */
     MainScreenManager.prototype._hideMainScreen = function() {
@@ -61,6 +69,7 @@
      */
     MainScreenManager.prototype._registerEventsDataManagerListeners = function() {
         app.eventsDataManager.on(app.EVENT_SET_COMPLETE, this._setEventCardComplete.bind(this));
+        app.eventsDataManager.on(app.EVENT_SET_NO_STATUS, this._setEventCardNoStatus.bind(this));
         app.eventsDataManager.on(app.EVENT_SET_INCOMPLETE, this._setEventCardIncomplete.bind(this));
     };
 

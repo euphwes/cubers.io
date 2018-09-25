@@ -2,6 +2,7 @@
     var app = window.app;
 
     var EVENT_SET_COMPLETE = "event_set_complete";
+    var EVENT_SET_NO_STATUS = 'event_set_no_status';
     var EVENT_SET_INCOMPLETE = "event_set_incomplete";
     var EVENT_SOLVE_RECORD_UPDATED = "event_solve_record_updated";
 
@@ -46,6 +47,10 @@
             event.status = 'incomplete';
             this._recordIncompleteSummaryForEvent(event);
             this.emit(EVENT_SET_INCOMPLETE, event.comp_event_id);
+        } else {
+            event.status = null;
+            event.summary = null;
+            this.emit(EVENT_SET_NO_STATUS, event.comp_event_id);
         }
     };
 
@@ -103,7 +108,7 @@
     EventsDataManager.prototype.getNextIncompleteScramble = function(compEventId) {
         var nextScramble = null;
         $.each(this.events_data[compEventId].scrambles, function(i, currScramble) {
-            if (currScramble.status === 'incomplete') {
+            if (currScramble.status != 'complete') {
                 nextScramble = currScramble;
                 return false;
             }
@@ -171,6 +176,32 @@
     };
 
     /**
+     * Sets the FMC solve length (as "centi-moves", so the Mo3 logic works without additional hacks)
+     */
+    EventsDataManager.prototype.setFMCSolveLength = function(compEventId, scrambleId, length) {
+        $.each(this.events_data[compEventId].scrambles, function(i, currSolveRecord) {
+            if (currSolveRecord.id != scrambleId) { return true; }
+            currSolveRecord.time   = (length * 100);
+            currSolveRecord.status = "complete";
+            return false;
+        });
+        this._updateSingleEventStatus(this.events_data[compEventId]);
+    };
+
+    /**
+     * Unsets the FMC solve, no recorded solve length
+     */
+    EventsDataManager.prototype.unsetFMCSolve = function(compEventId, scrambleId) {
+        $.each(this.events_data[compEventId].scrambles, function(i, currSolveRecord) {
+            if (currSolveRecord.id != scrambleId) { return true; }
+            currSolveRecord.time = null;
+            currSolveRecord.status = null;
+            return false;
+        });
+        this._updateSingleEventStatus(this.events_data[compEventId]);
+    };
+
+    /**
      * Sets the comment for the specified competition event.
      */
     EventsDataManager.prototype.setCommentForEvent = function(comment, compEventId) {
@@ -209,5 +240,6 @@
     app.EventsDataManager = EventsDataManager;
     app.EVENT_SOLVE_RECORD_UPDATED = EVENT_SOLVE_RECORD_UPDATED;
     app.EVENT_SET_COMPLETE = EVENT_SET_COMPLETE;
+    app.EVENT_SET_NO_STATUS = EVENT_SET_NO_STATUS;
     app.EVENT_SET_INCOMPLETE = EVENT_SET_INCOMPLETE;
 })();

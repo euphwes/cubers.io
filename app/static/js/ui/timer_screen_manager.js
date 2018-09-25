@@ -53,7 +53,8 @@
         this._wire_comment_box(comp_event_id);
 
         if (data.isFMC) {
-            this._wire_FMC_solve_cards();
+            this._wire_fmc_card_solve_typing(comp_event_id);
+            this._wire_fmc_card_click(comp_event_id);
         } else {
             this._wire_solve_context_menu(comp_event_id);
         }
@@ -74,60 +75,54 @@
     };
 
     /**
-     * Show the timer screen, with logic specifically for the FMC event.
-     * TODO note this is a little hackish and calls events_data_manager stuff directly
-     * rather than using timer events (since there is no timer)
+     * Wire up the keypress handler on the solve length entry for the FMC cards.
+     * After debouncing, sends the solve length to the events data manager to be recorded,
+     * and have the event data be properly updated.
      */
-    TimerScreenManager.prototype._wire_FMC_solve_cards = function() {
+    TimerScreenManager.prototype._wire_fmc_card_solve_typing = function(comp_event_id) {
+        var fmcTimeout = null;
+
         // Swallow tab key, prevent tabbing into next contenteditable div
         $(".single-time.fmc>.time-value").keydown(function (e) {
             var code = (e.keyCode ? e.keyCode : e.which);
-            if (code == 9) {
-                e.preventDefault();
-                return;
-            }
+            if (code == 9) { e.preventDefault(); return; }
         });
-        
-        /**
-         *        var compEventId = timerStopData.compEventId;
-        var scrambleId  = timerStopData.scrambleId;
 
-        $.each(this.events_data[compEventId].scrambles, function(i, currScramble) {
-            if (currScramble.id != scrambleId) { return true; }
-            currScramble.time      = timerStopData.rawTimeCs;
-            currScramble.isDNF     = timerStopData.isDNF;
-            currScramble.isPlusTwo = timerStopData.isPlusTwo;
-         */
-
-        // integers only, and update complete status and raw "time" attribute
-        $(".single-time.fmc>.time-value").on("keypress keyup blur", function(e) {
-            $(this).val($(this).text().replace(/[^\d].+/, ""));
-            if (parseInt($(this).text()) > 0) {
+        // Determine the solve length entered in the box. If there's a value, set the
+        // solve length for that FMC solve and mark complete, otherwise 
+        var updateFmcSolveRecord = function() {
+            var solveLength = parseInt($(this).text());
+            var scrambleId  = $(this).parent().attr('data-id');
+            if (solveLength > 0) {
                 $(this).parent().addClass('complete');
-                $(this).parent().attr("data-rawTimeCentiseconds", parseInt($(this).text() * 100));
+                app.eventsDataManager.setFMCSolveLength(comp_event_id, scrambleId, solveLength);
             } else {
                 $(this).parent().removeClass('complete'); 
-                $(this).parent().attr("data-rawTimeCentiseconds", null);
+                app.eventsDataManager.unsetFMCSolve(comp_event_id, scrambleId);
             }
-            if ((e.which < 48 || e.which > 57)) {
-                e.preventDefault();
-            }
+        };
+
+        $(".single-time.fmc>.time-value").on("keyup, keypress, blur", function(e) {
+            clearTimeout(fmcTimeout);
+
+            // Only allow digits
+            $(this).val($(this).text().replace(/[^\d].+/, ""));
+            if ((e.which < 48 || e.which > 57)) { e.preventDefault(); }
+
+            // After waiting for the user to stop typing, update the solve record
+            fmcTimeout = setTimeout(updateFmcSolveRecord.bind(this), 500);
         });
+    };
 
+    /**
+     * Wire up the click handler for the FMC solve cards to set the correct card as active,
+     * and to display the scramble
+     */
+    TimerScreenManager.prototype._wire_fmc_card_click = function(comp_event_id) {
         $(".single-time.fmc").click(function(){
-
             $('.single-time.active').removeClass('active');
             $(this).addClass('active');
-
-            var newScramble = $(this).data('scramble');
-
-            var renderedScramble = "";
-            $.each(newScramble.split('\n'), function(i, piece){
-                renderedScramble += "<p>" + piece + "</p>";
-            });
-
-            var $scrambleHolder = $('.scramble-wrapper>div');
-            $scrambleHolder.html(renderedScramble);
+            app.currentScramblesManager.attachSpecifiedScramble(comp_event_id, $(this).attr('data-id'));
         });
     };
 
