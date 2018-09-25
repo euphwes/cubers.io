@@ -22,9 +22,9 @@
      * 
      * TODO: can we do this on the server-side and just render the template with these classes?
      */
-    EventsDataManager.prototype.updateEventsDataCompleteness = function() {
+    EventsDataManager.prototype.updateAllEventsStatus = function() {
         $.each(this.events_data, function(i, event){
-            this._update_event_completeness(event);
+            this._updateSingleEventStatus(event);
         }.bind(this));
     };
 
@@ -32,7 +32,7 @@
     * Iterate over all the scrambles for this event, and see if the event is complete
      * or in-progress/incomplete.
      */
-    EventsDataManager.prototype._update_event_completeness = function(event) {
+    EventsDataManager.prototype._updateSingleEventStatus = function(event) {
         var totalSolves = 0;
         var completeSolves = 0;
         $.each(event.scrambles, function(i, scramble){
@@ -41,11 +41,49 @@
         });
         if (totalSolves == completeSolves) {
             event.status = 'complete';
+            this._recordSummaryForEvent(event);
             this.emit(EVENT_SET_COMPLETE, event.comp_event_id);
         } else if (completeSolves > 0) {
             event.status = 'incomplete';
+            this._recordIncompleteSummaryForEvent(event);
             this.emit(EVENT_SET_INCOMPLETE, event.comp_event_id);
         }
+    };
+
+    /**
+     * Makes a call out to the server to get and save a summary representation for this event
+     * Ex: average = (best) (worst) other other other
+     */
+    EventsDataManager.prototype._recordSummaryForEvent = function(event) {
+        var onSummaryComplete = function(data, event) {
+            data = JSON.parse(data);
+            event.summary = data[event.comp_event_id];
+        };
+        $.ajax({
+            url: "/eventSummaries",
+            type: "POST",
+            data: JSON.stringify([event]),
+            contentType: "application/json",
+            success: function(data) { onSummaryComplete(data, event); },
+        });
+    };
+
+    /**
+     * Saves an "in-progress" summary for this event
+     * Ex: ? = solve1, solve2, ...
+     */
+    EventsDataManager.prototype._recordIncompleteSummaryForEvent = function(event) {
+        var solves = [];
+        $.each(event.scrambles, function(i, scramble) {
+            if (scramble.time) {
+                var timeStr = "DNF";
+                if (!scramble.isDNF) {
+                    timeStr = app.convertRawCsForSolveCard(scramble.time, scramble.isPlusTwo);
+                }
+                solves.push(timeStr);
+            }
+        });
+        event.summary = "? = " + solves.join(", ");
     };
 
     /**
@@ -98,7 +136,7 @@
             currScramble.status    = "complete";
             return false;
         });
-        this._update_event_completeness(this.events_data[compEventId]);
+        this._updateSingleEventStatus(this.events_data[compEventId]);
 
         this.emit(EVENT_SOLVE_RECORD_UPDATED, timerStopData);
     };

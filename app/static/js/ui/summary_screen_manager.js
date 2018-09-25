@@ -22,50 +22,20 @@
     SummaryScreenManager.prototype._buildSummary = function() {
         var completeEvents = [];
         var incompleteEvents = [];
-        var events = app.eventsDataManager.getEventsData();
-
-        $.each(events, function(i, event){
+        $.each(app.eventsDataManager.getEventsData(), function(i, event){
             if (event.status === 'complete') {
                 completeEvents.push(event);
             } else if (event.status === 'incomplete') {
                 incompleteEvents.push(event);
             }
         });
-
-        $.ajax({
-            url: "/eventSummaries",
-            type: "POST",
-            data: JSON.stringify(completeEvents),
-            contentType: "application/json",
-            success: function(data) {
-                data = JSON.parse(data);
-                this._showSummaryScreen.bind(this)(data, completeEvents, incompleteEvents);
-            }.bind(this),
-        });
+        this._showSummaryScreen(completeEvents, incompleteEvents);
     };
 
     /**
      * 
      */
-    SummaryScreenManager.prototype._showSummaryScreen = function(summary_data, complete_events, incomplete_events) {
-        $.each(complete_events, function(i, event) {
-            event.summary = summary_data[event.comp_event_id];
-        });
-
-        $.each(incomplete_events, function(i, event) {
-            var solves = [];
-            $.each(event.scrambles, function(i, scramble) {
-                if (scramble.time) {
-                    var timeStr = "DNF";
-                    if (!scramble.isDNF) {
-                        timeStr = window.app.convertRawCsForSolveCard(scramble.time, scramble.isPlusTwo);
-                    } 
-                    solves.push(timeStr);
-                }
-            });
-            event.summary = "? = " + solves.join(", ");
-        });
-
+    SummaryScreenManager.prototype._showSummaryScreen = function(complete_events, incomplete_events) {
         var logged_in_with_any_solves = (window.app.user_logged_in && (complete_events.length > 0 || incomplete_events.length > 0));
         var show_submit_button = (complete_events.length > 0 || logged_in_with_any_solves);
 
