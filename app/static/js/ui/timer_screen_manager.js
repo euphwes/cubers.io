@@ -187,9 +187,8 @@
             $('.single-time.active').removeClass('active');
             $solveClicked.addClass('active');
 
-            // Reset the timer, and attach it to this solve card
-            app.timer.reset();
-            app.timer.attachToScramble(parseInt(scrambleId));
+            // Attach it to this solve card
+            app.currentScramblesManager.attachSpecifiedScramble(compEventId, scrambleId);
         }
 
         $.contextMenu({

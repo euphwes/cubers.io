@@ -40,6 +40,17 @@
     };
 
     /**
+     *
+     */
+    CurrentScramblesManager.prototype.attachSpecifiedScramble = function(compEventId, scrambleId) {
+        var scramble = app.eventsDataManager.getSolveRecord(compEventId, scrambleId);
+        if (scramble) {
+            app.timer.attachToScramble(scramble.id);
+            this.emit(EVENT_NEW_SCRAMBLE_ATTACHED, scramble);
+        }
+    };
+
+    /**
      * Register handlers for events data manager events.
      */
     CurrentScramblesManager.prototype._registerTimerEventHandlers = function() {
