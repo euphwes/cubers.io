@@ -1,16 +1,45 @@
 (function() {
     var app = window.app;
 
+    var EVENT_SET_COMPLETE = "event_set_complete";
+    var EVENT_SET_INCOMPLETE = "event_set_incomplete";
     var EVENT_SOLVE_RECORD_UPDATED = "event_solve_record_updated";
 
     function EventsDataManager() {
         app.EventEmitter.call(this);  // EventsDataManager is an EventEmitter
 
         this.events_data = app.events_data;
+        this._updateEventsDataCompleteness();
+
         this._setCorrectScrambleStatus();
         this._registerTimerEventHandlers();
     };
     EventsDataManager.prototype = Object.create(app.EventEmitter.prototype);
+
+
+    /**
+     * Iterates over all of the events data at startup and figure out which are complete
+     * in-progress/incomplete.
+     * 
+     * TODO: can we do this on the server-side and just render the template with these classes?
+     */
+    EventsDataManager.prototype._updateEventsDataCompleteness = function() {
+        $.each(this.events_data, function(i, event){
+            var totalSolves = 0;
+            var completeSolves = 0;
+            $.each(event.scrambles, function(j, scramble){
+                totalSolves += 1;
+                if (scramble.time) { completeSolves += 1; }
+            });
+            if (totalSolves == completeSolves) {
+                event.status = 'complete';
+                this.emit(EVENT_SET_COMPLETE, event.comp_event_id);
+            } else if (completeSolves > 0) {
+                event.status = 'incomplete';
+                this.emit(EVENT_SET_INCOMPLETE, event.comp_event_id);
+            }
+        });
+    },
 
     /**
      * Checks each scramble on load to see if a time is set. If yes, set status to complete,
@@ -69,4 +98,6 @@
     // Make EventsDataManager and event names visible at app scope
     app.EventsDataManager = EventsDataManager;
     app.EVENT_SOLVE_RECORD_UPDATED = EVENT_SOLVE_RECORD_UPDATED;
+    app.EVENT_SET_COMPLETE = EVENT_SET_COMPLETE;
+    app.EVENT_SET_INCOMPLETE = EVENT_SET_INCOMPLETE;
 })();

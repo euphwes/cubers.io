@@ -16,10 +16,9 @@
         this.scrambleId = 0;
         this.compEventId = 0;
 
-        // wire event handlers to listen which screens are being shown
-        // disable timer when screens other than timer panel are shown
-        // enable timer when timer panel is shown
-        this._enable();
+        // keydrown.js's keyboard state manager is tick-based
+        // this is boilerplate to make sure the kd namespace has a recurring tick
+        kd.run(function () { kd.tick(); });
     };
     Timer.prototype = Object.create(app.EventEmitter.prototype);
 
@@ -106,11 +105,7 @@
      */
     Timer.prototype._stop = function() {
     
-        // stop the recurring tick function which continuously updates the timer, and unbind
-        // the keyboard space keypress events which handle the timer start/top
-        clearInterval(this.timerInterval);
-        kd.SPACE.unbindDown(); kd.SPACE.unbindUp();
-        $(document).unbind("keydown");
+        this._disable();
 
         // calculate elapsed time, separate seconds and centiseconds, and get the
         // "full time" string as seconds converted to minutes + decimal + centiseconds
@@ -145,6 +140,17 @@
     };
 
     /**
+     * Disables the timer.
+     */
+    Timer.prototype._disable = function() {
+        // stop the recurring tick function which continuously updates the timer, and unbind
+        // the keyboard space keypress events which handle the timer start/top
+        clearInterval(this.timerInterval);
+        kd.SPACE.unbindDown(); kd.SPACE.unbindUp();
+        $(document).unbind("keydown");
+    };
+
+    /**
      * Checks the current time against the start time to determine
      * elapsed time, and updates the visible timer accordingly.
      */
@@ -159,6 +165,15 @@
         eventData.friendlyCentiseconds = cs;
 
         this.emit(EVENT_TIMER_INTERVAL, eventData);
+    };
+
+    /**
+     * Register handlers for AppModeManager events.
+     */
+    Timer.prototype._registerAppModeManagerListeners = function() {
+        app.appModeManager.on(app.EVENT_APP_MODE_TO_MAIN, this._disable.bind(this));
+        app.appModeManager.on(app.EVENT_APP_MODE_TO_SUMMARY, this._disable.bind(this));
+        app.appModeManager.on(app.EVENT_APP_MODE_TO_TIMER, this._enable.bind(this));
     };
 
     // Make timer and event names visible at app scope

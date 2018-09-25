@@ -27,6 +27,8 @@ ASSETS.register({
         'js/util/time_convert_format.js',
         'js/util/extensions_and_polyfill.js',
 
+        'js/controller/app_mode_manager.js',
+
         'js/timer.js',
 
         'js/controller/events_data_manager.js',
@@ -35,6 +37,9 @@ ASSETS.register({
         'js/ui/solve_card_manager.js',
         'js/ui/timer_display_manager.js',
         'js/ui/scramble_display_manager.js',
+        'js/controller/main_screen_manager.js',
+        'js/controller/timer_screen_manager.js',
+        'js/controller/summary_screen_manager.js',
 
         'js/app.js',
         'js/init.js',
