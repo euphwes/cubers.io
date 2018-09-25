@@ -26,6 +26,7 @@ ASSETS.register({
 
         'js/util/time_convert_format.js',
         'js/util/extensions_and_polyfill.js',
+        'js/util/handlebars_helpers.js',
 
         'js/controller/app_mode_manager.js',
 

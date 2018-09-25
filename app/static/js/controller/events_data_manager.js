@@ -129,15 +129,14 @@
 
         $.each(this.events_data[compEventId].scrambles, function(i, currScramble) {
             if (currScramble.id != scrambleId) { return true; }
-
             currScramble.time      = timerStopData.rawTimeCs;
             currScramble.isDNF     = timerStopData.isDNF;
             currScramble.isPlusTwo = timerStopData.isPlusTwo;
             currScramble.status    = "complete";
             return false;
         });
-        this._updateSingleEventStatus(this.events_data[compEventId]);
 
+        this._updateSingleEventStatus(this.events_data[compEventId]);
         this.emit(EVENT_SOLVE_RECORD_UPDATED, timerStopData);
     };
 
