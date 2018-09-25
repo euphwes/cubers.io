@@ -35,7 +35,7 @@
      * with the correct time
      */
     SolveCardManager.prototype._setCardAsActive = function(scramble) {
-        this._getSolveCardElement(scramble.id).addClass('complete');
+        this._getSolveCardElement(scramble.id).addClass('active');
     };
 
     /**

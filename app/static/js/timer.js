@@ -133,7 +133,7 @@
      * Resets the timer, clearing start and elapsed time, and sets the visible timer elements
      * to the zero state.
      */
-    Timer.prototype._reset = function() {
+    Timer.prototype.reset = function() {
         this.startTime = 0;
         this.elapsedTime = 0;
         this.emit(EVENT_TIMER_RESET);

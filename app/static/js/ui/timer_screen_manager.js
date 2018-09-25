@@ -41,21 +41,11 @@
         // Render the Handlebars tempalte for the timer panel with the event-related data
         // collected above, and set it as the new html for the timer panel div
         this.$timerDiv.html($(this.timerPanelTemplate(data)));
-        this.$timerDiv.ultraShow();
 
-        // Determine the first solve/scramble that should be attached to the timer,
-        // set it as active, and attach it. If all solves are already complete (because
-        // the user is returning to this event after completing them, for whatever reason)
-        // then don't attach the timer. Otherwise, choose the first incomplete solve.
-        if ($('.single-time:not(.complete)').length != 0) {
-            var $firstSolveToAttach = $('.single-time:not(.complete)').first();
-            app.timer.attachToScramble(parseInt($firstSolveToAttach.attr("data-id")));
-            app.timer.setCompEventId(comp_event_id);
-        }
-        
-        // Adjust the font size for the current scramble to make sure it's as large
-        // as possible and still fits in the scramble area
-        fitty('.scramble-wrapper>div', {minSize: 18, maxSize: 24});
+        app.timer.setCompEventId(comp_event_id);
+        app.currentScramblesManager.attachFirstScramble(comp_event_id);
+
+        this.$timerDiv.ultraShow();
 
         app.appModeManager.wire_return_to_events_from_timer();
         this._wire_solve_context_menu();

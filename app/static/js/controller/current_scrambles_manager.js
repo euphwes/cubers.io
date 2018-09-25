@@ -16,10 +16,23 @@
      * Event handler for events data gets updated. Advance the timer scramble to the next incomplete one
      * for the current competition event.
      */
-    CurrentScramblesManager.prototype._advanceToNextScramble = function(timerStopData) {
-        var compEventId = timerStopData.compEventId;
-        var nextIncompleteScramble = app.eventsDataManager.getNextIncompleteScramble(compEventId);
+    CurrentScramblesManager.prototype._advanceScrambleAfterTimerStop = function(timerStopData) {
+        this._attachNextUnsolvedScramble(timerStopData.compEventId);
 
+    };
+
+    /**
+     *
+     */
+    CurrentScramblesManager.prototype.attachFirstScramble = function(compEventId) {
+        this._attachNextUnsolvedScramble(compEventId);
+    };
+
+    /**
+     *
+     */
+    CurrentScramblesManager.prototype._attachNextUnsolvedScramble = function(compEventId) {
+        var nextIncompleteScramble = app.eventsDataManager.getNextIncompleteScramble(compEventId);
         if (nextIncompleteScramble) {
             app.timer.attachToScramble(nextIncompleteScramble.id);
             this.emit(EVENT_NEW_SCRAMBLE_ATTACHED, nextIncompleteScramble);
@@ -30,7 +43,7 @@
      * Register handlers for events data manager events.
      */
     CurrentScramblesManager.prototype._registerTimerEventHandlers = function() {
-        app.eventsDataManager.on(app.EVENT_SOLVE_RECORD_UPDATED, this._advanceToNextScramble.bind(this));
+        app.eventsDataManager.on(app.EVENT_SOLVE_RECORD_UPDATED, this._advanceScrambleAfterTimerStop.bind(this));
     };
 
     // Make CurrentScramblesManager and event names visible at app scope
