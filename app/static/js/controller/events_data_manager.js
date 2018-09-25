@@ -120,6 +120,13 @@
     };
 
     /**
+     * Sets the comment for the specified competition event.
+     */
+    EventsDataManager.prototype.setCommentForEvent = function(comment, compEventId) {
+        this.events_data[compEventId].comment = comment;
+    };
+
+    /**
      * Updates a solve in the events data with the elapsed time from the 
      */
     EventsDataManager.prototype._updateSolveFromTimerData = function(timerStopData) {

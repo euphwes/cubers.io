@@ -23,7 +23,7 @@
     Timer.prototype = Object.create(app.EventEmitter.prototype);
 
     /**
-     * Set's the timer's competition event ID.
+     * Sets the timer's competition event ID.
      */
     Timer.prototype.setCompEventId = function(compEventId) {
         this.compEventId = compEventId;
@@ -47,9 +47,7 @@
         // box has focus.
         var armed = false;
         kd.SPACE.down(function() {
-            // TODO: don't arm if the comment box has focus, probably
-            // can just check this by class rather than ID
-            //if ($('#comment_' + this.timer.comp_event_id).is(":focus")) { return; }
+            if ($('#comment_' + this.compEventId).is(":focus")) { return; }
             armed = true;
             this.emit(EVENT_TIMER_ARMED);
         }.bind(this));

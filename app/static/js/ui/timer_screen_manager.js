@@ -31,31 +31,9 @@
         };
 
         // FMC requires manual entry of integer times, and no timer
-        // Gotta do something completely different
-        if (data.event_name === 'FMC') {
-            data.isFMC = true;
-            this._show_entry_for_fmc(data);
-            return
-        }
-        
-        // Render the Handlebars tempalte for the timer panel with the event-related data
-        // collected above, and set it as the new html for the timer panel div
-        this.$timerDiv.html($(this.timerPanelTemplate(data)));
+        data.isFMC = data.event_name === 'FMC';
 
-        app.timer.setCompEventId(comp_event_id);
-        app.currentScramblesManager.attachFirstScramble(comp_event_id);
-
-        this.$timerDiv.ultraShow();
-
-        app.appModeManager.wire_return_to_events_from_timer();
-        this._wire_solve_context_menu();
-    };
-
-    /**
-     * Show the timer screen, with logic specifically for the FMC event.
-     */
-    TimerScreenManager.prototype._show_entry_for_fmc = function(data) {
-        // Render the Handlebars tempalte for the timer panel with the event-related data
+        // Render the Handlebars template for the timer panel with the event-related data
         // collected above, and set it as the new html for the timer panel div
         this.$timerDiv.html($(this.timerPanelTemplate(data)));
         this.$timerDiv.ultraShow();
@@ -64,7 +42,40 @@
         // as possible and still fits in the scramble area
         fitty('.scramble-wrapper>div', {minSize: 18, maxSize: 24});
 
-        // swallow tab key, prevent tabbing into next contenteditable div
+        app.timer.setCompEventId(comp_event_id);
+        app.currentScramblesManager.attachFirstScramble(comp_event_id);
+
+        app.appModeManager.wire_return_to_events_from_timer();
+        this._wire_comment_box();
+
+        if (data.isFMC) {
+            this._wire_FMC_solve_cards();
+        } else {
+            this._wire_solve_context_menu(comp_event_id);
+        }
+    };
+
+    /**
+     * Wire up the comment box to save the comment to the events data when done typing.
+     */
+    TimerScreenManager.prototype._wire_comment_box = function(comp_event_id) {
+        var commentTimeout = null;
+        var $comment = $('#comment_' + comp_event_id);
+        $comment.keyup(function(){
+            clearTimeout(commentTimeout);
+            commentTimeout = setTimeout(function(){
+                app.eventsDataManager.setCommentForEvent($comment.val(), comp_event_id);
+            }, 500);
+        });
+    };
+
+    /**
+     * Show the timer screen, with logic specifically for the FMC event.
+     * TODO note this is a little hackish and calls events_data_manager stuff directly
+     * rather than using timer events (since there is no timer)
+     */
+    TimerScreenManager.prototype._wire_FMC_solve_cards = function() {
+        // Swallow tab key, prevent tabbing into next contenteditable div
         $(".single-time.fmc>.time-value").keydown(function (e) {
             var code = (e.keyCode ? e.keyCode : e.which);
             if (code == 9) {
@@ -72,12 +83,24 @@
                 return;
             }
         });
+        
+        /**
+         *        var compEventId = timerStopData.compEventId;
+        var scrambleId  = timerStopData.scrambleId;
+
+        $.each(this.events_data[compEventId].scrambles, function(i, currScramble) {
+            if (currScramble.id != scrambleId) { return true; }
+            currScramble.time      = timerStopData.rawTimeCs;
+            currScramble.isDNF     = timerStopData.isDNF;
+            currScramble.isPlusTwo = timerStopData.isPlusTwo;
+         */
 
         // integers only, and update complete status and raw "time" attribute
-        $(".single-time.fmc>.time-value").on("keypress keyup blur",function (e) {
+        $(".single-time.fmc>.time-value").on("keypress keyup blur", function(e) {
             $(this).val($(this).text().replace(/[^\d].+/, ""));
             if (parseInt($(this).text()) > 0) {
                 $(this).parent().addClass('complete');
+                console.log($(this).parent());
                 $(this).parent().attr("data-rawTimeCentiseconds", parseInt($(this).text() * 100));
             } else {
                 $(this).parent().removeClass('complete'); 
@@ -103,8 +126,6 @@
             var $scrambleHolder = $('.scramble-wrapper>div');
             $scrambleHolder.html(renderedScramble);
         });
-
-        app.appModeManager.wire_return_to_events_from_timer();
     };
 
     /**
