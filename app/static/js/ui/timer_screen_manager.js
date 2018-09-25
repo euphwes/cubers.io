@@ -132,43 +132,56 @@
      * Wire up the left-click context menu on each solve card for adding and removing
      * solve penalties (DNF, +2), and retrying a solve.
      */
-    TimerScreenManager.prototype._wire_solve_context_menu = function() {
+    TimerScreenManager.prototype._wire_solve_context_menu = function(compEventId) {
         // Clear all the penalties, set visible time back to the time of the solve
         var clearPenalty = function($solveClicked) {
-            $solveClicked.attr('data-isPlusTwo', 'false');
-            $solveClicked.attr('data-isDNF', 'false');
+            var scrambleId = $solveClicked.attr('data-id');
+            app.eventsDataManager.clearPenalty(compEventId, scrambleId);
 
-            var cs = parseInt($solveClicked.attr("data-rawTimeCentiseconds"));
-            $solveClicked.find('.time-value').html(app.convertRawCsForSolveCard(cs));
+            var solveTime = app.eventsDataManager.getSolveRecord(compEventId, scrambleId).time;
+            $solveClicked.find('.time-value').html(app.convertRawCsForSolveCard(solveTime));
         };
 
-        // Add DNF penalty, set visible time to 'DNF'
+        // Set DNF penalty, set visible time to 'DNF'
         var setDNF = function($solveClicked) {
-            $solveClicked.attr('data-isPlusTwo', 'false');
-            $solveClicked.attr('data-isDNF', 'true');
+            var scrambleId = $solveClicked.attr('data-id');
+            app.eventsDataManager.setDNF(compEventId, scrambleId);
+
             $solveClicked.find('.time-value').html("DNF");
-        }
+        };
 
-        // Add +2 penalty, set visible time to actual time + 2 seconds, and "+" mark to indicate penalty
+        // Set +2 penalty, set visible time to the
+        // actual time + 2 seconds, and "+" mark to indicate penalty
         var setPlusTwo = function($solveClicked) {
-            $solveClicked.attr('data-isPlusTwo', 'true');
-            $solveClicked.attr('data-isDNF', 'false');
+            var scrambleId = $solveClicked.attr('data-id');
+            app.eventsDataManager.setPlusTwo(compEventId, scrambleId);
 
-            var cs = parseInt($solveClicked.attr("data-rawTimeCentiseconds"));
-            $solveClicked.find('.time-value').html(app.convertRawCsForSolveCard(cs + 200) + "+");
-        }
+            var solveTime = app.eventsDataManager.getSolveRecord(compEventId, scrambleId).time;
+            $solveClicked.find('.time-value').html(app.convertRawCsForSolveCard(solveTime + 200) + "+");
+        };
 
         // Check if the selected solve is complete
-        var isComplete = function($solveClicked) { return $solveClicked.hasClass('complete'); }
+        var isComplete = function($solveClicked) {
+            var scrambleId = $solveClicked.attr('data-id');
+            return app.eventsDataManager.getSolveRecord(compEventId, scrambleId).status == 'complete';
+        };
 
         // Check if the selected solve has DNF penalty
-        var hasDNF = function($solveClicked) { return app.evaluateBool($solveClicked.attr('data-isDNF')); }
+        var hasDNF = function($solveClicked) {
+            var scrambleId = $solveClicked.attr('data-id');
+            return app.eventsDataManager.getSolveRecord(compEventId, scrambleId).isDNF;
+        };
 
         // Check if the selected solve has +2 penalty
-        var hasPlusTwo = function($solveClicked) { return app.evaluateBool($solveClicked.attr('data-isPlusTwo')); }     
+        var hasPlusTwo = function($solveClicked) {
+            var scrambleId = $solveClicked.attr('data-id');
+            return app.eventsDataManager.getSolveRecord(compEventId, scrambleId).isPlusTwo;
+        };
 
         // Retry the selected solve - set it as the only active solve, attach the timer, prepare the timer
         var retrySolve = function($solveClicked) {
+            var scrambleId = $solveClicked.attr('data-id');
+
             // Remove active status from whichever solve is currently active, if any.
             // Set the selected solve as active.
             $('.single-time.active').removeClass('active');
@@ -176,7 +189,7 @@
 
             // Reset the timer, and attach it to this solve card
             app.timer.reset();
-            app.timer.attachToScramble(parseInt($solveClicked.attr("data-id")));
+            app.timer.attachToScramble(parseInt(scrambleId));
         }
 
         $.contextMenu({

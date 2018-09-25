@@ -15,7 +15,6 @@
     };
     EventsDataManager.prototype = Object.create(app.EventEmitter.prototype);
 
-
     /**
      * Iterates over all of the events data at startup and figure out which are complete
      * in-progress/incomplete.
@@ -117,6 +116,58 @@
      */
     EventsDataManager.prototype.getEventsData = function() {
         return this.events_data;
+    };
+
+    /**
+     * Clears penalties for the specified comp event and scramble ID
+     */
+    EventsDataManager.prototype.clearPenalty = function(compEventId, scrambleId) {
+        $.each(this.events_data[compEventId].scrambles, function(i, currScramble) {
+            if (currScramble.id != scrambleId) { return true; }
+            currScramble.isDNF     = false;
+            currScramble.isPlusTwo = false;
+            return false;
+        });
+        this._updateSingleEventStatus(this.events_data[compEventId]);
+    };
+
+    /**
+     * Sets DNF for the specified comp event and scramble ID
+     */
+    EventsDataManager.prototype.setDNF = function(compEventId, scrambleId) {
+        $.each(this.events_data[compEventId].scrambles, function(i, currScramble) {
+            if (currScramble.id != scrambleId) { return true; }
+            currScramble.isDNF     = true;
+            currScramble.isPlusTwo = false;
+            return false;
+        });
+        this._updateSingleEventStatus(this.events_data[compEventId]);
+    };
+
+    /**
+     * Sets plus two for the specified comp event and scramble ID
+     */
+    EventsDataManager.prototype.setPlusTwo = function(compEventId, scrambleId) {
+        $.each(this.events_data[compEventId].scrambles, function(i, currScramble) {
+            if (currScramble.id != scrambleId) { return true; }
+            currScramble.isDNF     = false;
+            currScramble.isPlusTwo = true;
+            return false;
+        });
+        this._updateSingleEventStatus(this.events_data[compEventId]);
+    };
+
+    /**
+     * Returns the solve record for specified comp event and scramble ID
+     */
+    EventsDataManager.prototype.getSolveRecord = function(compEventId, scrambleId) {
+        var solveRecord = null;
+        $.each(this.events_data[compEventId].scrambles, function(i, currSolveRecord) {
+            if (currSolveRecord.id != scrambleId) { return true; }
+            solveRecord = currSolveRecord;
+            return false;
+        });
+        return solveRecord;
     };
 
     /**
