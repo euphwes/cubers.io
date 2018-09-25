@@ -50,7 +50,7 @@
         app.currentScramblesManager.attachFirstScramble(comp_event_id);
 
         app.appModeManager.wire_return_to_events_from_timer();
-        this._wire_comment_box();
+        this._wire_comment_box(comp_event_id);
 
         if (data.isFMC) {
             this._wire_FMC_solve_cards();
