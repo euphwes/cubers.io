@@ -41,10 +41,19 @@
     };
 
     /**
+     * Shows the main screen.
+     */
+    MainScreenManager.prototype._showTimerScreen = function() {
+        this.$mainScreenDiv.ultraShow();
+    };
+
+    /**
      * Register handlers for EventsDataManager events.
      */
     MainScreenManager.prototype._registerAppModeManagerListeners = function() {
+        app.appModeManager.on(app.EVENT_APP_MODE_TO_MAIN, this._showTimerScreen.bind(this));
         app.appModeManager.on(app.EVENT_APP_MODE_TO_TIMER, this._hideMainScreen.bind(this));
+        app.appModeManager.on(app.EVENT_APP_MODE_TO_SUMMARY, this._hideMainScreen.bind(this));
     };
 
     /**

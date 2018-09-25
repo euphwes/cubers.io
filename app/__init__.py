@@ -37,11 +37,10 @@ ASSETS.register({
         'js/ui/solve_card_manager.js',
         'js/ui/timer_display_manager.js',
         'js/ui/scramble_display_manager.js',
-        'js/controller/main_screen_manager.js',
-        'js/controller/timer_screen_manager.js',
-        'js/controller/summary_screen_manager.js',
+        'js/ui/main_screen_manager.js',
+        'js/ui/timer_screen_manager.js',
+        'js/ui/summary_screen_manager.js',
 
-        'js/app.js',
         'js/init.js',
         #filters="jsmin",
         output='gen/app.js'

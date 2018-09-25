@@ -9,17 +9,25 @@
     };
 
     /**
+     * Hides the timer screen.
+     */
+    TimerScreenManager.prototype._hideTimerScreen = function() {
+        this.$timerDiv.ultraHide();
+    };
+
+    /**
      * Shows the timer screen for the specified event.
      */
     TimerScreenManager.prototype._showTimerScreen = function($selected_event) {
+        var events = app.eventsDataManager.getEventsData();
         var comp_event_id = $selected_event.data('comp_event_id');
         var data = {
             comp_event_id : comp_event_id,
             event_id      : $selected_event.data('event_id'),
             event_name    : $selected_event.data('event_name'),
-            scrambles     : this.events[comp_event_id]['scrambles'],
-            total_solves  : this.events[comp_event_id]['scrambles'].length,
-            comment       : this.events[comp_event_id].comment,
+            scrambles     : events[comp_event_id]['scrambles'],
+            total_solves  : events[comp_event_id]['scrambles'].length,
+            comment       : events[comp_event_id].comment,
         };
 
         // FMC requires manual entry of integer times, and no timer
@@ -199,6 +207,7 @@
      */
     TimerScreenManager.prototype._registerAppModeManagerListeners = function() {
         app.appModeManager.on(app.EVENT_APP_MODE_TO_TIMER, this._showTimerScreen.bind(this));
+        app.appModeManager.on(app.EVENT_APP_MODE_TO_MAIN, this._hideTimerScreen.bind(this));
     };
 
     app.TimerScreenManager = TimerScreenManager;

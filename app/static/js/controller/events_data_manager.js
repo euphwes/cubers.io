@@ -38,7 +38,7 @@
                 event.status = 'incomplete';
                 this.emit(EVENT_SET_INCOMPLETE, event.comp_event_id);
             }
-        });
+        }.bind(this));
     },
 
     /**
@@ -65,6 +65,13 @@
             }
         });
         return nextScramble;
+    };
+
+    /**
+     * Returns all of the events data.
+     */
+    EventsDataManager.prototype.getEventsData = function() {
+        return this.events_data;
     };
 
     /**
