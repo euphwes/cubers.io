@@ -1,20 +1,23 @@
 (function() {
+    var app = window.app;
  
     function init() {
-        window.app.appModeManager = new window.app.AppModeManager();
+        app.appModeManager = new app.AppModeManager();
 
-        window.app.timer = new window.app.Timer();
+        app.timer = new app.Timer();
 
-        window.app.eventsDataManager = new window.app.EventsDataManager();
-        window.app.currentScramblesManager = new window.app.CurrentScramblesManager();
+        app.eventsDataManager = new app.EventsDataManager();
+        app.currentScramblesManager = new app.CurrentScramblesManager();
 
-        window.app.solveCardManager = new window.app.SolveCardManager();
-        window.app.timerDisplayManager = new window.app.TimerDisplayManager();
-        window.app.scrambleDisplayManager = new window.app.ScrambleDisplayManager();
+        app.solveCardManager = new app.SolveCardManager();
+        app.timerDisplayManager = new app.TimerDisplayManager();
+        app.scrambleDisplayManager = new app.ScrambleDisplayManager();
 
-        window.app.mainScreenManager = new window.app.MainScreenManager();
-        window.app.timerScreenManager = new window.app.TimerScreenManager();
-        window.app.summaryScreenManager = new window.app.SummaryScreenManager();
+        app.mainScreenManager = new app.MainScreenManager();
+        app.timerScreenManager = new app.TimerScreenManager();
+        app.summaryScreenManager = new app.SummaryScreenManager();
+
+        app.eventsDataManager.updateEventsDataCompleteness();
     };
 
     $(init);

@@ -12,7 +12,7 @@
      * Get a jQuery reference to the event card for the specified competition event ID.
      */
     MainScreenManager.prototype._getEventCardElementForCompEventId = function(compEventId) {
-        return $('#event-'+event.comp_event_id);
+        return $('#event-' + compEventId);
     };
 
     /**

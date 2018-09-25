@@ -9,7 +9,6 @@
         app.EventEmitter.call(this);  // EventsDataManager is an EventEmitter
 
         this.events_data = app.events_data;
-        this._updateEventsDataCompleteness();
 
         this._setCorrectScrambleStatus();
         this._registerTimerEventHandlers();
@@ -23,7 +22,7 @@
      * 
      * TODO: can we do this on the server-side and just render the template with these classes?
      */
-    EventsDataManager.prototype._updateEventsDataCompleteness = function() {
+    EventsDataManager.prototype.updateEventsDataCompleteness = function() {
         $.each(this.events_data, function(i, event){
             var totalSolves = 0;
             var completeSolves = 0;
