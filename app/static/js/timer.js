@@ -1,20 +1,24 @@
 (function() {
     var app = window.app;
 
+    // These are the events that Timer can emit
     var EVENT_TIMER_START    = 'event_timer_start';
     var EVENT_TIMER_INTERVAL = 'event_timer_interval';
     var EVENT_TIMER_STOP     = 'event_timer_stop';
     var EVENT_TIMER_RESET    = 'event_timer_reset';
     var EVENT_TIMER_ARMED    = 'event_timer_armed';
 
+    /**
+     * The solve timer which tracks elapsed time.
+     */
     function Timer() {
-        app.EventEmitter.call(this);  // Timer is an EventEmitter
+        app.EventEmitter.call(this);
 
-        this.startTime = 0;
-        this.elapsedTime = 0;
-        this.timerInterval = null;
-        this.scrambleId = 0;
-        this.compEventId = 0;
+        this.start_time = 0;
+        this.elapsed_time = 0;
+        this.timer_interval = null;
+        this.scramble_id = 0;
+        this.comp_event_id = 0;
 
         // keydrown.js's keyboard state manager is tick-based
         // this is boilerplate to make sure the kd namespace has a recurring tick
@@ -25,8 +29,8 @@
     /**
      * Sets the timer's competition event ID.
      */
-    Timer.prototype.setCompEventId = function(compEventId) {
-        this.compEventId = compEventId;
+    Timer.prototype.setCompEventId = function(comp_event_id) {
+        this.comp_event_id = comp_event_id;
     }
 
     /**
@@ -47,7 +51,7 @@
         // box has focus.
         var armed = false;
         kd.SPACE.down(function() {
-            if ($('#comment_' + this.compEventId).is(":focus")) { return; }
+            if ($('#comment_' + this.comp_event_id).is(":focus")) { return; }
             armed = true;
             this.emit(EVENT_TIMER_ARMED);
         }.bind(this));
@@ -78,21 +82,20 @@
     };
 
     /**
-     * "Attach" the timer to a specific scrambleId so it can send
+     * "Attach" the timer to a specific scramble_id so it can send
      * appropriate data when it emits events.
      */
-    Timer.prototype.attachToScramble = function(scrambleId) {
-        this.scrambleId = scrambleId;
+    Timer.prototype.attachToScramble = function(scramble_id) {
+        this.scramble_id = scramble_id;
         setTimeout(this._enable.bind(this), 200);
     };
  
     /**
-     * Starts the timer. Captures the start time so we can determine elapsed time on
-     * subsequent ticks.
+     * Starts the timer. Captures the start time so we can determine elapsed time on subsequent ticks.
      */
     Timer.prototype._start = function() {
-        this.startTime = new Date();
-        this.timerInterval = setInterval(this._timerIntervalFunction.bind(this), 42);
+        this.start_time = new Date();
+        this.timer_interval = setInterval(this._timer_intervalFunction.bind(this), 42);
         this.emit(EVENT_TIMER_START);
     };
 
@@ -105,62 +108,62 @@
     
         this._disable();
 
-        // calculate elapsed time, separate seconds and centiseconds, and get the
-        // "full time" string as seconds converted to minutes + decimal + centiseconds
-        this.elapsedTime = (new Date()) - this.startTime;
+        // calculate elapsed time, 
+        this.elapsed_time = (new Date()) - this.start_time;
 
-        var s = this.elapsedTime.getSecondsFromMs();
-        var cs = this.elapsedTime.getTwoDigitCentisecondsFromMs();
-        var friendlySeconds = app.convertSecondsToMinutes(s);
+        // separate seconds and centiseconds, and get the "full time" string
+        // as seconds converted to minutes + decimal + centiseconds
+        var s = this.elapsed_time.getSecondsFromMs();
+        var cs = this.elapsed_time.getTwoDigitCentisecondsFromMs();
+        var friendly_seconds = app.convertSecondsToMinutes(s);
+        var full_time = friendly_seconds + "." + cs;
 
         var data = {};
-        data.elapsedTime          = this.elapsedTime;
-        data.scrambleId           = this.scrambleId;
-        data.compEventId          = this.compEventId;
-        data.friendlySeconds      = friendlySeconds;
-        data.friendlyCentiseconds = cs;
-        data.friendlyTimeFull     = friendlySeconds + "." + cs;
-        data.rawTimeCs            = parseInt(s*100) + parseInt(cs);
-        data.isDNF                = false;
-        data.isPlusTwo            = false;
+        data.elapsed_time          = this.elapsed_time;
+        data.scramble_id           = this.scramble_id;
+        data.comp_event_id         = this.comp_event_id;
+        data.friendly_seconds      = friendly_seconds;
+        data.friendly_centiseconds = cs;
+        data.friendly_time_full    = full_time;
+        data.rawTimeCs             = parseInt(s*100) + parseInt(cs);
+        data.isDNF                 = false;
+        data.isPlusTwo             = false;
 
+        // emit the event which notifies everybody else that the timer has stopped
         this.emit(EVENT_TIMER_STOP, data);
     };
 
     /**
-     * Resets the timer, clearing start and elapsed time, and sets the visible timer elements
-     * to the zero state.
+     * Resets the timer.
      */
     Timer.prototype.reset = function() {
-        this.startTime = 0;
-        this.elapsedTime = 0;
+        this.start_time = 0;
+        this.elapsed_time = 0;
         this.emit(EVENT_TIMER_RESET);
     };
 
     /**
-     * Disables the timer.
+     * Disables the timer by disabling the keypress events, and disables the interval function
+     * which ticks by elapsed time.
      */
     Timer.prototype._disable = function() {
-        // stop the recurring tick function which continuously updates the timer, and unbind
-        // the keyboard space keypress events which handle the timer start/top
-        clearInterval(this.timerInterval);
+        clearInterval(this.timer_interval);
         kd.SPACE.unbindDown(); kd.SPACE.unbindUp();
         $(document).unbind("keydown");
     };
 
     /**
-     * Checks the current time against the start time to determine
-     * elapsed time, and updates the visible timer accordingly.
+     * Checks the current time against the start time to determine elapsed time.
      */
-    Timer.prototype._timerIntervalFunction = function() {
+    Timer.prototype._timer_intervalFunction = function() {
         var now = new Date();
-        var diff = now - this.startTime;
+        var diff = now - this.start_time;
         var s = diff.getSecondsFromMs();
         var cs = diff.getTwoDigitCentisecondsFromMs();
 
         var eventData = {};
-        eventData.friendlySeconds = app.convertSecondsToMinutes(s);
-        eventData.friendlyCentiseconds = cs;
+        eventData.friendly_seconds = app.convertSecondsToMinutes(s);
+        eventData.friendly_centiseconds = cs;
 
         this.emit(EVENT_TIMER_INTERVAL, eventData);
     };

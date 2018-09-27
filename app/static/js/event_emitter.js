@@ -1,5 +1,13 @@
 (function() {
 
+    // ============================
+    // Shamelessly stolen from some Github gist or blog post somewhere.
+    //
+    // EventEmitter is a class which "emits" events and sends any data emitted
+    // alongside those events to any functions which have registered as listeners
+    // of that event.
+    // ============================
+
     function EventEmitter() {
       this._listeners = {};
     }

@@ -1,14 +1,16 @@
 (function() {
-    // inc: increments the supplied integer by 1
+    // Increments the supplied integer by 1
     Handlebars.registerHelper("inc", function(value, options){ return parseInt(value) + 1; });
 
-    // eq: compares two values for equality
+    // Compares two values for equality
     Handlebars.registerHelper("eq", function(a, b, options){ return a == b; });
 
-    // renderTime: returns a user-friendly representation of the supplied centiseconds
+    // Returns a user-friendly representation of the supplied centiseconds
+    // The argument to this is a "solve" object which contains a raw time in centiseconds,
+    // and status flags for DNF and +2 penalties
     Handlebars.registerHelper("renderTime", window.app.renderTime);
 
-    // General-purpose handlebars helper for performing mathematical operations.
+    // General-purpose Handlebars helper for performing mathematical operations.
     Handlebars.registerHelper("math", function(lvalue, operator, rvalue, options) {
         if (arguments.length < 4) {
             // Operator omitted, assuming "+"

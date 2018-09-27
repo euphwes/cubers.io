@@ -1,38 +1,40 @@
 (function() {
     var app = window.app;
 
+    // The events the CurrentScramblesManager can emit
     var EVENT_NEW_SCRAMBLE_ATTACHED = "event_new_scramble_attached";
 
     /**
-     * Manages the solves for the currently-active event
+     * Manages the scrambles for the for the currently-active event
      */
     function CurrentScramblesManager() {
-        app.EventEmitter.call(this);  // CurrentScramblesManager is an EventEmitter
+        app.EventEmitter.call(this);
         this._registerTimerEventHandlers();
     };
     CurrentScramblesManager.prototype = Object.create(app.EventEmitter.prototype);
 
     /**
-     * Event handler for events data gets updated. Advance the timer scramble to the next incomplete one
+     * Event handler for when events data gets updated. Advance the timer scramble to the next incomplete one
      * for the current competition event.
      */
-    CurrentScramblesManager.prototype._advanceScrambleAfterTimerStop = function(timerStopData) {
-        this._attachNextUnsolvedScramble(timerStopData.compEventId);
+    CurrentScramblesManager.prototype._advanceScrambleAfterTimerStop = function(timer_stop_data) {
+        this._attachNextUnsolvedScramble(timer_stop_data.comp_event_id);
 
     };
 
     /**
-     *
+     * Attach the scramble for the first incomplete solve for this competition event.
      */
-    CurrentScramblesManager.prototype.attachFirstScramble = function(compEventId) {
-        this._attachNextUnsolvedScramble(compEventId);
+    CurrentScramblesManager.prototype.attachFirstScramble = function(comp_event_id) {
+        this._attachNextUnsolvedScramble(comp_event_id);
     };
 
     /**
-     *
+     * Call eventsDataManager to get the next incomplete scramble. If there is one, attach it
+     * to the timer and then emit an event so that solve card gets visually updated
      */
-    CurrentScramblesManager.prototype._attachNextUnsolvedScramble = function(compEventId) {
-        var nextIncompleteScramble = app.eventsDataManager.getNextIncompleteScramble(compEventId);
+    CurrentScramblesManager.prototype._attachNextUnsolvedScramble = function(comp_event_id) {
+        var nextIncompleteScramble = app.eventsDataManager.getNextIncompleteScramble(comp_event_id);
         if (nextIncompleteScramble) {
             app.timer.attachToScramble(nextIncompleteScramble.id);
             this.emit(EVENT_NEW_SCRAMBLE_ATTACHED, nextIncompleteScramble);
@@ -40,10 +42,10 @@
     };
 
     /**
-     *
+     * Attach the timer and update solve card for the specified scramble ID and competition event ID
      */
-    CurrentScramblesManager.prototype.attachSpecifiedScramble = function(compEventId, scrambleId) {
-        var scramble = app.eventsDataManager.getSolveRecord(compEventId, scrambleId);
+    CurrentScramblesManager.prototype.attachSpecifiedScramble = function(comp_event_id, scramble_id) {
+        var scramble = app.eventsDataManager.getSolveRecord(comp_event_id, scramble_id);
         if (scramble) {
             app.timer.attachToScramble(scramble.id);
             this.emit(EVENT_NEW_SCRAMBLE_ATTACHED, scramble);

@@ -1,22 +1,29 @@
 (function() {
     var app = window.app;
 
+    var NON_FMC_SOLVE_CARD_SELECTOR = '.single-time:not(.fmc)';
+    var FMC_CARD_SELECTOR           = '.single-time.fmc';
+    var FMC_LENGTH_TEXT_SELECTOR    = '.time-value';
+    var SOLVE_CARD_ACTIVE_SELECTOR  = '.single-time.active';
+
+    /**
+     * Manages the overall timer page, including events wired when the page is shown
+     */
     function TimerScreenManager() {
-        this.$timerDiv = $('#timer_panel');
-        this.timerPanelTemplate = Handlebars.compile($('#timer-template').html());
+        this.$timer_div = $('#timer_panel');
+        this.timer_panel_template = Handlebars.compile($('#timer-template').html());
 
         this._registerAppModeManagerListeners();
     };
 
     /**
-     * Destroys the context menu and hides the timer screen.
+     * Destroys the context menu and hides the timer screen. The context menu needs to
+     * be destroyed so that next time this page is show, the menu's functions reference
+     * the new competition event ID.
      */
     TimerScreenManager.prototype._hideTimerScreen = function() {
-        // Destroy the context menu so the click events are rewired with the new
-        // competition ID variable next time this page is shown.
-        $.contextMenu('destroy', '.single-time:not(.fmc)');
-
-        this.$timerDiv.ultraHide();
+        $.contextMenu('destroy', NON_FMC_SOLVE_CARD_SELECTOR);
+        this.$timer_div.ultraHide();
     };
 
     /**
@@ -39,16 +46,20 @@
 
         // Render the Handlebars template for the timer panel with the event-related data
         // collected above, and set it as the new html for the timer panel div
-        this.$timerDiv.html($(this.timerPanelTemplate(data)));
-        this.$timerDiv.ultraShow();
+        this.$timer_div.html($(this.timer_panel_template(data)));
+        this.$timer_div.ultraShow();
 
         // Adjust the font size for the current scramble to make sure it's as large
         // as possible and still fits in the scramble area
         fitty('.scramble-wrapper>div', {minSize: 18, maxSize: 24});
 
+        // Make sure the timer knows which competition event this is, so the handlers of the timer-stop
+        // event know which solve to update
         app.timer.setCompEventId(comp_event_id);
+
         app.currentScramblesManager.attachFirstScramble(comp_event_id);
 
+        // Wire up the stuff common to both FMC and non-FMC events
         app.appModeManager.wire_return_to_events_from_timer();
         this._wire_comment_box(comp_event_id);
 
@@ -64,11 +75,11 @@
      * Wire up the comment box to save the comment to the events data when done typing.
      */
     TimerScreenManager.prototype._wire_comment_box = function(comp_event_id) {
-        var commentTimeout = null;
+        var comment_timeout = null;
         var $comment = $('#comment_' + comp_event_id);
         $comment.keyup(function(){
-            clearTimeout(commentTimeout);
-            commentTimeout = setTimeout(function(){
+            clearTimeout(comment_timeout);
+            comment_timeout = setTimeout(function(){
                 app.eventsDataManager.setCommentForEvent($comment.val(), comp_event_id);
             }, 500);
         });
@@ -83,26 +94,27 @@
         var fmcTimeout = null;
 
         // Swallow tab key, prevent tabbing into next contenteditable div
-        $(".single-time.fmc>.time-value").keydown(function (e) {
+        $(FMC_LENGTH_TEXT_SELECTOR).keydown(function (e) {
             var code = (e.keyCode ? e.keyCode : e.which);
             if (code == 9) { e.preventDefault(); return; }
         });
 
         // Determine the solve length entered in the box. If there's a value, set the
-        // solve length for that FMC solve and mark complete, otherwise 
+        // solve length for that FMC solve and mark complete, otherwise unset the value for this solve
         var updateFmcSolveRecord = function() {
-            var solveLength = parseInt($(this).text());
-            var scrambleId  = $(this).parent().attr('data-id');
-            if (solveLength > 0) {
+            var solve_length = parseInt($(this).text());
+            var scramble_id  = $(this).parent().attr('data-id');
+            if (solve_length > 0) {
                 $(this).parent().addClass('complete');
-                app.eventsDataManager.setFMCSolveLength(comp_event_id, scrambleId, solveLength);
+                app.eventsDataManager.setFMCSolveLength(comp_event_id, scramble_id, solve_length);
             } else {
                 $(this).parent().removeClass('complete'); 
-                app.eventsDataManager.unsetFMCSolve(comp_event_id, scrambleId);
+                app.eventsDataManager.unsetFMCSolve(comp_event_id, scramble_id);
             }
         };
 
-        $(".single-time.fmc>.time-value").on("keyup, keypress, blur", function(e) {
+        // Set up a keypress listener on the FMC cards
+        $(FMC_LENGTH_TEXT_SELECTOR).on("keyup keypress blur", function(e) {
             clearTimeout(fmcTimeout);
 
             // Only allow digits
@@ -119,8 +131,8 @@
      * and to display the scramble
      */
     TimerScreenManager.prototype._wire_fmc_card_click = function(comp_event_id) {
-        $(".single-time.fmc").click(function(){
-            $('.single-time.active').removeClass('active');
+        $(FMC_CARD_SELECTOR).click(function(){
+            $(SOLVE_CARD_ACTIVE_SELECTOR).removeClass('active');
             $(this).addClass('active');
             app.currentScramblesManager.attachSpecifiedScramble(comp_event_id, $(this).attr('data-id'));
         });
@@ -132,65 +144,65 @@
      */
     TimerScreenManager.prototype._wire_solve_context_menu = function(compEventId) {
         // Clear all the penalties, set visible time back to the time of the solve
-        var clearPenalty = function($solveClicked) {
-            var scrambleId = $solveClicked.attr('data-id');
-            app.eventsDataManager.clearPenalty(compEventId, scrambleId);
+        var clearPenalty = function($solve_clicked) {
+            var scramble_id = $solve_clicked.attr('data-id');
+            app.eventsDataManager.clearPenalty(compEventId, scramble_id);
 
-            var solveTime = app.eventsDataManager.getSolveRecord(compEventId, scrambleId).time;
-            $solveClicked.find('.time-value').html(app.convertRawCsForSolveCard(solveTime));
+            var solve_time = app.eventsDataManager.getSolveRecord(compEventId, scramble_id).time;
+            $solve_clicked.find(FMC_LENGTH_TEXT_SELECTOR).html(app.convertRawCsForSolveCard(solve_time));
         };
 
         // Set DNF penalty, set visible time to 'DNF'
-        var setDNF = function($solveClicked) {
-            var scrambleId = $solveClicked.attr('data-id');
-            app.eventsDataManager.setDNF(compEventId, scrambleId);
+        var setDNF = function($solve_clicked) {
+            var scramble_id = $solve_clicked.attr('data-id');
+            app.eventsDataManager.setDNF(compEventId, scramble_id);
 
-            $solveClicked.find('.time-value').html("DNF");
+            $solve_clicked.find(FMC_LENGTH_TEXT_SELECTOR).html("DNF");
         };
 
         // Set +2 penalty, set visible time to the
         // actual time + 2 seconds, and "+" mark to indicate penalty
-        var setPlusTwo = function($solveClicked) {
-            var scrambleId = $solveClicked.attr('data-id');
-            app.eventsDataManager.setPlusTwo(compEventId, scrambleId);
+        var setPlusTwo = function($solve_clicked) {
+            var scramble_id = $solve_clicked.attr('data-id');
+            app.eventsDataManager.setPlusTwo(compEventId, scramble_id);
 
-            var solveTime = app.eventsDataManager.getSolveRecord(compEventId, scrambleId).time;
-            $solveClicked.find('.time-value').html(app.convertRawCsForSolveCard(solveTime + 200) + "+");
+            var solve_time = app.eventsDataManager.getSolveRecord(compEventId, scramble_id).time;
+            $solve_clicked.find(FMC_LENGTH_TEXT_SELECTOR).html(app.convertRawCsForSolveCard(solve_time + 200) + "+");
         };
 
         // Check if the selected solve is complete
-        var isComplete = function($solveClicked) {
-            var scrambleId = $solveClicked.attr('data-id');
-            return app.eventsDataManager.getSolveRecord(compEventId, scrambleId).status == 'complete';
+        var isComplete = function($solve_clicked) {
+            var scramble_id = $solve_clicked.attr('data-id');
+            return app.eventsDataManager.getSolveRecord(compEventId, scramble_id).status == 'complete';
         };
 
         // Check if the selected solve has DNF penalty
-        var hasDNF = function($solveClicked) {
-            var scrambleId = $solveClicked.attr('data-id');
-            return app.eventsDataManager.getSolveRecord(compEventId, scrambleId).isDNF;
+        var hasDNF = function($solve_clicked) {
+            var scramble_id = $solve_clicked.attr('data-id');
+            return app.eventsDataManager.getSolveRecord(compEventId, scramble_id).isDNF;
         };
 
         // Check if the selected solve has +2 penalty
-        var hasPlusTwo = function($solveClicked) {
-            var scrambleId = $solveClicked.attr('data-id');
-            return app.eventsDataManager.getSolveRecord(compEventId, scrambleId).isPlusTwo;
+        var hasPlusTwo = function($solve_clicked) {
+            var scramble_id = $solve_clicked.attr('data-id');
+            return app.eventsDataManager.getSolveRecord(compEventId, scramble_id).isPlusTwo;
         };
 
         // Retry the selected solve - set it as the only active solve, attach the timer, prepare the timer
-        var retrySolve = function($solveClicked) {
-            var scrambleId = $solveClicked.attr('data-id');
+        var retrySolve = function($solve_clicked) {
+            var scramble_id = $solve_clicked.attr('data-id');
 
             // Remove active status from whichever solve is currently active, if any.
             // Set the selected solve as active.
-            $('.single-time.active').removeClass('active');
-            $solveClicked.addClass('active');
+            $(SOLVE_CARD_ACTIVE_SELECTOR).removeClass('active');
+            $solve_clicked.addClass('active');
 
             // Attach it to this solve card
-            app.currentScramblesManager.attachSpecifiedScramble(compEventId, scrambleId);
+            app.currentScramblesManager.attachSpecifiedScramble(compEventId, scramble_id);
         }
 
         $.contextMenu({
-            selector: '.single-time:not(.fmc)',
+            selector: NON_FMC_SOLVE_CARD_SELECTOR,
             trigger: 'left',
             hideOnSecondTrigger: true,
             items: {

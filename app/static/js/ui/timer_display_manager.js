@@ -1,7 +1,8 @@
 (function() {
+    var app = window.app;
 
     /**
-     * Manages the state of the visible timer
+     * Manages the state of the visible timer display based on events emitted by the timer
      */
     function TimerDisplayManager() {
         this._registerTimerEventHandlers();
@@ -16,7 +17,7 @@
         var $centiseconds = $('#centiseconds');
 
         $dot.html('.');
-        $seconds.html(window.app.convertSecondsToMinutes(seconds));
+        $seconds.html(app.convertSecondsToMinutes(seconds));
         $centiseconds.html(centiseconds);
     }
 
@@ -24,24 +25,23 @@
      * Event handler for the timer's stop event - updates display time
      */
     TimerDisplayManager.prototype._handleTimerStop = function(timerStopData) {
-        this._displayTime(timerStopData.friendlySeconds, timerStopData.friendlyCentiseconds);
+        this._displayTime(timerStopData.friendly_seconds, timerStopData.friendly_centiseconds);
     };
 
     /**
      * Event handler for the timer's interval event - updates display time
      */
     TimerDisplayManager.prototype._handleTimerInterval = function(intervalData) {
-        this._displayTime(intervalData.friendlySeconds, intervalData.friendlyCentiseconds);
+        this._displayTime(intervalData.friendly_seconds, intervalData.friendly_centiseconds);
     };
 
     /**
      * Register handlers for timer events.
      */
     TimerDisplayManager.prototype._registerTimerEventHandlers = function() {
-        var app = window.app;
         app.timer.on(app.EVENT_TIMER_STOP, this._handleTimerStop.bind(this));
         app.timer.on(app.EVENT_TIMER_INTERVAL, this._handleTimerInterval.bind(this));
     };
 
-    window.app.TimerDisplayManager = TimerDisplayManager;
+    app.TimerDisplayManager = TimerDisplayManager;
 })();

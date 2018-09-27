@@ -56,7 +56,7 @@
     };
 
     /**
-     * Renders a solve time as a human-friendly string, based on penalty status and raw solve time
+     * Renders a solve time as a human-friendly string, based on penalty status and raw solve time.
      */
     function renderTime(solve) {
         if (solve.isDNF) {

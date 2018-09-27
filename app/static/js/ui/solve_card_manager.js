@@ -12,22 +12,22 @@
     /**
      * Returns a jQuery reference to the solve card for the specified scramble ID.
      */
-    SolveCardManager.prototype._getSolveCardElement = function(scrambleId) {
-        return $('#scramble_' + scrambleId);
+    SolveCardManager.prototype._getSolveCardElement = function(scramble_id) {
+        return $('#scramble_' + scramble_id);
     };
 
     /**
      * Event handler for the timer's stop event - updates the solve cards
      * with the correct time
      */
-    SolveCardManager.prototype._updateCardWithTime = function(eventData) {
-        var $solveCard = this._getSolveCardElement(eventData.scrambleId);
+    SolveCardManager.prototype._updateCardWithTime = function(event_data) {
+        var $solve_card = this._getSolveCardElement(event_data.scramble_id);
 
         // mark the attached solve card as complete and no longer active
-        $solveCard.addClass('complete').removeClass('active');
+        $solve_card.addClass('complete').removeClass('active');
 
         // set the visible solve time on the card
-        $solveCard.find('.time-value').html(eventData.friendlyTimeFull);
+        $solve_card.find('.time-value').html(event_data.friendly_time_full);
     };
 
     /**

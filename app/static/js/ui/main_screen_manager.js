@@ -56,7 +56,7 @@
     };
 
     /**
-     * Register handlers for EventsDataManager events.
+     * Register handlers for AppModeManager events.
      */
     MainScreenManager.prototype._registerAppModeManagerListeners = function() {
         app.appModeManager.on(app.EVENT_APP_MODE_TO_MAIN, this._showTimerScreen.bind(this));

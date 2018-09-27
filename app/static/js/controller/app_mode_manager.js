@@ -1,12 +1,17 @@
 (function() {
     var app = window.app;
 
+    // The events the AppModeManager can emit
     var EVENT_APP_MODE_TO_MAIN = 'event_app_mode_to_main';
     var EVENT_APP_MODE_TO_TIMER = 'event_app_mode_to_timer';
     var EVENT_APP_MODE_TO_SUMMARY = 'event_app_mode_to_summary';
 
+    /**
+     * Manages the overall state of the web app - which screen is currently visible,
+     * and the transitions between them.
+     */
     function AppModeManager() {
-        app.EventEmitter.call(this);  // AppModeManager is an EventEmitter
+        app.EventEmitter.call(this);
 
         this._wire_event_card_click();
         this._wire_review_button();
@@ -43,9 +48,9 @@
     },
 
     /**
-     * 
+     * When clicking the button to return to the events panel, show 
      */
-    AppModeManager.prototype._wire_return_to_events_from_summary = function() {
+    AppModeManager.prototype.wire_return_to_events_from_summary = function() {
         $('#summary-buttons>.btn-return').click(function(){
             this.emit(EVENT_APP_MODE_TO_MAIN);
         }.bind(this));
