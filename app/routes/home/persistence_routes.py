@@ -43,31 +43,31 @@ def get_event_summaries():
         6:26.83 = 6:46.17, 5:50.88, 6:43.44           --> for a Mo3 event """
 
     data = request.get_json()
+    summaries = {event['comp_event_id']: build_summary(event) for event in data}
+
+    return json.dumps(summaries)
+
+
+def build_summary(event):
+    """ Builds the summary for the event and returns it. """
 
     build_results = build_user_event_results
     friendly = convert_centiseconds_to_friendly_time
 
-    summaries = dict()
-    for event in data:
-        results = build_results(event['comp_event_id'], event['scrambles'], event['comment'])
-        event_format = comp_manager.get_event_by_name(event['name']).eventFormat
-        is_fmc = event['name'] == 'FMC'
+    results = build_results(event['comp_event_id'], event['scrambles'], event['comment'])
+    event_format = comp_manager.get_event_by_name(event['name']).eventFormat
+    is_fmc = event['name'] == 'FMC'
 
-        if event_format == EventFormat.Bo1:
-            summary = friendly(results.single)
+    if event_format == EventFormat.Bo1:
+        return friendly(results.single)
 
-        else:
-            best = results.single if (event_format == EventFormat.Bo3) else results.average
-            if not is_fmc:
-                best = friendly(best)
-            else:
-                best = (best/100)
-                if best == int(best):
-                    best = int(best)
+    best = results.single if (event_format == EventFormat.Bo3) else results.average
+    if not is_fmc:
+        best = friendly(best)
+    else:
+        best = (best/100)
+        if best == int(best):
+            best = int(best)
 
-            times_string = build_times_string(results.solves, event_format, is_fmc)
-            summary = "{} = {}".format(best, times_string)
-
-        summaries[event['comp_event_id']] = summary
-
-    return json.dumps(summaries)
+    times_string = build_times_string(results.solves, event_format, is_fmc)
+    return "{} = {}".format(best, times_string)

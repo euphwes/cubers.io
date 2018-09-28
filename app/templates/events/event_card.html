@@ -1,8 +1,21 @@
+{% if competition_event.id in complete_events %}
+<div class="event-card card complete" id="event-{{competition_event.id}}"
+        data-comp_event_id="{{competition_event.id}}"
+        data-event_name="{{competition_event.Event.name}}"
+        data-event_id="{{competition_event.Event.id}}">
+{% else %}
+{% if competition_event.id in incomplete_events %}
+<div class="event-card card incomplete" id="event-{{competition_event.id}}"
+        data-comp_event_id="{{competition_event.id}}"
+        data-event_name="{{competition_event.Event.name}}"
+        data-event_id="{{competition_event.Event.id}}">
+{% else %}
 <div class="event-card card" id="event-{{competition_event.id}}"
-    data-comp_event_id="{{competition_event.id}}"
-    data-event_name="{{competition_event.Event.name}}"
-    data-event_id="{{competition_event.Event.id}}">
-
+        data-comp_event_id="{{competition_event.id}}"
+        data-event_name="{{competition_event.Event.name}}"
+        data-event_id="{{competition_event.Event.id}}">
+{% endif %}
+{% endif %}
     <div class="event-image-container">
         <img class="event-image" src="./static/images/cube-{{ competition_event.Event.id }}.png">
         <div class="overlay complete-overlay">

@@ -8,6 +8,8 @@ from app.persistence import comp_manager
 from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import get_event_results_for_user
 
+from app.routes.home.persistence_routes import build_summary
+
 # -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.route('/')
@@ -50,8 +52,17 @@ def index():
     ordered_comp_events = list([comp_event for comp_event in comp.events])
     ordered_comp_events.sort(key=lambda c: c.event_id)
 
+    complete_events = list()
+    incomplete_events = list()
+    for comp_event_id, event in events_for_json.items():
+        if event.get('status', '') == 'complete':
+            complete_events.append(int(comp_event_id))
+        elif event.get('status', '') == 'incomplete':
+            incomplete_events.append(int(comp_event_id))
+
     return render_template('index.html', current_competition=comp, events_data=events_for_json,
-                           ordered_comp_events=ordered_comp_events)
+                           ordered_comp_events=ordered_comp_events, complete_events=complete_events,
+                           incomplete_events=incomplete_events)
 
 
 @CUBERS_APP.route('/prompt_login')
@@ -69,6 +80,9 @@ def fill_any_existing_user_data(user, event):
         event['save_status'] = 'new'
         return event
 
+    scrambles_completed = 0
+    total_scrambles     = len(event['scrambles'])
+
     event['save_status'] = 'saved'
     event['comment'] = prev.comment
     for solve in prev.solves:
@@ -79,5 +93,12 @@ def fill_any_existing_user_data(user, event):
             scram['time'] = solve.time
             scram['isPlusTwo'] = solve.is_plus_two
             scram['isDNF'] = solve.is_dnf
+            scrambles_completed += 1
+
+    if scrambles_completed == total_scrambles:
+        event['summary'] = build_summary(event)
+        event['status']  = 'complete'
+    elif scrambles_completed > 0:
+        event['status']  = 'incomplete'
 
     return event

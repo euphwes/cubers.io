@@ -21,14 +21,12 @@
     EventsDataManager.prototype = Object.create(app.EventEmitter.prototype);
 
     /**
-     * Iterates over all of the events data at startup and figure out which are complete
-     * in-progress/incomplete.
-     * 
-     * TODO: can we do this on the server-side and just render the template with these classes?
+     * On page load, build all the summaries for the incomplete events, since they don't
+     * come with the event data from the server.
      */
-    EventsDataManager.prototype.updateAllEventsStatus = function() {
-        $.each(this.events_data, function(i, event){
-            this._updateSingleEventStatus(event, false);
+    EventsDataManager.prototype.buildAllIncompleteSummaries = function() {
+        $.each(this.events_data, function(id, event) {
+            if (event.status == 'incomplete') { this._recordIncompleteSummaryForEvent(event); }
         }.bind(this));
     };
 
@@ -36,10 +34,7 @@
      * Iterate over all the solves for this event, and updates data about the event itself based
      * on the results
      */
-    EventsDataManager.prototype._updateSingleEventStatus = function(event, saveEvent) {
-        // default saveEvent to true
-        saveEvent = (typeof saveEvent !== 'undefined') ? saveEvent : true;
-
+    EventsDataManager.prototype._updateSingleEventStatus = function(event) {
         // Count the total number of solves and the number of completed solves
         var total_solves     = event.scrambles.length;
         var completed_solves = event.scrambles.filter(x => Boolean(x.time)).length;
@@ -50,7 +45,7 @@
         if (total_solves == completed_solves) {
             event.status = 'complete';
             this._recordSummaryForEvent(event);
-            if (saveEvent) { this._saveEvent(event); }
+            this._saveEvent(event);
             this.emit(EVENT_SET_COMPLETE, event.comp_event_id);
             return;
         }
@@ -60,8 +55,8 @@
         // so the card is visually updated.
         if (completed_solves > 0) {
             event.status = 'incomplete';
+            this._saveEvent(event);
             this._recordIncompleteSummaryForEvent(event);
-            if (saveEvent) { this._saveEvent(event); }
             this.emit(EVENT_SET_INCOMPLETE, event.comp_event_id);
             return;
         }
@@ -70,7 +65,7 @@
         // are null and the card has no visual indicator
         event.status = null;
         event.summary = null;
-        if (saveEvent) { this._saveEvent(event); }
+        this._saveEvent(event);
         this.emit(EVENT_SET_NO_STATUS, event.comp_event_id);
     };
 

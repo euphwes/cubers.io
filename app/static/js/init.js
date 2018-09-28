@@ -24,7 +24,7 @@
         app.timerScreenManager = new app.TimerScreenManager();
         app.summaryScreenManager = new app.SummaryScreenManager();
 
-        app.eventsDataManager.updateAllEventsStatus();
+        app.eventsDataManager.buildAllIncompleteSummaries();
     };
 
     $(init);
