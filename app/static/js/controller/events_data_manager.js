@@ -257,7 +257,7 @@
      */
     EventsDataManager.prototype.setCommentForEvent = function(comment, comp_event_id) {
         this.events_data[comp_event_id].comment = comment;
-        // TODO update single event status here after auto-save solve logic is in
+        this._updateSingleEventStatus(this.events_data[comp_event_id]);
     };
 
     /**
