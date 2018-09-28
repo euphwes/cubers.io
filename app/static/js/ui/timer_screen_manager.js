@@ -199,7 +199,13 @@
 
             // Attach it to this solve card
             app.currentScramblesManager.attachSpecifiedScramble(compEventId, scramble_id);
-        }
+        };
+
+        // Delete the selected solve - remove the recorded time from it.
+        var deleteSolve = function($solve_clicked) {
+            var scramble_id = $solve_clicked.attr('data-id');
+            app.eventsDataManager.deleteSolveTime(compEventId, scramble_id);
+        };
 
         $.contextMenu({
             selector: NON_FMC_SOLVE_CARD_SELECTOR,
@@ -229,6 +235,12 @@
                     name: "Redo solve",
                     icon: "fas fa-redo",
                     callback: function(itemKey, opt, e) { retrySolve($(opt.$trigger)); },
+                    disabled: function(key, opt) { return !isComplete(this) }
+                },
+                "delete": {
+                    name: "Delete time",
+                    icon: "fas fa-trash",
+                    callback: function(itemKey, opt, e) { deleteSolve($(opt.$trigger)); },
                     disabled: function(key, opt) { return !isComplete(this) }
                 },
             }

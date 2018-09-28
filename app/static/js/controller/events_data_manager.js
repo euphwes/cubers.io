@@ -196,6 +196,27 @@
     };
 
     /**
+     * Deletes the solve time for the specified comp event and scramble ID
+     */
+    EventsDataManager.prototype.deleteSolveTime = function(comp_event_id, scramble_id) {
+        $.each(this.events_data[comp_event_id].scrambles, function(i, curr_solve_record) {
+            if (curr_solve_record.id != scramble_id) { return true; }
+            curr_solve_record.time   = null;
+            curr_solve_record.status = null;
+            return false;
+        });
+        this._updateSingleEventStatus(this.events_data[comp_event_id]);
+
+        var data = {};
+        data.scramble_id = scramble_id;
+        data.friendly_time_full = '—';
+        data.is_delete = true;
+        data.comp_event_id = comp_event_id;
+
+        this.emit(EVENT_SOLVE_RECORD_UPDATED, data);
+    };
+
+    /**
      * Sets plus two for the specified comp event and scramble ID
      */
     EventsDataManager.prototype.setPlusTwo = function(comp_event_id, scramble_id) {
