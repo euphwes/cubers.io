@@ -28,7 +28,7 @@
      */
     EventsDataManager.prototype.updateAllEventsStatus = function() {
         $.each(this.events_data, function(i, event){
-            this._updateSingleEventStatus(event);
+            this._updateSingleEventStatus(event, false);
         }.bind(this));
     };
 
@@ -36,7 +36,9 @@
      * Iterate over all the solves for this event, and updates data about the event itself based
      * on the results
      */
-    EventsDataManager.prototype._updateSingleEventStatus = function(event) {
+    EventsDataManager.prototype._updateSingleEventStatus = function(event, saveEvent) {
+        // default saveEvent to true
+        saveEvent = (typeof saveEvent !== 'undefined') ? saveEvent : true;
 
         // Count the total number of solves and the number of completed solves
         var total_solves     = event.scrambles.length;
@@ -48,6 +50,7 @@
         if (total_solves == completed_solves) {
             event.status = 'complete';
             this._recordSummaryForEvent(event);
+            if (saveEvent) { this._saveEvent(event); }
             this.emit(EVENT_SET_COMPLETE, event.comp_event_id);
             return;
         }
@@ -58,6 +61,7 @@
         if (completed_solves > 0) {
             event.status = 'incomplete';
             this._recordIncompleteSummaryForEvent(event);
+            if (saveEvent) { this._saveEvent(event); }
             this.emit(EVENT_SET_INCOMPLETE, event.comp_event_id);
             return;
         }
@@ -67,6 +71,37 @@
         event.status = null;
         event.summary = null;
         this.emit(EVENT_SET_NO_STATUS, event.comp_event_id);
+    };
+
+    /**
+     * Saves the event so the user doesn't lose solves if they navigate away.
+     */
+    EventsDataManager.prototype._saveEvent = function(event) {
+        if (app.user_logged_in) {
+            this._saveEventToServer(event);
+        } else {
+            // this._saveEventToLocalStorage(event);
+        }
+    };
+
+    /**
+     * Makes a call out to the server to save the event to the database
+     */
+    EventsDataManager.prototype._saveEventToServer = function(event) {
+        // wrap event in an object where the property name is the comp event id,
+        // and the property value is the event itself. This is just so server-side
+        // logic can be re-used
+        var event_data = {};
+        event_data[event.comp_event_id] = event;
+
+        $.ajax({
+            url: "/save_event",
+            type: "POST",
+            data: JSON.stringify(event_data),
+            contentType: "application/json",
+            success: function() { event.save_status = 'saved'; },
+            error: function() { event.save_status = 'error'; },
+        });
     };
 
     /**

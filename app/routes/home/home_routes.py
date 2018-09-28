@@ -2,7 +2,7 @@
 
 import json
 
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, abort
 from flask_login import current_user
 
 from app import CUBERS_APP
@@ -10,7 +10,7 @@ from app.persistence import comp_manager
 from app.persistence.models import EventFormat
 from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import build_user_event_results,\
-     save_event_results_for_user, get_event_results_for_user_and_comp_event
+     save_event_results_for_user, get_event_results_for_user
 from app.util.reddit_util import build_comment_source_from_events_results,\
      submit_comment_for_user, get_permalink_for_comp_thread, build_times_string,\
      convert_centiseconds_to_friendly_time, update_comment_for_user
@@ -69,6 +69,24 @@ def prompt_login():
     return render_template('prompt_login/prompt_login.html', current_competition=comp)
 
 
+@CUBERS_APP.route('/save_event', methods=['POST'])
+def save_event():
+    """ A route for saving a specific event to the database. """
+
+    if not current_user.is_authenticated:
+        return abort(400, "authenticated users only")
+
+    try:
+        user_events  = request.get_json()
+        event_result = build_user_results(user_events)[0]
+        user = get_user_by_username(current_user.username)
+        save_event_results_for_user(event_result, user)
+        return ('', 204) # intentionally empty, 204 No Content
+
+    except Exception as ex:
+        return abort(500, str(ex))
+
+
 @CUBERS_APP.route('/submit', methods=['POST'])
 def submit_times():
     """ A route for submitting user times for a competition. If the user is authenticated, save
@@ -102,7 +120,7 @@ def submit_times():
         is_resubmit = False
         old_reddit_comment_id = None
         for result in user_results:
-            prev_result = get_event_results_for_user_and_comp_event(result.comp_event_id, user)
+            prev_result = get_event_results_for_user(result.comp_event_id, user)
             if prev_result:
                 is_resubmit = True
                 old_reddit_comment_id = prev_result.reddit_comment
@@ -122,8 +140,6 @@ def submit_times():
             return render_template(COMMENT_SUCCESS_TEMPLATE, comment_url=url,
                                    current_competition=comp)
         except Exception as e:
-            import sys
-            print(e, file=sys.stderr)
             return render_template(COMMENT_FAILURE_TEMPLATE, comment_source=comment_source,
                                    comp_url=comp_thread_url, current_competition=comp)
 
@@ -173,9 +189,9 @@ def build_user_results(user_events):
 
     user_results = list()
 
-    for comp_event_id, solve_comment_dict in user_events.items():
-        solves = solve_comment_dict['scrambles']
-        comment = solve_comment_dict.get('comment', '')
+    for comp_event_id, solves_dict in user_events.items():
+        solves = solves_dict['scrambles']
+        comment = solves_dict.get('comment', '')
         event_results = build_user_event_results(comp_event_id, solves, comment)
         if event_results:
             user_results.append(event_results)
@@ -186,10 +202,12 @@ def build_user_results(user_events):
 def fill_any_existing_user_data(curr_user, event):
     """ asd """
     user = get_user_by_username(curr_user.username)
-    prev = get_event_results_for_user_and_comp_event(event['comp_event_id'], user)
+    prev = get_event_results_for_user(event['comp_event_id'], user)
     if not prev:
+        event['save_status'] = 'new'
         return event
 
+    event['save_status'] = 'saved'
     event['comment'] = prev.comment
     for solve in prev.solves:
         scramble_id = solve.scramble_id
