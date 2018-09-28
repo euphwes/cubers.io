@@ -8,6 +8,21 @@ from .comp_manager import get_comp_event_by_id
 
 # -------------------------------------------------------------------------------------------------
 
+def build_all_user_results(user_events_dict):
+    """ Builds a list of all UserEventsResult objects, from a dictionary of comp event ID and a
+    list of scrambles and associated solve times. (this dict comes from front-end) """
+
+    user_results = list()
+
+    for comp_event_id, solves_dict in user_events_dict.items():
+        solves = solves_dict['scrambles']
+        comment = solves_dict.get('comment', '')
+        event_results = build_user_event_results(comp_event_id, solves, comment)
+        user_results.append(event_results)
+
+    return user_results
+
+
 def build_user_event_results(comp_event_id, solves, comment):
     """ Builds a UserEventsResult object from a competition_event ID and a list of scrambles
     and associated solve times. """
@@ -18,7 +33,6 @@ def build_user_event_results(comp_event_id, solves, comment):
     for solve in solves:
         time = solve['time']
         if not time:
-            # time is literally zero, meaning user didn't submit a time for this solve
             continue
 
         dnf         = solve['isDNF']
@@ -63,6 +77,7 @@ def save_event_results_for_user(comp_event_results, user):
     DB.session.commit()
 
     return comp_event_results
+
 
 def __save_existing_event_results(existing_results, new_results):
     """ Update the existing UserEventResults and UserSolves with the new data. """

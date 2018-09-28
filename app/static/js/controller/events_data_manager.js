@@ -115,7 +115,7 @@
             event.summary = data[event.comp_event_id];
         };
         $.ajax({
-            url: "/eventSummaries",
+            url: "/event_summaries",
             type: "POST",
             data: JSON.stringify([event]),
             contentType: "application/json",
