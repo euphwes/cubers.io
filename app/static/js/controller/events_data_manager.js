@@ -70,6 +70,7 @@
         // are null and the card has no visual indicator
         event.status = null;
         event.summary = null;
+        if (saveEvent) { this._saveEvent(event); }
         this.emit(EVENT_SET_NO_STATUS, event.comp_event_id);
     };
 

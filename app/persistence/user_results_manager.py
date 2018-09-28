@@ -29,9 +29,6 @@ def build_user_event_results(comp_event_id, solves, comment):
         user_solve = UserSolve(time=time, is_dnf=dnf, is_plus_two=plus_two, scramble_id=scramble_id)
         results.solves.append(user_solve)
 
-    if not results.solves:
-        return None
-
     num_expected_solves = comp_event.Event.totalSolves
     if len(results.solves) < num_expected_solves:
         results.single = 'PENDING'

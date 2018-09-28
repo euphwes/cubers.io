@@ -193,8 +193,7 @@ def build_user_results(user_events):
         solves = solves_dict['scrambles']
         comment = solves_dict.get('comment', '')
         event_results = build_user_event_results(comp_event_id, solves, comment)
-        if event_results:
-            user_results.append(event_results)
+        user_results.append(event_results)
 
     return user_results
 
