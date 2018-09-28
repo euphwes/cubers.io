@@ -9,7 +9,7 @@ from app import CUBERS_APP
 from app.persistence import comp_manager
 from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import build_all_user_results,\
-     save_event_results_for_user, get_event_results_for_user
+     save_event_results_for_user, determine_if_resubmit
 from app.util.reddit_util import build_comment_source_from_events_results,\
      submit_comment_for_user, get_permalink_for_comp_thread, update_comment_for_user
 
@@ -18,6 +18,7 @@ from app.util.reddit_util import build_comment_source_from_events_results,\
 COMMENT_SUCCESS_TEMPLATE = 'submit/comment_submit_success.html'
 COMMENT_FAILURE_TEMPLATE = 'submit/comment_submit_failure.html'
 COMMENT_SOURCE_TEMPLATE  = 'submit/times_comment_source.html'
+SAVE_SUCCESS_BUT_NO_COMMENT_TEMPLATE = 'submit/saved_but_no_comment.html'
 
 # -------------------------------------------------------------------------------------------------
 
@@ -40,45 +41,52 @@ def submit_times():
     comment_source = build_comment_source_from_events_results(user_results)
 
     comp = comp_manager.get_active_competition()
-    comp_reddit_id = comp.reddit_thread_id
-    comp_thread_url = get_permalink_for_comp_thread(comp_reddit_id)
-
-    for results in user_results:
-        if results.is_complete():
-            any_complete_to_post = True
-            break
+    reddit_thread_id = comp.reddit_thread_id
+    comp_thread_url = get_permalink_for_comp_thread(reddit_thread_id)
 
     if current_user.is_authenticated:
         user = get_user_by_username(current_user.username)
-
-        is_resubmit = False
-        old_reddit_comment_id = None
-        for result in user_results:
-            prev_result = get_event_results_for_user(result.comp_event_id, user)
-            if prev_result and prev_result.reddit_comment:
-                is_resubmit = True
-                old_reddit_comment_id = prev_result.reddit_comment
-                break
-
         try:
-            if not is_resubmit:
-                url, comment_id = submit_comment_for_user(user, comp_reddit_id, comment_source)
-                for result in user_results:
+            url, comment_id = do_reddit_submit(user, user_results, comment_source, reddit_thread_id)
+            for result in user_results:
+                if comment_id:
                     result.reddit_comment = comment_id
-                    save_event_results_for_user(result, user)
-            else:
-                url, comment_id = update_comment_for_user(user, old_reddit_comment_id, comment_source)
-                for result in user_results:
-                    result.reddit_comment = comment_id
-                    save_event_results_for_user(result, user)
-            return render_template(COMMENT_SUCCESS_TEMPLATE, comment_url=url,
-                                   current_competition=comp)
-        except Exception as e:
+                save_event_results_for_user(result, user)
+
+            if comment_id:
+                return render_template(COMMENT_SUCCESS_TEMPLATE, comment_url=url,
+                                    current_competition=comp)
+
+            return render_template(SAVE_SUCCESS_BUT_NO_COMMENT_TEMPLATE, current_competition=comp)
+            
+        except Exception as ex:
+            # TODO figure out what exceptions can be thrown here
             import sys
-            print(e, file=sys.stderr)
+            import traceback
+            print(ex, file=sys.stderr)
+            traceback.print_exc(file=sys.stderr)
             return render_template(COMMENT_FAILURE_TEMPLATE, comment_source=comment_source,
                                    comp_url=comp_thread_url, current_competition=comp)
 
     # show comment source page
     return render_template(COMMENT_SOURCE_TEMPLATE, comment_source=comment_source,
                            comp_url=comp_thread_url, current_competition=comp)
+
+# -------------------------------------------------------------------------------------------------
+
+def do_reddit_submit(user, user_results, comment_source, comp_reddit_thread_id):
+    """ Handle submitting a new, or updating an existing, Reddit comment. Returns a tuple of
+    the Reddit comment URL and the comment ID. """
+
+    anything_to_post = any(_.is_complete() for _ in user_results)
+    if not anything_to_post:
+        return None, None
+
+    previous_comment_id = determine_if_resubmit(user_results, user)
+
+    # this is a resubmission
+    if previous_comment_id:
+        return update_comment_for_user(user, previous_comment_id, comment_source)
+
+    # new submission
+    return submit_comment_for_user(user, comp_reddit_thread_id, comment_source)

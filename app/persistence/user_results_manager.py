@@ -8,15 +8,26 @@ from .comp_manager import get_comp_event_by_id
 
 # -------------------------------------------------------------------------------------------------
 
+
+def determine_if_resubmit(user_results, user):
+    """ Determines if user has already submitted results to Reddit for this competition. Returns the
+    Reddit comment ID if it is a resubmission, or None if it is new. """
+    for result in user_results:
+        prev_result = get_event_results_for_user(result.comp_event_id, user)
+        if prev_result and prev_result.reddit_comment:
+            return prev_result.reddit_comment
+    return None
+
+
 def build_all_user_results(user_events_dict):
     """ Builds a list of all UserEventsResult objects, from a dictionary of comp event ID and a
     list of scrambles and associated solve times. (this dict comes from front-end) """
 
     user_results = list()
 
-    for comp_event_id, solves_dict in user_events_dict.items():
-        solves = solves_dict['scrambles']
-        comment = solves_dict.get('comment', '')
+    for comp_event_id, comp_event_dict in user_events_dict.items():
+        solves = comp_event_dict['scrambles']
+        comment = comp_event_dict.get('comment', '')
         event_results = build_user_event_results(comp_event_id, solves, comment)
         user_results.append(event_results)
 
