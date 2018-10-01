@@ -17,7 +17,7 @@
         var $centiseconds = $('#centiseconds');
 
         $dot.html('.');
-        $seconds.html(app.convertSecondsToMinutes(seconds));
+        $seconds.html(seconds);
         $centiseconds.html(centiseconds);
     }
 
