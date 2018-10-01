@@ -12,7 +12,12 @@
      * Event handler for when a scramble is attached to the timer. Show the scramble in the display.
      */
     ScrambleDisplayManager.prototype._showScramble = function(scramble) {
-        $('.scramble-wrapper>div').html(scramble.scramble);
+        var renderedScramble = "";
+        $.each(scramble.scramble.split('\n'), function(i, piece){
+            renderedScramble += "<p>" + piece + "</p>";
+        });
+
+        $('.scramble-wrapper>div').html(renderedScramble);
     };
 
     /**
