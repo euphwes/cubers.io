@@ -3,11 +3,21 @@
 @off-white: #ECECEC;
 @highlight-color: #187FA5;
 
-// Screen sizes (https://getbootstrap.com/docs/4.0/layout/grid/)
-@screen-xs: 575px;
-@screen-sm: 767px;
-@screen-md: 991px;
-@screen-lg: 1199px;
+@desktop:   ~"only screen and (min-width: 1200px)";
+@tablet:    ~"only screen and (min-width: 720px) and (max-width: 1159px)";
+@mobile:    ~"only screen and (max-width: 719px)";
+
+@media @desktop {
+  footer {
+    width: 940px;
+  }
+}
+
+@media @tablet {
+  footer {
+    width: 768px;
+  }
+}
 
 //------------------------------------------------------------------------
 
@@ -15,29 +25,17 @@ html,body {
     background-color: @off-white !important;
 }
 
-@font-face{
-	font-family:'lcd';
-	src:url('data:application/x-font-woff;charset=utf-8;base64,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') format('woff');
-	font-weight:normal;
-	font-style:normal;
+.drop-shadow {
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
+    border-radius: 2px;
+    border-width: 0px !important;
+    transition-property: box-shadow, box-shadow;
+
+    &:hover {
+        box-shadow: 0 5px 5px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
+    }
 }
 
-.row.no-gutters {
-    margin-right: 0;
-    margin-left: 0;
-}
-
-.row.no-gutters > [class^="col-"], .row.no-gutters > [class*=" col-"] {
-    padding-right: 0;
-    padding-left: 0;
-}
-
-.row-no-padding > [class*="col-"] {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-}
-
-// Because for some reason Bootstrap has !important tags... why? IDK.
 .ultra-hidden {
     display: none !important;
 }
@@ -51,12 +49,7 @@ html,body {
     cursor: default;
 }
 
-.card {
-    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
-    border-radius: 2px;
-    border-width: 0px !important;
-    transition-property: box-shadow, box-shadow;
-}
+
 
 #timer_panel {
     padding-top: 15px;
@@ -109,10 +102,6 @@ html,body {
 
 .comp-info {
     text-align: center;
-    justify-content: center!important;
-}
-
-.event-cards {
     justify-content: center!important;
 }
 
@@ -185,105 +174,7 @@ html,body {
     }
 }
 
-.event-card {
-    text-align: center;
 
-    margin: 15px;
-    padding: 15px;
-    
-    -webkit-transition: all 250ms ease;
-    -moz-transition: all 250ms ease;
-    -o-transition: all 250ms ease;
-    transition: all 250ms ease;
-
-    .event-image-container {
-        height: 135px;
-        width: 135px;
-        position: relative;
-    }
-
-    .event-image {
-        -webkit-filter: saturate(0%) brightness(1.40);
-        filter: saturate(0%) brightness(1.40);
-
-        -webkit-transition: filter 250ms ease;
-        -moz-transition: filter 250ms ease;
-        -o-transition: filter 250ms ease;
-        transition: filter 250ms ease;
-    }
-
-    .icon {
-        font-size: 100px;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        -ms-transform: translate(-50%, -50%);
-        text-align: center;
-      }
-
-    .overlay {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 135px;
-        width: 135px;
-        opacity: 0;
-        transition: all 250ms ease;
-    }
-
-    &.complete {
-        .icon {
-            color: desaturate(#2be724, 35%);
-        }
-        .complete-overlay {
-            opacity: 1;
-            transition: all 250ms ease;
-        }
-    }
-
-    &.incomplete {
-        .icon {
-            color: desaturate(#3A8AAF, 0%);
-        }
-        .incomplete-overlay {
-            opacity: 1;
-            transition: all 250ms ease;
-        }
-    }
-
-    .event-name h5 {
-        margin-bottom: 0;
-        font-size: 16px;
-        font-family: 'Roboto', sans-serif;
-    }
-
-    &.complete, &.incomplete {
-        &:hover {
-            .overlay {
-                opacity: 0;
-                transition: all 250ms ease;
-            }
-        }
-    }
-
-    &:hover {
-        transform: translate(0px, -10px);
-        box-shadow: 0 5px 5px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
-
-        -webkit-transition: all 250ms ease;
-        -moz-transition: all 250ms ease;
-        -o-transition: all 250ms ease;
-        transition: all 250ms ease;
-
-        .event-image {
-            -webkit-filter: saturate(75%);
-            filter: saturate(75%);
-        }
-    }
-}
 
 #return-to-events, #summary-buttons, #times-submit {
     position: fixed;
