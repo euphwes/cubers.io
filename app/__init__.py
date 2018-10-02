@@ -48,7 +48,8 @@ ASSETS.register({
     ),
 
     'app_css': Bundle(
-        'less/cubers_common.less',
+        'less/common.less',
+        'less/navbar.less',
         filters="less,cssmin",
         output='gen/app.css'),
 })

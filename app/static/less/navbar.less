@@ -1,0 +1,26 @@
+@import "common.less";
+
+@navbar-color: #0a2446;
+
+//------------------------------------------------------------------------
+
+.cubers-navbar {
+    border-radius: 0;
+    background-color: @navbar-color;
+
+    a, .nav-link {
+        color: @off-white !important;
+    }
+
+    .dropdown-menu a {
+        color: black !important;
+    }
+
+    .nav-item {
+        margin: 0px 10px;
+
+        &:last-of-type {
+            margin-right: 0px;
+        }
+    }
+}
