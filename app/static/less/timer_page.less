@@ -19,14 +19,19 @@
 .scramble-wrapper {
     font-family: 'Roboto', sans-serif;
 
+    height: ~"calc(20% - 56px)";
     font-size: 24px;
     @media @mobile {
-        font-size: 14px;
+        font-size: 16px;
+        height: ~"calc(25% - 56px)";
+    }
+    @media @tablet {
+        font-size: 16px;
+        height: ~"calc(25% - 56px)";
     }
 
     background-color: #FCFCFC;
     
-    height: ~"calc(20% - 56px)";
     width: 100%;
 
     .scram {
@@ -57,16 +62,19 @@
 
     height: 80%;
     @media @tablet {
-        height: 20%;
+        height: 30%;
     }
     @media @mobile {
-        height: 20%;
+        height: 30%;
     }
 
     .single-time {
         margin: 10px 0 10px 0;
         min-height: 50px;
         @media @mobile {
+            min-height: initial;
+        }
+        @media @tablet {
             min-height: initial;
         }
 
@@ -141,13 +149,37 @@
 
     height: 80%;
     @media @tablet {
-        height: 60%;
+        height: 45%;
     }
     @media @mobile {
-        height: 60%;
+        height: 45%;
     }
 
     .timer-element {
         display: inline-block;
     }
+}
+
+#seconds, #dot {
+    font-size: 180px;
+    @media @tablet {
+        font-size: 60px;
+    }
+    @media @mobile {
+        font-size: 60px;
+    }
+}
+
+#centiseconds {
+    font-size: 140px;
+    @media @tablet {
+        font-size: 45px;
+    }
+    @media @mobile {
+        font-size: 45px;
+    }
+}
+
+.context-menu-icon.context-menu-icon--fa5 i {
+    padding-top: 3px;
 }
