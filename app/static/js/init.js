@@ -9,6 +9,8 @@
      * DON'T CHANGE THIS ORDER (unless you know what you are doing).
      */
     function init() {
+        app.is_mobile = Boolean(new MobileDetect(window.navigator.userAgent).mobile());
+
         app.appModeManager = new app.AppModeManager();
 
         app.timer = new app.Timer();

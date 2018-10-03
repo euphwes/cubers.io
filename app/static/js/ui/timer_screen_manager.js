@@ -39,6 +39,7 @@
             scrambles     : events[comp_event_id]['scrambles'],
             total_solves  : events[comp_event_id]['scrambles'].length,
             comment       : events[comp_event_id].comment,
+            isMobile      : app.is_mobile,
         };
 
         // FMC requires manual entry of integer times, and no timer
