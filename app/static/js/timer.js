@@ -56,6 +56,19 @@
             this.emit(EVENT_TIMER_ARMED);
         }.bind(this));
 
+        if (app.is_mobile) {
+            $('.timer-wrapper').on("click", function() {
+                // start the timer, and bind a new event to spacebar keydown 
+                // to stop the timer and then automatically advance to the next scramble
+                $('.timer-wrapper').off("click");
+                this._start();
+                $('.timer-wrapper').on("click", function() {
+                    $('.timer-wrapper').off("click");
+                    this._stop();
+                }.bind(this));
+            }.bind(this));
+        }
+
         // When the spacebar is released, unbind the spacebar keydown and keyup events
         // and bind a new keydown event which will stop the timer
         kd.SPACE.up(function() {
@@ -87,7 +100,7 @@
      */
     Timer.prototype.attachToScramble = function(scramble_id) {
         this.scramble_id = scramble_id;
-        setTimeout(this._enable.bind(this), 200);
+        setTimeout(this._enable.bind(this), 500);
     };
  
     /**
