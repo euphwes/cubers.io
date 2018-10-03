@@ -13,7 +13,7 @@
                 </li>-->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" href="#">Leaderboards</a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="#">Current (coming soon!)</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#">Previous (coming soon!)</a>
@@ -22,7 +22,7 @@
                 {% if current_user.is_authenticated %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" href="#">{{ current_user.username }}</a>
-                    <div class="dropdown-menu">
+                    <div class="dropdown-menu dropdown-menu-right">
                         <a class="dropdown-item" href="#">Profile (coming soon!)</a>
                         <!--<a class="dropdown-item" href="#">Settings</a>-->
                         <div class="dropdown-divider"></div>

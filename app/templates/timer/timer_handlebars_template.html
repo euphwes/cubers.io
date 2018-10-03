@@ -23,6 +23,7 @@
                 </div>
                 {{/if}}
             </div>
+            {{#unless isMobile}}
             <div class="row comment-wrapper">
                 <div class="col-md-12">
                     <div class="input-group">
@@ -33,6 +34,7 @@
                     </div>
                 </div>
             </div>
+            {{/unless}}
         </div>
         <div class="col-lg-3 col-md-12 col-sm-12 times-wrapper">
             {{#each scrambles}}
