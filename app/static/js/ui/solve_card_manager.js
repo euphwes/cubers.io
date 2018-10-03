@@ -31,7 +31,6 @@
             $solve_card.addClass('complete').removeClass('active');
         }
 
-
         // set the visible solve time on the card
         $solve_card.find('.time-value').html(event_data.friendly_time_full);
     };

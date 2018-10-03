@@ -50,6 +50,9 @@
         this.$timer_div.html($(this.timer_panel_template(data)));
         this.$timer_div.ultraShow();
 
+        // Make sure the user doesn't highlight the timer text when they use the timer
+        $('.timer-wrapper').disableTextSelect();
+
         // Make sure the timer knows which competition event this is, so the handlers of the timer-stop
         // event know which solve to update
         app.timer.setCompEventId(comp_event_id);

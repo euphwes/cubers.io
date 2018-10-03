@@ -38,6 +38,22 @@
      * or stopping the timer
      */
     Timer.prototype._enable = function() {
+
+        if (app.is_mobile) {
+            $('.timer-wrapper').off("touchend");
+            $('.timer-wrapper').on("touchend", function() {
+                // start the timer, and bind a new event to spacebar keydown 
+                // to stop the timer and then automatically advance to the next scramble
+                $('.timer-wrapper').off("touchend");
+                this._start();
+                $('.timer-wrapper').on("touchend", function() {
+                    $('.timer-wrapper').off("touchend");
+                    this._stop();
+                }.bind(this));
+            }.bind(this));
+            return;
+        }
+
         // If the spacebar is already down when entering here, that probably means
         // that the user held it after completing the previous solve. Wait for the
         // user to release the spacebar by setting a short timeout to revisit this function
@@ -55,19 +71,6 @@
             armed = true;
             this.emit(EVENT_TIMER_ARMED);
         }.bind(this));
-
-        if (app.is_mobile) {
-            $('.timer-wrapper').on("click", function() {
-                // start the timer, and bind a new event to spacebar keydown 
-                // to stop the timer and then automatically advance to the next scramble
-                $('.timer-wrapper').off("click");
-                this._start();
-                $('.timer-wrapper').on("click", function() {
-                    $('.timer-wrapper').off("click");
-                    this._stop();
-                }.bind(this));
-            }.bind(this));
-        }
 
         // When the spacebar is released, unbind the spacebar keydown and keyup events
         // and bind a new keydown event which will stop the timer
@@ -118,7 +121,6 @@
      * and sets the data attribute for raw time in centiseconds.
      */
     Timer.prototype._stop = function() {
-    
         this._disable();
 
         // calculate elapsed time, 
@@ -163,6 +165,7 @@
         clearInterval(this.timer_interval);
         kd.SPACE.unbindDown(); kd.SPACE.unbindUp();
         $(document).unbind("keydown");
+        $('.timer-wrapper').off("mouseup");
     };
 
     /**
