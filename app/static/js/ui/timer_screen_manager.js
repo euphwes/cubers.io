@@ -49,10 +49,6 @@
         this.$timer_div.html($(this.timer_panel_template(data)));
         this.$timer_div.ultraShow();
 
-        // Adjust the font size for the current scramble to make sure it's as large
-        // as possible and still fits in the scramble area
-        fitty('.scramble-wrapper>div', {minSize: 18, maxSize: 24});
-
         // Make sure the timer knows which competition event this is, so the handlers of the timer-stop
         // event know which solve to update
         app.timer.setCompEventId(comp_event_id);

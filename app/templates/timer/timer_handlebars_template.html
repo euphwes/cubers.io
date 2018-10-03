@@ -1,69 +1,9 @@
 {% raw %}
 <script id='timer-template' type='text/x-handlebars-template'>
     <div class="ultra-hidden timerEventDataContainer" data-compEventId="{{ comp_event_id }}" data-totalSolves="{{ total_solves }}"></div>
-    <div class="row scramble-row">
+    <div class="row">
+
         <div class="col-md-12 scramble-wrapper"><div></div></div>
-    </div>
-    <hr>
-    <div class="row timer-row">
-        <!-- left column -->
-        <div class="col-md-3 flex-col">
-            <div class="times-wrapper">
-                {{#each scrambles}}
-                    {{#if time}}
-                        {{#if ../isFMC}}
-                        <div class="single-time fmc complete"
-                                                            id="scramble_{{id}}"
-                                                            data-id="{{id}}"
-                                                            data-scramble="{{scramble}}"
-                                                            data-rawTimeCentiseconds="{{time}}"
-                                                            data-isPlusTwo="{{isPlusTwo}}"
-                                                            data-isDNF="{{isDNF}}">
-                            <div class="value-wrapper">#{{ inc @index }}.</div>
-                            <div class="time-value" contenteditable="true">{{ int_str (math time '/' 100) }}</div>
-                        </div>
-                        {{else}}
-                        <div class="single-time complete"
-                                                    id="scramble_{{id}}"
-                                                    data-id="{{id}}"
-                                                    data-scramble="{{scramble}}"
-                                                    data-rawTimeCentiseconds="{{time}}"
-                                                    data-isPlusTwo="{{isPlusTwo}}"
-                                                    data-isDNF="{{isDNF}}">
-                            <div class="value-wrapper">#{{ inc @index }}.</div>
-                            <div class="time-value">{{ renderTime this }}</div>
-                        </div>
-                        {{/if}}
-                    {{else}}
-                        {{#if ../isFMC}}
-                        <div class="single-time fmc"
-                                                id="scramble_{{id}}"                      
-                                                data-id="{{id}}"
-                                                data-scramble="{{scramble}}"
-                                                data-rawTimeCentiseconds=""
-                                                data-isPlusTwo="false"
-                                                data-isDNF="false">
-
-                            <div class="value-wrapper">#{{ inc @index }}.</div>
-                            <div class="time-value" contenteditable="true"></div>
-                        </div>
-                        {{else}}
-                        <div class="single-time"
-                                                id="scramble_{{id}}"
-                                                data-id="{{id}}"
-                                                data-scramble="{{scramble}}"
-                                                data-rawTimeCentiseconds=""
-                                                data-isPlusTwo="false"
-                                                data-isDNF="false">
-
-                            <div class="value-wrapper">#{{ inc @index }}.</div>
-                            <div class="time-value">—</div>
-                        </div>
-                        {{/if}}
-                    {{/if}}
-                {{/each}}
-            </div>
-        </div>
 
         <!-- right column -->
         <div class="col-md-9">
@@ -89,6 +29,64 @@
                     </div>
                     <input type="text" class="form-control" id="comment_{{comp_event_id}}" placeholder="Type an optional comment about {{event_name}} here!" value="{{comment}}">
                 </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 flex-col">
+            <div class="times-wrapper">
+                {{#each scrambles}}
+                    {{#if time}}
+                        {{#if ../isFMC}}
+                        <div class="single-time fmc complete"
+                                id="scramble_{{id}}"
+                                data-id="{{id}}"
+                                data-scramble="{{scramble}}"
+                                data-rawTimeCentiseconds="{{time}}"
+                                data-isPlusTwo="{{isPlusTwo}}"
+                                data-isDNF="{{isDNF}}">
+                            <div class="value-wrapper">#{{ inc @index }}.</div>
+                            <div class="time-value" contenteditable="true">{{ int_str (math time '/' 100) }}</div>
+                        </div>
+                        {{else}}
+                        <div class="single-time complete"
+                                id="scramble_{{id}}"
+                                data-id="{{id}}"
+                                data-scramble="{{scramble}}"
+                                data-rawTimeCentiseconds="{{time}}"
+                                data-isPlusTwo="{{isPlusTwo}}"
+                                data-isDNF="{{isDNF}}">
+                            <div class="value-wrapper">#{{ inc @index }}.</div>
+                            <div class="time-value">{{ renderTime this }}</div>
+                        </div>
+                        {{/if}}
+                    {{else}}
+                        {{#if ../isFMC}}
+                        <div class="single-time fmc"
+                                id="scramble_{{id}}"                      
+                                data-id="{{id}}"
+                                data-scramble="{{scramble}}"
+                                data-rawTimeCentiseconds=""
+                                data-isPlusTwo="false"
+                                data-isDNF="false">
+
+                            <div class="value-wrapper">#{{ inc @index }}.</div>
+                            <div class="time-value" contenteditable="true"></div>
+                        </div>
+                        {{else}}
+                        <div class="single-time"
+                                id="scramble_{{id}}"
+                                data-id="{{id}}"
+                                data-scramble="{{scramble}}"
+                                data-rawTimeCentiseconds=""
+                                data-isPlusTwo="false"
+                                data-isDNF="false">
+
+                            <div class="value-wrapper">#{{ inc @index }}.</div>
+                            <div class="time-value">—</div>
+                        </div>
+                        {{/if}}
+                    {{/if}}
+                {{/each}}
             </div>
         </div>
     </div>

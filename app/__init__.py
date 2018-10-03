@@ -50,6 +50,7 @@ ASSETS.register({
     'app_css': Bundle(
         'less/common.less',
         'less/navbar.less',
+        'less/timer_page.less',
         'less/events_page.less',
         filters="less,cssmin",
         output='gen/app.css'),

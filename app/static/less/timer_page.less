@@ -1,0 +1,42 @@
+@import "common.less";
+
+@scramble-bg-color: lighten(@off-white, 40%);
+
+//------------------------------------------------------------------------
+
+.event-image-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+        -webkit-filter: saturate(0%) brightness(1.40);
+        filter: saturate(0%) brightness(1.40);
+
+        width: 100px;
+        height: 100px;
+    }
+}
+
+.scramble-wrapper {
+    font-family: 'Roboto', sans-serif;
+    font-size: 24px;
+    width: 100%;
+    height: 20%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    background-color: @scramble-bg-color;
+
+    p {
+        margin-bottom: 5px;
+    }
+}
+
+.flex-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

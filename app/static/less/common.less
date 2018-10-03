@@ -7,18 +7,6 @@
 @tablet:    ~"only screen and (min-width: 720px) and (max-width: 1159px)";
 @mobile:    ~"only screen and (max-width: 719px)";
 
-@media @desktop {
-  footer {
-    width: 940px;
-  }
-}
-
-@media @tablet {
-  footer {
-    width: 768px;
-  }
-}
-
 //------------------------------------------------------------------------
 
 html,body {
@@ -49,55 +37,8 @@ html,body {
     cursor: default;
 }
 
-
-
-#timer_panel {
-    padding-top: 15px;
-    .event-image-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        img {
-            -webkit-filter: saturate(0%) brightness(1.40);
-            filter: saturate(0%) brightness(1.40);
-
-            width: 100px;
-            height: 100px;
-        }
-    }
-
-    .scramble-wrapper {
-        font-family: 'Roboto', sans-serif;
-        font-size: 24px;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-
-        p {
-            margin-bottom: 5px;
-        }
-    }
-
-    .scramble-row {
-        height: ~"calc(20% - 75px)";
-    }
-
-    .timer-row {
-        height: ~"calc(80% - 75px)";
-    }
-
-    .flex-col {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-}
-
 .cubers-container {
-    padding-top: 75px;
+    padding-top: 56px;
 }
 
 .comp-info {
