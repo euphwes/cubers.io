@@ -19,15 +19,24 @@
 .scramble-wrapper {
     font-family: 'Roboto', sans-serif;
 
-    height: ~"calc(20% - 56px)";
+    height: ~"calc(25% - 56px)";
     font-size: 24px;
+    &.big {
+        font-size: 44px;
+    }
     @media @mobile {
         font-size: 14px;
-        height: ~"calc(30% - 56px)";
+        height: ~"calc(35% - 56px)";
+        &.big {
+            font-size: 30px;
+        }
     }
     @media @tablet {
-        font-size: 16px;
-        height: ~"calc(30% - 56px)";
+        font-size: 24px;
+        height: ~"calc(35% - 56px)";
+        &.big {
+            font-size: 36px;
+        }
     }
 
     background-color: #FCFCFC;
@@ -56,14 +65,14 @@
 
     text-align: center;
 
-    height: 75%;
+    height: 70%;
     width: 100%;
     @media @tablet {
-        height: 35%;
+        height: 30%;
         width: 50%;
     }
     @media @mobile {
-        height: 35%;
+        height: 30%;
         width: 50%;
     }
 
@@ -155,12 +164,12 @@
 
     width: 100%;
 
-    height: 75%;
+    height: 70%;
     @media @tablet {
-        height: 35%;
+        height: 30%;
     }
     @media @mobile {
-        height: 35%;
+        height: 30%;
     }
 
     .timer-element {

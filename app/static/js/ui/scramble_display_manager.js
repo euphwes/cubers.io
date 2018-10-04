@@ -12,6 +12,7 @@
      * Event handler for when a scramble is attached to the timer. Show the scramble in the display.
      */
     ScrambleDisplayManager.prototype._showScramble = function(scramble) {
+        $('.scramble-wrapper').removeClass('big');
         var rendered = scramble.scramble.split('\n').join('<br/>');
         $('.scramble-wrapper .scram').html(rendered);
     };
@@ -20,7 +21,8 @@
      * Event handler for when there are no incomplete solves/scrambles left to attach.
      */
     ScrambleDisplayManager.prototype._showDone = function(event_name) {
-        $('.scramble-wrapper .scram').html("Congrats! You're done with " + event_name + ".");
+        $('.scramble-wrapper').addClass('big');
+        $('.scramble-wrapper .scram').html("Congrats!<br/>You're done with " + event_name + ".");
     };
 
     /**

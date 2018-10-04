@@ -27,6 +27,8 @@
         app.summaryScreenManager = new app.SummaryScreenManager();
 
         app.eventsDataManager.buildAllIncompleteSummaries();
+
+        window.scrollTo(0,1);
     };
 
     $(init);
