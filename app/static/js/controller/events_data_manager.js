@@ -170,6 +170,13 @@
     };
 
     /**
+     * Returns the event name for the given comp event id.
+     */
+    EventsDataManager.prototype.getEventName = function(comp_event_id) {
+        return this.events_data[comp_event_id].name;
+    };
+
+    /**
      * Clears penalties for the specified comp event and scramble ID
      */
     EventsDataManager.prototype.clearPenalty = function(comp_event_id, scramble_id) {

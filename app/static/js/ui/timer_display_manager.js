@@ -6,6 +6,7 @@
      */
     function TimerDisplayManager() {
         this._registerTimerEventHandlers();
+        this._registerScramblesManagerHandlers();
     };
 
     /**
@@ -19,6 +20,13 @@
         $dot.html('.');
         $seconds.html(seconds);
         $centiseconds.html(centiseconds);
+    }
+
+    /**
+     * Show all zeros.
+     */
+    TimerDisplayManager.prototype._showZero = function() {     
+        this._displayTime("0", "00");
     }
 
     /**
@@ -41,6 +49,14 @@
     TimerDisplayManager.prototype._registerTimerEventHandlers = function() {
         app.timer.on(app.EVENT_TIMER_STOP, this._handleTimerStop.bind(this));
         app.timer.on(app.EVENT_TIMER_INTERVAL, this._handleTimerInterval.bind(this));
+    };
+
+    /**
+     * Register handlers for scrambles manager events.
+     */
+    TimerDisplayManager.prototype._registerScramblesManagerHandlers = function() {
+        app.currentScramblesManager.on(app.EVENT_NOTHING_TO_ATTACH, this._showZero.bind(this));
+
     };
 
     app.TimerDisplayManager = TimerDisplayManager;

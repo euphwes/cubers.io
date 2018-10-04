@@ -2,6 +2,7 @@
     var app = window.app;
 
     // The events the CurrentScramblesManager can emit
+    var EVENT_NOTHING_TO_ATTACH     = "event_nothing_attached";
     var EVENT_NEW_SCRAMBLE_ATTACHED = "event_new_scramble_attached";
 
     /**
@@ -38,6 +39,9 @@
         if (nextIncompleteScramble) {
             app.timer.attachToScramble(nextIncompleteScramble.id);
             this.emit(EVENT_NEW_SCRAMBLE_ATTACHED, nextIncompleteScramble);
+        } else {
+            var event_name = app.eventsDataManager.getEventName(comp_event_id);
+            this.emit(EVENT_NOTHING_TO_ATTACH, event_name);
         }
     };
 
@@ -60,6 +64,7 @@
     };
 
     // Make CurrentScramblesManager and event names visible at app scope
-    app.CurrentScramblesManager = CurrentScramblesManager;
+    app.CurrentScramblesManager     = CurrentScramblesManager;
+    app.EVENT_NOTHING_TO_ATTACH     = EVENT_NOTHING_TO_ATTACH;
     app.EVENT_NEW_SCRAMBLE_ATTACHED = EVENT_NEW_SCRAMBLE_ATTACHED;
 })();
