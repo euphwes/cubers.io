@@ -31,7 +31,6 @@
     }
 
     background-color: #FCFCFC;
-    
     width: 100%;
 
     .scram {
@@ -56,16 +55,16 @@
 .times-wrapper {
 
     text-align: center;
-    width: 100%;
-
-    overflow-y: scroll;
 
     height: 75%;
+    width: 100%;
     @media @tablet {
         height: 35%;
+        width: 50%;
     }
     @media @mobile {
         height: 35%;
+        width: 50%;
     }
 
     .single-time {
@@ -191,4 +190,19 @@
 
 .context-menu-icon.context-menu-icon--fa5 i {
     padding-top: 3px;
+}
+
+#return-to-events {
+    &.mobile-anchored {
+        position: absolute;
+        right: 25%;
+        top: 50%;
+        transform: translateY(-50%) translateX(50%);
+    }
+    &.desktop-anchored {
+        position: absolute;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
 }
