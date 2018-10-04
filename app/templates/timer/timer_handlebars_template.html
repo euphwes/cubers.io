@@ -19,19 +19,6 @@
                     </div>
                     {{/if}}
                 </div>
-                {{#unless isMobile}}
-                <div class="w-100"></div>
-                <div class="col-12">
-                    <div class="comment-div">
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="far fa-comment input-icon"></i></span>
-                            </div>
-                            <input type="text" class="form-control" id="comment_{{comp_event_id}}" placeholder="Type an optional comment about {{event_name}} here!" value="{{comment}}">
-                        </div>
-                    </div>
-                </div>
-                {{/unless}}
             </div>
         </div>
         <div class="col-xl-3 col-md-12 col-sm-12">
@@ -39,7 +26,7 @@
                 {{#each scrambles}}
                     {{#if time}}
                         {{#if ../isFMC}}
-                        <div class="single-time fmc complete"
+                        <div class="single-time timer-pg-card fmc complete"
                                 id="scramble_{{id}}"
                                 data-id="{{id}}"
                                 data-scramble="{{scramble}}"
@@ -50,7 +37,7 @@
                             <div class="time-value" contenteditable="true">{{ int_str (math time '/' 100) }}</div>
                         </div>
                         {{else}}
-                        <div class="single-time complete"
+                        <div class="single-time timer-pg-card complete"
                                 id="scramble_{{id}}"
                                 data-id="{{id}}"
                                 data-scramble="{{scramble}}"
@@ -63,7 +50,7 @@
                         {{/if}}
                     {{else}}
                         {{#if ../isFMC}}
-                        <div class="single-time fmc"
+                        <div class="single-time timer-pg-card fmc"
                                 id="scramble_{{id}}"                      
                                 data-id="{{id}}"
                                 data-scramble="{{scramble}}"
@@ -75,7 +62,7 @@
                             <div class="time-value" contenteditable="true"></div>
                         </div>
                         {{else}}
-                        <div class="single-time"
+                        <div class="single-time timer-pg-card"
                                 id="scramble_{{id}}"
                                 data-id="{{id}}"
                                 data-scramble="{{scramble}}"
@@ -89,20 +76,23 @@
                         {{/if}}
                     {{/if}}
                 {{/each}}
-                {{#if isMobile}}
-                <div id="return-to-events" class="mobile-anchored">
-                        <button class="btn btn-lg btn-return">
-                            <i class="fas fa-caret-left"></i> Events
-                        </button>
-                    </div>
-                {{else}}
-                <div id="return-to-events" class="desktop-anchored">
-                    <button class="btn btn-lg btn-return">
-                        <i class="fas fa-caret-left"></i> Events
-                    </button>
-                </div>
-                {{/if}}
+                {{#unless isMobile}}
+                <div class="widget-area no-padding blank">
+                    <div class="comment-upload">
+                        <form>
+                            <textarea id="comment_{{comp_event_id}}" placeholder="Type an optional comment about {{event_name}} here!">{{comment}}</textarea>
+                        </form>
+                    </div><!-- Comment Upload  -->
+                </div><!-- Widget Area -->
+                {{/unless}}
             </div>
+        </div>
+    </div>
+    <div class="row timer-scr-buttons">
+        <div id="return-to-events">
+            <button class="btn btn-lg btn-return">
+                <i class="fas fa-caret-left"></i> Events
+            </button>
         </div>
     </div>
 </script>

@@ -78,8 +78,10 @@
         var comment_timeout = null;
         var $comment = $('#comment_' + comp_event_id);
         $comment.keyup(function(){
+            console.log("in keyup");
             clearTimeout(comment_timeout);
             comment_timeout = setTimeout(function(){
+                console.log("in handler");
                 app.eventsDataManager.setCommentForEvent($comment.val(), comp_event_id);
             }, 500);
         });

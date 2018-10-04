@@ -25,8 +25,8 @@
         font-size: 36px;
     }
     @media @mobile {
-        font-size: 14px;
-        height: ~"calc(35% - 56px)";
+        font-size: 12px;
+        height: ~"calc(25% - 56px)";
         &.big {
             font-size: 30px;
         }
@@ -47,7 +47,7 @@
         margin-bottom: 10px;
         height: ~"calc(100% - 21px)";
         width: 100%;
-        overflow-y: scroll;
+        overflow-y: auto;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -62,21 +62,23 @@
 }
 
 .times-wrapper {
-
     text-align: center;
-
     height: 70%;
     width: 100%;
     @media @tablet {
-        height: 30%;
-        width: 50%;
+        height: ~"calc(30% - 68px)";
     }
     @media @mobile {
-        height: 30%;
-        width: 50%;
+        height: ~"calc(30% - 68px)";
     }
 
-    .single-time {
+    .timer-pg-card {
+        cursor: pointer;
+        background-color: white;
+        border: 1px solid rgba(0, 0, 0, 0.125);
+        border-radius: 2px;
+        box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
+
         margin: 10px 0 10px 0;
         min-height: 50px;
         @media @mobile {
@@ -85,23 +87,18 @@
         @media @tablet {
             min-height: initial;
         }
+    }
 
-        border: 1px solid rgba(0, 0, 0, 0.125);
-        border-radius: 2px;
-        border-left: 5px solid rgb(218, 159, 159);
-
+    .single-time {
         -webkit-transition: all 250ms ease;
         -moz-transition: all 250ms ease;
         -o-transition: all 250ms ease;
         transition: all 250ms ease;
 
-        background-color: white;
-        cursor: pointer;
-
-        box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
-
         display: flex;
         align-items: center;
+
+        border-left: 5px solid rgb(218, 159, 159);
 
         font-family: 'Roboto', sans-serif;
 
@@ -191,18 +188,31 @@
     padding-top: 3px;
 }
 
-#return-to-events {
-    &.mobile-anchored {
-        position: absolute;
-        right: 25%;
-        top: 50%;
-        transform: translateY(-50%) translateX(50%);
+.timer-scr-buttons {
+    position: fixed;
+    bottom: 0;
+
+    width: 100%;
+    height: 68px;
+    padding: 10px;
+
+    @media @tablet {
+        border-top: 1px solid lightgray;
     }
-    &.desktop-anchored {
-        position: absolute;
-        bottom: 15px;
-        left: 50%;
-        transform: translateX(-50%);
+    @media @mobile {
+        border-top: 1px solid lightgray;
+    }
+}
+
+#return-to-events {
+    position: absolute;
+    left: 10px;
+    @media @desktop {
+        .btn-return {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
     }
 }
 
@@ -211,11 +221,72 @@
     width: 100%;
 }
 
-.comment-div {
-    width: 100%;
-    height: 20%;
-}
-
 .full-width {
     width: 100%;
+}
+
+.widget-area {
+    &.blank {
+        background: none repeat scroll 0 0 rgba(0, 0, 0, 0);
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        -ms-box-shadow: none;
+        -o-box-shadow: none;
+        box-shadow: none;
+    }
+    background-color: #fff;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    -ms-border-radius: 4px;
+    -o-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-shadow: 0 0 16px rgba(0, 0, 0, 0.05);
+    -moz-box-shadow: 0 0 16px rgba(0, 0, 0, 0.05);
+    -ms-box-shadow: 0 0 16px rgba(0, 0, 0, 0.05);
+    -o-box-shadow: 0 0 16px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 0 16px rgba(0, 0, 0, 0.05);
+    float: left;
+    padding: 25px 30px;
+    position: relative;
+    width: 100%;
+}
+
+.no-padding {
+    padding: 0;
+}
+
+.comment-upload {
+    background: none repeat scroll 0 0 @off-white;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    -ms-border-radius: 4px;
+    -o-border-radius: 4px;
+    border-radius: 4px;
+    float: left;
+    width: 100%;
+}
+
+.comment-upload form {
+    float: left;
+    width: 100%;
+}
+
+.comment-upload form textarea {
+    background: none repeat scroll 0 0 #fff;
+    border: medium none;
+    -webkit-border-radius: 4px 4px 0 0;
+    -moz-border-radius: 4px 4px 0 0;
+    -ms-border-radius: 4px 4px 0 0;
+    -o-border-radius: 4px 4px 0 0;
+    border-radius: 4px 4px 0 0;
+    color: #000000;
+    float: left;
+    font-size: 14px;
+    height: 142px;
+    letter-spacing: 0.3px;
+    padding: 20px;
+    width: 100%;
+    resize:vertical;
+    outline:none;
+    border: 1px solid #F2F2F2;
 }
