@@ -146,4 +146,31 @@
 .event-cards {
     justify-content: center!important;
     padding-top: 10px;
+    height: ~"calc(100% - 56px - 68px)";
+    overflow-y: auto;
+    @media @desktop {
+        overflow-y: initial;;
+        height: initial;
+    }
+}
+
+.main-scr-buttons {
+    height: 68px;
+    padding: 10px;
+    @media @tablet {
+        border-top: 1px solid lightgray;
+    }
+    @media @mobile {
+        border-top: 1px solid lightgray;
+    }
+}
+
+#times-submit {
+    position: absolute;
+    right: 10px;
+    @media @desktop {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+    }
 }
