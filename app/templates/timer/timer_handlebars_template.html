@@ -33,7 +33,7 @@
                                 data-rawTimeCentiseconds="{{time}}"
                                 data-isPlusTwo="{{isPlusTwo}}"
                                 data-isDNF="{{isDNF}}">
-                            <div class="value-wrapper">#{{ inc @index }}.</div>
+                            <div class="value-wrapper">{{ inc @index }}.</div>
                             <div class="time-value" contenteditable="true">{{ int_str (math time '/' 100) }}</div>
                         </div>
                         {{else}}
@@ -44,7 +44,7 @@
                                 data-rawTimeCentiseconds="{{time}}"
                                 data-isPlusTwo="{{isPlusTwo}}"
                                 data-isDNF="{{isDNF}}">
-                            <div class="value-wrapper">#{{ inc @index }}.</div>
+                            <div class="value-wrapper">{{ inc @index }}.</div>
                             <div class="time-value">{{ renderTime this }}</div>
                         </div>
                         {{/if}}
@@ -58,7 +58,7 @@
                                 data-isPlusTwo="false"
                                 data-isDNF="false">
 
-                            <div class="value-wrapper">#{{ inc @index }}.</div>
+                            <div class="value-wrapper">{{ inc @index }}.</div>
                             <div class="time-value" contenteditable="true"></div>
                         </div>
                         {{else}}
@@ -70,7 +70,7 @@
                                 data-isPlusTwo="false"
                                 data-isDNF="false">
 
-                            <div class="value-wrapper">#{{ inc @index }}.</div>
+                            <div class="value-wrapper">{{ inc @index }}.</div>
                             <div class="time-value">—</div>
                         </div>
                         {{/if}}
