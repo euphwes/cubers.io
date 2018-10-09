@@ -106,7 +106,10 @@ def score_previous_competition(is_rerun=False, comp_id=None):
             continue
         post_body += '\n\n**{}**\n\n'.format(event_name)
         for participant in participants:
-            post_body += '1. {}: {}\n\n'.format(participant[0], convert_seconds_to_friendly_time(participant[1]))
+            time = participant[1]
+            if event_name != 'FMC':
+                time = convert_seconds_to_friendly_time(time)
+            post_body += '1. {}: {}\n\n'.format(participant[0], time)
 
     post_body += '---\n\n**Total points this week**'
     post_body += '\n\nEach event gives `# of participants - place + 1` points\n\n'
