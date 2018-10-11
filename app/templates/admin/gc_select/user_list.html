@@ -1,0 +1,18 @@
+{% extends "common/base.html" %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="container cubers-container" style="margin-top: 15px;">
+    <h4>Winning user: /u/{{ winner }}</h4>
+    <hr/>
+    <h4>All participants ({{ users|length }}):</h4>
+    <ul>
+        {% for user in users %}
+        <li>/u/{{ user }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

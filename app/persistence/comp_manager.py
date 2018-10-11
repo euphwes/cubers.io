@@ -4,7 +4,7 @@ from datetime import datetime
 
 from app import DB
 from app.persistence.models import Competition, CompetitionEvent, Event, Scramble,\
-CompetitionGenResources
+CompetitionGenResources, UserEventResults, User
 
 # -------------------------------------------------------------------------------------------------
 
@@ -27,6 +27,35 @@ def get_event_by_name(name):
 def get_active_competition():
     """ Get the current active competition. """
     return Competition.query.filter(Competition.active).first()
+
+
+def get_participants_in_competition(comp_id):
+    """ Returns a list of all participants in the specified competition.
+    Participant is defined as somebody who has completed all solves for at
+    least one event in the specified competition. """
+
+    results = DB.session.\
+            query(UserEventResults).\
+            join(CompetitionEvent).\
+            join(Competition).\
+            join(User).\
+            filter(Competition.id == comp_id).\
+            filter(UserEventResults.single != "PENDING").\
+            with_entities(User.username).\
+            order_by(User.username).\
+            distinct()
+
+    # return just a list of names in the competition, not the list of 1-tuples from the query
+    return [r[0] for r in results]
+
+
+def get_complete_competitions():
+    """ Returns id and title for all of the not-active competitions. """
+    return Competition.query.\
+        with_entities(Competition.id, Competition.title, Competition.active).\
+        filter(Competition.active.is_(False)).\
+        order_by(Competition.id.desc()).\
+        all()
 
 
 def get_competition(competition_id):
