@@ -41,6 +41,8 @@ def get_participants_in_competition(comp_id):
             join(User).\
             filter(Competition.id == comp_id).\
             filter(UserEventResults.single != "PENDING").\
+            filter(UserEventResults.reddit_comment != '').\
+            filter(UserEventResults.reddit_comment != None).\
             with_entities(User.username).\
             order_by(User.username).\
             distinct()
