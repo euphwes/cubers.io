@@ -19,12 +19,16 @@ def gc_select():
 
 @CUBERS_APP.route("/admin/gc_select/<int:comp_id>/")
 def gc_select_user(comp_id):
-    """ Grab a list of participating users for the specified competition, and choose
-    a winner at random. """
+    """ Grab a list of participating users for the specified competition, and choose one at random. """
 
     users = comp_manager.get_participants_in_competition(comp_id)
-    winner = random.choice(users)
+    if not users:
+        winner = 'nobody'
+    else:
+        winner = random.choice(users)
 
     comp = comp_manager.get_active_competition()
+    selected_comp = comp_manager.get_competition(comp_id)
 
-    return render_template("admin/gc_select/user_list.html", users=users, winner=winner, current_competition=comp)
+    return render_template("admin/gc_select/user_list.html", users=users, winner=winner, current_competition=comp,
+        selected_comp=selected_comp)
