@@ -51,7 +51,7 @@
      * When clicking the button to return to the events panel, show 
      */
     AppModeManager.prototype.wire_return_to_events_from_summary = function() {
-        $('#summary-buttons>.btn-return').click(function(){
+        $('#summary-return-to-events>.btn-return').click(function(){
             this.emit(EVENT_APP_MODE_TO_MAIN);
         }.bind(this));
     };

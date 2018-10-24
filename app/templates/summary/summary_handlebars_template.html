@@ -1,5 +1,6 @@
 {% raw %}
 <script id='summary-template' type='text/x-handlebars-template'>
+<div class="summary_page_wrapper">
     {{#if no_solves}}
     <div class="row summary-row">
         <div class="offset-lg-2 col-lg-8 col-12">
@@ -65,18 +66,23 @@
         </div>
     </div>
     {{/if}}
-    <div id="summary-buttons">
-        <button class="btn btn-lg btn-return">
-            Go back
-        </button>
+    <div class="row summary-scr-buttons">
         {{#if show_submit_button}}
-        <button class="btn btn-lg btn-submit">
-            Submit results!
-        </button>
+        <div id="summary-times-submit">
+            <button class="btn btn-lg btn-submit">
+                Submit to Reddit <i class="fas fa-caret-right"></i> 
+            </button>
+        </div>
         {{/if}}
+        <div id="summary-return-to-events">
+            <button class="btn btn-lg btn-return">
+                <i class="fas fa-caret-left"></i> Events
+            </button>
+        </div>
     </div>
     <form action="/submit" method="POST" id="form-results">
         <input type="hidden" name="input-results" id="input-results" />
     </form>
+</div>
 </script>
 {% endraw %}

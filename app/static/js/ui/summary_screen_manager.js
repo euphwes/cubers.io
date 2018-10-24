@@ -13,7 +13,7 @@
      * Wire up the submit button to submit solve results to the server
      */
     SummaryScreenManager.prototype._wire_submit_button = function() {
-        $('#summary-buttons>.btn-submit').click(function(){
+        $('#summary-times-submit>.btn-submit').click(function(){
             $("#input-results").val(JSON.stringify(app.eventsDataManager.getEventsData()));
             $("#form-results").submit();
         });
