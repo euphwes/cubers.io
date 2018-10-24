@@ -30,5 +30,4 @@ def prev_results():
 @CUBERS_APP.route('/current_title')
 def current_title():
     """ Returns the current competition's title in plain text. """
-
     return comp_manager.get_active_competition().title
