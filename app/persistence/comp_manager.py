@@ -29,6 +29,11 @@ def get_active_competition():
     return Competition.query.filter(Competition.active).first()
 
 
+def get_previous_competition():
+    """ Get the previous competition. """
+    return Competition.query.filter(Competition.active.is_(False)).order_by(Competition.id.desc()).first()
+
+
 def get_participants_in_competition(comp_id):
     """ Returns a list of all participants in the specified competition.
     Participant is defined as somebody who has completed all solves for at
