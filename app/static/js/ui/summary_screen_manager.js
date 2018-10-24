@@ -27,8 +27,14 @@
         var incomplete_events = [];
         $.each(app.eventsDataManager.getEventsData(), function(i, event){
             if (event.status === 'complete') {
+                if (event.summary.indexOf(" = ") > -1) {
+                    event.short_summary = "Result: " + event.summary.substr(0, event.summary.indexOf(" = "));
+                } else {
+                    event.short_summary = "Result: " + event.summary;
+                }
                 complete_events.push(event);
             } else if (event.status === 'incomplete') {
+                event.short_summary = event.summary.replace("? = ", "");
                 incomplete_events.push(event);
             }
         });

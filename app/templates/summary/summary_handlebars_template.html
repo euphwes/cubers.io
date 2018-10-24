@@ -2,66 +2,67 @@
 <script id='summary-template' type='text/x-handlebars-template'>
     {{#if no_solves}}
     <div class="row summary-row">
-        <h5>
-            You haven't recorded any solves yet! Go complete some solves, ya goober.
-        </h5>
+        <div class="offset-lg-2 col-lg-8 col-12">
+            <h5>
+                You haven't recorded any solves yet! Go complete some solves, ya goober.
+            </h5>
+        </div>
     </div>
     {{/if}}
     {{#if complete_events}}
     <div class="row summary-row">
-        <h4>Complete Events</h4><br/>
-        {{#if logged_in}}
-        <span>
-            We'll submit a comment to the /r/cubers thread for the current competition on your behalf,
-            which will include the results for the events below.
-        </span>
-        {{else}}
-        <span>
-            We'll generate the comment source for the events shown below.
-            You can copy this comment source and submit the comment yourself to the /r/cubers thread for the current competition.
-            Next time, log-in for a more streamlined experience; we'll submit the post for you!
-        </span>
-        {{/if}}
-        {{#each complete_events}}
-        <div class="event_summary_wrapper">
-            <div class="event_summary row" id="comp_event_{{comp_event_id}}">
-                <div class="col-md-1">
-                    <img class="event-image" src="./static/images/cube-{{event_id}}.png">
+        <div class="offset-lg-2 col-lg-8 col-12">
+            <h4>Complete Events</h4>
+            {{#if logged_in}}
+            <span class="d-none d-md-block">
+                We'll submit a comment to Reddit for the events below.
+            </span>
+            {{else}}
+            <span class="d-none d-md-block">
+                We'll generate the comment source for the events shown below.
+            </span>
+            {{/if}}
+            {{#each complete_events}}
+            <div class="event_summary_wrapper">
+                <div class="event_summary row" id="comp_event_{{comp_event_id}}">
+                    <div class="col-2 col-md-1">
+                        <img class="event-image" src="./static/images/cube-{{event_id}}.png">
+                    </div>
+                    <div class="col-4 col-md-2 name"><b>{{name}}</b></div>
+                    <div class="col-6 col-md-4 summary" data-short="{{short_summary}}" data-long="{{summary}}"></div>
+                    <div class="col-md-5 comment d-none d-md-block">{{comment}}</div>
                 </div>
-                <div class="col-md-2 name"><b>{{name}}</b></div>
-                <div class="col-md-4 summary">{{summary}}</div>
-                <div class="col-md-5 comment">{{comment}}</div>
             </div>
+            {{/each}}
         </div>
-        {{/each}}
     </div>
     {{/if}}
     {{#if incomplete_events}}
     <div class="row summary-row">
-        <h4>Incomplete Events</h4><br/>
-        {{#if logged_in}}
-        <span>
-            These events aren't complete, but we'll save the solves you've completed so far.
-            When you return later, you can pick back up where you left off.
-        </span>
-        {{else}}
-        <span>
-            These events aren't complete, so we can't save your progress. To save progress for
-            incomplete events in the future, please login with your Reddit account.
-        </span>
-        {{/if}}
-        {{#each incomplete_events}}
-        <div class="event_summary_wrapper">
-            <div class="event_summary row" id="comp_event_{{comp_event_id}}">
-                <div class="col-md-1">
-                    <img class="event-image" src="./static/images/cube-{{event_id}}.png">
+        <div class="offset-lg-2 col-lg-8 col-12">
+            <h4>Incomplete Events</h4>
+            {{#if logged_in}}
+            <span class="d-none d-md-block">
+                We'll save what you've completed so far.
+            </span>
+            {{else}}
+            <span class="d-none d-md-block">
+                To save your progress for, please login using Reddit.
+            </span>
+            {{/if}}
+            {{#each incomplete_events}}
+            <div class="event_summary_wrapper">
+                <div class="event_summary row" id="comp_event_{{comp_event_id}}">
+                    <div class="col-2 col-md-1">
+                        <img class="event-image" src="./static/images/cube-{{event_id}}.png">
+                    </div>
+                    <div class="col-4 col-md-2 name"><b>{{name}}</b></div>
+                    <div class="col-6 col-md-4 summary" data-short="{{short_summary}}" data-long="{{summary}}"></div>
+                    <div class="col-md-5 comment d-none d-md-block">{{comment}}</div>
                 </div>
-                <div class="col-md-2 name"><b>{{name}}</b></div>
-                <div class="col-md-4 summary">{{summary}}</div>
-                <div class="col-md-5 comment">{{comment}}</div>
             </div>
+            {{/each}}            
         </div>
-        {{/each}}
     </div>
     {{/if}}
     <div id="summary-buttons">

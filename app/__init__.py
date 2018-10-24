@@ -52,6 +52,7 @@ ASSETS.register({
         'less/navbar.less',
         'less/timer_page.less',
         'less/events_page.less',
+        'less/summary.less',
         filters="less,cssmin",
         output='gen/app.css'),
 })
