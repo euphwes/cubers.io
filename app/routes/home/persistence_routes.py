@@ -56,7 +56,8 @@ def build_summary(event):
 
     results = build_results(event['comp_event_id'], event['scrambles'], event['comment'])
     event_format = comp_manager.get_event_by_name(event['name']).eventFormat
-    is_fmc = event['name'] == 'FMC'
+    is_fmc   = event['name'] == 'FMC'
+    is_blind = event['name'] in ('3BLD', '2BLD', '4BLD', '5BLD', 'MBLD')
 
     if event_format == EventFormat.Bo1:
         return friendly(results.single)
@@ -69,5 +70,5 @@ def build_summary(event):
         if best == int(best):
             best = int(best)
 
-    times_string = build_times_string(results.solves, event_format, is_fmc)
+    times_string = build_times_string(results.solves, event_format, is_fmc, is_blind)
     return "{} = {}".format(best, times_string)

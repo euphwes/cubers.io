@@ -49,8 +49,9 @@ def build_comment_source_from_events_results(events_results):
         event_name   = comp_event.Event.name
         event_format = comp_event.Event.eventFormat
         isFMC        = event_name == 'FMC'
-        times_string = build_times_string(results.solves, event_format, isFMC)
-        comment      = '\n' if not results.comment else '>' + results.comment + '\n\n'
+        isBlind      = event_name in ('3BLD', '2BLD', '4BLD', '5BLD', 'MBLD')
+        times_string = build_times_string(results.solves, event_format, isFMC, isBlind)
+        comment      = '\n' if not results.comment else build_user_comment(results.comment)
 
         if results.average == 'DNF':
             average = 'DNF'
@@ -69,7 +70,18 @@ def build_comment_source_from_events_results(events_results):
     return comment_source
 
 
-def build_times_string(solves, event_format, isFMC=False):
+def build_user_comment(comment_body):
+    """ Builds up the user's comment text into the format expected by Reddit 'quotations'. """
+
+    reddit_comment_body = ""
+    for line in comment_body.splitlines():
+        line = line.replace('#', r'\#') # escape '#' signs so they are not interpreted as headings
+        reddit_comment_body += '>' + line + "\n\n"
+
+    return reddit_comment_body
+
+
+def build_times_string(solves, event_format, isFMC=False, isBlind=False):
     """ Builds a list of individual times, with best/worst times in parens if appropriate
     for the given event format. """
 
@@ -114,7 +126,10 @@ def build_times_string(solves, event_format, isFMC=False):
             dnf_indicies.append(i)
 
     for i in dnf_indicies:
-        friendly_times[i] = 'DNF'
+        if isBlind:
+            friendly_times[i] = 'DNF(' + friendly_times[i] + ')'
+        else:
+            friendly_times[i] = 'DNF'
 
     if event_format in [EventFormat.Bo3, EventFormat.Mo3]:
         return ', '.join(friendly_times)
