@@ -52,13 +52,13 @@ def index():
     ordered_comp_events = list([comp_event for comp_event in comp.events])
     ordered_comp_events.sort(key=lambda c: c.event_id)
 
-    complete_events = list()
-    incomplete_events = list()
+    complete_events = dict()
+    incomplete_events = dict()
     for comp_event_id, event in events_for_json.items():
         if event.get('status', '') == 'complete':
-            complete_events.append(int(comp_event_id))
+            complete_events[int(comp_event_id)] = event
         elif event.get('status', '') == 'incomplete':
-            incomplete_events.append(int(comp_event_id))
+            incomplete_events[int(comp_event_id)] = event
 
     return render_template('index.html', current_competition=comp, events_data=events_for_json,
                            ordered_comp_events=ordered_comp_events, complete_events=complete_events,

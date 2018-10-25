@@ -5,6 +5,7 @@
     var EVENT_SET_COMPLETE = "event_set_complete";
     var EVENT_SET_NO_STATUS = 'event_set_no_status';
     var EVENT_SET_INCOMPLETE = "event_set_incomplete";
+    var EVENT_SUMMARY_CHANGE = "event_summary_change";
     var EVENT_SOLVE_RECORD_UPDATED = "event_solve_record_updated";
 
     /**
@@ -58,6 +59,7 @@
             this._saveEvent(event);
             this._recordIncompleteSummaryForEvent(event);
             this.emit(EVENT_SET_INCOMPLETE, event.comp_event_id);
+            this.emit(EVENT_SUMMARY_CHANGE, {'comp_event_id': event.comp_event_id, 'result': ''});
             return;
         }
         
@@ -67,6 +69,7 @@
         event.summary = null;
         this._saveEvent(event);
         this.emit(EVENT_SET_NO_STATUS, event.comp_event_id);
+        this.emit(EVENT_SUMMARY_CHANGE, {'comp_event_id': event.comp_event_id, 'result': ''});
     };
 
     /**
@@ -108,7 +111,9 @@
         var onSummaryComplete = function(data, event) {
             data = JSON.parse(data);
             event.summary = data[event.comp_event_id];
-        };
+            var emit_data = {'comp_event_id': event.comp_event_id, 'result': event.summary.split(" = ")[0]};
+            this.emit(EVENT_SUMMARY_CHANGE, emit_data);
+        }.bind(this);
         $.ajax({
             url: "/event_summaries",
             type: "POST",
@@ -316,5 +321,6 @@
     app.EVENT_SOLVE_RECORD_UPDATED = EVENT_SOLVE_RECORD_UPDATED;
     app.EVENT_SET_COMPLETE = EVENT_SET_COMPLETE;
     app.EVENT_SET_NO_STATUS = EVENT_SET_NO_STATUS;
+    app.EVENT_SUMMARY_CHANGE = EVENT_SUMMARY_CHANGE;
     app.EVENT_SET_INCOMPLETE = EVENT_SET_INCOMPLETE;
 })();

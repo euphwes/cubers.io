@@ -32,9 +32,18 @@
     <div class="event-name">
         <hr>
         {% if competition_event.Event.name == "3x3 Mirror Blocks/Bump" %}
-        <h5 class="event-title">Mirror Blocks</h5>
+            {% set name = "Mirror Blocks" %}
         {% else %}
-        <h5 class="event-title">{{ competition_event.Event.name }}</h5>
+            {% set name = competition_event.Event.name %}
         {% endif %}
+        <div class="row">
+            <div class="col-12"><span class="event-title">{{ name }}</div>
+        </div>
     </div>
+    {% if competition_event.id in complete_events.keys() %}
+        {% set int_id = competition_event.id|int %}
+        <span class="event-summary">{{ complete_events[int_id].summary.split(" = ")[0] }}</span>
+    {% else %}
+        <span class="event-summary"></span>
+    {% endif %}
 </div>

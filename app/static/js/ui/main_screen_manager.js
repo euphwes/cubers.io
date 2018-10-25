@@ -42,6 +42,14 @@
     };
 
     /**
+     * Updates the result for the event card with the specified comp event ID.
+     */
+    MainScreenManager.prototype._setEventCardResult = function(data) {
+        this._getEventCardElementForCompEventId(data['comp_event_id'])
+            .find('.event-summary').text(data['result']);
+    }
+
+    /**
      * Hides the main screen.
      */
     MainScreenManager.prototype._hideMainScreen = function() {
@@ -71,6 +79,7 @@
         app.eventsDataManager.on(app.EVENT_SET_COMPLETE, this._setEventCardComplete.bind(this));
         app.eventsDataManager.on(app.EVENT_SET_NO_STATUS, this._setEventCardNoStatus.bind(this));
         app.eventsDataManager.on(app.EVENT_SET_INCOMPLETE, this._setEventCardIncomplete.bind(this));
+        app.eventsDataManager.on(app.EVENT_SUMMARY_CHANGE, this._setEventCardResult.bind(this));
     };
 
     app.MainScreenManager = MainScreenManager;
