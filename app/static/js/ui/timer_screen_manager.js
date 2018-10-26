@@ -194,6 +194,29 @@
             app.eventsDataManager.deleteSolveTime(compEventId, scramble_id);
         };
 
+        // Allow manual entry
+        var manualEntry = function($solve_clicked) {
+            var scramble_id = $solve_clicked.attr('data-id');
+            bootbox.prompt({
+                title: "Enter your time",
+                buttons: {
+                    confirm: {
+                        label: 'Ok',
+                        className: 'btn-success'
+                    },
+                },
+                callback: function(result) {
+                    if (!result) { return; }
+                    var cs = app.hmsToCentiseconds(result);
+                    if (isNaN(cs)) {
+                        bootbox.alert("Please enter a valid time.");
+                        return;
+                    }
+                    app.eventsDataManager.setSolveTimeForManualEntry(compEventId, scramble_id, cs);
+                }
+            });
+        };
+
         $.contextMenu({
             selector: NON_FMC_SOLVE_CARD_SELECTOR,
             trigger: 'left',
@@ -218,6 +241,12 @@
                     disabled: function(key, opt) { return !(isComplete(this) && !hasPlusTwo(this)); }
                 },
                 "sep1": "---------",
+                "manual" : {
+                    name: "Manual time entry",
+                    icon: "fas fa-edit",
+                    callback: function(itemKey, opt, e) { manualEntry($(opt.$trigger)); }
+                },
+                "sep2": "---------",
                 "delete": {
                     name: "Delete time",
                     icon: "fas fa-trash",

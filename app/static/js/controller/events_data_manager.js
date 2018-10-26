@@ -242,6 +242,28 @@
     };
 
     /**
+     * Sets the solve time (in centiseconds) for the specified comp event and scramble ID
+     */
+    EventsDataManager.prototype.setSolveTimeForManualEntry = function(comp_event_id, scramble_id, cs) {
+        $.each(this.events_data[comp_event_id].scrambles, function(i, curr_solve_record) {
+            if (curr_solve_record.id != scramble_id) { return true; }
+            curr_solve_record.isDNF     = false;
+            curr_solve_record.isPlusTwo = false;
+            curr_solve_record.time      = cs;
+            curr_solve_record.status    = "complete";
+            return false;
+        });
+        this._updateSingleEventStatus(this.events_data[comp_event_id]);
+
+        var data = {};
+        data.scramble_id = scramble_id;
+        data.friendly_time_full = app.convertRawCsForSolveCard(cs, false);
+        data.comp_event_id = comp_event_id;
+
+        this.emit(EVENT_SOLVE_RECORD_UPDATED, data);
+    };
+
+    /**
      * Returns the solve record for specified comp event and scramble ID
      */
     EventsDataManager.prototype.getSolveRecord = function(comp_event_id, scramble_id) {

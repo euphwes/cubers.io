@@ -20,6 +20,33 @@
             return seconds;
         }
     };
+
+    /**
+     * Converts a time string (ss.xx, mm:ss.xx, hh:mm:ss.xx) to just centiseconds.
+     */
+    function hmsToCentiseconds(str) {
+
+        var cs = 0;
+        var p = '';
+    
+        var cs_parts = str.split(".");
+        if (cs_parts.length > 1) {
+            cs = parseInt(cs_parts.pop(-1));
+            p = cs_parts[0].split(':');
+        } else {
+            p = str.split(':');
+        }
+    
+        var s = 0;
+        var m = 1;
+    
+        while (p.length > 0) {
+            s += m * parseInt(p.pop(), 10);
+            m *= 60;
+        }
+    
+        return (s * 100) + cs;
+    };
     
     /**
      * Converts an integer number of centiseconds to a string representing the
@@ -73,5 +100,5 @@
     window.app.convertRawCsForSolveCard = convertRawCsForSolveCard;
     window.app.evaluateBool = evaluateBool;
     window.app.renderTime = renderTime;
-  
+    window.app.hmsToCentiseconds = hmsToCentiseconds;
 })();
