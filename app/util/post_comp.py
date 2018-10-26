@@ -7,20 +7,24 @@ from app.util.events_resources import EVENT_COLL
 
 # -------------------------------------------------------------------------------------------------
 
-POST_TEMPLATE = """##Welcome to competition #{comp_num}!
+POST_TEMPLATE = """##**Welcome to Competition {comp_num}!**
 
 If you're new, please read the entire post before competing. This competition will run until {due_date}
 US Eastern time (GMT{tz_offset}).
 
+Weekly prizes are provided by [speedcubeshop.com](https://www.speedcubeshop.com). Every week one competitor
+will be selected at random to receive a $15 SCS gift card!
+
 We'll hold (almost) every WCA event weekly. We are not currently holding 4BLD, 5BLD, and MBLD, but
 if there is enough interest we will add them. We'll rotate through a list of bonus events every week.
 
-For a streamlined experience, please visit [cubers.io](https://www.cubers.io), a web app is built
+For the best competition experience, visit [cubers.io](https://www.cubers.io), a web app built
 specifically for the /r/cubers weekly competition. By logging into [cubers.io](https://www.cubers.io),
 you'll benefit from a number of features, including automatic Reddit comment submission,
-leaderboards and personal competition history (coming soon)!
+leaderboards and personal competition history (coming soon)! This also guarantees that your submission
+will be formatted correctly for the scoring program.
 
-If you want to still compete by manually entering your times, please follow the instructions below:
+If you still want to compete by manually entering your times, please follow the instructions below:
 
 > * For each event, scramble your cube with the scrambles provided. For COLL, perform the algorithm 5 times.
 > * Post your results below in the following format, one event per line:
@@ -40,7 +44,7 @@ names as they appear in this post, and bolding event name and average separately
 
 ---
 
-##This Week's Events
+##**This Week's Events**
 
 {formatted_events_with_scrambles}"""
 
