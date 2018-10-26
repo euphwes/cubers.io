@@ -188,19 +188,6 @@
             return app.eventsDataManager.getSolveRecord(compEventId, scramble_id).isPlusTwo;
         };
 
-        // Retry the selected solve - set it as the only active solve, attach the timer, prepare the timer
-        var retrySolve = function($solve_clicked) {
-            var scramble_id = $solve_clicked.attr('data-id');
-
-            // Remove active status from whichever solve is currently active, if any.
-            // Set the selected solve as active.
-            $(SOLVE_CARD_ACTIVE_SELECTOR).removeClass('active');
-            $solve_clicked.addClass('active');
-
-            // Attach it to this solve card
-            app.currentScramblesManager.attachSpecifiedScramble(compEventId, scramble_id);
-        };
-
         // Delete the selected solve - remove the recorded time from it.
         var deleteSolve = function($solve_clicked) {
             var scramble_id = $solve_clicked.attr('data-id');
@@ -231,12 +218,6 @@
                     disabled: function(key, opt) { return !(isComplete(this) && !hasPlusTwo(this)); }
                 },
                 "sep1": "---------",
-                "retry": {
-                    name: "Redo solve",
-                    icon: "fas fa-redo",
-                    callback: function(itemKey, opt, e) { retrySolve($(opt.$trigger)); },
-                    disabled: function(key, opt) { return !isComplete(this) }
-                },
                 "delete": {
                     name: "Delete time",
                     icon: "fas fa-trash",
