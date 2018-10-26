@@ -107,11 +107,13 @@ def create_new_test_comp_from_b64_data(data):
 
 
 @CUBERS_APP.cli.command()
-def score_and_generate_new_comp():
+@click.option('--all_events', is_flag=True, default=False)
+def score_and_generate_new_comp(all_events):
     """ Scores the previous competition, and generates a new competition based on the
     previous one. """
+
     score_previous_competition()
-    generate_new_competition()
+    generate_new_competition(all_events)
 
 
 @CUBERS_APP.cli.command()
@@ -123,6 +125,7 @@ def score_comp_only(comp_id, rerun):
 
 
 @CUBERS_APP.cli.command()
-def generate_new_comp_only():
+@click.option('--all_events', is_flag=True, default=False)
+def generate_new_comp_only(all_events):
     """ TODO: docstring """
-    generate_new_competition()
+    generate_new_competition(all_events)

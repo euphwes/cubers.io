@@ -6,6 +6,8 @@ from pyTwistyScrambler import scrambler333, scrambler222, scrambler444, scramble
     scrambler666, scrambler777, squareOneScrambler, megaminxScrambler, pyraminxScrambler,\
     cuboidsScrambler, skewbScrambler, clockScrambler
 
+from random import choice
+
 # -------------------------------------------------------------------------------------------------
 
 class Event:
@@ -28,6 +30,20 @@ class Event:
         return [self.scramble_func(*args) for _ in range(self.num_scrambles)]
 
 # -------------------------------------------------------------------------------------------------
+
+def redi_scrambler():
+    """ Returns a scramble for a Redi cube in MoYu notation. """
+    scramble = list()
+    possible_moves = [["R", "R'"],["L", "L'"]]
+
+    for _ in range(7):
+        i = choice([0, 1]) # start each chunk with either R-moves or L-moves at random
+        for n in range(choice([3, 4, 5])): # either 3, 4, or 5 moves between each 'x'
+            ix = (i + n) % 2 # alternate between R-moves and L-moves each time
+            scramble.append(choice(possible_moves[ix]))
+        scramble.append('x')
+
+    return ' '.join(scramble)
 
 def COLL_scrambler(coll_num):
     """ Get a 'scramble' for the current COLL, which just says which one we're doing. """
@@ -84,7 +100,7 @@ def scrambler_333_relay():
 
 # -------------------------------------------------------------------------------------------------
 
-# Weekly event definitions (current count = 17)
+# Weekly event definitions (current count = 19)
 EVENT_2x2       = Event("2x2", scrambler222.get_WCA_scramble, 5, True)
 EVENT_3x3       = Event("3x3", scrambler333.get_WCA_scramble, 5, True)
 EVENT_4x4       = Event("4x4", scrambler444.get_WCA_scramble, 5, True)
@@ -102,6 +118,8 @@ EVENT_3x3_Feet  = Event("3x3 With Feet", scrambler333.get_WCA_scramble, 5, True)
 EVENT_FMC       = Event("FMC", FMC_scrambler, 3, True)
 EVENT_2GEN      = Event("2GEN", scrambler333.get_2genRU_scramble, 5, True)
 EVENT_LSE       = Event("LSE", scrambler333.get_2genMU_scramble, 5, True)
+EVENT_4BLD      = Event("4BLD", scrambler444.get_4BLD_scramble, 3, True)
+EVENT_5BLD      = Event("5BLD", scrambler555.get_5BLD_scramble, 3, True)
 
 # Bonus event definitions (current count = 12)
 EVENT_COLL      = Event("COLL", COLL_scrambler, 5, False)
@@ -116,6 +134,8 @@ EVENT_3x3x5     = Event("3x3x5", cuboidsScrambler.get_3x3x5_scramble, 5, False)
 EVENT_234Relay  = Event("2-3-4 Relay", scrambler_234_relay, 3, False, scramble_generator=True)
 EVENT_333Relay  = Event("3x3 Relay of 3", scrambler_333_relay, 3, False, scramble_generator=True)
 EVENT_PLLAttack = Event("PLL Time Attack", lambda: 'Do all the PLLs!', 1, False)
+EVENT_2BLD      = Event("2BLD", scrambler222.get_WCA_scramble, 3, False)
+EVENT_REDI      = Event("Redi Cube", redi_scrambler, 5, False)
 
 # -------------------------------------------------------------------------------------------------
 
@@ -151,6 +171,10 @@ __ALL_EVENTS = [
     EVENT_3x3x5,
     EVENT_234Relay,
     EVENT_PLLAttack,
+    EVENT_2BLD,
+    EVENT_4BLD,
+    EVENT_5BLD,
+    EVENT_REDI
 ]
 
 # Important! Don't change how these weekly and bonus lists are built, we rely on the order

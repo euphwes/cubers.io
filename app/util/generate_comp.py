@@ -5,9 +5,9 @@ from app import CUBERS_APP
 from app.persistence.comp_manager import get_competition_gen_resources,\
 save_competition_gen_resources, save_new_competition
 
-from app.util.events_resources import get_weekly_events, get_bonus_events_rotation_starting_at,\
-get_COLL_at_index, get_bonus_events_without_current, get_num_COLLs, get_num_bonus_events,\
-EVENT_COLL, EVENT_234Relay, EVENT_333Relay
+from app.util.events_resources import get_weekly_events, get_bonus_events,\
+get_bonus_events_rotation_starting_at, get_COLL_at_index, get_bonus_events_without_current,\
+get_num_COLLs, get_num_bonus_events, EVENT_COLL, EVENT_234Relay, EVENT_333Relay
 
 from app.util.post_comp import post_competition
 
@@ -23,7 +23,7 @@ if IS_DEVO:
 
 # -------------------------------------------------------------------------------------------------
 
-def generate_new_competition():
+def generate_new_competition(all_events=False):
     """ Generate a new competition object based on the previous one. """
 
     # Get the info required to know what events and COLL to do next
@@ -42,14 +42,20 @@ def generate_new_competition():
             'scrambles': weekly_event.get_scrambles()
         }))
 
-    # Update start index for bonus events and get the list of bonus events
-    comp_gen_data.current_bonus_index = (comp_gen_data.current_bonus_index + BONUS_EVENT_COUNT) % get_num_bonus_events()
-    bonus_index  = comp_gen_data.current_bonus_index
-    bonus_events = get_bonus_events_rotation_starting_at(bonus_index, BONUS_EVENT_COUNT)
+    if all_events:
+        bonus_events = get_bonus_events()
+    else:
+        # Update start index for bonus events and get the list of bonus events
+        comp_gen_data.current_bonus_index = (comp_gen_data.current_bonus_index + BONUS_EVENT_COUNT) % get_num_bonus_events()
+        bonus_index  = comp_gen_data.current_bonus_index
+        bonus_events = get_bonus_events_rotation_starting_at(bonus_index, BONUS_EVENT_COUNT)
+
     bonus_names  = [e.name for e in bonus_events]
 
     # Get list of names of upcoming bonus events
     upcoming_bonus_names = [e.name for e in get_bonus_events_without_current(bonus_events)]
+    if not upcoming_bonus_names:
+        upcoming_bonus_names = ["Back to the normal rotation next week."]
 
     # Get the next COLL index and number if we're doing COLL this week
     if EVENT_COLL in bonus_events:
