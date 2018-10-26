@@ -15,8 +15,8 @@ US Eastern time (GMT{tz_offset}).
 Weekly prizes are provided by [speedcubeshop.com](https://www.speedcubeshop.com). Every week one competitor
 will be selected at random to receive a $15 SCS gift card!
 
-We'll hold (almost) every WCA event weekly. We are not currently holding 4BLD, 5BLD, and MBLD, but
-if there is enough interest we will add them. We'll rotate through a list of bonus events every week.
+Every competition will have every WCA event (except for MBLD), as well as a weekly rotating selection of bonus events.
+If there is enough interest for MBLD, we will add it in the future.
 
 For the best competition experience, visit [cubers.io](https://www.cubers.io), a web app built
 specifically for the /r/cubers weekly competition. By logging into [cubers.io](https://www.cubers.io),
