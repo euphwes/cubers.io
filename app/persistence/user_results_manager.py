@@ -100,13 +100,17 @@ def __save_existing_event_results(existing_results, new_results):
 
     # Update any existing solves with the data coming in from the new solves
     for old_solve in existing_results.solves:
+        found = False
         for new_solve in new_results.solves:
             if old_solve.scramble_id == new_solve.scramble_id:
+                found = True
                 old_solve.time        = new_solve.time
                 old_solve.is_dnf      = new_solve.is_dnf
                 old_solve.is_plus_two = new_solve.is_plus_two
+        if not found:
+            DB.session.delete(old_solve)
 
-    # Determine which of the "new" solves are actually new and add those to the UserEventResults record
+    # Determine which of the new solves are actually new and add those to the results record
     old_scramble_ids = [solve.scramble_id for solve in existing_results.solves]
     for new_solve in [s for s in new_results.solves if s.scramble_id not in old_scramble_ids]:
         existing_results.solves.append(new_solve)
