@@ -34,6 +34,7 @@ def index():
             'event_id':      comp_event.Event.id,
             'comp_event_id': comp_event.id,
             'comment':       '',
+            'event_format':  comp_event.Event.eventFormat,
         }
         for scram in comp_event.scrambles:
             event['scrambles'].append({

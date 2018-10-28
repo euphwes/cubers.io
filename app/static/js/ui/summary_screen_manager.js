@@ -25,12 +25,18 @@
     SummaryScreenManager.prototype._splitEventsCompleteIncomplete = function() {
         var complete_events = [];
         var incomplete_events = [];
+        var event_format_result_type_dict = {
+            "Ao5": "Average: ",
+            "Mo3": "Mean: ",
+            "Bo1": "Best: ",
+            "Bo3": "Best: ",
+        };
         $.each(app.eventsDataManager.getEventsData(), function(i, event){
             if (event.status === 'complete') {
                 if (event.summary.indexOf(" = ") > -1) {
-                    event.short_summary = "Result: " + event.summary.substr(0, event.summary.indexOf(" = "));
+                    event.short_summary = event_format_result_type_dict[event.event_format] + event.summary.substr(0, event.summary.indexOf(" = "));
                 } else {
-                    event.short_summary = "Result: " + event.summary;
+                    event.short_summary = event_format_result_type_dict[event.event_format] + event.summary;
                 }
                 complete_events.push(event);
             } else if (event.status === 'incomplete') {
