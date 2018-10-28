@@ -97,9 +97,19 @@ def __save_existing_event_results(existing_results, new_results):
     existing_results.average = new_results.average
     existing_results.comment = new_results.comment
     existing_results.reddit_comment = new_results.reddit_comment
-    for solve in existing_results.solves:
-        DB.session.delete(solve)
-    for solve in new_results.solves:
-        existing_results.solves.append(solve)
+
+    # Update any existing solves with the data coming in from the new solves
+    for old_solve in existing_results.solves:
+        for new_solve in new_results.solves:
+            if old_solve.scramble_id == new_solve.scramble_id:
+                old_solve.time        = new_solve.time
+                old_solve.is_dnf      = new_solve.is_dnf
+                old_solve.is_plus_two = new_solve.is_plus_two
+
+    # Determine which of the "new" solves are actually new and add those to the UserEventResults record
+    old_scramble_ids = [solve.scramble_id for solve in existing_results.solves]
+    for new_solve in [s for s in new_results.solves if s.scramble_id not in old_scramble_ids]:
+        existing_results.solves.append(new_solve)
+
     DB.session.commit()
     return existing_results
