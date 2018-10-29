@@ -14,7 +14,7 @@
     ScrambleDisplayManager.prototype._showScramble = function(scramble) {
         var rendered = scramble.scramble.split('\n').join('<br/>');
         $('.scramble-wrapper .scram').html(rendered);
-        textFit($('.scramble-wrapper .scram'), {multiLine: true});
+        textFit($('.scramble-wrapper .scram'), {multiLine: true, maxFontSize: 50});
     };
 
     /**
