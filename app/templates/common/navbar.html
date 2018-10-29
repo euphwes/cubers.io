@@ -15,8 +15,9 @@
                     <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" href="#">Leaderboards</a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="#">Current (coming soon!)</a>
-                        <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#">Previous (coming soon!)</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('results_list') }}">All competitions</a>
                     </div>
                 </li>
                 {% if current_user.is_authenticated %}

@@ -195,8 +195,11 @@ def submit_competition_post(title, post_body):
 
 def get_permalink_for_comp_thread(reddit_thread_id):
     """ Returns the permalink for the competition thread specified by the ID above. """
-    comp = get_non_user_reddit().submission(id=reddit_thread_id)
-    return REDDIT_URL_ROOT + comp.permalink
+    try:
+        comp = get_non_user_reddit().submission(id=reddit_thread_id)
+        return REDDIT_URL_ROOT + comp.permalink
+    except:
+        return "Oops, no thread exists with that ID."
 
 
 def get_submission_with_id(reddit_thread_id):

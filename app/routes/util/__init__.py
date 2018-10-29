@@ -9,7 +9,7 @@ from app.util import reddit_util
 
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.route("/current")
+@CUBERS_APP.route("/current_id")
 def current_comp():
     """ Redirects to the Reddit URL for the current competition. """
     comp = comp_manager.get_active_competition()
@@ -18,7 +18,7 @@ def current_comp():
     return redirect(comp_url)
 
 
-@CUBERS_APP.route("/results")
+@CUBERS_APP.route("/results_id")
 def prev_results():
     """ Redirects to the Reddit URL for the previous competition's results. """
     comp = comp_manager.get_previous_competition()

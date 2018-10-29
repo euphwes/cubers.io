@@ -1,0 +1,31 @@
+{% extends "common/base.html" %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="container cubers-container" style="margin-top: 15px;">
+    <h4>
+        Click a link below to see the results for a competition,
+        or to visit its Reddit thread.
+    </h4>
+    <hr/>
+    <table class="table table-sm table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Competition</th>
+                <th scope="col">Reddit Thread</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for comp in comps %}
+            <tr>
+                <th><a href="/results/{{ comp[0] }}">{{ comp[1] }}</a></th>
+                <th><a href="{{ comp[3] }}">{{ comp[3] }}</a></th>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
