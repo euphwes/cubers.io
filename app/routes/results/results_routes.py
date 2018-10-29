@@ -23,14 +23,4 @@ def results_list():
     comps = comp_manager.get_complete_competitions()
     comp = comp_manager.get_active_competition()
 
-    updated_comps = list()
-    for comp in comps:
-        updated_comp = ['','','','']
-        updated_comp[0] = comp[0]
-        updated_comp[1] = comp[1]
-        updated_comp[2] = comp[2]
-        updated_comp[3] = get_permalink_for_comp_thread(comp[3])
-        #
-        updated_comps.append(updated_comp)
-
-    return render_template("results/results_list.html", comps=updated_comps, current_competition=comp)
+    return render_template("results/results_list.html", comps=comps, active=comp)

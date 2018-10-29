@@ -6,23 +6,24 @@
 
 {% block content %}
 <div class="container cubers-container" style="margin-top: 15px;">
-    <h4>
-        Click a link below to see the results for a competition,
-        or to visit its Reddit thread.
-    </h4>
-    <hr/>
     <table class="table table-sm table-striped">
-        <thead>
+        <thead class="thead-dark">
             <tr>
-                <th scope="col">Competition</th>
-                <th scope="col">Reddit Thread</th>
+                <th scope="col">Competition Results</th>
+                <th scope="col">Start Date</th>
+                <th scope="col">End Date</th>
             </tr>
         </thead>
         <tbody>
-        {% for comp in comps %}
             <tr>
-                <th><a href="/results/{{ comp[0] }}">{{ comp[1] }}</a></th>
-                <th><a href="{{ comp[3] }}">{{ comp[3] }}</a></th>
+                <th scope="row"><a href="/results/{{ active.id }}">{{ active.title }}</a></th>
+                <td colspan="2" class="font-weight-bold">In-progress!</th>
+            </tr>
+            {% for comp in comps %}
+            <tr>
+                <th scope="row"><a href="/results/{{ comp[0] }}">{{ comp[1] }}</a></th>
+                <td>{{ comp[3]|format_datetime }}</th>
+                <td>{{ comp[4]|format_datetime }}</th>
             </tr>
         {% endfor %}
         </tbody>

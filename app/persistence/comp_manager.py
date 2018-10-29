@@ -59,7 +59,7 @@ def get_participants_in_competition(comp_id):
 def get_complete_competitions():
     """ Returns id and title for all of the not-active competitions. """
     return Competition.query.\
-        with_entities(Competition.id, Competition.title, Competition.active, Competition.reddit_thread_id).\
+        with_entities(Competition.id, Competition.title, Competition.active, Competition.start_timestamp, Competition.end_timestamp).\
         filter(Competition.active.is_(False)).\
         order_by(Competition.id.desc()).\
         all()

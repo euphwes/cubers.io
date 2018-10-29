@@ -3,6 +3,7 @@ appdirs==1.4.3
 arrow==0.12.1
 asn1crypto==0.24.0
 astroid==1.6.4
+Babel==2.6.0
 backcall==0.1.0
 certifi==2018.4.16
 cffi==1.11.5
@@ -48,6 +49,7 @@ pyparsing==2.2.0
 python-dateutil==2.7.3
 python-editor==1.0.3
 pyTwistyScrambler==1.2
+pytz==2018.7
 requests==2.18.4
 requests-toolbelt==0.8.0
 simplegeneric==0.8.1

@@ -7,6 +7,7 @@ from flask_assets import Bundle, Environment
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
+from babel.dates import format_date
 from config import Config
 
 # -------------------------------------------------------------------------------------------------
@@ -43,7 +44,7 @@ ASSETS.register({
         'js/ui/summary_screen_manager.js',
 
         'js/init.js',
-        #filters="jsmin",
+        filters="jsmin",
         output='gen/app.js'
     ),
 
@@ -56,6 +57,15 @@ ASSETS.register({
         filters="less,cssmin",
         output='gen/app.css'),
 })
+
+# -------------------------------------------------------------------------------------------------
+
+@CUBERS_APP.template_filter('format_datetime')
+def format_datetime(value):
+    """ Jinja custom filter to format a date to Apr 1, 2018 format. """
+    return format_date(value, locale='en_US')
+
+# -------------------------------------------------------------------------------------------------
 
 #pylint: disable=W0401
 #I don't want to specifically name every route I want to import here
