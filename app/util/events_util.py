@@ -7,6 +7,16 @@ NA  = 'N/A'
 
 # -------------------------------------------------------------------------------------------------
 
+
+def determine_best_single(solves):
+    """ Determines the best single in the set of solves. """
+
+    if all(solve.is_dnf for solve in solves):
+        return DNF
+
+    return min(solve.get_total_time() for solve in solves if not solve.is_dnf)
+
+
 def determine_bests(solves, event_format):
     """ Returns a tuple of (best single, average) for these solves based on the supplied
     event format." """

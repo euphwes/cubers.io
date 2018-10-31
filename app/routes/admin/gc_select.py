@@ -1,7 +1,8 @@
 """ A collection of admin endpoints for selection of winners for the SCS gift card. """
 
-from flask import request, redirect, url_for, render_template
 import random
+
+from flask import request, redirect, url_for, render_template
 
 from app import CUBERS_APP
 from app.persistence import comp_manager

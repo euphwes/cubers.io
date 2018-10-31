@@ -34,6 +34,28 @@ def get_previous_competition():
     return Competition.query.filter(Competition.active.is_(False)).order_by(Competition.id.desc()).first()
 
 
+def get_all_comp_events_for_comp(comp_id):
+    """ Gets all CompetitionEvents for the specified competition. """
+    return DB.session.\
+            query(CompetitionEvent).\
+            join(Event).\
+            filter(CompetitionEvent.competition_id == comp_id).\
+            order_by(Event.id)
+
+
+def get_all_user_results_for_comp(comp_id):
+    """ Gets all UserEventResults for the specified competition. """
+
+    results = DB.session.\
+            query(UserEventResults).\
+            join(CompetitionEvent).\
+            join(Competition).\
+            join(Event).\
+            filter(Competition.id == comp_id)
+            
+    return results
+
+
 def get_participants_in_competition(comp_id):
     """ Returns a list of all participants in the specified competition.
     Participant is defined as somebody who has completed all solves for at
