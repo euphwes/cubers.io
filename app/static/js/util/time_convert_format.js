@@ -31,7 +31,14 @@
     
         var cs_parts = str.split(".");
         if (cs_parts.length > 1) {
-            cs = parseInt(cs_parts.pop(-1));
+            cs_str = cs_parts.pop(-1);
+            if (cs_str.length == 1) {
+                cs_str += "0";
+            }
+            if (cs_str.length > 2) {
+                cs_str = cs_str.substring(0, 2);
+            }
+            cs = parseInt(cs_str);
             p = cs_parts[0].split(':');
         } else {
             p = str.split(':');
