@@ -78,7 +78,7 @@ def do_reddit_submit(user, user_results, comment_source, comp_reddit_thread_id):
     """ Handle submitting a new, or updating an existing, Reddit comment. Returns a tuple of
     the Reddit comment URL and the comment ID. """
 
-    anything_to_post = any(_.is_complete() for _ in user_results)
+    anything_to_post = any(result.is_complete for result in user_results)
     if not anything_to_post:
         return None, None
 

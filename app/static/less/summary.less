@@ -67,26 +67,20 @@
     }
 
     .summary {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
         &:after {
             content: attr(data-long);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
         @media @mobile {
             &:after {
                 content: attr(data-short);
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
             }
         }
         @media @tablet {
             &:after {
                 content: attr(data-short);
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
             }
         }
     }

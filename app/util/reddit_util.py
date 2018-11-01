@@ -43,7 +43,7 @@ def build_comment_source_from_events_results(events_results):
 
     convert_to_friendly = convert_centiseconds_to_friendly_time
 
-    complete_events = [results for results in events_results if results.is_complete()]
+    complete_events = [results for results in events_results if results.is_complete]
     for results in complete_events:
         comp_event   = get_comp_event_by_id(results.comp_event_id)
         event_name   = comp_event.Event.name
@@ -131,11 +131,16 @@ def build_times_string(solves, event_format, isFMC=False, isBlind=False):
         else:
             friendly_times[i] = 'DNF'
 
+    if event_format == EventFormat.Bo3:
+        while len(friendly_times) < 3:
+            friendly_times.append('DNS')
+
     if event_format in [EventFormat.Bo3, EventFormat.Mo3]:
         return ', '.join(friendly_times)
 
     friendly_times[best_index] = '({})'.format(friendly_times[best_index])
     friendly_times[worst_index] = '({})'.format(friendly_times[worst_index])
+
     return ', '.join(friendly_times)
 
 
