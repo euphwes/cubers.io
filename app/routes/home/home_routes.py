@@ -31,7 +31,7 @@ def index():
         event_dict = comp_event.to_front_end_consolidated_dict()
         if current_user.is_authenticated:
             event = fill_any_existing_user_data(user, event_dict)
-        events_for_json[str(comp_event.id)] = event
+        events_for_json[str(comp_event.id)] = event_dict
 
     ordered_comp_events = list([comp_event for comp_event in comp.events])
     ordered_comp_events.sort(key=lambda c: c.event_id)
