@@ -43,7 +43,7 @@ def build_comment_source_from_events_results(events_results):
 
     convert_to_friendly = convert_centiseconds_to_friendly_time
 
-    complete_events = [results for results in events_results if results.is_complete()]
+    complete_events = [results for results in events_results if results.is_complete]
     for results in complete_events:
         comp_event   = get_comp_event_by_id(results.comp_event_id)
         event_name   = comp_event.Event.name

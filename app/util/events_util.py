@@ -16,6 +16,16 @@ def determine_best_single(solves):
     return min(solve.get_total_time() for solve in solves if not solve.is_dnf)
 
 
+def determine_event_result(single, average_or_mean, event_format):
+    """ Returns the correct overall result (either single or average_or_mean)
+    based on the event format. """
+
+    if event_format in (EventFormat.Bo1, EventFormat.Bo3):
+        return single
+
+    return average_or_mean
+
+
 def determine_bests(solves, event_format):
     """ Returns a tuple of (best single, average) for these solves based on the supplied
     event format." """

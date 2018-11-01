@@ -1,13 +1,16 @@
 """ Utility module for providing access to business logic for user solves. """
 
 from app import DB
-from app.persistence.models import UserEventResults, UserSolve
-from app.util.events_util import determine_bests, determine_best_single
+from app.persistence.models import UserEventResults, UserSolve, EventFormat
+from app.util.events_util import determine_bests, determine_best_single, determine_event_result
 
 from .comp_manager import get_comp_event_by_id
 
 # -------------------------------------------------------------------------------------------------
 
+
+
+# -------------------------------------------------------------------------------------------------
 
 def determine_if_resubmit(user_results, user):
     """ Determines if user has already submitted results to Reddit for this competition. Returns the
@@ -39,6 +42,9 @@ def build_user_event_results(comp_event_id, solves, comment):
     and associated solve times. """
 
     comp_event = get_comp_event_by_id(comp_event_id)
+    expected_num_solves = comp_event.Event.totalSolves
+    event_format = comp_event.Event.eventFormat
+
     results = UserEventResults(comp_event_id=comp_event_id, comment=comment)
 
     for solve in solves:
@@ -54,14 +60,26 @@ def build_user_event_results(comp_event_id, solves, comment):
         user_solve = UserSolve(time=time, is_dnf=dnf, is_plus_two=plus_two, scramble_id=scramble_id)
         results.solves.append(user_solve)
 
-    num_expected_solves = comp_event.Event.totalSolves
-    if len(results.solves) < num_expected_solves:
+    if len(results.solves) < expected_num_solves:
         results.single = determine_best_single(results.solves)
-        results.average = 'PENDING'
+        results.average = ''
     else:
         single, average = determine_bests(results.solves, comp_event.Event.eventFormat)
         results.single  = single
         results.average = average
+
+    # Determine whether this event is considered complete or not
+    if event_format == EventFormat.Bo3:
+        # All blind events are best-of-3, but ranked by single,
+        # so consider those complete if there are any solves complete at all
+        results.is_complete = bool(results.solves)
+    else:
+        # Other events are complete if all solves have been completed
+        results.is_complete = len(results.solves) == expected_num_solves
+
+    # If complete, set the result (either best single, mean, or average) depending on event format
+    if results.is_complete:
+        results.result = determine_event_result(results.single, results.average, event_format)
 
     return results
 
@@ -93,9 +111,11 @@ def save_event_results_for_user(comp_event_results, user):
 def __save_existing_event_results(existing_results, new_results):
     """ Update the existing UserEventResults and UserSolves with the new data. """
 
-    existing_results.single = new_results.single
-    existing_results.average = new_results.average
-    existing_results.comment = new_results.comment
+    existing_results.single         = new_results.single
+    existing_results.average        = new_results.average
+    existing_results.result         = new_results.result
+    existing_results.comment        = new_results.comment
+    existing_results.is_complete    = new_results.is_complete
     existing_results.reddit_comment = new_results.reddit_comment
 
     # Update any existing solves with the data coming in from the new solves

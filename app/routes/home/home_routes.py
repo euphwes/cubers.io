@@ -77,7 +77,7 @@ def fill_any_existing_user_data(user, event):
             scram['isDNF'] = solve.is_dnf
             scrambles_completed += 1
 
-    if scrambles_completed == total_scrambles or (event['event_format'] == 'Bo3' and scrambles_completed > 0):
+    if prev.is_complete:
         event['summary'] = build_summary(event)
         event['status']  = 'complete'
     elif scrambles_completed > 0:

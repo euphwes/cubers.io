@@ -89,13 +89,11 @@ class UserEventResults(Model):
     comp_event_id     = Column(Integer, ForeignKey('competition_event.id'))
     single            = Column(String(10))
     average           = Column(String(10))
+    result            = Column(String(10))
     comment           = Column(Text)
     solves            = relationship('UserSolve')
     reddit_comment    = Column(String(10))
-
-    def is_complete(self):
-        """ Returns if the user has completed all of their solves for this event. """
-        return self.single != 'PENDING'
+    is_complete       = Column(Boolean)
 
 
 class CompetitionEvent(Model):
