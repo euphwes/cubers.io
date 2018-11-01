@@ -6,6 +6,7 @@
      */
     function ScrambleDisplayManager() {
         this._registerCurrentScramblesManagerHandlers();
+        this._registerEventsDataManagerHandlers();
     };
 
     /**
@@ -29,11 +30,33 @@
     };
 
     /**
+     * Event handler for changing the "congrats you're done!" message if the result changes after
+     * this message is already displayed. Due to user adding/removing penalties, manually changing a time, etc
+     */
+    ScrambleDisplayManager.prototype._possiblyUpdateDoneMessage = function(data) {
+        var isShowingDoneMessage = $('.scramble-wrapper .scram').html().indexOf("Congrats!") !== -1;
+
+        if (!isShowingDoneMessage) { return; }
+
+        this._showDone({
+            'event_name': app.eventsDataManager.getEventName(data.comp_event_id),
+            'event_result': app.eventsDataManager.getEventResult(data.comp_event_id),
+        });
+    }
+
+    /**
      * Register handlers for current scrambles manager events.
      */
     ScrambleDisplayManager.prototype._registerCurrentScramblesManagerHandlers = function() {
         app.currentScramblesManager.on(app.EVENT_NOTHING_TO_ATTACH, this._showDone.bind(this));
         app.currentScramblesManager.on(app.EVENT_NEW_SCRAMBLE_ATTACHED, this._showScramble.bind(this));
+    };
+
+    /**
+     * Register handlers for events data manager events.
+     */
+    ScrambleDisplayManager.prototype._registerEventsDataManagerHandlers = function() {
+        app.eventsDataManager.on(app.EVENT_SUMMARY_CHANGE, this._possiblyUpdateDoneMessage.bind(this));
     };
 
     // Make ScrambleDisplayManager visible at app scope
