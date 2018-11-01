@@ -182,6 +182,27 @@
     };
 
     /**
+     * Returns the result for the given comp event id.
+     */
+    EventsDataManager.prototype.getEventResult = function(comp_event_id) {
+        var data = {};
+        data.result = this.events_data[comp_event_id].summary.split(" = ")[0];
+
+        var format = this.events_data[comp_event_id].event_format;
+        if (format == 'Bo3') {
+            data.result_type = 'a best single';
+        } else if (format == 'Bo1') {
+            data.result_type = 'a result';
+        } else if (format == 'Ao5') {
+            data.result_type = 'an average';
+        } else {
+            data.result_type = 'a mean';
+        }
+
+        return data;
+    };
+
+    /**
      * Clears penalties for the specified comp event and scramble ID
      */
     EventsDataManager.prototype.clearPenalty = function(comp_event_id, scramble_id) {

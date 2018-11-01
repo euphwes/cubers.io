@@ -40,8 +40,11 @@
             app.timer.attachToScramble(nextIncompleteScramble.id);
             this.emit(EVENT_NEW_SCRAMBLE_ATTACHED, nextIncompleteScramble);
         } else {
-            var event_name = app.eventsDataManager.getEventName(comp_event_id);
-            this.emit(EVENT_NOTHING_TO_ATTACH, event_name);
+            var data = {
+                'event_name': app.eventsDataManager.getEventName(comp_event_id),
+                'event_result': app.eventsDataManager.getEventResult(comp_event_id),
+            }
+            this.emit(EVENT_NOTHING_TO_ATTACH, data);
         }
     };
 

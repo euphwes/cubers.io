@@ -20,8 +20,11 @@
     /**
      * Event handler for when there are no incomplete solves/scrambles left to attach.
      */
-    ScrambleDisplayManager.prototype._showDone = function(event_name) {
-        $('.scramble-wrapper .scram').html("Congrats!<br/>You're done with " + event_name + ".");
+    ScrambleDisplayManager.prototype._showDone = function(data) {
+        var text = "Congrats!<br/>You've finished " + data.event_name + " with ";
+        text += data.event_result.result_type + " of " + data.event_result.result + "."
+
+        $('.scramble-wrapper .scram').html(text);
         textFit($('.scramble-wrapper .scram'));
     };
 
