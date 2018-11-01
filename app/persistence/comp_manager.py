@@ -43,7 +43,7 @@ def get_all_comp_events_for_comp(comp_id):
             order_by(Event.id)
 
 
-def get_all_user_results_for_comp(comp_id):
+def get_all_complete_user_results_for_comp(comp_id):
     """ Gets all UserEventResults for the specified competition. """
 
     results = DB.session.\
@@ -51,7 +51,8 @@ def get_all_user_results_for_comp(comp_id):
             join(CompetitionEvent).\
             join(Competition).\
             join(Event).\
-            filter(Competition.id == comp_id)
+            filter(Competition.id == comp_id).\
+            filter(UserEventResults.is_complete)
             
     return results
 

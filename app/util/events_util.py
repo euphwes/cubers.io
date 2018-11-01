@@ -3,7 +3,6 @@
 from app.persistence.models import EventFormat
 
 DNF = 'DNF'
-NA  = 'N/A'
 
 # -------------------------------------------------------------------------------------------------
 
@@ -56,18 +55,14 @@ def determine_bests_bo1(solves):
     solve = solves[0]
 
     if solve.is_dnf:
-        return DNF, NA
+        return DNF, ''
 
-    return solve.get_total_time(), NA
+    return solve.get_total_time(), ''
 
 
 def determine_bests_bo3(solves):
     """ Returns the best single for these 3 solves, and 'N/A' for the average. """
-
-    if all(solve.is_dnf for solve in solves):
-        return DNF, NA
-
-    return min(solve.get_total_time() for solve in solves if not solve.is_dnf), NA
+    return determine_bests_mo3(solves)
 
 
 def determine_bests_mo3(solves):

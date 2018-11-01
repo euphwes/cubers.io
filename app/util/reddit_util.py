@@ -81,7 +81,7 @@ def build_user_comment(comment_body):
     return reddit_comment_body
 
 
-def build_times_string(solves, event_format, isFMC=False, isBlind=False):
+def build_times_string(solves, event_format, isFMC=False, isBlind=False, want_list=False):
     """ Builds a list of individual times, with best/worst times in parens if appropriate
     for the given event format. """
 
@@ -136,11 +136,15 @@ def build_times_string(solves, event_format, isFMC=False, isBlind=False):
             friendly_times.append('DNS')
 
     if event_format in [EventFormat.Bo3, EventFormat.Mo3]:
+        if want_list:
+            return friendly_times
         return ', '.join(friendly_times)
 
     friendly_times[best_index] = '({})'.format(friendly_times[best_index])
     friendly_times[worst_index] = '({})'.format(friendly_times[worst_index])
 
+    if want_list:
+        return friendly_times
     return ', '.join(friendly_times)
 
 

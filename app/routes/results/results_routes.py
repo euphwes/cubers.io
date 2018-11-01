@@ -28,13 +28,20 @@ def results_list():
 def comp_results(comp_id):
     """ A route for showing results for a specific competition. """
 
-    results = comp_manager.get_all_user_results_for_comp(comp_id)
+    results = comp_manager.get_all_complete_user_results_for_comp(comp_id)
     comp_events = comp_manager.get_all_comp_events_for_comp(comp_id)
     event_names = [event.Event.name for event in comp_events]
     event_results = {event.Event.name : list() for event in comp_events}
 
     for result in results:
         event_name = result.CompetitionEvent.Event.name
+        event_format = result.CompetitionEvent.Event.eventFormat
+
+        is_fmc = event_name == 'FMC'
+        is_blind = event_name in ('2BLD', '3BLD', '4BLD', '5BLD')
+
+        solves_helper = build_times_string(result.solves, event_format, is_fmc, is_blind, want_list=True)
+        setattr(result, 'solves_helper', solves_helper)
         event_results[event_name].append(result)
 
     # Sort the results
@@ -45,13 +52,17 @@ def comp_results(comp_id):
 
 
 def sort_results(val1, val2):
-    if not val1.result and not val2.result:
-        return 0
-    if not val1.result:
-        return -1
-    if not val2.result:
-        return 1
-    return int(val1.result) - int(val2.result)
+    result1 = val1.result
+    result2 = val2.result
+    if not result1:
+        result1 = 100000000
+    if not result2:
+        result2 = 100000000
+    if result1 == 'DNF':
+        result1 = 99999999
+    if result2 == 'DNF':
+        result2 = 99999999
+    return int(result1) - int(result2)
 
 
 def cmp_to_key(mycmp):

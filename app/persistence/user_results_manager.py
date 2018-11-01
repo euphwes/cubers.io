@@ -87,6 +87,11 @@ def get_event_results_for_user(comp_event_id, user):
                                  .first()
 
 
+def get_all_event_results():
+    """ Get all UserEventResults. """
+    return UserEventResults.query.all()
+
+
 def save_event_results_for_user(comp_event_results, user):
     """ Associates a UserEventResults with a specific user and saves it to the database.
     If the user already has an EventResults for this competition, update it instead. """

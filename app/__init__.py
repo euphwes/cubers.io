@@ -89,10 +89,11 @@ def friendly_time(value):
 def format_fmc_result(value):
     """ Jinja custom filter to convert a fake 'centisecond' result to FMC moves. """
     try:
-        converted_value = int(value)
+        converted_value = int(value)/100
     except ValueError:
         return value
-        
+
     if converted_value == int(converted_value):
         converted_value = int(converted_value)
+
     return converted_value

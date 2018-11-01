@@ -8,6 +8,7 @@
 <div class="container cubers-container" style="margin-top: 15px;">
     <h1> Work in progress, please ignore</h1>
     {% for event_name in event_names %}
+    {% if event_results[event_name] %}
     <span class="font-weight-bold">{{ event_name }}</span>
     <table class="table table-sm table-striped">
         <thead class="thead-dark">
@@ -23,18 +24,25 @@
             {% for result in event_results[event_name] %}
             <tr>
                 <td scope="row">{{ loop.index }}</th>
-                <td scope="col">{{ result.User.username }}</th>
-                <td scope="col">{{ result.average | friendly_time }}</th>
-                <td scope="col">{{ result.single | friendly_time }}</th>
-                <td scope="col">Solve 1</th>
-                <td scope="col">Solve 2</th>
-                <td scope="col">Solve 3</th>
-                <td scope="col">Solve 4</th>
-                <td scope="col">Solve 5</th>
+                <td scope="col">/u/{{ result.User.username }}</th>
+                {% if event_name == "FMC" %}
+                    <td scope="col">{{ result.average | format_fmc_result }}</th>
+                    <td scope="col">{{ result.single | format_fmc_result }}</th>
+                    {% for solve in result.solves_helper %}
+                    <td scope="col">{{ solve | format_fmc_result }}</th>
+                    {% endfor %}
+                {% else %}
+                    <td scope="col">{{ result.average | friendly_time }}</th>
+                    <td scope="col">{{ result.single | friendly_time }}</th>
+                    {% for solve in result.solves_helper %}
+                    <td scope="col">{{ solve | friendly_time }}</th>
+                    {% endfor %}
+                {% endif %}
             </tr>
             {% endfor %}
         </tbody>
     </table>
+    {% endif %}
     {% endfor %}
 </div>
 {% endblock %}
