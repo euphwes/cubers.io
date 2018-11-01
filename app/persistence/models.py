@@ -65,6 +65,19 @@ class Scramble(Model):
     competition_event_id = Column(Integer, ForeignKey('competition_event.id'))
     solves               = relationship('UserSolve', backref='Scramble')
 
+    def to_front_end_consolidated_dict(self):
+        """ Returns a dictionary representation of this object, for use in the front-end.
+        Adds a few additional fields so that the front-end object can be easily translated
+        to a UserSolve object when sent back to the backend. """
+
+        return {
+            'id':        self.id,
+            'scramble':  self.scramble,
+            'time':      0,
+            'isPlusTwo': False,
+            'isDNF':     False,
+        }
+
 
 class UserEventResults(Model):
     """ A model detailing a user's results for a single event at competition. References the user,
@@ -96,6 +109,21 @@ class CompetitionEvent(Model):
                                   primaryjoin = id == Scramble.competition_event_id)
     user_results   = relationship('UserEventResults', backref='CompetitionEvent',
                                   primaryjoin=id == UserEventResults.comp_event_id)
+
+
+    def to_front_end_consolidated_dict(self):
+        """ Returns a dictionary representation of this object for use in the front-end.
+        Adds a few additional fields so that the front-end object can be easily translated
+        to a UserEventResults object when sent back to the backend. """
+
+        return {
+            'name':          self.Event.name,
+            'scrambles':     [s.to_front_end_consolidated_dict() for s in self.scrambles],
+            'event_id':      self.Event.id,
+            'comp_event_id': self.id,
+            'event_format':  self.Event.eventFormat,
+            'comment':       '',
+        }
 
 
 class Competition(Model):
@@ -143,15 +171,6 @@ class UserSolve(Model):
     scramble_id   = Column(Integer, ForeignKey('scrambles.id'))
     user_event_results_id = Column(Integer, ForeignKey('user_event_results.id'))
 
-    def get_friendly_time(self):
-        """ Gets a user-friendly display time for this solve. """
-
-        if self.is_dnf:
-            return 'DNF'
-
-        return convert_centiseconds_to_friendly_time(int(self.time))
-
     def get_total_time(self):
-        """ Returns the solve's time with +2s penality counted, if applicable. """
-
+        """ Returns the solve's time with +2s penalty counted, if applicable. """
         return (self.time + 200) if self.is_plus_two else self.time

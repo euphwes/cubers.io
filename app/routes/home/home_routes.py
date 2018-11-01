@@ -28,26 +28,9 @@ def index():
 
     events_for_json = dict()
     for comp_event in comp.events:
-        event = {
-            'name':          comp_event.Event.name,
-            'scrambles':     list(),
-            'event_id':      comp_event.Event.id,
-            'comp_event_id': comp_event.id,
-            'comment':       '',
-            'event_format':  comp_event.Event.eventFormat,
-        }
-        for scram in comp_event.scrambles:
-            event['scrambles'].append({
-                'id':       scram.id,
-                'scramble': scram.scramble,
-                'time':     0,
-                'isPlusTwo': False,
-                'isDNF': False,
-            })
-
+        event_dict = comp_event.to_front_end_consolidated_dict()
         if current_user.is_authenticated:
-            event = fill_any_existing_user_data(user, event)
-
+            event = fill_any_existing_user_data(user, event_dict)
         events_for_json[str(comp_event.id)] = event
 
     ordered_comp_events = list([comp_event for comp_event in comp.events])
@@ -75,16 +58,14 @@ def prompt_login():
 # -------------------------------------------------------------------------------------------------
 
 def fill_any_existing_user_data(user, event):
-    """ Check """
+    """ Checks """
     prev = get_event_results_for_user(event['comp_event_id'], user)
     if not prev:
-        event['save_status'] = 'new'
         return event
 
     scrambles_completed = 0
     total_scrambles     = len(event['scrambles'])
 
-    event['save_status'] = 'saved'
     event['comment'] = prev.comment
     for solve in prev.solves:
         scramble_id = solve.scramble_id

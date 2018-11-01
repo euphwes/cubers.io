@@ -2,7 +2,7 @@
 
 from app import DB
 from app.persistence.models import UserEventResults, UserSolve
-from app.util.events_util import determine_bests
+from app.util.events_util import determine_bests, determine_best_single
 
 from .comp_manager import get_comp_event_by_id
 
@@ -56,7 +56,7 @@ def build_user_event_results(comp_event_id, solves, comment):
 
     num_expected_solves = comp_event.Event.totalSolves
     if len(results.solves) < num_expected_solves:
-        results.single = 'PENDING'
+        results.single = determine_best_single(results.solves)
         results.average = 'PENDING'
     else:
         single, average = determine_bests(results.solves, comp_event.Event.eventFormat)

@@ -40,10 +40,10 @@
         var total_solves     = event.scrambles.length;
         var completed_solves = event.scrambles.filter(x => Boolean(x.time)).length;
 
-        // If total solves == completed solves, the event is complete.
+        // If total solves == completed solves, or in a Bo3 event at least 1 solve is complete, the event is complete.
         // Grab a times summary from the server for the complete event
         // and emit an event so the card is visually updated.
-        if (total_solves == completed_solves) {
+        if (total_solves == completed_solves || (event.event_format == 'Bo3' && total_solves > 0)) {
             event.status = 'complete';
             this._recordSummaryForEvent(event);
             this._saveEvent(event);
@@ -98,8 +98,8 @@
             type: "POST",
             data: JSON.stringify(event_data),
             contentType: "application/json",
-            success: function() { event.save_status = 'saved'; },
-            error: function() { event.save_status = 'error'; },
+            success: function() { },
+            error: function() { },
         });
     };
 
@@ -259,7 +259,6 @@
         data.scramble_id = scramble_id;
         data.friendly_time_full = app.convertRawCsForSolveCard(cs, false);
         data.comp_event_id = comp_event_id;
-
         this.emit(EVENT_SOLVE_RECORD_UPDATED, data);
     };
 

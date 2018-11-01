@@ -136,6 +136,7 @@ def build_times_string(solves, event_format, isFMC=False, isBlind=False):
 
     friendly_times[best_index] = '({})'.format(friendly_times[best_index])
     friendly_times[worst_index] = '({})'.format(friendly_times[worst_index])
+
     return ', '.join(friendly_times)
 
 
