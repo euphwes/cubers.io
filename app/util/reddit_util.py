@@ -131,6 +131,10 @@ def build_times_string(solves, event_format, isFMC=False, isBlind=False):
         else:
             friendly_times[i] = 'DNF'
 
+    if event_format == EventFormat.Bo3:
+        while len(friendly_times) < 3:
+            friendly_times.append('DNS')
+
     if event_format in [EventFormat.Bo3, EventFormat.Mo3]:
         return ', '.join(friendly_times)
 

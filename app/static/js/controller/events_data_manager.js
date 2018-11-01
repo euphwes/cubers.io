@@ -43,7 +43,7 @@
         // If total solves == completed solves, or in a Bo3 event at least 1 solve is complete, the event is complete.
         // Grab a times summary from the server for the complete event
         // and emit an event so the card is visually updated.
-        if (total_solves == completed_solves || (event.event_format == 'Bo3' && total_solves > 0)) {
+        if (total_solves == completed_solves || (event.event_format == 'Bo3' && completed_solves > 0)) {
             event.status = 'complete';
             this._recordSummaryForEvent(event);
             this._saveEvent(event);
