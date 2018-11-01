@@ -60,15 +60,39 @@ ASSETS.register({
 
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.template_filter('format_datetime')
-def format_datetime(value):
-    """ Jinja custom filter to format a date to Apr 1, 2018 format. """
-    return format_date(value, locale='en_US')
-
-# -------------------------------------------------------------------------------------------------
-
 #pylint: disable=W0401
 #I don't want to specifically name every route I want to import here
 from app.persistence import models
 from .routes import *
 from .commands import *
+from .util.times_util import convert_centiseconds_to_friendly_time
+
+# -------------------------------------------------------------------------------------------------
+
+@CUBERS_APP.template_filter('format_datetime')
+def format_datetime(value):
+    """ Jinja custom filter to format a date to Apr 1, 2018 format. """
+    return format_date(value, locale='en_US')
+
+
+@CUBERS_APP.template_filter('friendly_time')
+def friendly_time(value):
+    """ Jinja custom filter to convert a time in cs to a user-friendly time. """
+    try:
+        converted_value = int(value)
+    except ValueError:
+        return value
+    return convert_centiseconds_to_friendly_time(converted_value)
+
+
+@CUBERS_APP.template_filter('format_fmc_result')
+def format_fmc_result(value):
+    """ Jinja custom filter to convert a fake 'centisecond' result to FMC moves. """
+    try:
+        converted_value = int(value)
+    except ValueError:
+        return value
+        
+    if converted_value == int(converted_value):
+        converted_value = int(converted_value)
+    return converted_value

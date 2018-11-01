@@ -6,8 +6,35 @@
 
 {% block content %}
 <div class="container cubers-container" style="margin-top: 15px;">
+    <h1> Work in progress, please ignore</h1>
     {% for event_name in event_names %}
-    <h4>{{ event_name }}</h4>
+    <span class="font-weight-bold">{{ event_name }}</span>
+    <table class="table table-sm table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">User</th>
+                <th scope="col">Average</th>
+                <th scope="col">Best</th>
+                <th scope="col" colspan="5">Solves</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in event_results[event_name] %}
+            <tr>
+                <td scope="row">{{ loop.index }}</th>
+                <td scope="col">{{ result.User.username }}</th>
+                <td scope="col">{{ result.average | friendly_time }}</th>
+                <td scope="col">{{ result.single | friendly_time }}</th>
+                <td scope="col">Solve 1</th>
+                <td scope="col">Solve 2</th>
+                <td scope="col">Solve 3</th>
+                <td scope="col">Solve 4</th>
+                <td scope="col">Solve 5</th>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
     {% endfor %}
 </div>
 {% endblock %}

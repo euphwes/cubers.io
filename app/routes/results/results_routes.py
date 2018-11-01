@@ -16,7 +16,7 @@ from app.util.reddit_util import build_times_string, convert_centiseconds_to_fri
 
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.route('/results/')
+@CUBERS_APP.route('/abcabc/')
 def results_list():
     """ A route for showing which competitions results can be viewed for. """
     comps = comp_manager.get_complete_competitions()
@@ -24,7 +24,7 @@ def results_list():
     return render_template("results/results_list.html", comps=comps, active=comp)
 
 
-@CUBERS_APP.route('/results/<int:comp_id>/')
+@CUBERS_APP.route('/abcabc/<int:comp_id>/')
 def comp_results(comp_id):
     """ A route for showing results for a specific competition. """
 
@@ -37,32 +37,22 @@ def comp_results(comp_id):
         event_name = result.CompetitionEvent.Event.name
         event_results[event_name].append(result)
 
+    # Sort the results
     for event_name, results in event_results.items():
-        results.sort(key=cmp_to_key(sort_results_average))
-        results.sort(key=cmp_to_key(sort_results_single))
-
-    comps = comp_manager.get_complete_competitions()
-    comp = comp_manager.get_active_competition()
+        results.sort(key=cmp_to_key(sort_results))
 
     return render_template("results/results_comp.html", event_results=event_results, event_names=event_names)
 
-def sort_results_average(val1, val2):
-    if val1.average == 'PENDING' and val2.average == 'PENDING':
-        return 0
-    if val1.average == 'PENDING':
-        return -1
-    if val2.average == 'PENDING':
-        return 1
-    return int(val1.average) - int(val2.average)
 
-def sort_results_single(val1, val2):
-    if val1.single == 'PENDING' and val2.single == 'PENDING':
+def sort_results(val1, val2):
+    if not val1.result and not val2.result:
         return 0
-    if val1.single == 'PENDING':
+    if not val1.result:
         return -1
-    if val2.single == 'PENDING':
+    if not val2.result:
         return 1
-    return int(val1.single) - int(val2.single)
+    return int(val1.result) - int(val2.result)
+
 
 def cmp_to_key(mycmp):
     'Convert a cmp= function into a key= function'
