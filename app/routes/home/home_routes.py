@@ -64,7 +64,6 @@ def fill_any_existing_user_data(user, event):
         return event
 
     scrambles_completed = 0
-    total_scrambles     = len(event['scrambles'])
 
     event['comment'] = prev.comment
     for solve in prev.solves:
