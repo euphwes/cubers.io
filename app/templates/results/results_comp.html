@@ -44,7 +44,7 @@
                         <th scope="col">User</th>
                         <th scope="col">Average</th>
                         <th scope="col">Best</th>
-                        <th scope="col" colspan="5">Solves</th>
+                        <th scope="col" colspan="5" class="d-none d-md-table-cell">Solves</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -61,13 +61,13 @@
                             <td scope="col" class="font-weight-bold">{{ result.average | format_fmc_result }}</th>
                             <td scope="col">{{ result.single | format_fmc_result }}</th>
                             {% for solve in result.solves_helper %}
-                            <td scope="col">{{ solve | format_fmc_result }}</th>
+                            <td scope="col" class="d-none d-md-table-cell">{{ solve | format_fmc_result }}</th>
                             {% endfor %}
                         {% else %}
                             <td scope="col" class="{{ avg_class }}">{{ result.average | friendly_time }}</th>
                             <td scope="col" class="{{ single_class }}">{{ result.single | friendly_time }}</th>
                             {% for solve in result.solves_helper %}
-                            <td scope="col">{{ solve | friendly_time }}</th>
+                            <td scope="col" class="d-none d-md-table-cell">{{ solve | friendly_time }}</th>
                             {% endfor %}
                         {% endif %}
                     </tr>
