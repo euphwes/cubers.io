@@ -28,14 +28,19 @@ def results_list():
 def comp_results(comp_id):
     """ A route for showing results for a specific competition. """
 
-    results = comp_manager.get_all_complete_user_results_for_comp(comp_id)
+    competition = comp_manager.get_competition(comp_id)
+
     comp_events = comp_manager.get_all_comp_events_for_comp(comp_id)
+    results = comp_manager.get_all_complete_user_results_for_comp(comp_id)
+
     event_names = [event.Event.name for event in comp_events]
     event_results = {event.Event.name : list() for event in comp_events}
+    event_formats = {event.Event.name : event.Event.eventFormat for event in comp_events}
+    event_ids     = {event.Event.name : event.Event.id for event in comp_events}
 
     for result in results:
         event_name = result.CompetitionEvent.Event.name
-        event_format = result.CompetitionEvent.Event.eventFormat
+        event_format = event_formats[event_name]
 
         is_fmc = event_name == 'FMC'
         is_blind = event_name in ('2BLD', '3BLD', '4BLD', '5BLD')
@@ -48,7 +53,9 @@ def comp_results(comp_id):
     for event_name, results in event_results.items():
         results.sort(key=cmp_to_key(sort_results))
 
-    return render_template("results/results_comp.html", event_results=event_results, event_names=event_names)
+    return render_template("results/results_comp.html", comp_name=competition.title,\
+        event_results=event_results, event_names=event_names, event_formats=event_formats,\
+        event_ids=event_ids)
 
 
 def sort_results(val1, val2):
