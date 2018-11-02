@@ -87,9 +87,9 @@ def get_event_results_for_user(comp_event_id, user):
                                  .first()
 
 
-def get_all_event_results():
+def get_all_null_is_complete_event_results():
     """ Get all UserEventResults. """
-    return UserEventResults.query.all()
+    return UserEventResults.query.filter(UserEventResults.is_complete == None).all()
 
 
 def save_event_results_for_user(comp_event_results, user):

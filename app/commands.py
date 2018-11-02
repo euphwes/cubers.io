@@ -18,7 +18,7 @@ from app.util.score_comp import score_previous_competition
 from . import CUBERS_APP
 from .persistence.models import EventFormat
 from .persistence.comp_manager import get_event_by_name, save_new_competition
-from .persistence.user_results_manager import get_all_event_results, save_event_results_for_user
+from .persistence.user_results_manager import get_all_null_is_complete_event_results, save_event_results_for_user
 from .util.events_util import determine_best_single, determine_bests, determine_event_result
 
 # -------------------------------------------------------------------------------------------------
@@ -137,9 +137,14 @@ def generate_new_comp_only(all_events):
 
 @CUBERS_APP.cli.command()
 def fix_user_results_add_result_complete():
-    """ Fix all user results to properly use single/average/result, and update is_complete. """
+    """ Utility command to backfill all UserEventResults with is_complete field values,
+    and simultaneously fill single/average/result values. """
 
-    for results in get_all_event_results():
+    all_results = get_all_null_is_complete_event_results()
+
+    total_to_fix = len(all_results)
+    total_fixed  = 0
+    for results in all_results:
 
         event_format        = results.CompetitionEvent.Event.eventFormat
         expected_num_solves = results.CompetitionEvent.Event.totalSolves
@@ -166,4 +171,6 @@ def fix_user_results_add_result_complete():
             results.result = determine_event_result(results.single, results.average, event_format)
 
         save_event_results_for_user(results, results.User)
-        print("Fixed UserEventResults " + str(results.id))     
+
+        total_fixed += 1
+        print("Fixed {} of {} UserEventResults".format(total_fixed, total_to_fix))
