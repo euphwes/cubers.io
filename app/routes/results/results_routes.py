@@ -1,22 +1,14 @@
 """ Routes related to displaying competition results. """
 
-import json
-
-from flask import request, abort, render_template
-from flask_login import current_user
+from flask import render_template, redirect
 
 from app import CUBERS_APP
 from app.persistence import comp_manager
-from app.persistence.models import EventFormat
-from app.persistence.user_manager import get_user_by_username
-from app.persistence.user_results_manager import build_user_event_results,\
-    save_event_results_for_user, build_all_user_results
-from app.util.reddit_util import build_times_string, convert_centiseconds_to_friendly_time,\
-    get_permalink_for_comp_thread
+from app.util.reddit_util import build_times_string
 
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.route('/abcabc/')
+@CUBERS_APP.route('/leaderboards/')
 def results_list():
     """ A route for showing which competitions results can be viewed for. """
     comps = comp_manager.get_complete_competitions()
@@ -24,7 +16,21 @@ def results_list():
     return render_template("results/results_list.html", comps=comps, active=comp)
 
 
-@CUBERS_APP.route('/abcabc/<int:comp_id>/')
+@CUBERS_APP.route('/redirect_curr/')
+def curr_leaders():
+    """ Redirects to the current competition's leaderboards. """
+    comp = comp_manager.get_active_competition()
+    return redirect("leaderboards/{}".format(comp.id))
+
+
+@CUBERS_APP.route('/redirect_prev/')
+def prev_leaders():
+    """ Redirects to the current competition's leaderboards. """
+    comp = comp_manager.get_previous_competition()
+    return redirect("leaderboards/{}".format(comp.id))
+
+
+@CUBERS_APP.route('/leaderboards/<int:comp_id>/')
 def comp_results(comp_id):
     """ A route for showing results for a specific competition. """
 
