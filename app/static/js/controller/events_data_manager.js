@@ -186,7 +186,6 @@
      */
     EventsDataManager.prototype.getEventResult = function(comp_event_id) {
         var data = {};
-        data.result = this.events_data[comp_event_id].summary.split(" = ")[0];
 
         var format = this.events_data[comp_event_id].event_format;
         if (format == 'Bo3') {
@@ -197,6 +196,14 @@
             data.result_type = 'an average';
         } else {
             data.result_type = 'a mean';
+        }
+
+        try {
+            data.result = this.events_data[comp_event_id].summary.split(" = ")[0];
+        } catch {
+            // split could possibly fail because for Bo1 events, there's no temporary summary before the real one.
+            // pass back a '?' to indicate to retry until the real result comes in.
+            data.result = "?";
         }
 
         return data;
