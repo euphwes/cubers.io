@@ -10,7 +10,7 @@
     {% for event_name in event_names %}
     {% if event_results[event_name] %}
     <span class="font-weight-bold">{{ event_name }}</span>
-    <table class="table table-sm table-striped">
+    <table class="table table-sm table-striped table-cubersio">
         <thead class="thead-dark">
             <tr>
                 <th scope="col">#</th>
@@ -22,7 +22,12 @@
         </thead>
         <tbody>
             {% for result in event_results[event_name] %}
-            <tr>
+            {% if current_user.is_authenticated and current_user.username == result.User.username %}
+                {% set its_me = 'hey-its-me' %}
+            {% else %}
+                {% set its_me = '' %}
+            {% endif %}
+            <tr class="{{ its_me }}">
                 <td scope="row">{{ loop.index }}</th>
                 <td scope="col">/u/{{ result.User.username }}</th>
                 {% if event_name == "FMC" %}

@@ -137,8 +137,7 @@ def generate_new_comp_only(all_events):
 
 @CUBERS_APP.cli.command()
 def fix_user_results_add_result_complete():
-    """ Utility command to backfill all UserEventResults with no is_complete field value,
-    and simultaneously fill single/average/result values. """
+    """ Utility command to backfill all UserEventResults with null is_complete value. """
 
     null_is_complete_results = get_all_null_is_complete_event_results()
     fix_user_event_results(null_is_complete_results)
@@ -146,8 +145,7 @@ def fix_user_results_add_result_complete():
 
 @CUBERS_APP.cli.command()
 def fix_user_results_with_na_average():
-    """ Utility command to backfill all UserEventResults with is_complete field values,
-    and simultaneously fill single/average/result values. """
+    """ Utility command to backfill all UserEventResults with N/A average value. """
 
     na_average_results = get_all_na_average_event_results()
     fix_user_event_results(na_average_results)
