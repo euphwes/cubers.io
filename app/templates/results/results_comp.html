@@ -12,7 +12,7 @@
         {% for event_name in event_names %}
         {% if event_results[event_name] %}
             <div class="event-link">
-                <a href="#event-header-{{ event_ids[event_name] }}">
+                <a href="#{{event_name}}">
                     <img class="event-image" src="/static/images/cube-{{ event_ids[event_name] }}.png">
                 </a>
             </div>
@@ -32,7 +32,7 @@
             {% set single_class = '' %}
         {% endif %}
         <div class="event-results-area">
-            <div id="event-header-{{ event_ids[event_name] }}" class="event-results-header">
+            <div id="{{event_name}}" class="event-results-header">
                 <img class="event-image" src="/static/images/cube-{{ event_ids[event_name] }}.png">
                 <h3 class="event-name">{{ event_name }}</h3>
                 <div class="return-link"><a href="#the-top"><span class="fas fa-arrow-up"></span></a></div>
