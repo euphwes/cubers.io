@@ -88,9 +88,14 @@ def get_event_results_for_user(comp_event_id, user):
 
 
 def get_all_null_is_complete_event_results():
-    """ Get all UserEventResults. """
+    """ Get all UserEventResults with a null is_complete value. """
     return UserEventResults.query.filter(UserEventResults.is_complete == None).all()
 
+
+def get_all_na_average_event_results():
+    """ Get all UserEventResults. """
+    return UserEventResults.query.filter(UserEventResults.average == 'N/A').all()
+    
 
 def save_event_results_for_user(comp_event_results, user):
     """ Associates a UserEventResults with a specific user and saves it to the database.
