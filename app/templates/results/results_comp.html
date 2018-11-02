@@ -7,7 +7,7 @@
 {% block content %}
 <div class="container cubers-container" style="margin-top: 15px;">
     <h2>Leaderboards for {{ comp_name }}</h2>
-    <div class="results-links-area">
+    <div id="the-top" class="results-links-area">
         <div class="links-wrapper text-center">
         {% for event_name in event_names %}
         {% if event_results[event_name] %}
@@ -35,6 +35,7 @@
             <div id="event-header-{{ event_ids[event_name] }}" class="event-results-header">
                 <img class="event-image" src="/static/images/cube-{{ event_ids[event_name] }}.png">
                 <h3 class="event-name">{{ event_name }}</h3>
+                <div class="return-link"><a href="#the-top"><span class="fas fa-arrow-up"></span></a></div>
             </div>
             <table class="table table-sm table-striped table-cubersio">
                 <thead class="thead-dark">
