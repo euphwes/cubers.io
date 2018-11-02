@@ -4,6 +4,7 @@ from flask import render_template, redirect
 
 from app import CUBERS_APP
 from app.persistence import comp_manager
+from app.persistence.models import EventFormat
 from app.util.reddit_util import build_times_string
 
 # -------------------------------------------------------------------------------------------------
@@ -48,10 +49,13 @@ def comp_results(comp_id):
         event_name = result.CompetitionEvent.Event.name
         event_format = event_formats[event_name]
 
-        is_fmc = event_name == 'FMC'
-        is_blind = event_name in ('2BLD', '3BLD', '4BLD', '5BLD')
+        if event_format == EventFormat.Bo1:
+            solves_helper = [result.result]
+        else:
+            is_fmc = event_name == 'FMC'
+            is_blind = event_name in ('2BLD', '3BLD', '4BLD', '5BLD')
+            solves_helper = build_times_string(result.solves, event_format, is_fmc, is_blind, want_list=True)
 
-        solves_helper = build_times_string(result.solves, event_format, is_fmc, is_blind, want_list=True)
         setattr(result, 'solves_helper', solves_helper)
         event_results[event_name].append(result)
 
