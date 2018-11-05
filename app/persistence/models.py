@@ -95,6 +95,7 @@ class UserEventResults(Model):
     solves            = relationship('UserSolve')
     reddit_comment    = Column(String(10))
     is_complete       = Column(Boolean)
+    times_string      = Column(Text)
 
 
 class CompetitionEvent(Model):

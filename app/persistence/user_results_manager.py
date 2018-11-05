@@ -3,6 +3,7 @@
 from app import DB
 from app.persistence.models import UserEventResults, UserSolve, EventFormat
 from app.util.events_util import determine_bests, determine_best_single, determine_event_result
+from app.util.reddit_util import build_times_string
 
 from .comp_manager import get_comp_event_by_id
 
@@ -40,6 +41,7 @@ def build_user_event_results(comp_event_id, solves, comment):
     comp_event = get_comp_event_by_id(comp_event_id)
     expected_num_solves = comp_event.Event.totalSolves
     event_format = comp_event.Event.eventFormat
+    event_name = comp_event.Event.name
 
     results = UserEventResults(comp_event_id=comp_event_id, comment=comment)
 
@@ -74,8 +76,13 @@ def build_user_event_results(comp_event_id, solves, comment):
         results.is_complete = len(results.solves) == expected_num_solves
 
     # If complete, set the result (either best single, mean, or average) depending on event format
+    # Also store the "times string" so we don't have to recalculate this again later, notably slowing down the
+    # leaderboards tables.
     if results.is_complete:
         results.result = determine_event_result(results.single, results.average, event_format)
+        is_fmc = event_name == 'FMC'
+        is_blind = event_name in ('2BLD', '3BLD', '4BLD', '5BLD')
+        results.times_string = build_times_string(results.solves, event_format, is_fmc, is_blind)
 
     return results
 
@@ -95,6 +102,18 @@ def get_all_null_is_complete_event_results():
 def get_all_na_average_event_results():
     """ Get all UserEventResults. """
     return UserEventResults.query.filter(UserEventResults.average == 'N/A').all()
+
+
+def get_all_complete_event_results():
+    """ Gets all complete event results. """
+    return UserEventResults.query.filter(UserEventResults.is_complete).all()
+
+
+def bulk_save_event_results(results_list):
+    """ Save a bunch of results at once. """
+    for result in results_list:
+        DB.session.add(result)
+    DB.session.commit()
 
 
 def save_event_results_for_user(comp_event_results, user):
@@ -123,6 +142,7 @@ def __save_existing_event_results(existing_results, new_results):
     existing_results.comment        = new_results.comment
     existing_results.is_complete    = new_results.is_complete
     existing_results.reddit_comment = new_results.reddit_comment
+    existing_results.times_string   = new_results.times_string
 
     # Update any existing solves with the data coming in from the new solves
     for old_solve in existing_results.solves:

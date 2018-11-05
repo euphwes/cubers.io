@@ -19,8 +19,10 @@ from . import CUBERS_APP
 from .persistence.models import EventFormat
 from .persistence.comp_manager import get_event_by_name, save_new_competition
 from .persistence.user_results_manager import get_all_null_is_complete_event_results,\
-      get_all_na_average_event_results, save_event_results_for_user
+      get_all_na_average_event_results, save_event_results_for_user, get_all_complete_event_results,\
+      bulk_save_event_results
 from .util.events_util import determine_best_single, determine_bests, determine_event_result
+from .util.reddit_util import build_times_string
 
 # -------------------------------------------------------------------------------------------------
 
@@ -113,9 +115,7 @@ def create_new_test_comp_from_b64_data(data):
 @CUBERS_APP.cli.command()
 @click.option('--all_events', is_flag=True, default=False)
 def score_and_generate_new_comp(all_events):
-    """ Scores the previous competition, and generates a new competition based on the
-    previous one. """
-
+    """ Scores the previous competition, and generates a new competition based on the previous one. """
     score_previous_competition()
     generate_new_competition(all_events)
 
@@ -124,14 +124,14 @@ def score_and_generate_new_comp(all_events):
 @click.option('--comp_id', '-i', type=int)
 @click.option('--rerun', '-r', is_flag=True, default=False)
 def score_comp_only(comp_id, rerun):
-    """ TODO: docstring """
+    """ TODO: Score only the specified competition, optionally as a re-run. """
     score_previous_competition(is_rerun=rerun, comp_id=comp_id)
 
 
 @CUBERS_APP.cli.command()
 @click.option('--all_events', is_flag=True, default=False)
 def generate_new_comp_only(all_events):
-    """ TODO: docstring """
+    """ TODO: Only generate a new competition, don't score the previous one. """
     generate_new_competition(all_events)
 
 
@@ -151,8 +151,39 @@ def fix_user_results_with_na_average():
     fix_user_event_results(na_average_results)
 
 
+@CUBERS_APP.cli.command()
+def backfill_user_results_time_strings():
+    """ Utility command to backfill all UserEventResults with no times_string value. """
+
+    complete_results = get_all_complete_event_results()
+    total_to_fix = len(complete_results)
+    total_fixed  = 0
+
+    results_to_save = list()
+    for results in complete_results:
+        event_format = results.CompetitionEvent.Event.eventFormat
+        event_name = results.CompetitionEvent.Event.name
+
+        is_fmc = event_name == 'FMC'
+        is_blind = event_name in ('2BLD', '3BLD', '4BLD', '5BLD')
+        results.times_string = build_times_string(results.solves, event_format, is_fmc, is_blind)
+
+        results_to_save.append(results)
+        total_fixed += 1
+
+        if len(results_to_save) > 25:
+            bulk_save_event_results(results_to_save)
+            results_to_save = list()
+            print("Fixed {} of {} UserEventResults".format(total_fixed, total_to_fix))
+
+    if results_to_save:
+        bulk_save_event_results(results_to_save)
+        results_to_save = list()
+        print("Fixed {} of {} UserEventResults".format(total_fixed, total_to_fix)) 
+
+
 def fix_user_event_results(user_event_results):
-    """ """
+    """Fix user event results is_complete, single, average, and result fields. """
 
     total_to_fix = len(user_event_results)
     total_fixed  = 0

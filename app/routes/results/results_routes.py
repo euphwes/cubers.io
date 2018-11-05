@@ -58,14 +58,17 @@ def comp_results(comp_id):
     build_times_str_start = now()
     for result in results:
         event_name = result.CompetitionEvent.Event.name
-        event_format = event_formats[event_name]
-
-        if event_format == EventFormat.Bo1:
-            solves_helper = [result.result]
+        if result.times_string:
+            solves_helper = result.times_string.split(', ')
         else:
-            is_fmc = event_name == 'FMC'
-            is_blind = event_name in ('2BLD', '3BLD', '4BLD', '5BLD')
-            solves_helper = build_times_string(result.solves, event_format, is_fmc, is_blind, want_list=True)
+            event_format = event_formats[event_name]
+
+            if event_format == EventFormat.Bo1:
+                solves_helper = [result.result]
+            else:
+                is_fmc = event_name == 'FMC'
+                is_blind = event_name in ('2BLD', '3BLD', '4BLD', '5BLD')
+                solves_helper = build_times_string(result.solves, event_format, is_fmc, is_blind, want_list=True)
 
         setattr(result, 'solves_helper', solves_helper)
         event_results[event_name].append(result)
@@ -76,7 +79,6 @@ def comp_results(comp_id):
     for event_name, results in event_results.items():
         results.sort(key=cmp_to_key(sort_results))
     print("Sort: " + str(now() - sort_start))
-
 
     print("Everything: " + str(now() - total_start))
     return render_template("results/results_comp.html", comp_name=competition.title,\
