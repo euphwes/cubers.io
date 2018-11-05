@@ -121,8 +121,8 @@ def score_and_generate_new_comp(all_events):
 
 
 @CUBERS_APP.cli.command()
-@click.option('--comp_id', '-i', type=str, default='')
-@click.option('--rerun', '-r', type=bool, default=False)
+@click.option('--comp_id', '-i', type=int)
+@click.option('--rerun', '-r', is_flag=True, default=False)
 def score_comp_only(comp_id, rerun):
     """ TODO: docstring """
     score_previous_competition(is_rerun=rerun, comp_id=comp_id)

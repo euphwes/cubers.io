@@ -202,6 +202,14 @@ def submit_competition_post(title, post_body):
     return cubers.submit(title=title, selftext=post_body, send_replies=False).id
 
 
+def update_results_thread(post_body, thread_id):
+    """ Updates a results thread with the given post_body. """
+    r = get_authed_reddit_for_cubersio_acct()
+    submission = r.submission(id=thread_id)
+    submission.edit(post_body)
+    return submission.id
+
+
 def get_permalink_for_comp_thread(reddit_thread_id):
     """ Returns the permalink for the competition thread specified by the ID above. """
     try:

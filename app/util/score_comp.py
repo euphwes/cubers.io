@@ -5,8 +5,13 @@ from time import sleep
 
 from app.persistence.comp_manager import get_active_competition, get_competition, save_competition
 from app.util.reddit_util import get_submission_with_id, submit_competition_post,\
-get_permalink_for_comp_thread
+get_permalink_for_comp_thread, update_results_thread
 from app.util.times_util import convert_seconds_to_friendly_time
+
+# -------------------------------------------------------------------------------------------------
+
+# It's actually 40k characters, but let's bump it back a smidge to have a little breathing room
+MAX_REDDIT_THREAD_LENGTH = 38000
 
 # -------------------------------------------------------------------------------------------------
 
@@ -97,25 +102,45 @@ def score_previous_competition(is_rerun=False, comp_id=None):
     permalink  = get_permalink_for_comp_thread(submission_id)
     comp_title = competition_being_scored.title
     post_body = 'Results for [{}]({})'.format(comp_title, permalink)
+    event_chunks = list()
 
     for event_name in event_names:
+        event_chunk_txt = ''
         if not event_name in comp_event_results.keys():
             continue
         participants = comp_event_results[event_name]
         if not participants:
             continue
-        post_body += '\n\n**{}**\n\n'.format(event_name)
+        event_chunk_txt += '\n\n**{}**\n\n'.format(event_name)
         for participant in participants:
             time = participant[1]
             if event_name != 'FMC':
                 time = convert_seconds_to_friendly_time(time)
-            post_body += '1. {}: {}\n\n'.format(participant[0], time)
+            event_chunk_txt += '1. {}: {}\n\n'.format(participant[0], time)
+        event_chunks.append([event_name, event_chunk_txt])
 
-    post_body += '---\n\n**Total points this week**'
-    post_body += '\n\nEach event gives `# of participants - place + 1` points\n\n'
+    overall_txt = ''
+    overall_txt += '---\n\n**Total points this week**'
+    overall_txt += '\n\nEach event gives `# of participants - place + 1` points\n\n'
     competitors.sort(key=lambda c: c.points, reverse=True)
     for competitor in competitors:
-        post_body += '1. {}: {}\n\n'.format(competitor.name, competitor.points)
+        overall_txt += '1. {}: {}\n\n'.format(competitor.name, competitor.points)
+
+    skipped_event_names = list()
+    while event_chunks:
+        chunk = event_chunks.pop(0)
+        if len(post_body) + len(overall_txt) + len(chunk[1]) < MAX_REDDIT_THREAD_LENGTH:
+            post_body += chunk[1]
+        else:
+            skipped_event_names.append(chunk[0])
+
+    if skipped_event_names:
+        post_body += '**\n\nNote: Results for the following events were not included here, '
+        post_body += "to allow this post to fit within Reddit's maximum post length:**\n\n"
+        for name in skipped_event_names:
+            post_body += '1. {}\n\n'.format(name)
+
+    post_body += overall_txt
 
     title = 'Results for {}'.format(competition_being_scored.title)
 
@@ -123,6 +148,9 @@ def score_previous_competition(is_rerun=False, comp_id=None):
         new_post_id = submit_competition_post(title, post_body)
         competition_being_scored.result_thread_id = new_post_id
         save_competition(competition_being_scored)
+    else:
+        results_thread_id = competition_being_scored.result_thread_id
+        update_results_thread(post_body, results_thread_id)
 
 
 def find_events(comment, events):
