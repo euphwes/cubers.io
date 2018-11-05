@@ -135,7 +135,7 @@ def score_previous_competition(is_rerun=False, comp_id=None):
             skipped_event_names.append(chunk[0])
 
     if skipped_event_names:
-        post_body += '**\n\nNote: Results for the following events were not included here, '
+        post_body += '\n\n**Note: Results for the following events were not included here, '
         post_body += "to allow this post to fit within Reddit's maximum post length:**\n\n"
         for name in skipped_event_names:
             post_body += '1. {}\n\n'.format(name)

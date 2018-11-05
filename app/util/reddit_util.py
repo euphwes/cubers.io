@@ -53,17 +53,14 @@ def build_comment_source_from_events_results(events_results):
         times_string = build_times_string(results.solves, event_format, isFMC, isBlind)
         comment      = '\n' if not results.comment else build_user_comment(results.comment)
 
-        if results.average == 'DNF':
-            average = 'DNF'
-        elif event_format in [EventFormat.Bo3, EventFormat.Bo1]:
-            average = convert_to_friendly(results.single)
+        if isFMC:
+            event_result = (results.average / 100)
+            if event_result == int(event_result):
+                event_result = int(event_result)
         else:
-            average = (results.average / 100) if isFMC else convert_to_friendly(results.average)
-            if isFMC:
-                if average == int(average):
-                    average = int(average)
+            event_result = convert_to_friendly(results.result)
 
-        line = event_line_template.format(event_name, average, times_string, comment)
+        line = event_line_template.format(event_name, event_result, times_string, comment)
         comment_source += line
 
     comment_source += COMMENT_FOOTER
