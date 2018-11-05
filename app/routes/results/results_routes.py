@@ -5,8 +5,6 @@ from flask import render_template, redirect
 
 from app import CUBERS_APP
 from app.persistence import comp_manager
-from app.persistence.models import EventFormat
-from app.util.reddit_util import build_times_string
 
 # -------------------------------------------------------------------------------------------------
 
@@ -36,51 +34,26 @@ def prev_leaders():
 def comp_results(comp_id):
     """ A route for showing results for a specific competition. """
 
-    total_start = now()
-
     competition = comp_manager.get_competition(comp_id)
-
-    get_comp_start = now()
     comp_events = comp_manager.get_all_comp_events_for_comp(comp_id)
-    print("Retrieve comp: " + str(now() - get_comp_start))
 
-    get_all_results_start = now()
     results = comp_manager.get_all_complete_user_results_for_comp(comp_id)
-    print("Get all user results for comp " + str(now() - get_all_results_start))
 
-    build_lists_start  = now()
-    event_names = [event.Event.name for event in comp_events]
+    event_names   = [event.Event.name for event in comp_events]
     event_results = {event.Event.name : list() for event in comp_events}
     event_formats = {event.Event.name : event.Event.eventFormat for event in comp_events}
     event_ids     = {event.Event.name : event.Event.id for event in comp_events}
-    print("Build lists: " + str(now() - build_lists_start))
 
-    build_times_str_start = now()
     for result in results:
         event_name = result.CompetitionEvent.Event.name
-        if result.times_string:
-            solves_helper = result.times_string.split(', ')
-        else:
-            event_format = event_formats[event_name]
-
-            if event_format == EventFormat.Bo1:
-                solves_helper = [result.result]
-            else:
-                is_fmc = event_name == 'FMC'
-                is_blind = event_name in ('2BLD', '3BLD', '4BLD', '5BLD')
-                solves_helper = build_times_string(result.solves, event_format, is_fmc, is_blind, want_list=True)
-
+        solves_helper = result.times_string.split(', ')
         setattr(result, 'solves_helper', solves_helper)
         event_results[event_name].append(result)
-    print("Build time strings: " + str(now() - build_times_str_start))
 
     # Sort the results
-    sort_start = now()
     for event_name, results in event_results.items():
         results.sort(key=cmp_to_key(sort_results))
-    print("Sort: " + str(now() - sort_start))
 
-    print("Everything: " + str(now() - total_start))
     return render_template("results/results_comp.html", comp_name=competition.title,\
         event_results=event_results, event_names=event_names, event_formats=event_formats,\
         event_ids=event_ids)
