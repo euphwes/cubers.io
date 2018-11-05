@@ -87,7 +87,7 @@ class UserEventResults(Model):
     __tablename__     = 'user_event_results'
     id                = Column(Integer, primary_key=True)
     user_id           = Column(Integer, ForeignKey('users.id'))
-    comp_event_id     = Column(Integer, ForeignKey('competition_event.id'))
+    comp_event_id     = Column(Integer, ForeignKey('competition_event.id'), index=True)
     single            = Column(String(10))
     average           = Column(String(10))
     result            = Column(String(10))
@@ -103,8 +103,8 @@ class CompetitionEvent(Model):
     and a JSON array of scrambles. """
     __tablename__  = 'competition_event'
     id             = Column(Integer, primary_key=True)
-    competition_id = Column(Integer, ForeignKey('competitions.id'))
-    event_id       = Column(Integer, ForeignKey('events.id'))
+    competition_id = Column(Integer, ForeignKey('competitions.id'), index=True)
+    event_id       = Column(Integer, ForeignKey('events.id'), index=True)
     scrambles      = relationship('Scramble', backref='CompetitionEvent',
                                   primaryjoin = id == Scramble.competition_event_id)
     user_results   = relationship('UserEventResults', backref='CompetitionEvent',
