@@ -11,7 +11,7 @@ from app.util.times_util import convert_seconds_to_friendly_time
 # -------------------------------------------------------------------------------------------------
 
 # It's actually 40k characters, but let's bump it back a smidge to have a little breathing room
-MAX_REDDIT_THREAD_LENGTH = 38000
+MAX_REDDIT_THREAD_LENGTH = 39500
 
 # -------------------------------------------------------------------------------------------------
 
@@ -82,8 +82,8 @@ def score_previous_competition(is_rerun=False, comp_id=None):
     competitors = list(set(competitors))
 
     # Build up a dictionary of event name to participant list
-    # Participant list contains tuple of (username, average)
-    # Participant list is sorted by average
+    # Participant list contains tuple of (username, event result)
+    # Participant list is sorted by event result
     comp_event_results = dict()
     for event_name in event_names:
         participating_users = list()

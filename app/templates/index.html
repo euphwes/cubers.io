@@ -22,6 +22,9 @@
 {% include 'timer/timer_handlebars_template.html' %}
 {% include 'summary/summary_handlebars_template.html' %}
 
+{% endblock %}
+
+{% block additional_script %}
 <script>
     window.app = {};
     window.app.events_data = {{ events_data|tojson }};
@@ -31,4 +34,8 @@
     window.app.user_logged_in = false;
     {% endif %}
 </script>
+
+{% assets "app_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 {% endblock %}
