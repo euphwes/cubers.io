@@ -1,7 +1,7 @@
 """ Utility module for providing access to business logic for users. """
 
 from app import DB
-from app.persistence.models import User
+from app.persistence.models import User, Blacklist
 
 # -------------------------------------------------------------------------------------------------
 
@@ -27,3 +27,18 @@ def update_or_create_user(username, refresh_token):
 def get_user_by_username(username):
     """ Returns the user with this username, or else `None` if no such user exists. """
     return User.query.filter_by(username=username).first()
+
+
+def blacklist_user_for_competition(username, comp_id):
+    """ Adds an entry to the database blacklisting the user for the specified competition. """
+
+    user = get_user_by_username(username)
+    if not user:
+        raise ValueError("Oops that user doesn't exist.")
+
+    blacklist_entry = Blacklist()
+    blacklist_entry.user_id = user.id
+    blacklist_entry.comp_id = comp_id
+
+    DB.session.add(blacklist_entry)
+    DB.session.commit()

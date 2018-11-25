@@ -155,9 +155,9 @@ class CompetitionGenResources(Model):
 class Blacklist(Model):
     """ A record for holding the username of a person who's blacklisted from the results. """
     __tablename__  = 'blacklist'
-    id             = Column(Integer, primary_key=True)
-    user_id        = Column(Integer, ForeignKey('users.id'))
-    comp_event_id  = Column(Integer, ForeignKey('competition_event.id'), index=True)
+    id       = Column(Integer, primary_key=True)
+    user_id  = Column(Integer, ForeignKey('users.id'))
+    comp_id  = Column(Integer, ForeignKey('competitions.id'), index=True)
 
 
 class UserSolve(Model):
