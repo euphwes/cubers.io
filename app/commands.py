@@ -19,62 +19,39 @@ from . import CUBERS_APP
 from .persistence.models import EventFormat
 from .persistence.comp_manager import get_event_by_name, save_new_competition
 from .persistence.user_results_manager import get_all_null_is_complete_event_results,\
-      get_all_na_average_event_results, save_event_results_for_user, get_all_complete_event_results,\
-      bulk_save_event_results
+      get_all_na_average_event_results, save_event_results_for_user,\
+      get_all_complete_event_results, bulk_save_event_results
+from .persistence.user_manager import blacklist_user_for_competition, get_blacklisted_users_for_competition
 from .util.events_util import determine_best_single, determine_bests, determine_event_result
 from .util.reddit_util import build_times_string
 
 # -------------------------------------------------------------------------------------------------
 
-def get_2_3_4_relay_scramble():
-    """ Get a single scramble for a 2-3-4 relay event, which consists of individual scrambles
-    for 2x2, 3x3, and 4x4. """
-    s2 = scrambler222.get_WCA_scramble()
-    s3 = scrambler333.get_WCA_scramble()
-    s4 = scrambler444.get_WCA_scramble()
-    return "2x2: {}\n3x3: {}\n4x4: {}".format(s2, s3, s4)
+@CUBERS_APP.cli.command()
+@click.option('--all_events', is_flag=True, default=False)
+def score_and_generate_new_comp(all_events):
+    """ Scores the previous competition, and generates a new competition based on the previous one. """
+    score_previous_competition()
+    generate_new_competition(all_events)
 
-def get_3_relay_of_3():
-    """ Get a single scramble for a 3x3 relay of 3 event, which is 3 individual 3x3 scrambles. """
-    scrambles = [scrambler333.get_WCA_scramble() for i in range(3)]
-    return "1. {}\n2. {}\n3. {}".format(*scrambles)
 
-def get_COLL_scramble():
-    """ Return a 'COLL' scramble, which just calls out a specific COLL to perform. """
-    return "COLL E" + str(random.choice(range(1,15)))
+@CUBERS_APP.cli.command()
+@click.option('--comp_id', '-i', type=int)
+@click.option('--rerun', '-r', is_flag=True, default=False)
+def score_comp_only(comp_id, rerun):
+    """ TODO: Score only the specified competition, optionally as a re-run. """
+    score_previous_competition(is_rerun=rerun, comp_id=comp_id)
 
-EVENTS_HELPER = {
-    "3x3":             scrambler333.get_WCA_scramble,
-    "2x2":             scrambler222.get_WCA_scramble,
-    "4x4":             scrambler444.get_WCA_scramble,
-    "5x5":             scrambler555.get_WCA_scramble,
-    "6x6":             scrambler666.get_WCA_scramble,
-    "7x7":             scrambler777.get_WCA_scramble,
-    "3BLD":            scrambler333.get_3BLD_scramble,
-    "Square-1":        squareOneScrambler.get_WCA_scramble,
-    "Clock":           clockScrambler.get_WCA_scramble,
-    "3x3OH":           scrambler333.get_WCA_scramble,
-    "Pyraminx":        pyraminxScrambler.get_WCA_scramble,
-    "Megaminx":        megaminxScrambler.get_WCA_scramble,
-    "Kilominx":        megaminxScrambler.get_WCA_scramble,
-    "Skewb":           skewbScrambler.get_WCA_scramble,
-    "2GEN":            scrambler333.get_2genRU_scramble,
-    "F2L":             scrambler333.get_WCA_scramble,
-    "LSE":             scrambler333.get_2genMU_scramble,
-    "COLL":            get_COLL_scramble,
-    "4x4 OH":          scrambler444.get_WCA_scramble,
-    "3x3x4":           cuboidsScrambler.get_3x3x4_scramble,
-    "3x3x5":           cuboidsScrambler.get_3x3x5_scramble,
-    "3x3x2":           cuboidsScrambler.get_3x3x2_scramble,
-    "Void Cube":       scrambler333.get_3BLD_scramble,
-    "2-3-4 Relay":     get_2_3_4_relay_scramble,
-    "FMC":             scrambler333.get_WCA_scramble,
-    "3x3 With Feet":   scrambler333.get_WCA_scramble,
-    "3x3 Relay of 3":  get_3_relay_of_3,
-    "PLL Time Attack": lambda: "Just do every PLL",
-    "3x3 Mirror Blocks/Bump": scrambler333.get_WCA_scramble,
-}
 
+@CUBERS_APP.cli.command()
+@click.option('--all_events', is_flag=True, default=False)
+def generate_new_comp_only(all_events):
+    """ TODO: Only generate a new competition, don't score the previous one. """
+    generate_new_competition(all_events)
+
+
+# -------------------------------------------------------------------------------------------------
+# Below are test comp generation commands, not intended to be used in production
 # -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.cli.command()
@@ -111,29 +88,30 @@ def create_new_test_comp_from_b64_data(data):
 
     save_new_competition(title, reddit_id, event_data)
 
+# -------------------------------------------------------------------------------------------------
+# Below are admin commands, for one-off app administration needs
+# -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.cli.command()
-@click.option('--all_events', is_flag=True, default=False)
-def score_and_generate_new_comp(all_events):
-    """ Scores the previous competition, and generates a new competition based on the previous one. """
-    score_previous_competition()
-    generate_new_competition(all_events)
+@click.option('--username', '-u', type=str)
+@click.option('--comp_id', '-c', type=int)
+def blacklist_user_for_comp(username, comp_id):
+    """ Add a blacklist entry for the specified user and competition. """
 
-
-@CUBERS_APP.cli.command()
-@click.option('--comp_id', '-i', type=int)
-@click.option('--rerun', '-r', is_flag=True, default=False)
-def score_comp_only(comp_id, rerun):
-    """ TODO: Score only the specified competition, optionally as a re-run. """
-    score_previous_competition(is_rerun=rerun, comp_id=comp_id)
+    blacklist_user_for_competition(username, comp_id)
 
 
 @CUBERS_APP.cli.command()
-@click.option('--all_events', is_flag=True, default=False)
-def generate_new_comp_only(all_events):
-    """ TODO: Only generate a new competition, don't score the previous one. """
-    generate_new_competition(all_events)
+@click.option('--comp_id', '-c', type=int)
+def show_blacklisted_users_for_comp(comp_id):
+    """ Show the blacklisted users for the specified competition. """
 
+    for entry in get_blacklisted_users_for_competition(comp_id):
+        print(entry.user.username)
+
+# -------------------------------------------------------------------------------------------------
+# Below are utility commands intended to just be one-offs, to backfill or fix broken data
+# -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.cli.command()
 def fix_user_results_add_result_complete():
@@ -218,3 +196,56 @@ def fix_user_event_results(user_event_results):
 
         total_fixed += 1
         print("Fixed {} of {} UserEventResults".format(total_fixed, total_to_fix))
+
+# -------------------------------------------------------------------------------------------------
+# Utility functions for producing scrambles for specific events
+# -------------------------------------------------------------------------------------------------
+
+def get_2_3_4_relay_scramble():
+    """ Get a single scramble for a 2-3-4 relay event, which consists of individual scrambles
+    for 2x2, 3x3, and 4x4. """
+    s2 = scrambler222.get_WCA_scramble()
+    s3 = scrambler333.get_WCA_scramble()
+    s4 = scrambler444.get_WCA_scramble()
+    return "2x2: {}\n3x3: {}\n4x4: {}".format(s2, s3, s4)
+
+def get_3_relay_of_3():
+    """ Get a single scramble for a 3x3 relay of 3 event, which is 3 individual 3x3 scrambles. """
+    scrambles = [scrambler333.get_WCA_scramble() for i in range(3)]
+    return "1. {}\n2. {}\n3. {}".format(*scrambles)
+
+def get_COLL_scramble():
+    """ Return a 'COLL' scramble, which just calls out a specific COLL to perform. """
+    return "COLL E" + str(random.choice(range(1,15)))
+
+EVENTS_HELPER = {
+    "3x3":             scrambler333.get_WCA_scramble,
+    "2x2":             scrambler222.get_WCA_scramble,
+    "4x4":             scrambler444.get_WCA_scramble,
+    "5x5":             scrambler555.get_WCA_scramble,
+    "6x6":             scrambler666.get_WCA_scramble,
+    "7x7":             scrambler777.get_WCA_scramble,
+    "3BLD":            scrambler333.get_3BLD_scramble,
+    "Square-1":        squareOneScrambler.get_WCA_scramble,
+    "Clock":           clockScrambler.get_WCA_scramble,
+    "3x3OH":           scrambler333.get_WCA_scramble,
+    "Pyraminx":        pyraminxScrambler.get_WCA_scramble,
+    "Megaminx":        megaminxScrambler.get_WCA_scramble,
+    "Kilominx":        megaminxScrambler.get_WCA_scramble,
+    "Skewb":           skewbScrambler.get_WCA_scramble,
+    "2GEN":            scrambler333.get_2genRU_scramble,
+    "F2L":             scrambler333.get_WCA_scramble,
+    "LSE":             scrambler333.get_2genMU_scramble,
+    "COLL":            get_COLL_scramble,
+    "4x4 OH":          scrambler444.get_WCA_scramble,
+    "3x3x4":           cuboidsScrambler.get_3x3x4_scramble,
+    "3x3x5":           cuboidsScrambler.get_3x3x5_scramble,
+    "3x3x2":           cuboidsScrambler.get_3x3x2_scramble,
+    "Void Cube":       scrambler333.get_3BLD_scramble,
+    "2-3-4 Relay":     get_2_3_4_relay_scramble,
+    "FMC":             scrambler333.get_WCA_scramble,
+    "3x3 With Feet":   scrambler333.get_WCA_scramble,
+    "3x3 Relay of 3":  get_3_relay_of_3,
+    "PLL Time Attack": lambda: "Just do every PLL",
+    "3x3 Mirror Blocks/Bump": scrambler333.get_WCA_scramble,
+}

@@ -108,8 +108,7 @@ class CompetitionEvent(Model):
     scrambles      = relationship('Scramble', backref='CompetitionEvent',
                                   primaryjoin = id == Scramble.competition_event_id)
     user_results   = relationship('UserEventResults', backref='CompetitionEvent',
-                                  primaryjoin=id == UserEventResults.comp_event_id)
-
+                                  primaryjoin = id == UserEventResults.comp_event_id)
 
     def to_front_end_consolidated_dict(self):
         """ Returns a dictionary representation of this object for use in the front-end.
@@ -158,6 +157,7 @@ class Blacklist(Model):
     id       = Column(Integer, primary_key=True)
     user_id  = Column(Integer, ForeignKey('users.id'))
     comp_id  = Column(Integer, ForeignKey('competitions.id'), index=True)
+    user     = relationship('User', primaryjoin = user_id == User.id)
 
 
 class UserSolve(Model):

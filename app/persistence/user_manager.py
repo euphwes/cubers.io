@@ -34,7 +34,7 @@ def blacklist_user_for_competition(username, comp_id):
 
     user = get_user_by_username(username)
     if not user:
-        raise ValueError("Oops that user doesn't exist.")
+        raise ValueError("Oops, that user doesn't exist.")
 
     blacklist_entry = Blacklist()
     blacklist_entry.user_id = user.id
@@ -42,3 +42,9 @@ def blacklist_user_for_competition(username, comp_id):
 
     DB.session.add(blacklist_entry)
     DB.session.commit()
+
+
+def get_blacklisted_users_for_competition(comp_id):
+    """ Returns a list of users blacklisted for the specified competition. """
+
+    return Blacklist.query.filter_by(comp_id=comp_id).all()
