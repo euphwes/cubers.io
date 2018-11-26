@@ -2,9 +2,11 @@
 
 from arrow import utcnow as now
 from flask import render_template, redirect
+from flask_login import current_user
 
 from app import CUBERS_APP
 from app.persistence import comp_manager
+from app.persistence.user_manager import get_blacklisted_users_for_competition
 
 # -------------------------------------------------------------------------------------------------
 
@@ -34,40 +36,32 @@ def prev_leaders():
 def comp_results(comp_id):
     """ A route for showing results for a specific competition. """
 
-    total_start = now()
-
     competition = comp_manager.get_competition(comp_id)
+    blacklisted_users = get_blacklisted_users_for_competition(comp_id)
 
-    get_comp_start = now()
     comp_events = comp_manager.get_all_comp_events_for_comp(comp_id)
-    print("Retrieve comp: " + str(now() - get_comp_start))
 
-    get_all_results_start = now()
     results = comp_manager.get_all_complete_user_results_for_comp(comp_id)
-    print("Get all user results for comp " + str(now() - get_all_results_start))
 
-    build_lists_start  = now()
-    event_names = [event.Event.name for event in comp_events]
+    event_names   = [event.Event.name for event in comp_events]
     event_results = {event.Event.name : list() for event in comp_events}
     event_formats = {event.Event.name : event.Event.eventFormat for event in comp_events}
     event_ids     = {event.Event.name : event.Event.id for event in comp_events}
-    print("Build lists: " + str(now() - build_lists_start))
 
-    build_times_str_start = now()
     for result in results:
+        # Skip results for users that are in the blacklist, unless it's the current user
+        # This way blacklisted users will see their own results, but others won't
+        if (result.User in blacklisted_users) and (result.User != current_user):
+            continue
         event_name = result.CompetitionEvent.Event.name
         solves_helper = result.times_string.split(', ')
         setattr(result, 'solves_helper', solves_helper)
         event_results[event_name].append(result)
-    print("Build time strings: " + str(now() - build_times_str_start))
 
     # Sort the results
-    sort_start = now()
     for event_name, results in event_results.items():
         results.sort(key=cmp_to_key(sort_results))
-    print("Sort: " + str(now() - sort_start))
 
-    print("Everything: " + str(now() - total_start))
     return render_template("results/results_comp.html", comp_name=competition.title,\
         event_results=event_results, event_names=event_names, event_formats=event_formats,\
         event_ids=event_ids)

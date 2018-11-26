@@ -106,8 +106,8 @@ def blacklist_user_for_comp(username, comp_id):
 def show_blacklisted_users_for_comp(comp_id):
     """ Show the blacklisted users for the specified competition. """
 
-    for entry in get_blacklisted_users_for_competition(comp_id):
-        print(entry.user.username)
+    for user in get_blacklisted_users_for_competition(comp_id):
+        print(user.username)
 
 # -------------------------------------------------------------------------------------------------
 # Below are utility commands intended to just be one-offs, to backfill or fix broken data

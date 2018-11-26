@@ -47,4 +47,4 @@ def blacklist_user_for_competition(username, comp_id):
 def get_blacklisted_users_for_competition(comp_id):
     """ Returns a list of users blacklisted for the specified competition. """
 
-    return Blacklist.query.filter_by(comp_id=comp_id).all()
+    return [entry.user for entry in Blacklist.query.filter_by(comp_id=comp_id).all()]
