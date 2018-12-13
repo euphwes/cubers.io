@@ -9,9 +9,12 @@ from app import CUBERS_APP
 from app.persistence import comp_manager
 from app.persistence.models import EventFormat
 from app.persistence.user_manager import get_user_by_username
-from app.persistence.user_results_manager import build_user_event_results,\
-    save_event_results_for_user, build_all_user_results
-from app.util.reddit_util import build_times_string, convert_centiseconds_to_friendly_time
+from app.persistence.user_results_manager import build_user_event_results, save_event_results_for_user,\
+    build_all_user_results, are_results_different_than_existing, get_comment_id_by_comp_id_and_user
+from app.persistence.comp_manager import get_competition, get_all_complete_user_results_for_comp_and_user
+from app.util.reddit_util import build_times_string, convert_centiseconds_to_friendly_time,\
+    build_comment_source_from_events_results, submit_comment_for_user, get_permalink_for_comp_thread,\
+    update_comment_for_user, get_permalink_for_user_and_comment
 
 # -------------------------------------------------------------------------------------------------
 
@@ -26,7 +29,14 @@ def save_event():
         user_events_dict  = request.get_json()
         event_result = build_all_user_results(user_events_dict)[0]
         user = get_user_by_username(current_user.username)
-        save_event_results_for_user(event_result, user)
+
+        should_do_reddit_submit = event_result.is_complete and are_results_different_than_existing(event_result, user)
+
+        saved_results = save_event_results_for_user(event_result, user)
+
+        if should_do_reddit_submit:
+            do_reddit_submit(saved_results.CompetitionEvent.Competition.id, user)
+
         return ('', 204) # intentionally empty, 204 No Content
 
     except Exception as ex:
@@ -46,6 +56,21 @@ def get_event_summaries():
     summaries = {event['comp_event_id']: build_summary(event) for event in data}
 
     return json.dumps(summaries)
+
+
+@CUBERS_APP.route('/comment_url/<int:comp_id>')
+def comment_url(comp_id):
+    """ A route for retrieving the user's Reddit comment direct URL for a given competition event. """
+
+    if not current_user.is_authenticated:
+        return ""
+
+    user = get_user_by_username(current_user.username)
+    comment_id = get_comment_id_by_comp_id_and_user(comp_id, user)
+    if not comment_id:
+        return ""
+
+    return get_permalink_for_user_and_comment(user, comment_id)
 
 
 def build_summary(event):
@@ -72,3 +97,29 @@ def build_summary(event):
 
     times_string = build_times_string(results.solves, event_format, is_fmc, is_blind)
     return "{} = {}".format(best, times_string)
+
+
+def do_reddit_submit(comp_id, user):
+    """ Handle submitting a new, or updating an existing, Reddit comment. """
+
+    comp = get_competition(comp_id)
+    reddit_thread_id = comp.reddit_thread_id
+    results = comp_manager.get_all_complete_user_results_for_comp_and_user(comp.id, user.id)
+    comment_source = build_comment_source_from_events_results(results)
+
+    previous_comment_id = get_comment_id_by_comp_id_and_user(comp.id, user)
+
+    # this is a resubmission
+    if previous_comment_id:
+        _, comment_id = update_comment_for_user(user, previous_comment_id, comment_source)
+
+    # new submission
+    else:
+        _, comment_id = submit_comment_for_user(user, reddit_thread_id, comment_source)
+
+    if not comment_id:
+        return
+
+    for result in results:
+        result.reddit_comment = comment_id
+        save_event_results_for_user(result, user)

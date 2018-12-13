@@ -32,7 +32,7 @@
      * When clicking the review solves button, go to the summary page
      */
     AppModeManager.prototype._wire_review_button = function() {
-        $('#times-submit>.btn-summary').click(function() {
+        $('#times-summary>.btn-summary').click(function() {
             this.emit(EVENT_APP_MODE_TO_SUMMARY);
         }.bind(this));
     };

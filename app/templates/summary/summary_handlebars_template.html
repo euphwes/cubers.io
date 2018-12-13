@@ -15,12 +15,8 @@
         <div class="offset-lg-2 col-lg-8 col-12">
             <h4>Complete Events</h4>
             {{#if logged_in}}
-            <span class="d-none d-md-block">
-                We'll submit a comment to Reddit for the events below.
-            </span>
-            {{else}}
-            <span class="d-none d-md-block">
-                We'll generate the comment source for the events shown below.
+            <span class="d-none d-md-block comment_url_area">
+                Good news, everyone! Results are now automatically submitted to Reddit.&nbsp;
             </span>
             {{/if}}
             {{#each complete_events}}
@@ -44,7 +40,7 @@
             <h4>Incomplete Events</h4>
             {{#if logged_in}}
             <span class="d-none d-md-block">
-                We'll save what you've completed so far.
+                We've saved what you've completed so far.
             </span>
             {{else}}
             <span class="d-none d-md-block">
@@ -67,22 +63,12 @@
     </div>
     {{/if}}
     <div class="row summary-scr-buttons">
-        {{#if show_submit_button}}
-        <div id="summary-times-submit">
-            <button class="btn btn-lg btn-submit">
-                Submit to Reddit <i class="fas fa-caret-right"></i> 
-            </button>
-        </div>
-        {{/if}}
         <div id="summary-return-to-events">
             <button class="btn btn-lg btn-return">
                 <i class="fas fa-caret-left"></i> Events
             </button>
         </div>
     </div>
-    <form action="/submit" method="POST" id="form-results">
-        <input type="hidden" name="input-results" id="input-results" />
-    </form>
 </div>
 </script>
 {% endraw %}

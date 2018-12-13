@@ -5,18 +5,30 @@ from app.persistence.models import UserEventResults, UserSolve, EventFormat
 from app.util.events_util import determine_bests, determine_best_single, determine_event_result
 from app.util.reddit_util import build_times_string
 
-from .comp_manager import get_comp_event_by_id
+from .comp_manager import get_comp_event_by_id, get_all_complete_user_results_for_comp_and_user
 
 # -------------------------------------------------------------------------------------------------
 
-def determine_if_resubmit(user_results, user):
-    """ Determines if user has already submitted results to Reddit for this competition. Returns the
-    Reddit comment ID if it is a resubmission, or None if it is new. """
-    for result in user_results:
-        prev_result = get_event_results_for_user(result.comp_event_id, user)
-        if prev_result and prev_result.reddit_comment:
-            return prev_result.reddit_comment
+def get_comment_id_by_comp_id_and_user(comp_id, user):
+    """ Returns a Reddit comment ID for the specified user and competition id. """
+    for result in get_all_complete_user_results_for_comp_and_user(comp_id, user.id):
+        if result.reddit_comment:
+            return result.reddit_comment
     return None
+
+
+def are_results_different_than_existing(comp_event_results, user):
+    """ Determine if these results are identical to any previous existing results for this user
+    and this competition event by comparing their times strings. """
+
+    existing_results = get_event_results_for_user(comp_event_results.comp_event_id, user)
+    if not existing_results:
+        return True
+
+    if existing_results.times_string != comp_event_results.times_string:
+        return True
+
+    return existing_results.comment != comp_event_results.comment
 
 
 def build_all_user_results(user_events_dict):
@@ -141,7 +153,6 @@ def __save_existing_event_results(existing_results, new_results):
     existing_results.result         = new_results.result
     existing_results.comment        = new_results.comment
     existing_results.is_complete    = new_results.is_complete
-    existing_results.reddit_comment = new_results.reddit_comment
     existing_results.times_string   = new_results.times_string
 
     # Update any existing solves with the data coming in from the new solves

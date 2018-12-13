@@ -28,6 +28,7 @@
 <script>
     window.app = {};
     window.app.events_data = {{ events_data|tojson }};
+    window.app.comp_id = {{ comp_id }};
     {% if current_user.is_authenticated %}
     window.app.user_logged_in = true;
     {% else %}

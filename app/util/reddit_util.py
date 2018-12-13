@@ -43,14 +43,13 @@ def build_comment_source_from_events_results(events_results):
 
     convert_to_friendly = convert_centiseconds_to_friendly_time
 
-    complete_events = [results for results in events_results if results.is_complete]
-    for results in complete_events:
+    for results in events_results:
         comp_event   = get_comp_event_by_id(results.comp_event_id)
         event_name   = comp_event.Event.name
         event_format = comp_event.Event.eventFormat
         isFMC        = event_name == 'FMC'
         isBlind      = event_name in ('3BLD', '2BLD', '4BLD', '5BLD', 'MBLD')
-        times_string = build_times_string(results.solves, event_format, isFMC, isBlind)
+        times_string = results.times_string
         comment      = '\n' if not results.comment else build_user_comment(results.comment)
 
         if isFMC:
@@ -192,6 +191,13 @@ def update_comment_for_user(user, comment_thread_id, comment_body):
     return (REDDIT_URL_ROOT + comment.permalink), comment.id
 
 
+def get_permalink_for_user_and_comment(user, comment_thread_id):
+    """ Returns a full URL for the specified user's comment. """
+    r = get_authed_reddit_for_user(user)
+    comment = r.comment(id=comment_thread_id)
+    return (REDDIT_URL_ROOT + comment.permalink)
+
+
 def submit_competition_post(title, post_body):
     """ Posts a Submission for the competition, and returns a Reddit submission ID. """
     r = get_authed_reddit_for_cubersio_acct()
@@ -232,7 +238,6 @@ def get_username_refresh_token_from_code(code):
 def get_user_auth_url(state='...'):
     """ Returns a url for authenticating with Reddit. """
     return get_new_reddit().auth.url(['identity', 'read', 'submit', 'edit'], state, 'permanent')
-
 
 # -------------------------------------------------------------------------------------------------
 # TODO: Figure out if stuff below is needed. Does it belong in the scripts source? If so, doesn't

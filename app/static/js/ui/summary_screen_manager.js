@@ -10,16 +10,6 @@
     };
 
     /**
-     * Wire up the submit button to submit solve results to the server
-     */
-    SummaryScreenManager.prototype._wire_submit_button = function() {
-        $('#summary-times-submit>.btn-submit').click(function(){
-            $("#input-results").val(JSON.stringify(app.eventsDataManager.getEventsData()));
-            $("#form-results").submit();
-        });
-    };
-
-    /**
      * Splits the events into a list of complete and incomplete event
      */
     SummaryScreenManager.prototype._splitEventsCompleteIncomplete = function() {
@@ -56,15 +46,11 @@
         var complete_events = split_events[0];
         var incomplete_events = split_events[1];
 
-        var logged_in_with_any_solves = (app.user_logged_in && (complete_events.length > 0 || incomplete_events.length > 0));
-        var show_submit_button = (complete_events.length > 0 || logged_in_with_any_solves);
-
         var data = {
             logged_in: app.user_logged_in,
             comp_title: $('#eventsPanelDataContainer').data('compname'),
             complete_events: complete_events,
             incomplete_events: incomplete_events,
-            show_submit_button: show_submit_button,
             no_solves: (complete_events.length == 0 && incomplete_events.length == 0),
         };
 
@@ -74,7 +60,13 @@
         $summary_div.ultraShow();
 
         app.appModeManager.wire_return_to_events_from_summary();
-        this._wire_submit_button();
+
+        if (app.user_logged_in) {
+            $.get('/comment_url/' + app.eventsDataManager.getCompId(), function(data) {
+                var anchor = $('<a>Check out your results here!</a>').attr("href", data).attr("target", "_blank");
+                $('.comment_url_area').append(anchor);
+            })
+        }
     };
 
     /**

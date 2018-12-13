@@ -6,7 +6,14 @@ def convert_centiseconds_to_friendly_time(centiseconds):
     Ex: 2345 --> 23.45
     Ex: 12345 --> 2:03.45 """
 
-    if str(centiseconds) == centiseconds:
+    try:
+        # ensure that if the input isn't already an integer, and can be converted to an integer, it is
+        centiseconds = int(centiseconds)
+    except ValueError:
+        pass
+
+    # if it's still a string here, it's probably a DNF result, just pass that back
+    if isinstance(centiseconds, str):
         return centiseconds
 
     secs = centiseconds / 100.0

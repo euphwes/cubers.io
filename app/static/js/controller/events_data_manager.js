@@ -15,6 +15,7 @@
         app.EventEmitter.call(this);
 
         this.events_data = app.events_data;
+        this.comp_id = app.comp_id;
 
         this._setCorrectScrambleStatus();
         this._registerTimerEventHandlers();
@@ -165,6 +166,13 @@
             }
         });
         return nextScramble;
+    };
+
+    /**
+     * Returns the current competition id.
+     */
+    EventsDataManager.prototype.getCompId = function() {
+        return this.comp_id;
     };
 
     /**

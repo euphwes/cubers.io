@@ -46,7 +46,7 @@ def index():
 
     return render_template('index.html', current_competition=comp, events_data=events_for_json,
                            ordered_comp_events=ordered_comp_events, complete_events=complete_events,
-                           incomplete_events=incomplete_events)
+                           incomplete_events=incomplete_events, comp_id=comp.id)
 
 
 @CUBERS_APP.route('/prompt_login')
