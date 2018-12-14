@@ -38,9 +38,9 @@
     /**
      * Sets only the card for the specified scramble as active.
      */
-    SolveCardManager.prototype._setCardAsActive = function(scramble) {
+    SolveCardManager.prototype._setCardAsActive = function(eventData) {
         $('.single-time.active').removeClass('active');
-        this._getSolveCardElement(scramble.id).addClass('active');
+        this._getSolveCardElement(eventData.scramble.id).addClass('active');
     };
 
     /**

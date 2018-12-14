@@ -21,6 +21,7 @@
         app.solveCardManager = new app.SolveCardManager();
         app.timerDisplayManager = new app.TimerDisplayManager();
         app.scrambleDisplayManager = new app.ScrambleDisplayManager();
+        app.scrambleImageGenerator = new app.ScrambleImageGenerator();
 
         app.mainScreenManager = new app.MainScreenManager();
         app.timerScreenManager = new app.TimerScreenManager();

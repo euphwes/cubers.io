@@ -12,8 +12,8 @@
     /**
      * Event handler for when a scramble is attached to the timer. Show the scramble in the display.
      */
-    ScrambleDisplayManager.prototype._showScramble = function(scramble) {
-        var rendered = scramble.scramble.split('\n').join('<br/>');
+    ScrambleDisplayManager.prototype._showScramble = function(eventData) {
+        var rendered = eventData.scramble.scramble.split('\n').join('<br/>');
         $('.scramble-wrapper .scram').html(rendered);
         textFit($('.scramble-wrapper .scram'), {multiLine: true, maxFontSize: 50});
     };

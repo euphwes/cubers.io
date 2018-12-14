@@ -38,7 +38,11 @@
         var nextIncompleteScramble = app.eventsDataManager.getNextIncompleteScramble(comp_event_id);
         if (nextIncompleteScramble) {
             app.timer.attachToScramble(nextIncompleteScramble.id);
-            this.emit(EVENT_NEW_SCRAMBLE_ATTACHED, nextIncompleteScramble);
+            var eventData = {
+                eventName: app.eventsDataManager.getEventName(comp_event_id),
+                scramble: nextIncompleteScramble,
+            };
+            this.emit(EVENT_NEW_SCRAMBLE_ATTACHED, eventData);
         } else {
             // No more scrambles left to attach to the timer, let's use the space to tell the user that
             // they are done, and what their result was.
@@ -74,9 +78,15 @@
      */
     CurrentScramblesManager.prototype.attachSpecifiedScramble = function(comp_event_id, scramble_id) {
         var scramble = app.eventsDataManager.getSolveRecord(comp_event_id, scramble_id);
+
         if (scramble) {
             app.timer.attachToScramble(scramble.id);
-            this.emit(EVENT_NEW_SCRAMBLE_ATTACHED, scramble);
+
+            var eventData = {
+                eventName: app.eventsDataManager.getEventName(comp_event_id),
+                scramble: scramble,
+            };
+            this.emit(EVENT_NEW_SCRAMBLE_ATTACHED, eventData);
         }
     };
 
