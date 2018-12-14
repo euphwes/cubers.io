@@ -63,7 +63,6 @@
 .times-wrapper {
     text-align: center;
     height: 70%;
-    width: 100%;
     @media @tablet {
         height: ~"calc(30% - 68px)";
         width: initial;
@@ -78,10 +77,9 @@
         background-color: white;
         border: 1px solid rgba(0, 0, 0, 0.125);
         border-radius: 2px;
-        box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
 
-        margin: 10px 0 10px 0;
-        min-height: 50px;
+        margin: 5px 0 5px 0;
+        min-height: 30px;
         @media @mobile {
             min-height: initial;
             background-color: initial;
@@ -146,8 +144,7 @@
         }
 
         &:hover {
-            box-shadow: 0 5px 5px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
-            border-left-width: 8px;
+            border-left-width: 10px;
             -webkit-transition: all 250ms ease;
             -moz-transition: all 250ms ease;
             -o-transition: all 250ms ease;
@@ -172,7 +169,7 @@
 
         .value-wrapper {
             margin-left: 15px;
-            font-size: 22px;
+            font-size: 20px;
             @media @mobile {
                 font-size: 18px;
             }
@@ -180,7 +177,8 @@
 
         .time-value {
             margin-left: 15px;
-            font-size: 20px;
+            margin-top: 3px;
+            font-size: 16px;
             @media @mobile {
                 font-size: 18px;
             }
@@ -328,7 +326,7 @@
     color: #000000;
     float: left;
     font-size: 14px;
-    height: 142px;
+    height: 160px;
     letter-spacing: 0.3px;
     padding: 20px;
     width: 100%;
@@ -348,4 +346,11 @@
 
 .bootbox-form {
     margin-bottom: 0px;
+}
+
+.scramble_preview_buffer {
+    padding: 15px;
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
 }

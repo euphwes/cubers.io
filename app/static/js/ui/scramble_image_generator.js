@@ -4,7 +4,7 @@
     var image = (function() {
 
         // ATTENTION: toy with this value to generally scale up and down the size of all scramble previews
-        var scalingFactor = 18;
+        var scalingFactor = 25;
 
         var canvas, ctx;
         var hsq3 = Math.sqrt(3) / 2;
@@ -776,12 +776,16 @@
             return false;
         }
 
+        function setScalingFactor(size) {
+            scalingFactor = size;
+        }
+
         function clearCanvas() {
             ctx.clearRect(0, 0, canvas[0].width, canvas[0].height);
         }
 
-        function findCanvas() {
-            canvas = $('#scramble_image_canvas');
+        function findCanvas(canvasId) {
+            canvas = $(canvasId);
             ctx = canvas[0].getContext('2d');
         }
     
@@ -807,12 +811,12 @@
     ScrambleImageGenerator.prototype._generateImage = function(scrambleEventData) {
         if (this.unsupportedEvents.includes(scrambleEventData.eventName)) { return false };
         
-        image.findCanvas();
+        image.findCanvas('#normal_scramble_image');
         return image.draw([scrambleEventData.eventName, scrambleEventData.scramble.scramble]);
     };
 
     ScrambleImageGenerator.prototype._clearImage = function() {
-        image.findCanvas();
+        image.findCanvas('#normal_scramble_image');
         image.clearCanvas();
     };
 

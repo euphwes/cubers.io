@@ -1,10 +1,10 @@
 {% raw %}
 <script id='timer-template' type='text/x-handlebars-template'>
     <div class="ultra-hidden timerEventDataContainer" data-compEventId="{{ comp_event_id }}" data-totalSolves="{{ total_solves }}"></div>
-    <div class="row"><canvas id="scramble_image_canvas"></canvas></div>
     <div class="row">
-
-        <div class="col-xl-12 col-md-12 col-sm-12 scramble-wrapper"><div class="scram"></div></div>
+        <div class="col-xl-12 col-md-12 col-sm-12 scramble-wrapper">
+            <div class="scram"></div>
+        </div>
         <div class="col-lg-9 col-md-12 col-sm-12 timer-wrapper">
             <div class="row">
                 <div class="col-12">
@@ -86,6 +86,9 @@
                     </div><!-- Comment Upload  -->
                 </div><!-- Widget Area -->
                 {{/unless}}
+                <div class="scramble_preview_buffer">
+                    <canvas id="normal_scramble_image"></canvas>
+                </div>
             </div>
         </div>
     </div>
