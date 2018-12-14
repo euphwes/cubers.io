@@ -3,6 +3,9 @@
 
     var image = (function() {
 
+        // ATTENTION: toy with this value to generally scale up and down the size of all scramble previews
+        var scalingFactor = 18;
+
         var canvas, ctx;
         var hsq3 = Math.sqrt(3) / 2;
         var PI = Math.PI;
@@ -61,7 +64,6 @@
             if (!ctx) {
                 return;
             }
-            console.log('starting drawPolygon');
             trans = trans || [1, 0, 0, 0, 1, 0];
             arr = Transform(arr, trans);
             ctx.beginPath();
@@ -137,7 +139,7 @@
                     var inv = /[-']/.exec(m[0][1]);
                     doMove(state, axis, inv);
                 }
-                var imgSize = 10 / 7.5;
+                var imgSize = scalingFactor / 7.5;
                 canvas.width(7 * imgSize + 'em');
                 canvas.height(3.5 * imgSize + 'em');
                 canvas.attr('width', 9.8 * width);
@@ -245,7 +247,7 @@
                 ];
                 buttons = [buttons[3], buttons[2], buttons[0], buttons[1], 1 - buttons[0], 1 - buttons[1], 1 - buttons[3], 1 - buttons[2]];
     
-                var imgSize = 10 / 7.5;
+                var imgSize = scalingFactor / 7.5;
                 canvas.width(6.25 * imgSize + 'em');
                 canvas.height(3 * imgSize + 'em');
                 canvas.attr('width', 6.25 * 20 * width);
@@ -344,7 +346,7 @@
                 doMove([0, 0, 1]);
     
     
-                var imgSize = 10 / 10;
+                var imgSize = scalingFactor / 10;
                 canvas.width(11 * imgSize / 1.3 + 'em');
                 canvas.height(6.3 * imgSize / 1.3 + 'em');
     
@@ -489,7 +491,7 @@
                 for (var i = 0; i < scramble.length; i++) {
                     doMove(scramble[i][0], scramble[i][2] == 1 ? 1 : 2);
                 }
-                var imgSize = 10 / 10;
+                var imgSize = scalingFactor / 10;
                 canvas.width((8 * hsq3 + 0.3) * imgSize + 'em');
                 canvas.height(6.2 * imgSize + 'em');
     
@@ -573,7 +575,7 @@
                 for (var i = 0; i < scramble.length; i++) {
                     doMove(scramble[i][0] + (scramble[i][1] == 2 ? 4 : 0), scramble[i][2] == 1 ? 1 : 2);
                 }
-                var imgSize = 10 / 10;
+                var imgSize = scalingFactor / 10;
                 canvas.width(7 * imgSize + 'em');
                 canvas.height(6.5 * hsq3 * imgSize + 'em');
     
@@ -719,7 +721,7 @@
                     }
                 }
     
-                var imgSize = 10 / 50;
+                var imgSize = scalingFactor / 50;
                 canvas.width(39 * imgSize + 'em');
                 canvas.height(29 * imgSize + 'em');
     
@@ -735,7 +737,7 @@
         var types_nnn = ['', '', '2x2', '3x3', '4x4', '5x5', '6x6', '7x7'];
     
         function genImage(scramble) {
-                        var type = scramble[0];
+            var type = scramble[0];
             var size;
             for (size = 0; size < 8; size++) {
                 if (type == types_nnn[size]) {
@@ -774,6 +776,10 @@
             return false;
         }
 
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas[0].width, canvas[0].height);
+        }
+
         function findCanvas() {
             canvas = $('#scramble_image_canvas');
             ctx = canvas[0].getContext('2d');
@@ -783,6 +789,7 @@
             draw: genImage,
             drawPolygon: drawPolygon,
             findCanvas: findCanvas,
+            clearCanvas: clearCanvas
         }
     })();
 
@@ -805,6 +812,8 @@
     };
 
     ScrambleImageGenerator.prototype._clearImage = function() {
+        image.findCanvas();
+        image.clearCanvas();
     };
 
     /**
