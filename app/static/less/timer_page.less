@@ -363,3 +363,20 @@
         cursor: pointer;
     }
 }
+
+#fade-wrapper {
+    display: none;
+    position: fixed;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    background: rgba(255, 255, 255, 0.90);
+
+    &.shown {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+}

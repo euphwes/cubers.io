@@ -5,6 +5,8 @@
 
         // ATTENTION: toy with this value to generally scale up and down the size of all scramble previews
         var scalingFactor = 25;
+        var scalingFactorNormal = 25;
+        var scalingFactorLarge = 50;
 
         var canvas, ctx;
         var hsq3 = Math.sqrt(3) / 2;
@@ -776,8 +778,12 @@
             return false;
         }
 
-        function setScalingFactor(size) {
-            scalingFactor = size;
+        function setScalingFactorLarge() {
+            scalingFactor = scalingFactorLarge;
+        }
+
+        function setScalingFactorNormal() {
+            scalingFactor = scalingFactorNormal;
         }
 
         function clearCanvas() {
@@ -800,7 +806,9 @@
             draw: genImage,
             drawPolygon: drawPolygon,
             findCanvas: findCanvas,
-            clearCanvas: clearCanvas
+            clearCanvas: clearCanvas,
+            setScalingFactorLarge: setScalingFactorLarge,
+            setScalingFactorNormal: setScalingFactorNormal,
         }
     })();
 
@@ -830,12 +838,23 @@
         this.savedEventName = scrambleEventData.eventName;
 
         if (image.findCanvas('#normal_scramble_image')) {
+            image.setScalingFactorNormal();
             return image.draw([scrambleEventData.eventName, scrambleEventData.scramble.scramble]);
+        }
+    };
+
+    ScrambleImageGenerator.prototype.showLargeImage = function() {
+        if (image.findCanvas('#big_scramble_image')) {
+            image.setScalingFactorLarge();
+            return image.draw([this.savedEventName, this.savedScramble]);
         }
     };
 
     ScrambleImageGenerator.prototype._clearImage = function() {
         if (image.findCanvas('#normal_scramble_image')) {
+            image.clearCanvas();
+        }
+        if (image.findCanvas('#big_scramble_image')) {
             image.clearCanvas();
         }
     };

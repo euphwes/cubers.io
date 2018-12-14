@@ -62,6 +62,7 @@
         // Wire up the stuff common to both FMC and non-FMC events
         app.appModeManager.wire_return_to_events_from_timer();
         this._wire_comment_box(comp_event_id);
+        this._wire_scramble_preview_click();
 
         if (data.isFMC) {
             this._wire_fmc_card_solve_typing(comp_event_id);
@@ -69,6 +70,21 @@
         } else {
             this._wire_solve_context_menu(comp_event_id);
         }
+    };
+
+    /**
+     * Wire up the scramble preview click to open larger preview.
+     */
+    TimerScreenManager.prototype._wire_scramble_preview_click = function() {
+        $('.scramble_preview_buffer.clickable').click(function(){
+            app.scrambleImageGenerator.showLargeImage();
+            $('#fade-wrapper').fadeIn().addClass('shown');
+            $('#fade-wrapper').click(function(){
+                $(this).fadeOut(function(){
+                    $(this).removeClass('shown');
+                });
+            })
+        });
     };
 
     /**
