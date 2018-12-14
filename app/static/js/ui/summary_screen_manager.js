@@ -64,7 +64,7 @@
         if (app.user_logged_in) {
             $.get('/comment_url/' + app.eventsDataManager.getCompId(), function(data) {
                 var anchor = $('<a>Check out your results here!</a>').attr("href", data).attr("target", "_blank");
-                $('.comment_url_area').append(anchor);
+                $('.span_complete').append(anchor);
             })
         }
     };

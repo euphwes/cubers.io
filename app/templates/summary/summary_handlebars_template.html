@@ -15,8 +15,11 @@
         <div class="offset-lg-2 col-lg-8 col-12">
             <h4>Complete Events</h4>
             {{#if logged_in}}
-            <span class="d-none d-md-block comment_url_area">
-                Good news, everyone! Results are now automatically submitted to Reddit.&nbsp;
+            <span class="summary_info_area span_complete" data-short="" data-long="Good news, everyone! Results are now automatically submitted to Reddit.&nbsp;">
+            </span>
+            {{ else }}
+            <span class="summary_info_area span_complete" data-short="" data-long="">
+                To save your progress for, please login using Reddit.
             </span>
             {{/if}}
             {{#each complete_events}}
@@ -39,11 +42,11 @@
         <div class="offset-lg-2 col-lg-8 col-12">
             <h4>Incomplete Events</h4>
             {{#if logged_in}}
-            <span class="d-none d-md-block">
+            <span class="summary_info_area span_incomplete">
                 We've saved what you've completed so far.
             </span>
             {{else}}
-            <span class="d-none d-md-block">
+            <span class="summary_info_area span_incomplete">
                 To save your progress for, please login using Reddit.
             </span>
             {{/if}}
