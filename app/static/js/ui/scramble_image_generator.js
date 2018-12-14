@@ -786,7 +786,14 @@
 
         function findCanvas(canvasId) {
             canvas = $(canvasId);
+            if (canvas.length == 0) {
+                return false;
+            }
+            if (!canvas[0].getContext) {
+                return false;
+            }
             ctx = canvas[0].getContext('2d');
+            return true;
         }
     
         return {
@@ -806,18 +813,31 @@
         "2-3-4 Relay", "3x3 Relay of 3", "PLL Time Attack"];
 
         this._registerCurrentScramblesManagerHandlers();
+
+        this.savedScramble = "";
+        this.savedEventName = "";
     };
 
     ScrambleImageGenerator.prototype._generateImage = function(scrambleEventData) {
-        if (this.unsupportedEvents.includes(scrambleEventData.eventName)) { return false };
-        
-        image.findCanvas('#normal_scramble_image');
-        return image.draw([scrambleEventData.eventName, scrambleEventData.scramble.scramble]);
+        if (this.unsupportedEvents.includes(scrambleEventData.eventName)) {
+            this._clearImage();
+            $('.scramble_preview_buffer').removeClass('clickable');
+            return false
+        };
+
+        // Store these for later in case in case the user takes action to show a bigger scramble image
+        this.savedScramble = scrambleEventData.scramble.scramble;
+        this.savedEventName = scrambleEventData.eventName;
+
+        if (image.findCanvas('#normal_scramble_image')) {
+            return image.draw([scrambleEventData.eventName, scrambleEventData.scramble.scramble]);
+        }
     };
 
     ScrambleImageGenerator.prototype._clearImage = function() {
-        image.findCanvas('#normal_scramble_image');
-        image.clearCanvas();
+        if (image.findCanvas('#normal_scramble_image')) {
+            image.clearCanvas();
+        }
     };
 
     /**
