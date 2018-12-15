@@ -43,6 +43,7 @@
      */
     AppModeManager.prototype.wire_return_to_events_from_timer = function() {
         $('#return-to-events>.btn-return').click(function(){
+            app.scrambleImageGenerator.reset();
             this.emit(EVENT_APP_MODE_TO_MAIN);
         }.bind(this));
     },

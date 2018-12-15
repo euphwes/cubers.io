@@ -778,6 +778,14 @@
             return false;
         }
 
+        function getCanvasWidth() {
+            return parseInt($(canvas[0]).css('width').replace('px',''));
+        }
+
+        function setScalingFactorDirectly(size) {
+            scalingFactor = size;
+        }
+
         function setScalingFactorLarge() {
             scalingFactor = scalingFactorLarge;
         }
@@ -809,6 +817,8 @@
             clearCanvas: clearCanvas,
             setScalingFactorLarge: setScalingFactorLarge,
             setScalingFactorNormal: setScalingFactorNormal,
+            setScalingFactorDirectly: setScalingFactorDirectly,
+            getCanvasWidth: getCanvasWidth,
         }
     })();
 
@@ -821,9 +831,14 @@
         "2-3-4 Relay", "3x3 Relay of 3", "PLL Time Attack"];
 
         this._registerCurrentScramblesManagerHandlers();
+        this.reset();
+    };
 
+    ScrambleImageGenerator.prototype.reset = function() {
         this.savedScramble = "";
         this.savedEventName = "";
+        this.mobileScalingFactor = 10;
+        this.haveEstablishedMobileScalingFactor = false;
     };
 
     ScrambleImageGenerator.prototype._generateImage = function(scrambleEventData) {
@@ -847,6 +862,36 @@
         if (image.findCanvas('#big_scramble_image')) {
             image.setScalingFactorLarge();
             return image.draw([this.savedEventName, this.savedScramble]);
+        }
+    };
+
+    ScrambleImageGenerator.prototype.showLargeImageForMobile = function() {
+        if (this.haveEstablishedMobileScalingFactor) {
+            if (image.findCanvas('#big_scramble_image')) {
+                image.setScalingFactorDirectly(this.mobileScalingFactor);
+                return image.draw([this.savedEventName, this.savedScramble]);
+            }
+        } else {
+            var screenWidthPxTarget = $(window).width() - 30;
+            var testScalingFactor = 10;
+            while (true) {
+                if (image.findCanvas('#big_scramble_image')) {
+                    image.setScalingFactorDirectly(testScalingFactor);
+                    image.draw([this.savedEventName, this.savedScramble]);
+                    if (image.getCanvasWidth() >= screenWidthPxTarget) {
+                        testScalingFactor -= 1;
+                        break;
+                    } else {
+                        testScalingFactor += 1;
+                    }
+                }
+            }
+            this.haveEstablishedMobileScalingFactor = true;
+            this.mobileScalingFactor = testScalingFactor;
+            if (image.findCanvas('#big_scramble_image')) {
+                image.setScalingFactorDirectly(this.mobileScalingFactor);
+                return image.draw([this.savedEventName, this.savedScramble]);
+            }
         }
     };
 
