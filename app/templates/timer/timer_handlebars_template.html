@@ -85,9 +85,11 @@
                         </form>
                     </div><!-- Comment Upload  -->
                 </div><!-- Widget Area -->
+                {{#if scramblePreviewIsSupported}}
                 <div class="scramble_preview_buffer clickable">
                     <canvas id="normal_scramble_image"></canvas>
                 </div>
+                {{/if}}
                 {{/unless}}
             </div>
         </div>
@@ -100,11 +102,13 @@
         </div>
     </div>
     {{#if isMobile}}
+    {{#if scramblePreviewIsSupported}}
     <div id="show-scramble-btn">
         <button class="btn btn-lg btn-return">
             <i class="fas fa-dice-five"></i> Preview Scramble
         </button>
     </div>
+    {{/if}}
     {{/if}}
     <div id="fade-wrapper">
         <div>

@@ -1570,9 +1570,10 @@
      * Utility class for generating puzzle scrambles.
      */
     function ScrambleImageGenerator() {
-        this.unsupportedEvents = ["3BLD", "4BLD", "5BLD", "COLL",
+        // TODO: consolidate this list with the one in timer_screen_manager.js
+        this.unsupportedEvents = ["2BLD", "3BLD", "4BLD", "5BLD", "COLL",
         "Kilominx", "3x3 Mirror Blocks/Bump", "3x3x4", "3x3x2", "3x3x5", "Void Cube",
-        "2-3-4 Relay", "3x3 Relay of 3", "PLL Time Attack"];
+        "2-3-4 Relay", "3x3 Relay of 3", "PLL Time Attack", "Redi Cube"];
 
         this._registerCurrentScramblesManagerHandlers();
         this.reset();
