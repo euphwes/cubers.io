@@ -72,6 +72,7 @@
         this._wire_comment_box(comp_event_id);
         this._wire_scramble_preview_click();
         this._wire_mobile_scramble_preview_click();
+        this._wire_resize_scramble_redraw();
 
         if (data.isFMC) {
             this._wire_fmc_card_solve_typing(comp_event_id);
@@ -79,6 +80,14 @@
         } else {
             this._wire_solve_context_menu(comp_event_id);
         }
+    };
+
+    TimerScreenManager.prototype._wire_resize_scramble_redraw = function() {
+        $(window).on('resize', function(){
+            console.log('resized');
+            app.scrambleImageGenerator.reset();
+            app.scrambleImageGenerator.showNormalImage();
+      });
     };
 
     /**

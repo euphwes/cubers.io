@@ -747,10 +747,7 @@
 
     var image = (function() {
 
-        // ATTENTION: toy with this value to generally scale up and down the size of all scramble previews
-        var scalingFactor = 25;
-        var scalingFactorNormal = 25;
-        var scalingFactorLarge = 50;
+        var scalingFactor = 10;
 
         var canvas, ctx;
         var hsq3 = Math.sqrt(3) / 2;
@@ -1531,11 +1528,7 @@
         }
 
         function setScalingFactorLarge() {
-            scalingFactor = scalingFactorLarge;
-        }
-
-        function setScalingFactorNormal() {
-            scalingFactor = scalingFactorNormal;
+            scalingFactor = 50;
         }
 
         function clearCanvas() {
@@ -1559,8 +1552,7 @@
             drawPolygon: drawPolygon,
             findCanvas: findCanvas,
             clearCanvas: clearCanvas,
-            setScalingFactorLarge: setScalingFactorLarge,
-            setScalingFactorNormal: setScalingFactorNormal,
+            setScalingFactorFixedLarge: setScalingFactorLarge,
             setScalingFactorDirectly: setScalingFactorDirectly,
             getCanvasWidth: getCanvasWidth,
         }
@@ -1575,20 +1567,25 @@
         "Kilominx", "3x3 Mirror Blocks/Bump", "3x3x4", "3x3x2", "3x3x5", "Void Cube",
         "2-3-4 Relay", "3x3 Relay of 3", "PLL Time Attack", "Redi Cube"];
 
+        this.largeCanvasId = '#big_scramble_image';
+        this.normalCanvasId = '#normal_scramble_image';
+
         this._registerCurrentScramblesManagerHandlers();
         this.reset();
     };
 
     ScrambleImageGenerator.prototype.reset = function() {
-        this.savedScramble = "";
-        this.savedEventName = "";
         this.mobileScalingFactor = 10;
         this.haveEstablishedMobileScalingFactor = false;
+        this.desktopScalingFactor = 10;
+        this.haveEstablishedDesktopScalingFactor = false;
     };
 
-    ScrambleImageGenerator.prototype._generateImage = function(scrambleEventData) {
+    ScrambleImageGenerator.prototype._prepareNewImage = function(scrambleEventData) {
+        // If this isn't a supported event, clear the image, reset scaling factors.
         if (this.unsupportedEvents.includes(scrambleEventData.eventName)) {
             this._clearImage();
+            this.reset();
             $('.scramble_preview_buffer').removeClass('clickable');
             return false
         };
@@ -1597,22 +1594,53 @@
         this.savedScramble = scrambleEventData.scramble.scramble;
         this.savedEventName = scrambleEventData.eventName;
 
-        if (image.findCanvas('#normal_scramble_image')) {
-            image.setScalingFactorNormal();
-            return image.draw([scrambleEventData.eventName, scrambleEventData.scramble.scramble]);
-        }
+        this.showNormalImage();
     };
 
     ScrambleImageGenerator.prototype.showLargeImage = function() {
-        if (image.findCanvas('#big_scramble_image')) {
-            image.setScalingFactorLarge();
+        if (image.findCanvas(this.largeCanvasId)) {
+            image.setScalingFactorFixedLarge();
             return image.draw([this.savedEventName, this.savedScramble]);
+        }
+    };
+
+    ScrambleImageGenerator.prototype.showNormalImage = function() {
+        if (this.haveEstablishedDesktopScalingFactor) {
+            if (image.findCanvas(this.normalCanvasId)) {
+                image.setScalingFactorDirectly(this.desktopScalingFactor);
+                return image.draw([this.savedEventName, this.savedScramble]);
+            }
+        } else {
+            var screenWidthPxTarget = $('.scramble_preview_buffer').width() - 30;
+            var testScalingFactor = 10;
+            while (true) {
+                if (image.findCanvas(this.normalCanvasId)) {
+                    image.setScalingFactorDirectly(testScalingFactor);
+                    image.draw([this.savedEventName, this.savedScramble]);
+                    if ((document.body.scrollHeight > document.body.clientHeight)) {
+                        testScalingFactor -= 3;
+                        break;
+                    }
+                    else if (image.getCanvasWidth() >= screenWidthPxTarget) {
+                        testScalingFactor -= 1;
+                        break;
+                    } else {
+                        testScalingFactor += 1;
+                    }
+                }
+            }
+            this.haveEstablishedDesktopScalingFactor = true;
+            this.desktopScalingFactor = testScalingFactor;
+            if (image.findCanvas(this.normalCanvasId)) {
+                image.setScalingFactorDirectly(this.desktopScalingFactor);
+                return image.draw([this.savedEventName, this.savedScramble]);
+            }
         }
     };
 
     ScrambleImageGenerator.prototype.showLargeImageForMobile = function() {
         if (this.haveEstablishedMobileScalingFactor) {
-            if (image.findCanvas('#big_scramble_image')) {
+            if (image.findCanvas(this.largeCanvasId)) {
                 image.setScalingFactorDirectly(this.mobileScalingFactor);
                 return image.draw([this.savedEventName, this.savedScramble]);
             }
@@ -1620,7 +1648,7 @@
             var screenWidthPxTarget = $(window).width() - 30;
             var testScalingFactor = 10;
             while (true) {
-                if (image.findCanvas('#big_scramble_image')) {
+                if (image.findCanvas(this.largeCanvasId)) {
                     image.setScalingFactorDirectly(testScalingFactor);
                     image.draw([this.savedEventName, this.savedScramble]);
                     if (image.getCanvasWidth() >= screenWidthPxTarget) {
@@ -1633,7 +1661,7 @@
             }
             this.haveEstablishedMobileScalingFactor = true;
             this.mobileScalingFactor = testScalingFactor;
-            if (image.findCanvas('#big_scramble_image')) {
+            if (image.findCanvas(this.largeCanvasId)) {
                 image.setScalingFactorDirectly(this.mobileScalingFactor);
                 return image.draw([this.savedEventName, this.savedScramble]);
             }
@@ -1654,7 +1682,7 @@
      */
     ScrambleImageGenerator.prototype._registerCurrentScramblesManagerHandlers = function() {
         app.currentScramblesManager.on(app.EVENT_NOTHING_TO_ATTACH, this._clearImage.bind(this));
-        app.currentScramblesManager.on(app.EVENT_NEW_SCRAMBLE_ATTACHED, this._generateImage.bind(this));
+        app.currentScramblesManager.on(app.EVENT_NEW_SCRAMBLE_ATTACHED, this._prepareNewImage.bind(this));
     };
 
     // Make ScrambleImageGenerator visible at app scope
