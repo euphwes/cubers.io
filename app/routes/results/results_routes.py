@@ -1,6 +1,5 @@
 """ Routes related to displaying competition results. """
 
-from arrow import utcnow as now
 from flask import render_template, redirect
 from flask_login import current_user
 
@@ -37,6 +36,10 @@ def comp_results(comp_id):
     """ A route for showing results for a specific competition. """
 
     competition = comp_manager.get_competition(comp_id)
+    if not competition:
+        # TODO: do this right, with a neat 404 or something
+        return "Oops, that's not a real competition. Try again, ya clown."
+
     blacklisted_users = get_blacklisted_users_for_competition(comp_id)
 
     comp_events = comp_manager.get_all_comp_events_for_comp(comp_id)
