@@ -84,10 +84,9 @@
 
     TimerScreenManager.prototype._wire_resize_scramble_redraw = function() {
         $(window).on('resize', function(){
-            console.log('resized');
             app.scrambleImageGenerator.reset();
             app.scrambleImageGenerator.showNormalImage();
-      });
+        });
     };
 
     /**

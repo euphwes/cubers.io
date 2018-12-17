@@ -7,6 +7,17 @@
     function ScrambleDisplayManager() {
         this._registerCurrentScramblesManagerHandlers();
         this._registerEventsDataManagerHandlers();
+        this._wireResizeHandler();
+    };
+
+    /**
+     * Wire up a listener for window resizes that refits the scramble text to the container for the new
+     * window size.
+     */
+    ScrambleDisplayManager.prototype._wireResizeHandler = function() {
+        $(window).on('resize', function(){
+            textFit($('.scramble-wrapper .scram'), {multiLine: true, maxFontSize: 50});
+        });
     };
 
     /**
