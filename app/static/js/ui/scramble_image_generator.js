@@ -1584,8 +1584,7 @@
     ScrambleImageGenerator.prototype._prepareNewImage = function(scrambleEventData) {
         // If this isn't a supported event, clear the image, reset scaling factors.
         if (this.unsupportedEvents.includes(scrambleEventData.eventName)) {
-            this._clearImage();
-            this.reset();
+            this._clearImage(); this.reset();
             $('.scramble_preview_buffer').removeClass('clickable');
             return false
         };
@@ -1594,78 +1593,87 @@
         this.savedScramble = scrambleEventData.scramble.scramble;
         this.savedEventName = scrambleEventData.eventName;
 
+        // Attempt to draw normal image. If we're on mobile, the normal canvas won't exist
+        // and it'll just bail early.
         this.showNormalImage();
     };
 
     ScrambleImageGenerator.prototype.showLargeImage = function() {
-        if (image.findCanvas(this.largeCanvasId)) {
-            image.setScalingFactorFixedLarge();
-            return image.draw([this.savedEventName, this.savedScramble]);
-        }
+        if (!image.findCanvas(this.largeCanvasId)) { return; }
+
+        image.setScalingFactorFixedLarge();
+        return image.draw([this.savedEventName, this.savedScramble]);
     };
 
     ScrambleImageGenerator.prototype.showNormalImage = function() {
+        // If the canvas doesn't exist, we shouldn't be trying to show the image, just bail
+        if (!image.findCanvas(this.normalCanvasId)) { return; }
+
+        // If we have already established the right scaling factor for this puzzle
+        // on this window size, just go ahead and draw the image that was prepped
         if (this.haveEstablishedDesktopScalingFactor) {
-            if (image.findCanvas(this.normalCanvasId)) {
-                image.setScalingFactorDirectly(this.desktopScalingFactor);
-                return image.draw([this.savedEventName, this.savedScramble]);
-            }
-        } else {
-            var screenWidthPxTarget = $('.scramble_preview_buffer').width() - 30;
-            var testScalingFactor = 10;
-            while (true) {
-                if (image.findCanvas(this.normalCanvasId)) {
-                    image.setScalingFactorDirectly(testScalingFactor);
-                    image.draw([this.savedEventName, this.savedScramble]);
-                    if ((document.body.scrollHeight > document.body.clientHeight)) {
-                        testScalingFactor -= 3;
-                        break;
-                    }
-                    else if (image.getCanvasWidth() >= screenWidthPxTarget) {
-                        testScalingFactor -= 1;
-                        break;
-                    } else {
-                        testScalingFactor += 1;
-                    }
-                }
-            }
-            this.haveEstablishedDesktopScalingFactor = true;
-            this.desktopScalingFactor = testScalingFactor;
-            if (image.findCanvas(this.normalCanvasId)) {
-                image.setScalingFactorDirectly(this.desktopScalingFactor);
-                return image.draw([this.savedEventName, this.savedScramble]);
-            }
+            image.setScalingFactorDirectly(this.desktopScalingFactor);
+            return image.draw([this.savedEventName, this.savedScramble]);
         }
+
+        // Target width is 20 less than column container width, so there's a ~10px buffer on either side
+        // Find the correct scaling factor and remember that we've done so
+        var targetWidth = $('.scramble_preview_buffer').width() - 20;
+        this.desktopScalingFactor = this.determineScalingFactorAndDraw(targetWidth, true);
+        this.haveEstablishedDesktopScalingFactor = true;
+
+        // Finally draw the preview at the correct scaling factor
+        image.setScalingFactorDirectly(this.desktopScalingFactor);
+        return image.draw([this.savedEventName, this.savedScramble]);
     };
 
     ScrambleImageGenerator.prototype.showLargeImageForMobile = function() {
+        // If the canvas doesn't exist, we shouldn't be trying to show the image, just bail
+        if (!image.findCanvas(this.largeCanvasId)) { return; }
+
+        // If we have already established the right scaling factor for this puzzle
+        // on this device, just go ahead and draw the image that was prepped
         if (this.haveEstablishedMobileScalingFactor) {
-            if (image.findCanvas(this.largeCanvasId)) {
-                image.setScalingFactorDirectly(this.mobileScalingFactor);
-                return image.draw([this.savedEventName, this.savedScramble]);
-            }
-        } else {
-            var screenWidthPxTarget = $(window).width() - 30;
-            var testScalingFactor = 10;
-            while (true) {
-                if (image.findCanvas(this.largeCanvasId)) {
-                    image.setScalingFactorDirectly(testScalingFactor);
-                    image.draw([this.savedEventName, this.savedScramble]);
-                    if (image.getCanvasWidth() >= screenWidthPxTarget) {
-                        testScalingFactor -= 1;
-                        break;
-                    } else {
-                        testScalingFactor += 1;
-                    }
-                }
-            }
-            this.haveEstablishedMobileScalingFactor = true;
-            this.mobileScalingFactor = testScalingFactor;
-            if (image.findCanvas(this.largeCanvasId)) {
-                image.setScalingFactorDirectly(this.mobileScalingFactor);
-                return image.draw([this.savedEventName, this.savedScramble]);
+            image.setScalingFactorDirectly(this.mobileScalingFactor);
+            return image.draw([this.savedEventName, this.savedScramble]);
+        }
+
+        // Target width is 20 less than device width, so there's a ~10px buffer on either side
+        // Find the correct scaling factor and remember that we've done so
+        var targetWidth = $(window).width() - 20;
+        this.mobileScalingFactor = this.determineScalingFactorAndDraw(targetWidth, true);
+        this.haveEstablishedMobileScalingFactor = true;
+
+        // Finally draw the preview at the correct scaling factor
+        image.setScalingFactorDirectly(this.mobileScalingFactor);
+        return image.draw([this.savedEventName, this.savedScramble]);
+    };
+
+    ScrambleImageGenerator.prototype.determineScalingFactorAndDraw = function(targetWidth, shouldCheckForHeightOverflow) {
+        // Start at 10, that's pretty small
+        var testScalingFactor = 10;
+        while (true) {
+
+            image.setScalingFactorDirectly(testScalingFactor);
+            image.draw([this.savedEventName, this.savedScramble]);
+
+            if (shouldCheckForHeightOverflow && (document.body.scrollHeight > document.body.clientHeight)) {
+                // If the vertical height is too much and causing a scrollbar, back off by 3.
+                // Backing off by 1 doesn't seem to do the trick for whatever weird reason I don't care to investigate
+                testScalingFactor -= 3;
+                break;
+            } else if (image.getCanvasWidth() >= targetWidth) {
+                // If the canvas width is finally larger than we want, then a scaling factor 1 less than current
+                // will be the largest scaling factor to where the canvas is smaller than the target width
+                testScalingFactor -= 1;
+                break;
+            } else {
+                // Not big enough yet, pump it up
+                testScalingFactor += 1;
             }
         }
+
+        return testScalingFactor;
     };
 
     ScrambleImageGenerator.prototype._clearImage = function() {
