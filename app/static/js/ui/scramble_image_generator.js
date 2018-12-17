@@ -1582,6 +1582,9 @@
     };
 
     ScrambleImageGenerator.prototype._prepareNewImage = function(scrambleEventData) {
+        // If on mobile, ensure scramble preview button is not disabled
+        $('#show-scramble-btn>.btn-return').removeClass('btn-disabled').removeAttr('disabled');
+
         // If this isn't a supported event, clear the image, reset scaling factors.
         if (this.unsupportedEvents.includes(scrambleEventData.eventName)) {
             this._clearImage(); this.reset();
@@ -1683,6 +1686,9 @@
         if (image.findCanvas('#big_scramble_image')) {
             image.clearCanvas();
         }
+
+        // If on mobile, ensure scramble preview button is disabled since there's nothing to show
+        $('#show-scramble-btn>.btn-return').addClass('btn-disabled').attr('disabled', 'disabled');
     };
 
     /**
