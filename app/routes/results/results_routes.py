@@ -58,6 +58,8 @@ def comp_results(comp_id):
             continue
         event_name = result.CompetitionEvent.Event.name
         solves_helper = result.times_string.split(', ')
+        while len(solves_helper) < 5:
+            solves_helper.append('')
         setattr(result, 'solves_helper', solves_helper)
         event_results[event_name].append(result)
 

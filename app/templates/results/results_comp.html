@@ -42,6 +42,7 @@
                             <thead class="thead-dark">
                                 <tr>
                                     <th scope="col">#</th>
+                                    <th scope="col" class="d-none d-md-table-cell"></th>
                                     <th scope="col">User</th>
                                     <th scope="col">Average</th>
                                     <th scope="col">Best</th>
@@ -56,19 +57,24 @@
                                     {% set its_me = '' %}
                                 {% endif %}
                                 <tr class="{{ its_me }}">
-                                    <td scope="row">{{ loop.index }}</th>
-                                    <td scope="col">/u/{{ result.User.username }}</th>
+                                    <td scope="row">{{ loop.index }}</td>
+                                    <td scope="col" class="d-none d-md-table-cell">
+                                        {% if result.comment %}
+                                        <span class="far fa-comment spacer" data-toggle="tooltip" data-placement="bottom" title="{{result.comment}}"></span>
+                                        {% endif %}
+                                    </td>
+                                    <td scope="col">/u/{{ result.User.username }}</td>
                                     {% if event_name == "FMC" %}
-                                        <td scope="col" class="font-weight-bold">{{ result.average | format_fmc_result }}</th>
-                                        <td scope="col">{{ result.single | format_fmc_result }}</th>
+                                        <td scope="col" class="font-weight-bold">{{ result.average | format_fmc_result }}</td>
+                                        <td scope="col">{{ result.single | format_fmc_result }}</td>
                                         {% for solve in result.solves_helper %}
-                                        <td scope="col" class="d-none d-md-table-cell">{{ solve }}</th>
+                                        <td scope="col" class="d-none d-md-table-cell">{{ solve }}</td>
                                         {% endfor %}
                                     {% else %}
-                                        <td scope="col" class="{{ avg_class }}">{{ result.average | friendly_time }}</th>
-                                        <td scope="col" class="{{ single_class }}">{{ result.single | friendly_time }}</th>
+                                        <td scope="col" class="{{ avg_class }}">{{ result.average | friendly_time }}</td>
+                                        <td scope="col" class="{{ single_class }}">{{ result.single | friendly_time }}</td>
                                         {% for solve in result.solves_helper %}
-                                        <td scope="col" class="d-none d-md-table-cell">{{ solve }}</th>
+                                        <td scope="col" class="d-none d-md-table-cell">{{ solve }}</td>
                                         {% endfor %}
                                     {% endif %}
                                 </tr>
@@ -85,4 +91,11 @@
 {% endblock %}
 
 {% block additional_script %}
+<script>
+    $(function () {
+        if (!Boolean(new MobileDetect(window.navigator.userAgent).mobile())) {
+            $('[data-toggle="tooltip"]').tooltip();
+        }
+    })
+</script>
 {% endblock %}
