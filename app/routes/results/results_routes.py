@@ -65,7 +65,9 @@ def comp_results(comp_id):
     for event_name, results in event_results.items():
         results.sort(key=cmp_to_key(sort_results))
 
-    return render_template("results/results_comp.html", comp_name=competition.title,\
+    alternative_title = "{} leaderboards".format(competition.title)
+
+    return render_template("results/results_comp.html", alternative_title=alternative_title,\
         event_results=event_results, event_names=event_names, event_formats=event_formats,\
         event_ids=event_ids)
 
