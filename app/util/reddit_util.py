@@ -53,7 +53,7 @@ def build_comment_source_from_events_results(events_results):
         comment      = '\n' if not results.comment else build_user_comment(results.comment)
 
         if isFMC:
-            event_result = (results.average / 100)
+            event_result = int(results.average) / 100
             if event_result == int(event_result):
                 event_result = int(event_result)
         else:
