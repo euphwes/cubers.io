@@ -17,13 +17,15 @@ from app.util.score_comp import score_previous_competition
 
 from . import CUBERS_APP
 from .persistence.models import EventFormat
-from .persistence.comp_manager import get_event_by_name, save_new_competition
+from .persistence.comp_manager import get_event_by_name, save_new_competition, get_active_competition
 from .persistence.user_results_manager import get_all_null_is_complete_event_results,\
       get_all_na_average_event_results, save_event_results_for_user,\
       get_all_complete_event_results, bulk_save_event_results
-from .persistence.user_manager import blacklist_user_for_competition, get_blacklisted_users_for_competition
+from .persistence.user_manager import blacklist_user_for_competition, get_blacklisted_users_for_competition,\
+      get_user_by_username
 from .util.events_util import determine_best_single, determine_bests, determine_event_result
 from .util.reddit_util import build_times_string
+from .routes.home import do_reddit_submit
 
 # -------------------------------------------------------------------------------------------------
 
@@ -49,6 +51,27 @@ def generate_new_comp_only(all_events):
     """ TODO: Only generate a new competition, don't score the previous one. """
     generate_new_competition(all_events)
 
+
+# -------------------------------------------------------------------------------------------------
+# Below are admin commands, for one-off app administration needs
+# -------------------------------------------------------------------------------------------------
+
+@CUBERS_APP.cli.command()
+@click.option('--username', '-u', type=str)
+@click.option('--comp_id', '-c', type=int)
+def blacklist_user_for_comp(username, comp_id):
+    """ Add a blacklist entry for the specified user and competition. """
+
+    blacklist_user_for_competition(username, comp_id)
+
+
+@CUBERS_APP.cli.command()
+@click.option('--comp_id', '-c', type=int)
+def show_blacklisted_users_for_comp(comp_id):
+    """ Show the blacklisted users for the specified competition. """
+
+    for user in get_blacklisted_users_for_competition(comp_id):
+        print(user.username)
 
 # -------------------------------------------------------------------------------------------------
 # Below are test comp generation commands, not intended to be used in production
@@ -89,29 +112,25 @@ def create_new_test_comp_from_b64_data(data):
     save_new_competition(title, reddit_id, event_data)
 
 # -------------------------------------------------------------------------------------------------
-# Below are admin commands, for one-off app administration needs
+# Below are utility commands intended to just be one-offs, to backfill or fix broken data
 # -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.cli.command()
 @click.option('--username', '-u', type=str)
-@click.option('--comp_id', '-c', type=int)
-def blacklist_user_for_comp(username, comp_id):
-    """ Add a blacklist entry for the specified user and competition. """
+def submit_reddit_for_user(username):
+    """ Submits to Reddit for the specified user, for the current competition. """
 
-    blacklist_user_for_competition(username, comp_id)
+    user = get_user_by_username(username)
+    if not user:
+        print("{} is not a valid user".format(username))
+        return
 
+    comp = get_active_competition()
 
-@CUBERS_APP.cli.command()
-@click.option('--comp_id', '-c', type=int)
-def show_blacklisted_users_for_comp(comp_id):
-    """ Show the blacklisted users for the specified competition. """
+    print("Submitting to Reddit for {}".format(username))
+    do_reddit_submit(comp.id, user)
+    print("Done")
 
-    for user in get_blacklisted_users_for_competition(comp_id):
-        print(user.username)
-
-# -------------------------------------------------------------------------------------------------
-# Below are utility commands intended to just be one-offs, to backfill or fix broken data
-# -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.cli.command()
 def fix_user_results_add_result_complete():
