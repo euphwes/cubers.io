@@ -31,8 +31,10 @@ def save_event():
         event_result = build_all_user_results(user_events_dict)[0]
         user = get_user_by_username(current_user.username)
 
-        event_result = determine_if_any_pbs(user, event_result)
+        if event_result.is_complete:
+            event_result = determine_if_any_pbs(user, event_result)
 
+        # Figure out if we need to repost the results to Reddit or not
         if event_result.is_complete:
             # if these results are complete, but different than what's already there, we should submit again
             # because it means the user altered a time (add/remove penalty, manual time entry, etc)
