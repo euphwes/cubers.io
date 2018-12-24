@@ -116,6 +116,13 @@ def create_new_test_comp_from_b64_data(data):
 # -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.cli.command()
+def recalculate_pbs():
+    """ Works through every user, every event type, and re-calculates PB averages and singles
+    and sets apporopriate flags on UserEventResults. """
+
+    pass
+
+@CUBERS_APP.cli.command()
 @click.option('--username', '-u', type=str)
 def submit_reddit_for_user(username):
     """ Submits to Reddit for the specified user, for the current competition. """

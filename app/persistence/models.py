@@ -96,6 +96,8 @@ class UserEventResults(Model):
     reddit_comment    = Column(String(10))
     is_complete       = Column(Boolean)
     times_string      = Column(Text)
+    was_pb_single     = Column(Boolean)
+    was_pb_average    = Column(Boolean)
 
 
 class CompetitionEvent(Model):
