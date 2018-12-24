@@ -132,6 +132,8 @@ def recalculate_pbs():
     def pb_repr(time):
         if time == "DNF":
             return dnf_hack_time
+        elif time == '':
+            return starting_max
         else:
             return int(time)
 

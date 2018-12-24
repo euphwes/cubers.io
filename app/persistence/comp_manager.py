@@ -99,6 +99,7 @@ def get_all_user_results_for_user_and_event(user_id, event_id):
             join(Event).\
             filter(Event.id == event_id).\
             filter(User.id == user_id).\
+            filter(UserEventResults.is_complete).\
             order_by(UserEventResults.id).\
             all()
 
