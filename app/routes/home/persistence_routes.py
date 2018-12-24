@@ -6,12 +6,13 @@ from flask import request, abort
 from flask_login import current_user
 
 from app import CUBERS_APP
-from app.persistence import comp_manager
 from app.persistence.models import EventFormat
 from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import build_user_event_results, save_event_results_for_user,\
-    build_all_user_results, are_results_different_than_existing, get_comment_id_by_comp_id_and_user
-from app.persistence.comp_manager import get_competition, get_all_complete_user_results_for_comp_and_user
+    build_all_user_results, are_results_different_than_existing, get_comment_id_by_comp_id_and_user,\
+    get_event_results_for_user
+from app.persistence.comp_manager import get_competition, get_all_complete_user_results_for_comp_and_user,\
+    get_event_by_name
 from app.util.reddit_util import build_times_string, convert_centiseconds_to_friendly_time,\
     build_comment_source_from_events_results, submit_comment_for_user, get_permalink_for_comp_thread,\
     update_comment_for_user, get_permalink_for_user_and_comment
@@ -30,7 +31,16 @@ def save_event():
         event_result = build_all_user_results(user_events_dict)[0]
         user = get_user_by_username(current_user.username)
 
-        should_do_reddit_submit = event_result.is_complete and are_results_different_than_existing(event_result, user)
+        if event_result.is_complete:
+            # if these results are complete, but different than what's already there, we should submit again
+            # because it means the user altered a time (add/remove penalty, manual time entry, etc)
+            should_do_reddit_submit = are_results_different_than_existing(event_result, user)
+        else:
+            # if these results are incomplete, and the user currently has complete results saved, it means
+            # they deleted a time. The event will no longer be complete, and so we should submit again to 
+            # delete that event
+            previous_results = get_event_results_for_user(event_result.comp_event_id, user)
+            should_do_reddit_submit = previous_results and previous_results.is_complete
 
         saved_results = save_event_results_for_user(event_result, user)
 
@@ -80,7 +90,7 @@ def build_summary(event):
     friendly = convert_centiseconds_to_friendly_time
 
     results = build_results(event['comp_event_id'], event['scrambles'], event['comment'])
-    event_format = comp_manager.get_event_by_name(event['name']).eventFormat
+    event_format = get_event_by_name(event['name']).eventFormat
     is_fmc   = event['name'] == 'FMC'
     is_blind = event['name'] in ('3BLD', '2BLD', '4BLD', '5BLD', 'MBLD')
 
@@ -104,7 +114,7 @@ def do_reddit_submit(comp_id, user):
 
     comp = get_competition(comp_id)
     reddit_thread_id = comp.reddit_thread_id
-    results = comp_manager.get_all_complete_user_results_for_comp_and_user(comp.id, user.id)
+    results = get_all_complete_user_results_for_comp_and_user(comp.id, user.id)
     comment_source = build_comment_source_from_events_results(results)
 
     previous_comment_id = get_comment_id_by_comp_id_and_user(comp.id, user)

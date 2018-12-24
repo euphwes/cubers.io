@@ -1,17 +1,17 @@
 """ Utility module for providing access to business logic for user solves. """
 
 from app import DB
+from app.persistence.comp_manager import get_comp_event_by_id,\
+    get_all_user_results_for_comp_and_user
 from app.persistence.models import UserEventResults, UserSolve, EventFormat
 from app.util.events_util import determine_bests, determine_best_single, determine_event_result
 from app.util.reddit_util import build_times_string
-
-from .comp_manager import get_comp_event_by_id, get_all_complete_user_results_for_comp_and_user
 
 # -------------------------------------------------------------------------------------------------
 
 def get_comment_id_by_comp_id_and_user(comp_id, user):
     """ Returns a Reddit comment ID for the specified user and competition id. """
-    for result in get_all_complete_user_results_for_comp_and_user(comp_id, user.id):
+    for result in get_all_user_results_for_comp_and_user(comp_id, user.id):
         if result.reddit_comment:
             return result.reddit_comment
     return None

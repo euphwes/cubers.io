@@ -62,6 +62,9 @@ def build_comment_source_from_events_results(events_results):
         line = event_line_template.format(event_name, event_result, times_string, comment)
         comment_source += line
 
+    if not events_results:
+        comment_source += "*Nothing complete at the moment...*\n"
+
     comment_source += COMMENT_FOOTER
     return comment_source
 

@@ -68,7 +68,23 @@ def get_all_complete_user_results_for_comp_and_user(comp_id, user_id):
             join(Event).\
             filter(Competition.id == comp_id).\
             filter(User.id == user_id).\
-            filter(UserEventResults.is_complete)
+            filter(UserEventResults.is_complete).\
+            all()
+
+    return results
+
+
+def get_all_user_results_for_comp_and_user(comp_id, user_id):
+    """ Gets all UserEventResults for the specified competition and user. """
+
+    results = DB.session.\
+            query(UserEventResults).\
+            join(User).\
+            join(CompetitionEvent).\
+            join(Competition).\
+            join(Event).\
+            filter(Competition.id == comp_id).\
+            filter(User.id == user_id)
 
     return results
 
