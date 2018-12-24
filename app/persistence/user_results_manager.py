@@ -2,12 +2,26 @@
 
 from app import DB
 from app.persistence.comp_manager import get_comp_event_by_id,\
-    get_all_user_results_for_comp_and_user
-from app.persistence.models import UserEventResults, UserSolve, EventFormat
+    get_all_user_results_for_comp_and_user, get_active_competition
+from app.persistence.models import Competition, CompetitionEvent, Event, UserEventResults,\
+    User, UserSolve, EventFormat
 from app.util.events_util import determine_bests, determine_best_single, determine_event_result
 from app.util.reddit_util import build_times_string
 
 # -------------------------------------------------------------------------------------------------
+
+# TODO factor this out into a shared location or utility
+starting_max  = 999999999999
+dnf_hack_time = 999999999000
+
+def pb_repr(time):
+    if time == "DNF":
+        return dnf_hack_time
+    elif time == '':
+        return starting_max
+    else:
+        return int(time)
+
 
 def get_comment_id_by_comp_id_and_user(comp_id, user):
     """ Returns a Reddit comment ID for the specified user and competition id. """
@@ -29,6 +43,18 @@ def are_results_different_than_existing(comp_event_results, user):
         return True
 
     return existing_results.comment != comp_event_results.comment
+
+
+def determine_if_any_pbs(user, event_result):
+    comp_event = get_comp_event_by_id(event_result.comp_event_id)
+    event_id = comp_event.Event.id
+
+    pb_single, pb_average = get_pbs_for_user_and_event_excluding_latest(user.id, event_id)
+
+    event_result.was_pb_single = pb_repr(event_result.single) < pb_single
+    event_result.was_pb_average = pb_repr(event_result.average) < pb_average
+
+    return event_result
 
 
 def build_all_user_results(user_events_dict):
@@ -121,6 +147,52 @@ def get_all_complete_event_results():
     return UserEventResults.query.filter(UserEventResults.is_complete).all()
 
 
+def get_pbs_for_user_and_event_excluding_latest(user_id, event_id):
+    """ Returns a tuple of PB single and average for this event for the specified user, except
+    for the current comp. Excluding the current comp allows for the user to keep updating their
+    results for this comp, and the logic determining if this comp has a PB result doesn't include
+    this comp itself. """
+
+    current_comp_id = get_active_competition().id
+
+    results_with_pb_singles = DB.session.\
+            query(UserEventResults).\
+            join(User).\
+            join(CompetitionEvent).\
+            join(Competition).\
+            join(Event).\
+            filter(Event.id == event_id).\
+            filter(User.id == user_id).\
+            filter(Competition.id != current_comp_id).\
+            filter(UserEventResults.was_pb_single).\
+            filter(UserEventResults.is_complete).\
+            order_by(UserEventResults.id).\
+            all()
+
+    singles = [pb_repr(r.single) for r in results_with_pb_singles]
+
+    results_with_pb_averages = DB.session.\
+            query(UserEventResults).\
+            join(User).\
+            join(CompetitionEvent).\
+            join(Competition).\
+            join(Event).\
+            filter(Event.id == event_id).\
+            filter(User.id == user_id).\
+            filter(Competition.id != current_comp_id).\
+            filter(UserEventResults.was_pb_average).\
+            filter(UserEventResults.is_complete).\
+            order_by(UserEventResults.id).\
+            all()
+
+    averages = [pb_repr(r.average) for r in results_with_pb_averages]
+
+    pb_single = min(singles) if singles else starting_max
+    pb_average = min(averages) if averages else starting_max
+
+    return pb_single, pb_average
+
+
 def bulk_save_event_results(results_list):
     """ Save a bunch of results at once. """
     for result in results_list:
@@ -154,6 +226,8 @@ def __save_existing_event_results(existing_results, new_results):
     existing_results.comment        = new_results.comment
     existing_results.is_complete    = new_results.is_complete
     existing_results.times_string   = new_results.times_string
+    existing_results.was_pb_average = new_results.was_pb_average
+    existing_results.was_pb_single  = new_results.was_pb_single
 
     # Update any existing solves with the data coming in from the new solves
     for old_solve in existing_results.solves:

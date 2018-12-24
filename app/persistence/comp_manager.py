@@ -89,6 +89,32 @@ def get_all_user_results_for_comp_and_user(comp_id, user_id):
     return results
 
 
+def get_all_user_results_for_user_and_event(user_id, event_id):
+    """ Gets all UserEventResults for the specified event and user. (aka all 3x3 results for joe)"""
+
+    results = DB.session.\
+            query(UserEventResults).\
+            join(User).\
+            join(CompetitionEvent).\
+            join(Event).\
+            filter(Event.id == event_id).\
+            filter(User.id == user_id).\
+            order_by(UserEventResults.id).\
+            all()
+
+    return results
+
+
+def get_all_events():
+    """ Returns a list of all events. """
+
+    results = DB.session.\
+            query(Event).\
+            all()
+
+    return results
+
+
 def get_participants_in_competition(comp_id):
     """ Returns a list of all participants in the specified competition.
     Participant is defined as somebody who has completed all solves for at
