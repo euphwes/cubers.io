@@ -26,28 +26,43 @@ def pb_repr(time):
 
 def get_user_competition_history(user):
     """ Returns user competition history in the following format:
-    dict[Competition][dict[Event][UserEventResults]] """
+    dict[Event][dict[Competition][UserEventResults]] """
 
     history = dict()
     all_events = get_all_events()
 
-    for comp in get_all_competitions():
-        event_results_for_comp = dict()
-        for event in all_events():
+    # iterate over all events there are
+    for event in all_events:
+
+        # dict to hold user results for each competition where they completed this event
+        comp_results_for_event = dict()
+
+        # iterate over all competitions checking for results for this user
+        for comp in get_all_competitions():
+
+            # retrieve the CompetitionEvent for this Event and Competition
+            # if it doesn't exist, move to the next Event
             comp_event = comp.get_comp_event_for_event(event)
             if not comp_event:
                 continue
 
+            # retrieve the user's results for this CompetitionEvent
+            # if they don't exist, or are incomplete, move to the next Event
             results = get_event_results_for_user(comp_event.id, user)
-            if not results:
+            if (not results) or (not results.is_complete):
                 continue
 
-            event_results_for_comp[event] = results
+            # store these UserEventResults for this Competition
+            comp_results_for_event[comp] = results
 
-        if not event_results_for_comp.keys():
+        # if there are no keys, it means this user didn't complete this event in any competition
+        # if that's the case, just continue to the next Event
+        if not comp_results_for_event.keys():
             continue
 
-        history[comp] = event_results_for_comp
+        # the user has completed this event in at least one competition, so associate their
+        # Competition-to-UserEventResults history for this Event
+        history[event] = comp_results_for_event
 
     return history
 
