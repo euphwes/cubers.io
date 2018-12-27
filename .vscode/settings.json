@@ -1,0 +1,4 @@
+{
+    "python.linting.pylintEnabled": false,
+    "python.pythonPath": "/Users/mrev/venvs/cubersio/bin/python"
+}

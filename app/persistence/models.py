@@ -141,6 +141,15 @@ class Competition(Model):
     events           = relationship('CompetitionEvent', backref='Competition',
                                     primaryjoin=id == CompetitionEvent.competition_id)
 
+    def get_comp_event_for_event(self, event):
+        """ Returns the CompetitionEvent in this Competition for the given Event, if it exists,
+        otherwise returns None. """
+
+        for comp_event in self.events:
+            if comp_event.event_id == event.id:
+                return comp_event
+        return None
+
 
 class CompetitionGenResources(Model):
     """ A record for maintaining the current state of the competition generation. """

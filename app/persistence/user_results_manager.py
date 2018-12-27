@@ -2,7 +2,8 @@
 
 from app import DB
 from app.persistence.comp_manager import get_comp_event_by_id,\
-    get_all_user_results_for_comp_and_user, get_active_competition
+    get_all_user_results_for_comp_and_user, get_active_competition, get_all_competitions,\
+    get_all_events
 from app.persistence.models import Competition, CompetitionEvent, Event, UserEventResults,\
     User, UserSolve, EventFormat
 from app.util.events_util import determine_bests, determine_best_single, determine_event_result
@@ -21,6 +22,35 @@ def pb_repr(time):
         return starting_max
     else:
         return int(time)
+
+
+def get_user_competition_history(user):
+    """ Returns user competition history in the following format:
+    dict[Competition][dict[Event][UserEventResults]] """
+
+    history = dict()
+    all_events = get_all_events()
+
+    for comp in get_all_competitions():
+        event_results_for_comp = dict()
+        for event in all_events():
+            comp_event = comp.get_comp_event_for_event(event)
+            if not comp_event:
+                continue
+
+            results = get_event_results_for_user(comp_event.id, user)
+            if not results:
+                continue
+
+            event_results_for_comp[event] = results
+
+        if not event_results_for_comp.keys():
+            continue
+
+        history[comp] = event_results_for_comp
+
+    return history
+
 
 
 def get_comment_id_by_comp_id_and_user(comp_id, user):
