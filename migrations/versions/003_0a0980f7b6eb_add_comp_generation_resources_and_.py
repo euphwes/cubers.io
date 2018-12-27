@@ -31,8 +31,8 @@ def upgrade():
     sa.Column('current_comp_num', sa.Integer(), nullable=True),
     sa.Column('current_bonus_index', sa.Integer(), nullable=True),
     sa.Column('current_OLL_index', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['current_comp_id'], ['competitions.id'], ),
-    sa.ForeignKeyConstraint(['previous_comp_id'], ['competitions.id'], ),
+    sa.ForeignKeyConstraint(['current_comp_id'], ['competitions.id'], name='comp_gen_resources_current_comp_id_fkey'),
+    sa.ForeignKeyConstraint(['previous_comp_id'], ['competitions.id'], name='comp_gen_resources_previous_comp_id_fkey'),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('competitions', schema=None) as batch_op:
