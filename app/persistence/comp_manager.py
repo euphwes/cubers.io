@@ -6,6 +6,8 @@ from app import DB
 from app.persistence.models import Competition, CompetitionEvent, Event, Scramble,\
 CompetitionGenResources, UserEventResults, User
 
+from sqlalchemy.orm import joinedload
+
 # -------------------------------------------------------------------------------------------------
 
 def get_competition_gen_resources():
@@ -89,6 +91,22 @@ def get_all_user_results_for_comp_and_user(comp_id, user_id):
     return results
 
 
+def get_all_complete_user_results_for_comp_and_user(comp_id, user_id):
+    """ Gets all UserEventResults for the specified competition and user. """
+
+    results = DB.session.\
+            query(UserEventResults).\
+            join(User).\
+            join(CompetitionEvent).\
+            join(Competition).\
+            join(Event).\
+            filter(Competition.id == comp_id).\
+            filter(User.id == user_id).\
+            filter(UserEventResults.is_complete)
+
+    return results
+
+
 def get_all_user_results_for_user_and_event(user_id, event_id):
     """ Gets all UserEventResults for the specified event and user. (aka all 3x3 results for joe)"""
 
@@ -111,6 +129,20 @@ def get_all_events():
 
     results = DB.session.\
             query(Event).\
+            all()
+
+    return results
+
+
+def get_all_events_user_has_participated_in(user_id):
+    """ Returns a list of all events. """
+
+    results = DB.session.\
+            query(Event).\
+            join(CompetitionEvent).\
+            join(UserEventResults).\
+            filter(UserEventResults.user_id == user_id).\
+            distinct(Event.id).\
             all()
 
     return results
@@ -149,10 +181,26 @@ def get_complete_competitions():
 
 def get_all_competitions():
     """ Returns all competitions. """
-    return Competition.\
-        query.\
+    return DB.session.\
+        query(Competition).\
+        options(joinedload(Competition.events)).\
         order_by(Competition.id)\
         .all()
+
+
+def get_all_competitions_user_has_participated_in(user_id):
+    """ Returns all competitions. """
+    return DB.session.\
+        query(Competition).\
+        join(CompetitionEvent).\
+        join(UserEventResults).\
+        filter(UserEventResults.is_complete).\
+        filter(UserEventResults.user_id == user_id).\
+        options(joinedload(Competition.events)).\
+        order_by(Competition.id).\
+        distinct(Competition.id).\
+        all()
+
 
 
 def get_competition(competition_id):

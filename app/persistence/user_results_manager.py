@@ -2,8 +2,8 @@
 
 from app import DB
 from app.persistence.comp_manager import get_comp_event_by_id,\
-    get_all_user_results_for_comp_and_user, get_active_competition, get_all_competitions,\
-    get_all_events
+    get_all_user_results_for_comp_and_user, get_active_competition, get_all_competitions_user_has_participated_in,\
+    get_all_events_user_has_participated_in, get_all_complete_user_results_for_comp_and_user
 from app.persistence.models import Competition, CompetitionEvent, Event, UserEventResults,\
     User, UserSolve, EventFormat
 from app.util.events_util import determine_bests, determine_best_single, determine_event_result
@@ -31,32 +31,20 @@ def get_user_competition_history(user):
     dict[Event][dict[Competition][UserEventResults]] """
 
     history = OrderedDict()
-    all_events = get_all_events()
+    id_to_events = dict()
 
-    # iterate over all events there are
+    all_events = get_all_events_user_has_participated_in(user.id)
+
+    # iterate over all competitions checking for results for this user
+    all_comps = get_all_competitions_user_has_participated_in(user.id)
+    all_comps.reverse()
+
     for event in all_events:
+        history[event] = OrderedDict()
+        id_to_events[event.id] = event
 
-        # dict to hold user results for each competition where they completed this event
-        comp_results_for_event = OrderedDict()
-
-        # iterate over all competitions checking for results for this user
-        all_comps = get_all_competitions()
-        all_comps.reverse()
-
-        for comp in all_comps:
-
-            # retrieve the CompetitionEvent for this Event and Competition
-            # if it doesn't exist, move to the next Event
-            comp_event = comp.get_comp_event_for_event(event)
-            if not comp_event:
-                continue
-
-            # retrieve the user's results for this CompetitionEvent
-            # if they don't exist, or are incomplete, move to the next Event
-            results = get_event_results_for_user(comp_event.id, user)
-            if (not results) or (not results.is_complete):
-                continue
-
+    for comp in all_comps:
+        for results in get_all_complete_user_results_for_comp_and_user(comp.id, user.id):
             # split the times string into components, add to a list called
             # "solves_helper" which is used in the UI to show individual solves
             # and make sure the length == 5, filled with empty strings if necessary
@@ -66,18 +54,40 @@ def get_user_competition_history(user):
             setattr(results, 'solves_helper', solves_helper)
 
             # store these UserEventResults for this Competition
-            comp_results_for_event[comp] = results
+            event = id_to_events[results.CompetitionEvent.event_id]
+            history[event][comp] = results
 
-        # if there are no keys, it means this user didn't complete this event in any competition
-        # if that's the case, just continue to the next Event
-        if not comp_results_for_event.keys():
-            continue
+    filtered_history = OrderedDict()
+    for event, comps in history.items():
+        if comps.items():
+            filtered_history[event] = comps
 
-        # the user has completed this event in at least one competition, so associate their
-        # Competition-to-UserEventResults history for this Event
-        history[event] = comp_results_for_event
+    return filtered_history
 
-    return history
+
+def get_user_participated_competitions_count(user_id):
+    """ Returns a count of the number of competitions a user has participated in. """
+
+    return DB.session.\
+            query(Competition).\
+            join(CompetitionEvent).\
+            join(UserEventResults).\
+            filter(UserEventResults.is_complete).\
+            filter(UserEventResults.user_id == user_id).\
+            distinct(Competition.id).\
+            count()
+
+
+def get_user_completed_solves_count(user_id):
+    """ Returns a count of the number of solves for completed events for the given user. """
+
+    return DB.session.\
+            query(UserSolve).\
+            join(UserEventResults).\
+            filter(UserEventResults.is_complete).\
+            filter(UserEventResults.user_id == user_id).\
+            distinct(UserSolve.id).\
+            count()
 
 
 def get_comment_id_by_comp_id_and_user(comp_id, user):

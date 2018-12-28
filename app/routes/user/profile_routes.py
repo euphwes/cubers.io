@@ -5,7 +5,8 @@ from flask_login import current_user
 
 from app import CUBERS_APP
 from app.persistence.user_manager import get_user_by_username
-from app.persistence.user_results_manager import get_user_competition_history
+from app.persistence.user_results_manager import get_user_competition_history,\
+    get_user_completed_solves_count, get_user_participated_competitions_count
 
 # -------------------------------------------------------------------------------------------------
 
@@ -18,14 +19,9 @@ def profile(username):
         return "oops"
 
     comp_history = get_user_competition_history(user)
-    """    dict[Event][dict[Competition][UserEventResults]] """
 
-    solve_count = 0
-    distinct_comps = set()
-    for event, comps in comp_history.items():
-        for comp, results in comps.items():
-            distinct_comps.add(comp.id)
-            solve_count += len(results.solves)
+    solve_count = get_user_completed_solves_count(user.id)
+    comps_count = get_user_participated_competitions_count(user.id)
 
-    return render_template("user/profile.html", user=user, solve_count=solve_count, comp_count=len(distinct_comps),\
+    return render_template("user/profile.html", user=user, solve_count=solve_count, comp_count=comps_count,\
         history=comp_history)
