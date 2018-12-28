@@ -9,6 +9,8 @@ from app.persistence.models import Competition, CompetitionEvent, Event, UserEve
 from app.util.events_util import determine_bests, determine_best_single, determine_event_result
 from app.util.reddit_util import build_times_string
 
+from collections import OrderedDict
+
 # -------------------------------------------------------------------------------------------------
 
 # TODO factor this out into a shared location or utility
@@ -28,14 +30,14 @@ def get_user_competition_history(user):
     """ Returns user competition history in the following format:
     dict[Event][dict[Competition][UserEventResults]] """
 
-    history = dict()
+    history = OrderedDict()
     all_events = get_all_events()
 
     # iterate over all events there are
     for event in all_events:
 
         # dict to hold user results for each competition where they completed this event
-        comp_results_for_event = dict()
+        comp_results_for_event = OrderedDict()
 
         # iterate over all competitions checking for results for this user
         for comp in get_all_competitions():

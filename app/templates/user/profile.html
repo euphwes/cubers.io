@@ -1,0 +1,96 @@
+{% extends "common/base.html" %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid cubers-container white-container" style="margin-top: 15px;">
+    <div class="row">
+        <div class="col-12 col-md-12 col-lg-12">
+            <h3 class="text-center">{{ user.username }}</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-10 offset-1">
+            <table class="table table-sm table-striped table-cubersio text-center">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">WCA ID</th>
+                        <th scope="col">Competitions</th>
+                        <th scope="col">Completed Solves</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ user.wca_id if user.wca_id else "" }}</td>
+                        <td>0</td>
+                        <td>0</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% if history.items() %}
+    <div class="row pt-4">
+        <div class="col-12">
+            <h4 class="text-center">Competition History</h4>
+            <ul class="nav nav-tabs justify-content-center pt-3" role="tablist">
+                {% for event_item, _ in history.items() %}
+                {% if loop.index0 == 0 %}
+                <li class="active nav-item">
+                    <a href="#tab{{event_item.name}}" class="nav-link active show" role="tab" data-toggle="tab">
+                        <img class="tab-event-image" src="/static/images/cube-{{event_item.id}}.png">
+                    </a>
+                {% else %}
+                <li class="nav-item">
+                    <a href="#tab{{event_item.name}}" class="nav-link" role="tab" data-toggle="tab">
+                        <img class="tab-event-image" src="/static/images/cube-{{event_item.id}}.png">
+                    </a>
+                {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            <div class="tab-content justify-content-center pt-2">
+                {% for event_item, comps in history.items() %}
+                {% if loop.index0 == 0 %}
+                <div class="tab-pane active" id="tab{{event_item.name}}">
+                {% else %}
+                <div class="tab-pane" id="tab{{event_item.name}}">
+                {% endif %}
+                    <table class="table table-sm table-striped table-cubersio">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Competition</th>
+                                <th scope="col">Single</th>
+                                <th scope="col">Average</th>
+                                <th scope="col" colspan="5">Solves</th>
+                            </tr>
+                            <tr class="event_name_row">
+                                <th scope="col" colspan="8">
+                                    <img class="event-image" src="/static/images/cube-{{event_item.id}}.png">
+                                    {{ event_item.name }}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>blah</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

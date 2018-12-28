@@ -17,4 +17,5 @@ def profile(username):
     if not user:
         return "oops"
 
-    return str(get_user_competition_history(user))
+    comp_history = get_user_competition_history(user)
+    return render_template("user/profile.html", user=user, history=comp_history)
