@@ -24,8 +24,8 @@
                 <tbody>
                     <tr>
                         <td>{{ user.wca_id if user.wca_id else "" }}</td>
-                        <td>0</td>
-                        <td>0</td>
+                        <td>{{ comp_count }}</td>
+                        <td>{{ solve_count }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -35,7 +35,7 @@
     <div class="row pt-4">
         <div class="col-12">
             <h4 class="text-center">Competition History</h4>
-            <ul class="nav nav-tabs justify-content-center pt-3" role="tablist">
+            <ul class="nav nav-tabs justify-content-center pt-1" role="tablist">
                 {% for event_item, _ in history.items() %}
                 {% if loop.index0 == 0 %}
                 <li class="active nav-item">
@@ -51,7 +51,7 @@
                 </li>
                 {% endfor %}
             </ul>
-            <div class="tab-content justify-content-center pt-2">
+            <div class="tab-content justify-content-center pt-3">
                 {% for event_item, comps in history.items() %}
                 {% if loop.index0 == 0 %}
                 <div class="tab-pane active" id="tab{{event_item.name}}">

@@ -18,4 +18,14 @@ def profile(username):
         return "oops"
 
     comp_history = get_user_competition_history(user)
-    return render_template("user/profile.html", user=user, history=comp_history)
+    """    dict[Event][dict[Competition][UserEventResults]] """
+
+    solve_count = 0
+    distinct_comps = set()
+    for event, comps in comp_history.items():
+        for comp, results in comps.items():
+            distinct_comps.add(comp.id)
+            solve_count += len(results.solves)
+
+    return render_template("user/profile.html", user=user, solve_count=solve_count, comp_count=len(distinct_comps),\
+        history=comp_history)

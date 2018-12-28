@@ -80,7 +80,6 @@ def get_user_competition_history(user):
     return history
 
 
-
 def get_comment_id_by_comp_id_and_user(comp_id, user):
     """ Returns a Reddit comment ID for the specified user and competition id. """
     for result in get_all_user_results_for_comp_and_user(comp_id, user.id):

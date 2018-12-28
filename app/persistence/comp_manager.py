@@ -146,6 +146,7 @@ def get_complete_competitions():
         order_by(Competition.id.desc()).\
         all()
 
+
 def get_all_competitions():
     """ Returns all competitions. """
     return Competition.\
