@@ -40,7 +40,10 @@ def get_user_competition_history(user):
         comp_results_for_event = OrderedDict()
 
         # iterate over all competitions checking for results for this user
-        for comp in get_all_competitions():
+        all_comps = get_all_competitions()
+        all_comps.reverse()
+
+        for comp in all_comps:
 
             # retrieve the CompetitionEvent for this Event and Competition
             # if it doesn't exist, move to the next Event
@@ -53,6 +56,14 @@ def get_user_competition_history(user):
             results = get_event_results_for_user(comp_event.id, user)
             if (not results) or (not results.is_complete):
                 continue
+
+            # split the times string into components, add to a list called
+            # "solves_helper" which is used in the UI to show individual solves
+            # and make sure the length == 5, filled with empty strings if necessary
+            solves_helper = results.times_string.split(', ')
+            while len(solves_helper) < 5:
+                solves_helper.append('')
+            setattr(results, 'solves_helper', solves_helper)
 
             # store these UserEventResults for this Competition
             comp_results_for_event[comp] = results

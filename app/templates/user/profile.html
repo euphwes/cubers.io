@@ -74,16 +74,29 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>blah</td>
-                                <td>0</td>
-                                <td>0</td>
-                                <td>0</td>
-                                <td>0</td>
-                                <td>0</td>
-                                <td>0</td>
-                                <td>0</td>
-                            </tr>
+                            {% for comp, results in comps.items() %}
+                                {% if event_name == "FMC" %}
+                                    {% set single_val = results.single | format_fmc_result %}
+                                    {% set average_val = results.average | format_fmc_result %}
+                                {% else %}
+                                    {% set single_val = results.single | friendly_time %}
+                                    {% set average_val = results.average | friendly_time %}
+                                {% endif %}
+                                {% if results.was_pb_single %}
+                                    {% set single_class = "pb-indicator" %}
+                                {% endif %}
+                                {% if results.was_pb_average %}
+                                    {% set average_class = "pb-indicator" %}
+                                {% endif %}
+                                <tr>
+                                    <td>{{ comp.title }}</td>
+                                    <td class="{{single_class}}">{{ single_val }}</td>
+                                    <td class="{{average_class}}">{{ average_val }}</td>
+                                    {% for solve_time in results.solves_helper %}
+                                        <td>{{ solve_time }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
