@@ -5,14 +5,14 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid cubers-container white-container" style="margin-top: 15px;">
+<div class="container-fluid cubers-container white-container profile-container">
     <div class="row">
-        <div class="col-12 col-md-12 col-lg-12">
+        <div class="col-12">
             <h3 class="text-center">{{ user.username }}</h3>
         </div>
     </div>
     <div class="row">
-        <div class="col-10 offset-1">
+        <div class="col-12 col-md-6 offset-md-3">
             <table class="table table-sm table-striped table-cubersio text-center">
                 <thead class="thead-dark">
                     <tr>
@@ -33,7 +33,7 @@
     </div>
     {% if history.items() %}
     <div class="row pt-4">
-        <div class="col-12">
+        <div class="col-12 col-md-10 offset-md-1">
             <h4 class="text-center">Competition History</h4>
             <ul class="nav nav-tabs justify-content-center pt-1" role="tablist">
                 {% for event_item, _ in history.items() %}
@@ -64,7 +64,7 @@
                                 <th scope="col">Competition</th>
                                 <th scope="col">Single</th>
                                 <th scope="col">Average</th>
-                                <th scope="col" colspan="5">Solves</th>
+                                <th scope="col" colspan="5" class="d-none d-md-table-cell">Solves</th>
                             </tr>
                             <tr class="event_name_row">
                                 <th scope="col" colspan="8">
@@ -93,7 +93,7 @@
                                     <td class="{{single_class}}">{{ single_val }}</td>
                                     <td class="{{average_class}}">{{ average_val }}</td>
                                     {% for solve_time in results.solves_helper %}
-                                        <td>{{ solve_time }}</td>
+                                    <td class="d-none d-md-table-cell">{{ solve_time }}</td>
                                     {% endfor %}
                                 </tr>
                             {% endfor %}

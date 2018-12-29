@@ -202,7 +202,6 @@ def get_all_competitions_user_has_participated_in(user_id):
         all()
 
 
-
 def get_competition(competition_id):
     """ Get a competition by id """
     return Competition.query.get(competition_id)
