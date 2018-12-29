@@ -171,6 +171,18 @@ class Blacklist(Model):
     user     = relationship('User', primaryjoin = user_id == User.id)
 
 
+class UserSiteRankings(Model):
+    """ A record for holding pre-calculated user PB single and averages, and site rankings,
+    for each event they have participated in. """
+    __tablename__  = 'user_site_rankings'
+    id          = Column(Integer, primary_key=True)
+    user_id     = Column(Integer, ForeignKey('users.id'), index=True)
+    user        = relationship('User', primaryjoin = user_id == User.id)
+    comp_id     = Column(Integer, ForeignKey('competitions.id'))
+    competition = relationship('Competition', primaryjoin = comp_id == Competition.id)
+    data        = Column(String)
+
+
 class UserSolve(Model):
     """ A user's solve for a specific scramble, in a specific event, at a competition.
     Solve times are in centiseconds (ex: 1234 = 12.34s)."""

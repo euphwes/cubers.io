@@ -4,7 +4,7 @@ from datetime import datetime
 
 from app import DB
 from app.persistence.models import Competition, CompetitionEvent, Event, Scramble,\
-CompetitionGenResources, UserEventResults, User
+CompetitionGenResources, UserEventResults, User, Blacklist
 
 from sqlalchemy.orm import joinedload
 
@@ -91,22 +91,6 @@ def get_all_user_results_for_comp_and_user(comp_id, user_id):
     return results
 
 
-def get_all_complete_user_results_for_comp_and_user(comp_id, user_id):
-    """ Gets all UserEventResults for the specified competition and user. """
-
-    results = DB.session.\
-            query(UserEventResults).\
-            join(User).\
-            join(CompetitionEvent).\
-            join(Competition).\
-            join(Event).\
-            filter(Competition.id == comp_id).\
-            filter(User.id == user_id).\
-            filter(UserEventResults.is_complete)
-
-    return results
-
-
 def get_all_user_results_for_user_and_event(user_id, event_id):
     """ Gets all UserEventResults for the specified event and user. (aka all 3x3 results for joe)"""
 
@@ -142,6 +126,7 @@ def get_all_events_user_has_participated_in(user_id):
             join(CompetitionEvent).\
             join(UserEventResults).\
             filter(UserEventResults.user_id == user_id).\
+            filter(UserEventResults.is_complete).\
             distinct(Event.id).\
             all()
 

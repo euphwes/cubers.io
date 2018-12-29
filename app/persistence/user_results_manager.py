@@ -4,12 +4,15 @@ from app import DB
 from app.persistence.comp_manager import get_comp_event_by_id,\
     get_all_user_results_for_comp_and_user, get_active_competition, get_all_competitions_user_has_participated_in,\
     get_all_events_user_has_participated_in, get_all_complete_user_results_for_comp_and_user
+from app.persistence.user_manager import get_comp_userlist_blacklist_map
 from app.persistence.models import Competition, CompetitionEvent, Event, UserEventResults,\
-    User, UserSolve, EventFormat
+    User, UserSolve, EventFormat, Blacklist
 from app.util.events_util import determine_bests, determine_best_single, determine_event_result
 from app.util.reddit_util import build_times_string
 
+from arrow import utcnow as now
 from collections import OrderedDict
+from ranking import Ranking
 
 # -------------------------------------------------------------------------------------------------
 
@@ -315,3 +318,163 @@ def __save_existing_event_results(existing_results, new_results):
 
     DB.session.commit()
     return existing_results
+
+# -------------------------------------------------------------------------------------------------
+#                   Stuff for pre-calculating user PB records with site rankings
+# -------------------------------------------------------------------------------------------------
+
+def get_pbs_and_site_rankings_for_user(user_id):
+    """ Returns a list of the user's PB singles and averages for all events they've
+    participated in, as well as their rankings amongst the site's users. Format is:
+    dict[Event][(single, single_site_ranking, average, average_site_ranking)] """
+
+    user_rankings = OrderedDict()
+    all_events = get_all_events_user_has_participated_in(user_id)
+
+    for event in all_events:
+        our_user_single_index = -1
+        our_user_average_index = -1
+
+        singles = get_ordered_users_pb_singles_for_event(event.id)
+        singles_values = list()
+        for i, s in enumerate(singles):
+            try:
+                val = int(s[1])
+            except:
+                val = 99999999
+            singles_values.append(val)
+            if s[0] == user_id:
+                our_user_single_index = i
+                our_user_single = s[1]
+                break
+        ranked_singles = list(Ranking(singles_values, start=1, reverse=True))
+        user_single_ranking = ranked_singles[our_user_single_index][0]
+
+        averages = get_ordered_users_pb_averages_for_event(event.id)
+        if not averages:
+            our_user_average = ''
+            user_average_ranking = ''
+        else:
+            averages_values = list()
+            for i, avg in enumerate(averages):
+                try:
+                    val = int(avg[1])
+                except:
+                    val = 99999999
+                averages_values.append(val)
+                if avg[0] == user_id:
+                    our_user_average_index = i
+                    our_user_average = avg[1]
+                    break
+            ranked_averages = list(Ranking(averages_values, start=1, reverse=True))
+            user_average_ranking = ranked_averages[our_user_average_index][0]
+
+        user_rankings[event] = (our_user_single, user_single_ranking,\
+                                our_user_average, user_average_ranking)
+
+    serializable = dict()
+    for event, data in user_rankings.items():
+        serializable[event.id] = data
+
+    import json
+    print(json.dumps(serializable))
+
+    return user_rankings
+
+
+def sort_results(val1, val2):
+    result1 = val1[1]
+    result2 = val2[1]
+    if not result1:
+        result1 = 100000000
+    if not result2:
+        result2 = 100000000
+    if result1 == 'DNF':
+        result1 = 99999999
+    if result2 == 'DNF':
+        result2 = 99999999
+    return int(result1) - int(result2)
+
+
+def cmp_to_key(mycmp):
+    'Convert a cmp= function into a key= function'
+    class comparator:
+        def __init__(self, obj, *args):
+            self.obj = obj
+        def __lt__(self, other):
+            return mycmp(self.obj, other.obj) < 0
+        def __gt__(self, other):
+            return mycmp(self.obj, other.obj) > 0
+        def __eq__(self, other):
+            return mycmp(self.obj, other.obj) == 0
+        def __le__(self, other):
+            return mycmp(self.obj, other.obj) <= 0
+        def __ge__(self, other):
+            return mycmp(self.obj, other.obj) >= 0
+        def __ne__(self, other):
+            return mycmp(self.obj, other.obj) != 0
+    return comparator
+
+
+def get_ordered_users_pb_singles_for_event(event_id):
+    """ Gets all users' PB singles for the specified event, ordered by single value. """
+
+    results = DB.session.\
+            query(UserEventResults).\
+            join(CompetitionEvent).\
+            join(Event).\
+            join(Competition).\
+            filter(Event.id == event_id).\
+            filter(UserEventResults.is_complete).\
+            filter(UserEventResults.was_pb_single).\
+            group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.single, Competition.id).\
+            order_by(UserEventResults.id.desc()).\
+            values(UserEventResults.user_id, UserEventResults.single, Competition.id)
+
+    blacklist_mapping = get_comp_userlist_blacklist_map()
+
+    found_users = set()
+    filtered_results = list()
+    for user_id, single, comp_id in results:
+        if user_id in found_users:
+            continue
+        if comp_id in blacklist_mapping.keys() and user_id in blacklist_mapping[comp_id]:
+            continue
+        found_users.add(user_id)
+        filtered_results.append((user_id, single))
+
+    filtered_results.sort(key=cmp_to_key(sort_results))
+
+    return filtered_results
+
+
+def get_ordered_users_pb_averages_for_event(event_id):
+    """ Gets all users' PB averages for the specified event, ordered by average value. """
+
+    results = DB.session.\
+            query(UserEventResults).\
+            join(CompetitionEvent).\
+            join(Event).\
+            join(Competition).\
+            filter(Event.id == event_id).\
+            filter(UserEventResults.is_complete).\
+            filter(UserEventResults.was_pb_average).\
+            group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.average, Competition.id).\
+            order_by(UserEventResults.id.desc()).\
+            values(UserEventResults.user_id, UserEventResults.average, Competition.id)
+
+    blacklist_mapping = get_comp_userlist_blacklist_map()
+
+    found_users = set()
+    filtered_results = list()
+    for user_id, average, comp_id in results:
+        if user_id in found_users:
+            continue
+        if comp_id in blacklist_mapping.keys() and user_id in blacklist_mapping[comp_id]:
+            continue
+        found_users.add(user_id)
+        filtered_results.append((user_id, average))
+
+    filtered_results.sort(key=cmp_to_key(sort_results))
+
+    return filtered_results
