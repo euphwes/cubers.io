@@ -1,0 +1,95 @@
+{% extends "common/base.html" %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid cubers-container white-container event-results-container">
+    <div class="row">
+        <div class="col-12">
+            <h3 class="text-center">
+                <img class="event-image" src="/static/images/cube-{{event_id}}.png">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-md-10 offset-md-1">
+            <ul class="nav nav-tabs justify-content-center pt-1" role="tablist">
+                <li class="active nav-item">
+                    <a href="#tab_single" class="nav-link active show" role="tab" data-toggle="tab">Single</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#tab_average" class="nav-link" role="tab" data-toggle="tab">Average</a>
+                </li>
+            </ul>
+            
+            <div class="tab-content justify-content-center pt-3">
+                <div class="tab-pane active" id="tab_single">
+                    <table class="table table-sm table-striped table-cubersio">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Rank</th>
+                                <th scope="col">User</th>
+                                <th scope="col">Single</th>
+                                <th class="d-none d-md-table-cell" scope="col">Competition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in singles %}
+                            <tr>
+                                <td>{{ record.rank }}</td>
+                                <td>
+                                    <a href="{{ url_for('profile', username=record.username) }}">/u/{{ record.username }}</a>
+                                </td>
+    
+                                {% if event_name == "FMC" %}
+                                <td>{{ record.pb | format_fmc_result }}</td>
+                                {% else %}
+                                <td>{{ record.pb | friendly_time }}</td>
+                                {% endif %}
+    
+                                <td class="d-none d-md-table-cell">
+                                    <a href="/leaderboards/{{ record.comp_id }}">{{ record.comp_title }}</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="tab_average">
+                    <table class="table table-sm table-striped table-cubersio">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Rank</th>
+                                <th scope="col">User</th>
+                                <th scope="col">Average</th>
+                                <th class="d-none d-md-table-cell" scope="col">Competition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in averages %}
+                            <tr>
+                                <td>{{ record.rank }}</td>
+                                <td>
+                                    <a href="{{ url_for('profile', username=record.username) }}">/u/{{ record.username }}</a>
+                                </td>
+    
+                                {% if event_name == "FMC" %}
+                                <td>{{ record.pb | format_fmc_result }}</td>
+                                {% else %}
+                                <td>{{ record.pb | friendly_time }}</td>
+                                {% endif %}
+    
+                                <td class="d-none d-md-table-cell">
+                                    <a href="/leaderboards/{{ record.comp_id }}">{{ record.comp_title }}</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

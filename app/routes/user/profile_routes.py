@@ -29,8 +29,9 @@ def profile(username):
     site_rankings_record = get_site_rankings_for_user(user.id)
     if site_rankings_record:
         site_rankings = site_rankings_record.get_site_rankings_data_as_dict()
+        previous_comp = site_rankings_record.competition.title
     else:
         site_rankings = None
 
     return render_template("user/profile.html", user=user, solve_count=solve_count, comp_count=comps_count,\
-        history=comp_history, rankings=site_rankings, event_id_name_map=event_id_name_map)
+        history=comp_history, rankings=site_rankings, event_id_name_map=event_id_name_map, previous_comp=previous_comp)

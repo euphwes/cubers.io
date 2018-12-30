@@ -45,11 +45,21 @@ def get_user_competition_history(user):
     all_comps.reverse()
 
     for event in all_events:
+        # COLL isn't really meaningful to keep records for, since it's a single alg that changes weekly
+        if event.name == "COLL":
+            continue
+
         history[event] = OrderedDict()
         id_to_events[event.id] = event
 
     for comp in all_comps:
         for results in get_all_complete_user_results_for_comp_and_user(comp.id, user.id):
+            event = id_to_events[results.CompetitionEvent.event_id]
+
+            # COLL isn't really meaningful to keep records for, since it's a single alg that changes weekly
+            if event.name == "COLL":
+                continue
+
             # split the times string into components, add to a list called
             # "solves_helper" which is used in the UI to show individual solves
             # and make sure the length == 5, filled with empty strings if necessary
@@ -59,7 +69,6 @@ def get_user_competition_history(user):
             setattr(results, 'solves_helper', solves_helper)
 
             # store these UserEventResults for this Competition
-            event = id_to_events[results.CompetitionEvent.event_id]
             history[event][comp] = results
 
     filtered_history = OrderedDict()
@@ -341,6 +350,10 @@ def precalculate_user_site_rankings():
 
     for event in all_events:
 
+        # COLL isn't really meaningful to keep records for, since it's a single alg that changes weekly
+        if event.name == "COLL":
+            continue
+
         # Retrieve the the list of (user ID, PB single) tuples in order of single
         # and build a ranking of those singles values (identical values are ranked the same),
         # then stick that in the dict for the current event
@@ -521,6 +534,9 @@ def get_ordered_users_pb_singles_for_event(event_id, blacklist_mapping):
             order_by(UserEventResults.id.desc()).\
             values(UserEventResults.user_id, UserEventResults.single, Competition.id)
 
+    # NOTE: if adding anything to this tuple being selected in values(...) below, add it to the
+    # end so that code already indexing this tuple doesn't get all jacked
+
     found_users = set()
     filtered_results = list()
     for user_id, single, comp_id in results:
@@ -530,6 +546,76 @@ def get_ordered_users_pb_singles_for_event(event_id, blacklist_mapping):
             continue
         found_users.add(user_id)
         filtered_results.append((user_id, single))
+
+    filtered_results.sort(key=cmp_to_key(sort_results))
+
+    return filtered_results
+
+
+def get_ordered_users_pb_singles_for_event_for_event_results(event_id, blacklist_mapping):
+    """ Gets all users' PB singles for the specified event, ordered by single value. """
+
+    results = DB.session.\
+            query(UserEventResults).\
+            join(User).\
+            join(CompetitionEvent).\
+            join(Event).\
+            join(Competition).\
+            filter(Event.id == event_id).\
+            filter(UserEventResults.is_complete).\
+            filter(UserEventResults.was_pb_single).\
+            group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username).\
+            order_by(UserEventResults.id.desc()).\
+            values(UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username)
+
+    # NOTE: if adding anything to this tuple being selected in values(...) below, add it to the
+    # end so that code already indexing this tuple doesn't get all jacked
+
+    found_users = set()
+    filtered_results = list()
+    for user_id, single, comp_id, comp_name, username in results:
+        if user_id in found_users:
+            continue
+        if comp_id in blacklist_mapping.keys() and user_id in blacklist_mapping[comp_id]:
+            continue
+        found_users.add(user_id)
+
+        filtered_results.append((user_id, single, comp_id, username, comp_name))
+
+    filtered_results.sort(key=cmp_to_key(sort_results))
+
+    return filtered_results
+
+
+def get_ordered_users_pb_averages_for_event_for_event_results(event_id, blacklist_mapping):
+    """ Gets all users' PB averages for the specified event, ordered by average value. """
+
+    results = DB.session.\
+            query(UserEventResults).\
+            join(User).\
+            join(CompetitionEvent).\
+            join(Event).\
+            join(Competition).\
+            filter(Event.id == event_id).\
+            filter(UserEventResults.is_complete).\
+            filter(UserEventResults.was_pb_average).\
+            group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username).\
+            order_by(UserEventResults.id.desc()).\
+            values(UserEventResults.user_id, UserEventResults.average, Competition.id, Competition.title, User.username)
+
+    # NOTE: if adding anything to this tuple being selected in values(...) below, add it to the
+    # end so that code already indexing this tuple doesn't get all jacked
+
+    found_users = set()
+    filtered_results = list()
+    for user_id, average, comp_id, comp_name, username in results:
+        if user_id in found_users:
+            continue
+        if comp_id in blacklist_mapping.keys() and user_id in blacklist_mapping[comp_id]:
+            continue
+        found_users.add(user_id)
+
+        filtered_results.append((user_id, average, comp_id, username, comp_name))
 
     filtered_results.sort(key=cmp_to_key(sort_results))
 

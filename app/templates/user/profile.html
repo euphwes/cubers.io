@@ -35,6 +35,7 @@
     <div class="row pt-4">
         <div class="col-12 col-md-6 offset-md-3">
             <h4 class="text-center">Personal Records</h4>
+            <h6 class="text-center">as of {{previous_comp}}</h6>
             <table class="table table-sm table-striped table-cubersio">
                 <thead class="thead-dark">
                     <tr>
@@ -58,8 +59,10 @@
                     {% endif %}
                     <tr>
                         <td>
-                            <img class="tab-event-image" src="/static/images/cube-{{event_id}}.png">
-                            {{ event_id_name_map[event_id] }}
+                            <a href="{{ url_for('event_results', event_name=event_id_name_map[event_id]) }}">
+                                <img class="tab-event-image" src="/static/images/cube-{{event_id}}.png">
+                                {{ event_id_name_map[event_id] }}
+                            </a>
                         </td>
                         <td>{{ single_rank }}</td>
                         <td>{{ single_val }}</td>
