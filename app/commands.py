@@ -91,6 +91,8 @@ def fix_goofy_comp_names():
 
     comps_to_be_updated = list()
     for comp in get_all_competitions():
+        if not comp.title:
+            continue
         previous_title = comp.title
         comp.title = comp.title.replace("Cubing ", "").replace("!", "").replace("  ", " ").strip()
         new_title = comp.title
