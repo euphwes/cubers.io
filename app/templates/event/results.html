@@ -31,7 +31,7 @@
                                 <th scope="col">Rank</th>
                                 <th scope="col">User</th>
                                 <th scope="col">Single</th>
-                                <th scope="col">Competition</th>
+                                <th class="d-none d-md-table-cell" scope="col">Competition</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -48,7 +48,7 @@
                                 <td>{{ record.pb | friendly_time }}</td>
                                 {% endif %}
     
-                                <td>
+                                <td class="d-none d-md-table-cell">
                                     <a href="/leaderboards/{{ record.comp_id }}">{{ record.comp_title }}</a>
                                 </td>
                             </tr>
@@ -63,7 +63,7 @@
                                 <th scope="col">Rank</th>
                                 <th scope="col">User</th>
                                 <th scope="col">Average</th>
-                                <th scope="col">Competition</th>
+                                <th class="d-none d-md-table-cell" scope="col">Competition</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -80,7 +80,7 @@
                                 <td>{{ record.pb | friendly_time }}</td>
                                 {% endif %}
     
-                                <td>
+                                <td class="d-none d-md-table-cell">
                                     <a href="/leaderboards/{{ record.comp_id }}">{{ record.comp_title }}</a>
                                 </td>
                             </tr>
