@@ -26,9 +26,13 @@
                 </li>
                 {% if current_user.is_authenticated %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" href="#">{{ current_user.username }}</a>
+                    <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" href="#">
+                        <i class="fas fa-star" style="margin-right: 5px; color: yellow; font-size: 10px;"></i>{{ current_user.username }}
+                    </a>
                     <div class="dropdown-menu dropdown-menu-right">
-                        <a class="dropdown-item" href="#">Profile (coming soon!)</a>
+                        <a class="dropdown-item" href="{{ url_for('profile', username=current_user.username) }}">
+                            <i class="fas fa-star" style="margin-right: 5px; font-size: 10px;"></i>Profile (new!)
+                        </a>
                         <!--<a class="dropdown-item" href="#">Settings</a>-->
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>

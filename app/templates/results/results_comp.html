@@ -64,7 +64,9 @@
                                         <span class="far fa-comment spacer" data-toggle="tooltip" data-placement="bottom" title="{{the_comment}}"></span>
                                         {% endif %}
                                     </td>
-                                    <td scope="col">/u/{{ result.User.username }}</td>
+                                    <td scope="col">
+                                        <a href="{{ url_for('profile', username=result.User.username) }}">/u/{{ result.User.username }}</a>
+                                    </td>
                                     {% if event_name == "FMC" %}
                                         <td scope="col" class="font-weight-bold">{{ result.average | format_fmc_result }}</td>
                                         <td scope="col">{{ result.single | format_fmc_result }}</td>
