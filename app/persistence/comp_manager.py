@@ -185,6 +185,12 @@ def get_all_competitions():
         .all()
 
 
+def bulk_update_comps(comps):
+    """ Updates competitions in bulk. """
+    for comp in comps:
+        DB.session.add(comp)
+    DB.session.commit()
+
 def get_all_competitions_user_has_participated_in(user_id):
     """ Returns all competitions. """
     return DB.session.\

@@ -18,7 +18,7 @@ from app.util.score_comp import score_previous_competition
 from . import CUBERS_APP
 from .persistence.models import EventFormat
 from .persistence.comp_manager import get_event_by_name, save_new_competition, get_active_competition,\
-      get_all_user_results_for_user_and_event, get_all_events
+      get_all_user_results_for_user_and_event, get_all_events, get_all_competitions, bulk_update_comps
 from .persistence.user_results_manager import get_all_null_is_complete_event_results,\
       get_all_na_average_event_results, save_event_results_for_user, get_all_complete_event_results,\
       bulk_save_event_results, precalculate_user_site_rankings
@@ -81,6 +81,21 @@ def show_blacklisted_users_for_comp(comp_id):
 
     for user in get_blacklisted_users_for_competition(comp_id):
         print(user.username)
+
+
+@CUBERS_APP.cli.command()
+def fix_goofy_comp_names():
+    """ Updates competition titles from "Cubing Competition 299!" format to "Competition 299" """
+
+    comps_to_be_updated = list()
+    for comp in get_all_competitions():
+        previous_title = comp.title
+        comp.title = comp.title.replace("Cubing ", "").replace("!", "").replace("  ", " ").strip()
+        new_title = comp.title
+        print("{} --> {}".format(previous_title, new_title))
+        comps_to_be_updated.append(comp)
+
+    bulk_update_comps(comps_to_be_updated)
 
 # -------------------------------------------------------------------------------------------------
 # Below are test comp generation commands, not intended to be used in production

@@ -15,7 +15,8 @@ from app.util.post_comp import post_competition
 
 BONUS_EVENT_COUNT = 5
 
-COMPETITION_NAME_TEMPLATE = 'Cubing Competition {}!'
+COMPETITION_POST_TEMPLATE = 'Cubing Competition {}!'
+COMPETITION_NAME_TEMPLATE = 'Competition {}'
 
 IS_DEVO = CUBERS_APP.config['IS_DEVO']
 if IS_DEVO:
@@ -33,6 +34,7 @@ def generate_new_competition(all_events=False):
     comp_gen_data.current_comp_num += 1
     comp_number = comp_gen_data.current_comp_num
     comp_name = COMPETITION_NAME_TEMPLATE.format(comp_number)
+    comp_post_title = COMPETITION_POST_TEMPLATE.format(comp_number)
 
     # Generate scrambles for every WCA event
     event_data = []
@@ -75,7 +77,7 @@ def generate_new_competition(all_events=False):
         }))
 
     # Post competition to reddit
-    reddit_id = post_competition(comp_name, comp_number, event_data, bonus_names, upcoming_bonus_names)
+    reddit_id = post_competition(comp_post_title, comp_number, event_data, bonus_names, upcoming_bonus_names)
 
     # Save new competition to database
     event_data = correct_relays_scrambles_for_database(event_data)
