@@ -141,6 +141,15 @@ class Competition(Model):
     events           = relationship('CompetitionEvent', backref='Competition',
                                     primaryjoin=id == CompetitionEvent.competition_id)
 
+    def get_comp_event_for_event(self, event):
+        """ Returns the CompetitionEvent in this Competition for the given Event, if it exists,
+        otherwise returns None. """
+
+        for comp_event in self.events:
+            if comp_event.event_id == event.id:
+                return comp_event
+        return None
+
 
 class CompetitionGenResources(Model):
     """ A record for maintaining the current state of the competition generation. """
@@ -160,6 +169,18 @@ class Blacklist(Model):
     user_id  = Column(Integer, ForeignKey('users.id'))
     comp_id  = Column(Integer, ForeignKey('competitions.id'), index=True)
     user     = relationship('User', primaryjoin = user_id == User.id)
+
+
+class UserSiteRankings(Model):
+    """ A record for holding pre-calculated user PB single and averages, and site rankings,
+    for each event they have participated in. """
+    __tablename__  = 'user_site_rankings'
+    id          = Column(Integer, primary_key=True)
+    user_id     = Column(Integer, ForeignKey('users.id'), index=True)
+    user        = relationship('User', primaryjoin = user_id == User.id)
+    comp_id     = Column(Integer, ForeignKey('competitions.id'))
+    competition = relationship('Competition', primaryjoin = comp_id == Competition.id)
+    data        = Column(String)
 
 
 class UserSolve(Model):

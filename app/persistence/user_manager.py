@@ -48,3 +48,25 @@ def get_blacklisted_users_for_competition(comp_id):
     """ Returns a list of users blacklisted for the specified competition. """
 
     return [entry.user for entry in Blacklist.query.filter_by(comp_id=comp_id).all()]
+
+
+def get_all_users_ids_ever_blacklisted():
+    """ Returns a list of all user ids ever blacklisted. """
+
+    return set([entry.user.id for entry in Blacklist.query.all()])
+
+
+def get_comp_userlist_blacklist_map():
+    """ Returns a mapping of blacklisted users to the comps they were blacklisted from:
+    dict[competition_id][list(user_id)] """
+
+    mapping = dict()
+    for entry in Blacklist.query.all():
+        user_id = entry.user_id
+        comp_id = entry.comp_id
+        if comp_id not in mapping.keys():
+            mapping[comp_id] = list()
+        mapping[comp_id].append(user_id)
+
+    return mapping
+        

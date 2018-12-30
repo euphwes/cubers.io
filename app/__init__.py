@@ -56,6 +56,7 @@ ASSETS.register({
         'less/events_page.less',
         'less/summary.less',
         'less/results.less',
+        'less/user.less',
         filters="less,cssmin",
         output='gen/app.css'),
 })

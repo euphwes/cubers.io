@@ -4,7 +4,9 @@ from datetime import datetime
 
 from app import DB
 from app.persistence.models import Competition, CompetitionEvent, Event, Scramble,\
-CompetitionGenResources, UserEventResults, User
+CompetitionGenResources, UserEventResults, User, Blacklist
+
+from sqlalchemy.orm import joinedload
 
 # -------------------------------------------------------------------------------------------------
 
@@ -116,6 +118,21 @@ def get_all_events():
     return results
 
 
+def get_all_events_user_has_participated_in(user_id):
+    """ Returns a list of all events. """
+
+    results = DB.session.\
+            query(Event).\
+            join(CompetitionEvent).\
+            join(UserEventResults).\
+            filter(UserEventResults.user_id == user_id).\
+            filter(UserEventResults.is_complete).\
+            distinct(Event.id).\
+            all()
+
+    return results
+
+
 def get_participants_in_competition(comp_id):
     """ Returns a list of all participants in the specified competition.
     Participant is defined as somebody who has completed all solves for at
@@ -144,6 +161,29 @@ def get_complete_competitions():
         with_entities(Competition.id, Competition.title, Competition.active, Competition.start_timestamp, Competition.end_timestamp).\
         filter(Competition.active.is_(False)).\
         order_by(Competition.id.desc()).\
+        all()
+
+
+def get_all_competitions():
+    """ Returns all competitions. """
+    return DB.session.\
+        query(Competition).\
+        options(joinedload(Competition.events)).\
+        order_by(Competition.id)\
+        .all()
+
+
+def get_all_competitions_user_has_participated_in(user_id):
+    """ Returns all competitions. """
+    return DB.session.\
+        query(Competition).\
+        join(CompetitionEvent).\
+        join(UserEventResults).\
+        filter(UserEventResults.is_complete).\
+        filter(UserEventResults.user_id == user_id).\
+        options(joinedload(Competition.events)).\
+        order_by(Competition.id).\
+        distinct(Competition.id).\
         all()
 
 
