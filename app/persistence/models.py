@@ -180,7 +180,7 @@ class UserSiteRankings(Model):
     user        = relationship('User', primaryjoin = user_id == User.id)
     comp_id     = Column(Integer, ForeignKey('competitions.id'))
     competition = relationship('Competition', primaryjoin = comp_id == Competition.id)
-    data        = Column(String)
+    data        = Column(String(2048))
 
 
 class UserSolve(Model):

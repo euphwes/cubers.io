@@ -414,7 +414,7 @@ def get_site_rankings_for_user(user_id, event_singles_map, event_averages_map):
 
         # If we didn't find the index, it must mean the user doesn't have a record in this list. Possibly
         # because they were filtered due to the blacklist? Go ahead and bail and go to the next event
-        if our_user_single_index = -1:
+        if our_user_single_index == -1:
             continue
 
         # Get the single ranking of our user
