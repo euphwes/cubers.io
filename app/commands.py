@@ -36,7 +36,7 @@ def score_and_generate_new_comp(all_events):
     """ Scores the previous competition, and generates a new competition based on the previous one. """
     score_previous_competition()
     generate_new_competition(all_events)
-    #precalculate_user_site_rankings()
+    precalculate_user_site_rankings()
 
 
 @CUBERS_APP.cli.command()
@@ -52,13 +52,11 @@ def score_comp_only(comp_id, rerun):
 def generate_new_comp_only(all_events):
     """ TODO: Only generate a new competition, don't score the previous one. """
     generate_new_competition(all_events)
-    #precalculate_user_site_rankings()
-
+    precalculate_user_site_rankings()
 
 # -------------------------------------------------------------------------------------------------
 # Below are admin commands, for one-off app administration needs
 # -------------------------------------------------------------------------------------------------
-
 
 @CUBERS_APP.cli.command()
 def calculate_all_user_site_rankings():
