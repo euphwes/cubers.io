@@ -32,10 +32,11 @@ from .routes.home import do_reddit_submit
 
 @CUBERS_APP.cli.command()
 @click.option('--all_events', is_flag=True, default=False)
-def score_and_generate_new_comp(all_events):
+@click.option('--title', '-t', type=str)
+def score_and_generate_new_comp(all_events, title):
     """ Scores the previous competition, and generates a new competition based on the previous one. """
     score_previous_competition()
-    generate_new_competition(all_events)
+    generate_new_competition(all_events=all_events, title=title)
     precalculate_user_site_rankings()
 
 
@@ -49,9 +50,10 @@ def score_comp_only(comp_id, rerun):
 
 @CUBERS_APP.cli.command()
 @click.option('--all_events', is_flag=True, default=False)
-def generate_new_comp_only(all_events):
+@click.option('--title', '-t', type=str, default=None)
+def generate_new_comp_only(all_events, title):
     """ TODO: Only generate a new competition, don't score the previous one. """
-    generate_new_competition(all_events)
+    generate_new_competition(all_events=all_events, title=title)
     precalculate_user_site_rankings()
 
 # -------------------------------------------------------------------------------------------------

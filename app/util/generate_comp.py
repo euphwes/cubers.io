@@ -24,7 +24,7 @@ if IS_DEVO:
 
 # -------------------------------------------------------------------------------------------------
 
-def generate_new_competition(all_events=False):
+def generate_new_competition(all_events=False, title=None):
     """ Generate a new competition object based on the previous one. """
 
     # Get the info required to know what events and COLL to do next
@@ -33,8 +33,13 @@ def generate_new_competition(all_events=False):
     # Figure out next competition number and name
     comp_gen_data.current_comp_num += 1
     comp_number = comp_gen_data.current_comp_num
-    comp_name = COMPETITION_NAME_TEMPLATE.format(comp_number)
-    comp_post_title = COMPETITION_POST_TEMPLATE.format(comp_number)
+
+    if not title:
+        comp_name = COMPETITION_NAME_TEMPLATE.format(comp_number)
+        comp_post_title = COMPETITION_POST_TEMPLATE.format(comp_number)
+    else:
+        comp_name = title
+        comp_post_title = title
 
     # Generate scrambles for every WCA event
     event_data = []
