@@ -45,10 +45,6 @@ def get_user_competition_history(user):
     all_comps.reverse()
 
     for event in all_events:
-        # COLL isn't really meaningful to keep records for, since it's a single alg that changes weekly
-        if event.name == "COLL":
-            continue
-
         history[event] = OrderedDict()
         id_to_events[event.id] = event
 
@@ -438,6 +434,10 @@ def calculate_site_rankings_for_user(user_id, event_singles_map, event_averages_
     for event in get_all_events_user_has_participated_in(user_id):
         our_user_single_index = -1
         our_user_average_index = -1
+
+        # COLL isn't really meaningful to keep records for, since it's a single alg that changes weekly
+        if event.name == "COLL":
+            continue
 
         # get the lists of singles/averages and ranked singles/averages for the current event
         singles, ranked_singles = event_singles_map[event]
