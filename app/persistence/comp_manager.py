@@ -1,5 +1,6 @@
 """ Utility module for providing access to business logic for competitions, events, etc. """
 
+from collections import OrderedDict
 from datetime import datetime
 
 from app import DB
@@ -112,10 +113,21 @@ def get_all_events():
     """ Returns a list of all events. """
 
     results = DB.session.\
-            query(Event).\
-            all()
+        query(Event).\
+        order_by(Event.id).\
+        all()
 
     return results
+
+
+def get_events_id_name_mapping():
+    """ Returns a dictionary of event ID to name mappings. """
+
+    mapping = OrderedDict()
+    for event in get_all_events():
+        mapping[event.id] = event.name
+
+    return mapping  
 
 
 def get_all_events_user_has_participated_in(user_id):
