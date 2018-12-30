@@ -3,7 +3,8 @@
 from app import DB
 from app.persistence.comp_manager import get_comp_event_by_id,\
     get_all_user_results_for_comp_and_user, get_active_competition, get_all_competitions_user_has_participated_in,\
-    get_all_events_user_has_participated_in, get_all_complete_user_results_for_comp_and_user, get_all_events
+    get_all_events_user_has_participated_in, get_all_complete_user_results_for_comp_and_user, get_all_events,\
+    get_previous_competition
 from app.persistence.user_manager import get_comp_userlist_blacklist_map, get_all_users
 from app.persistence.models import Competition, CompetitionEvent, Event, UserEventResults,\
     User, UserSolve, EventFormat, Blacklist, UserSiteRankings
@@ -12,6 +13,7 @@ from app.util.reddit_util import build_times_string
 
 from arrow import utcnow as now
 from collections import OrderedDict
+import json
 from ranking import Ranking
 
 # -------------------------------------------------------------------------------------------------
@@ -328,6 +330,7 @@ def precalculate_user_site_rankings():
 
     all_events = get_all_events()
     blacklist_mapping = get_comp_userlist_blacklist_map()
+    previous_comp = get_previous_competition()
 
     # Each of these dicts are of the following form:
     #    dict[Event][(ordered list of PB singles with associated user ID, ranked list of PB singles)]
@@ -369,7 +372,7 @@ def precalculate_user_site_rankings():
     for user in get_all_users():
 
         # Calculate site rankings for the user
-        site_rankings = get_site_rankings_for_user(user.id, events_PB_singles, events_PB_averages)
+        site_rankings = calculate_site_rankings_for_user(user.id, events_PB_singles, events_PB_averages)
 
         # If the rankings dict contains no entries, the user hasn't competed in anything,
         # or falls into the blacklist for all of their events. Don't bother saving anything
@@ -377,17 +380,40 @@ def precalculate_user_site_rankings():
             continue
 
         # Save to the database
-        save_or_update_site_rankings_for_user(user.id, site_rankings)
+        save_or_update_site_rankings_for_user(user.id, site_rankings, previous_comp)
 
 
+def get_site_rankings_for_user(user_id):
+    """ Retrieves a UserSiteRankings record for the specified user. """
 
-def save_or_update_site_rankings_for_user(user_id, site_rankings):
+    return DB.session.\
+        query(UserSiteRankings).\
+        filter(UserSiteRankings.user_id == user_id).\
+        first()
+
+
+def save_or_update_site_rankings_for_user(user_id, site_rankings, previous_comp):
     """ Create or update a UserSiteRankings record for the specified user. """
 
+    rankings_record = get_site_rankings_for_user(user_id)
+
+    if rankings_record:
+        print('Updating UserSiteRankings for user {}'.format(user_id))
+        rankings_record.data    = json.dumps(site_rankings)
+        rankings_record.comp_id = previous_comp.id
+
+    else:
+        print('Creating UserSiteRankings for user {}'.format(user_id))
+        rankings_record         = UserSiteRankings()
+        rankings_record.data    = json.dumps(site_rankings)
+        rankings_record.comp_id = previous_comp.id
+        rankings_record.user_id = user_id
+
+    DB.session.add(rankings_record)
+    DB.session.commit()
 
 
-
-def get_site_rankings_for_user(user_id, event_singles_map, event_averages_map):
+def calculate_site_rankings_for_user(user_id, event_singles_map, event_averages_map):
     """ Returns a dict of the user's PB singles and averages for all events they've
     participated in, as well as their rankings amongst the site's users. Format is:
     dict[Event][(single, single_site_ranking, average, average_site_ranking)] """

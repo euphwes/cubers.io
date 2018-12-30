@@ -6,6 +6,9 @@ from sqlalchemy.orm import relationship
 from app import DB, CUBERS_APP
 from app.util.times_util import convert_centiseconds_to_friendly_time
 
+import json
+from collections import OrderedDict
+
 #pylint: disable=C0103
 Text       = DB.Text
 Enum       = DB.Enum
@@ -181,6 +184,18 @@ class UserSiteRankings(Model):
     comp_id     = Column(Integer, ForeignKey('competitions.id'))
     competition = relationship('Competition', primaryjoin = comp_id == Competition.id)
     data        = Column(String(2048))
+
+    def get_site_rankings_data_as_dict(self):
+        """ Deserializes data field to json to return site rankings info as a dict. """
+
+        # The keys (event ID) get converted to strings when serializing to json.
+        # We need them as ints, so iterate through the deserialized dict, building a new
+        # one with ints as keys instead of strings. Return that.
+        site_rankings = OrderedDict()
+        for key, value in json.loads(self.data, object_pairs_hook=OrderedDict).items():
+            site_rankings[int(key)] = value
+
+        return site_rankings
 
 
 class UserSolve(Model):

@@ -31,7 +31,7 @@
             </table>
         </div>
     </div>
-    {% if rankings.items() %}
+    {% if rankings %}
     <div class="row pt-4">
         <div class="col-12 col-md-6 offset-md-3">
             <h4 class="text-center">Personal Records</h4>
@@ -46,10 +46,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for event, rank_info in rankings.items() %}
+                    {% for event_id, rank_info in rankings.items() %}
                     {% set single_rank = rank_info[1] %}
                     {% set average_rank = rank_info[3] %}
-                    {% if event.name == "FMC" %}
+                    {% if event_id_name_map[event_id] == "FMC" %}
                         {% set single_val = rank_info[0] | format_fmc_result %}
                         {% set average_val = rank_info[2] | format_fmc_result %}
                     {% else %}
@@ -58,8 +58,8 @@
                     {% endif %}
                     <tr>
                         <td>
-                            <img class="tab-event-image" src="/static/images/cube-{{event.id}}.png">
-                            {{ event.name }}
+                            <img class="tab-event-image" src="/static/images/cube-{{event_id}}.png">
+                            {{ event_id_name_map[event_id] }}
                         </td>
                         <td>{{ single_rank }}</td>
                         <td>{{ single_val }}</td>

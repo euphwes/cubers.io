@@ -20,8 +20,8 @@ from .persistence.models import EventFormat
 from .persistence.comp_manager import get_event_by_name, save_new_competition, get_active_competition,\
       get_all_user_results_for_user_and_event, get_all_events
 from .persistence.user_results_manager import get_all_null_is_complete_event_results,\
-      get_all_na_average_event_results, save_event_results_for_user,\
-      get_all_complete_event_results, bulk_save_event_results
+      get_all_na_average_event_results, save_event_results_for_user, get_all_complete_event_results,\
+      bulk_save_event_results, precalculate_user_site_rankings
 from .persistence.user_manager import blacklist_user_for_competition, get_blacklisted_users_for_competition,\
       get_user_by_username, get_all_users
 from .util.events_util import determine_best_single, determine_bests, determine_event_result
@@ -36,6 +36,7 @@ def score_and_generate_new_comp(all_events):
     """ Scores the previous competition, and generates a new competition based on the previous one. """
     score_previous_competition()
     generate_new_competition(all_events)
+    #precalculate_user_site_rankings()
 
 
 @CUBERS_APP.cli.command()
@@ -51,11 +52,20 @@ def score_comp_only(comp_id, rerun):
 def generate_new_comp_only(all_events):
     """ TODO: Only generate a new competition, don't score the previous one. """
     generate_new_competition(all_events)
+    #precalculate_user_site_rankings()
 
 
 # -------------------------------------------------------------------------------------------------
 # Below are admin commands, for one-off app administration needs
 # -------------------------------------------------------------------------------------------------
+
+
+@CUBERS_APP.cli.command()
+def calculate_all_user_site_rankings():
+    """ Calculates UserSiteRankings for all users as of the current comp. """
+
+    precalculate_user_site_rankings()
+
 
 @CUBERS_APP.cli.command()
 @click.option('--username', '-u', type=str)
