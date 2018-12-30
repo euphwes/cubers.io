@@ -59,8 +59,10 @@
                     {% endif %}
                     <tr>
                         <td>
-                            <img class="tab-event-image" src="/static/images/cube-{{event_id}}.png">
-                            {{ event_id_name_map[event_id] }}
+                            <a href="{{ url_for('event_results', event_name=event_id_name_map[event_id]) }}">
+                                <img class="tab-event-image" src="/static/images/cube-{{event_id}}.png">
+                                {{ event_id_name_map[event_id] }}
+                            </a>
                         </td>
                         <td>{{ single_rank }}</td>
                         <td>{{ single_val }}</td>

@@ -38,7 +38,9 @@
                             {% for record in singles %}
                             <tr>
                                 <td>{{ record.rank }}</td>
-                                <td>{{ record.username }}</td>
+                                <td>
+                                    <a href="{{ url_for('profile', username=record.username) }}">/u/{{ record.username }}</a>
+                                </td>
     
                                 {% if event_name == "FMC" %}
                                 <td>{{ record.pb | format_fmc_result }}</td>
@@ -46,7 +48,9 @@
                                 <td>{{ record.pb | friendly_time }}</td>
                                 {% endif %}
     
-                                <td>{{ record.comp_title }}</td>
+                                <td>
+                                    <a href="/leaderboards/{{ record.comp_id }}">{{ record.comp_title }}</a>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -66,7 +70,9 @@
                             {% for record in averages %}
                             <tr>
                                 <td>{{ record.rank }}</td>
-                                <td>{{ record.username }}</td>
+                                <td>
+                                    <a href="{{ url_for('profile', username=record.username) }}">/u/{{ record.username }}</a>
+                                </td>
     
                                 {% if event_name == "FMC" %}
                                 <td>{{ record.pb | format_fmc_result }}</td>
@@ -74,7 +80,9 @@
                                 <td>{{ record.pb | friendly_time }}</td>
                                 {% endif %}
     
-                                <td>{{ record.comp_title }}</td>
+                                <td>
+                                    <a href="/leaderboards/{{ record.comp_id }}">{{ record.comp_title }}</a>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
