@@ -45,11 +45,21 @@ def get_user_competition_history(user):
     all_comps.reverse()
 
     for event in all_events:
+        # COLL isn't really meaningful to keep records for, since it's a single alg that changes weekly
+        if event.name == "COLL":
+            continue
+
         history[event] = OrderedDict()
         id_to_events[event.id] = event
 
     for comp in all_comps:
         for results in get_all_complete_user_results_for_comp_and_user(comp.id, user.id):
+            event = id_to_events[results.CompetitionEvent.event_id]
+
+            # COLL isn't really meaningful to keep records for, since it's a single alg that changes weekly
+            if event.name == "COLL":
+                continue
+
             # split the times string into components, add to a list called
             # "solves_helper" which is used in the UI to show individual solves
             # and make sure the length == 5, filled with empty strings if necessary
@@ -59,7 +69,6 @@ def get_user_competition_history(user):
             setattr(results, 'solves_helper', solves_helper)
 
             # store these UserEventResults for this Competition
-            event = id_to_events[results.CompetitionEvent.event_id]
             history[event][comp] = results
 
     filtered_history = OrderedDict()
@@ -340,6 +349,10 @@ def precalculate_user_site_rankings():
     events_PB_averages = dict()
 
     for event in all_events:
+
+        # COLL isn't really meaningful to keep records for, since it's a single alg that changes weekly
+        if event.name == "COLL":
+            continue
 
         # Retrieve the the list of (user ID, PB single) tuples in order of single
         # and build a ranking of those singles values (identical values are ranked the same),
