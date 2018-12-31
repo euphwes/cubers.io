@@ -29,7 +29,7 @@ IS_DEVO          = CUBERS_APP.config['IS_DEVO']
 COMMENT_FOOTER_TEMPLATE = '\n'.join([
     '',
     '----',
-    '^^^Check ^^^out [^^^my ^^^profile]({}) ^^^at [^^^cubers.io]({})^^^!',
+    '^(Check out) [^(my profile)]({}) ^at [^(cubers.io)]({})^(!)',
 ])
 
 REDDIT_URL_ROOT = 'http://www.reddit.com'
