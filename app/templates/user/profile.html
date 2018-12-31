@@ -16,14 +16,12 @@
             <table class="table table-sm table-striped table-cubersio text-center">
                 <thead class="thead-dark">
                     <tr>
-                        <th scope="col">WCA ID</th>
                         <th scope="col">Competitions</th>
                         <th scope="col">Completed Solves</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>{{ user.wca_id if user.wca_id else "" }}</td>
                         <td>{{ comp_count }}</td>
                         <td>{{ solve_count }}</td>
                     </tr>
