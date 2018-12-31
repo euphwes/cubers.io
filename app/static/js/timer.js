@@ -23,6 +23,8 @@
         // keydrown.js's keyboard state manager is tick-based
         // this is boilerplate to make sure the kd namespace has a recurring tick
         kd.run(function () { kd.tick(); });
+
+        this._registerAppModeManagerListeners();
     };
     Timer.prototype = Object.create(app.EventEmitter.prototype);
 
