@@ -17,6 +17,9 @@ from ranking import Ranking
 def event_results(event_name):
     """ A route for showing the global top results for a specific event. """
 
+    # for some reason the urlencode and urldecode isn't handling forward slash properly
+    event_name = event_name.replace('%2F', '/')
+
     event = get_event_by_name(event_name)
     if not event:
         return "oops " + event_name

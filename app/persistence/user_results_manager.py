@@ -360,6 +360,11 @@ def precalculate_user_site_rankings():
                 singles_values.append(int(single[1]))
             except:
                 singles_values.append(9999999999999)
+
+        # if nobody at all has competed in this event, just move on to the next
+        if not singles_values:
+            continue
+
         ranked_PB_singles = list(Ranking(singles_values, start=1, reverse=True))
         events_PB_singles[event] = (ordered_PB_singles, ranked_PB_singles)
 
