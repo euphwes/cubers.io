@@ -18,9 +18,11 @@
                 <li class="active nav-item">
                     <a href="#tab_single" class="nav-link active show" role="tab" data-toggle="tab">Single</a>
                 </li>
+                {% if averages %}
                 <li class="nav-item">
                     <a href="#tab_average" class="nav-link" role="tab" data-toggle="tab">Average</a>
                 </li>
+                {% endif %}
             </ul>
             
             <div class="tab-content justify-content-center pt-3">
