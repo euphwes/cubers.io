@@ -13,20 +13,23 @@ from app.util.times_util import convert_centiseconds_to_friendly_time, convert_m
 from app.util import events_util
 from app.persistence.user_manager import get_user_by_username
 
+from flask import url_for
+
+from urllib.parse import urljoin
+
 REDIRECT      = CUBERS_APP.config['REDDIT_REDIRECT_URI']
 USER_AGENT    = 'web:rcubersComps:v0.01 by /u/euphwes'
 CLIENT_ID     = CUBERS_APP.config['REDDIT_CLIENT_ID']
 CLIENT_SECRET = CUBERS_APP.config['REDDIT_CLIENT_SECRET']
-APP_URL       = '({})'.format(CUBERS_APP.config['APP_URL'])
+APP_URL       = CUBERS_APP.config['APP_URL']
 
 TARGET_SUBREDDIT = CUBERS_APP.config['TARGET_SUBREDDIT']
 IS_DEVO          = CUBERS_APP.config['IS_DEVO']
 
-COMMENT_FOOTER = '\n'.join([
+COMMENT_FOOTER_TEMPLATE = '\n'.join([
     '',
     '----',
-    '^^^Submitted ^^^by [ ^^^cubers.io ]' + APP_URL,
-    # possible future stuff linking to the user's profile or competition history?
+    '^^^Check ^^^out [^^^my ^^^profile]({}) ^^^at [^^^cubers.io]({})^^^!',
 ])
 
 REDDIT_URL_ROOT = 'http://www.reddit.com'
@@ -34,7 +37,7 @@ REDDIT_URL_ROOT = 'http://www.reddit.com'
 # -------------------------------------------------------------------------------------------------
 
 #pylint: disable=C0103
-def build_comment_source_from_events_results(events_results):
+def build_comment_source_from_events_results(events_results, username):
     """ Builds the source of a Reddit comment that meets the formatting requirements of the
     /r/cubers weekly competition scoring script. """
 
@@ -65,7 +68,10 @@ def build_comment_source_from_events_results(events_results):
     if not events_results:
         comment_source += "*Nothing complete at the moment...*\n"
 
-    comment_source += COMMENT_FOOTER
+    profile_url = urljoin(APP_URL, url_for('profile', username=username))
+    footer = COMMENT_FOOTER_TEMPLATE.format(profile_url, APP_URL)
+    comment_source += footer
+
     return comment_source
 
 

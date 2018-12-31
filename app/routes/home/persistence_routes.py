@@ -119,7 +119,7 @@ def do_reddit_submit(comp_id, user):
     comp = get_competition(comp_id)
     reddit_thread_id = comp.reddit_thread_id
     results = get_all_complete_user_results_for_comp_and_user(comp.id, user.id)
-    comment_source = build_comment_source_from_events_results(results)
+    comment_source = build_comment_source_from_events_results(results, user.username)
 
     previous_comment_id = get_comment_id_by_comp_id_and_user(comp.id, user)
 
