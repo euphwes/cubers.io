@@ -7,7 +7,9 @@ from app.util.events_resources import EVENT_COLL
 
 # -------------------------------------------------------------------------------------------------
 
-POST_TEMPLATE = """##**Welcome to Competition {comp_num}!**
+POST_TEMPLATE = """##**Welcome to the weekly competition for {comp_title}!**
+
+This is /r/cubers weekly competition #{comp_num}.
 
 If you're new, please read the entire post before competing. This competition will run until {due_date}
 US Eastern time (GMT{tz_offset}).
@@ -74,6 +76,7 @@ def post_competition(comp_title, comp_num, event_data, curr_bonus, upcoming_bonu
     post_body = POST_TEMPLATE.format(
         due_date = due_date,
         comp_num = comp_num,
+        comp_title = comp_title,
         curr_bonus_events = curr_bonus_events,
         upcoming_bonus_events = upcoming_bonus_events,
         formatted_events_with_scrambles = event_section,
