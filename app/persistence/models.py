@@ -39,6 +39,7 @@ class User(UserMixin, Model):
     username       = Column(String(64), index=True, unique=True)
     wca_id         = Column(String(10))
     refresh_token  = Column(String(64))
+    is_admin       = Column(Boolean)
     results        = relationship("UserEventResults", backref="User")
 
 LOGIN_MANAGER = LoginManager(CUBERS_APP)
