@@ -12,7 +12,9 @@
 html,body {
     background-color: @off-white !important;
 }
-
+.blue-background {
+    background-color: #3A8AAF;
+}
 .drop-shadow {
     box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),0 3px 1px -2px rgba(0,0,0,0.12),0 1px 5px 0 rgba(0,0,0,0.2);
     border-radius: 2px;
@@ -49,6 +51,16 @@ html,body {
     background-color: white;
 }
 
+.center-container {
+    display: flex;
+    flex-direction: column;f
+    text-align: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    
+}
+
 .btn-return {
     background-color: #3A8AAF;
     border-color: #3A8AAF;
@@ -70,7 +82,23 @@ html,body {
         border-color: darken(rgb(58, 175, 58), 10%);
     }
 }
-
+.center-wrapper {
+    position:absolute;
+    vertical-align: middle;
+    text-align: center;
+    top:50%;
+}
+.btn-login {
+    background-color: #FF5700;
+    border-color: #FF5700;
+    color: white;
+    font-size: 32px;
+    justify-content: center;
+    &:hover {
+        background-color: darken(#FF5700, 10%);
+        border-color: darken(#FF5700, 10%);
+    }
+}
 .input-icon {
     color: #3A8AAF!important;
 }
