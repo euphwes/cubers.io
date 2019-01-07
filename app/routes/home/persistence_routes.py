@@ -8,9 +8,9 @@ from flask_login import current_user
 from app import CUBERS_APP
 from app.persistence.models import EventFormat
 from app.persistence.user_manager import get_user_by_username
-from app.persistence.user_results_manager import build_user_event_results, save_event_results_for_user,\
-    build_all_user_results, are_results_different_than_existing, get_comment_id_by_comp_id_and_user,\
-    get_event_results_for_user, determine_if_any_pbs
+from app.persistence.user_results_manager import build_user_event_results,\
+    save_event_results_for_user, build_all_user_results, are_results_different_than_existing,\
+    get_comment_id_by_comp_id_and_user, get_event_results_for_user, determine_if_any_pbs
 from app.persistence.comp_manager import get_competition, get_all_complete_user_results_for_comp_and_user,\
     get_event_by_name
 from app.util.reddit_util import build_times_string, convert_centiseconds_to_friendly_time,\

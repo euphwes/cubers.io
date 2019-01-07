@@ -1,20 +1,20 @@
 """ Utility module for providing access to business logic for user solves. """
 
+from collections import OrderedDict
+import json
+
+from ranking import Ranking
+
 from app import DB
 from app.persistence.comp_manager import get_comp_event_by_id,\
-    get_all_user_results_for_comp_and_user, get_active_competition, get_all_competitions_user_has_participated_in,\
-    get_all_events_user_has_participated_in, get_all_complete_user_results_for_comp_and_user, get_all_events,\
-    get_previous_competition
+    get_all_user_results_for_comp_and_user, get_active_competition,\
+    get_all_competitions_user_has_participated_in, get_all_events_user_has_participated_in,\
+    get_all_complete_user_results_for_comp_and_user, get_all_events, get_previous_competition
 from app.persistence.user_manager import get_all_users
 from app.persistence.models import Competition, CompetitionEvent, Event, UserEventResults,\
     User, UserSolve, EventFormat, UserSiteRankings
 from app.util.events_util import determine_bests, determine_best_single, determine_event_result
 from app.util.reddit_util import build_times_string
-
-from arrow import utcnow as now
-from collections import OrderedDict
-import json
-from ranking import Ranking
 
 # -------------------------------------------------------------------------------------------------
 
@@ -44,6 +44,7 @@ def get_user_competition_history(user):
     all_comps = get_all_competitions_user_has_participated_in(user.id)
     all_comps.reverse()
 
+    # prepare a results history in the master history for each event the user has participated in
     for event in all_events:
         history[event] = OrderedDict()
         id_to_events[event.id] = event
@@ -52,7 +53,8 @@ def get_user_competition_history(user):
         for results in get_all_complete_user_results_for_comp_and_user(comp.id, user.id):
             event = id_to_events[results.CompetitionEvent.event_id]
 
-            # COLL isn't really meaningful to keep records for, since it's a single alg that changes weekly
+            # COLL isn't really meaningful to keep records for,
+            # since it's a single alg that changes weekly
             if event.name == "COLL":
                 continue
 
@@ -336,8 +338,6 @@ def precalculate_user_site_rankings():
     all_events = get_all_events()
     previous_comp = get_previous_competition()
 
-    # TODO: BLACKLIST - rework to disregard these bogus results directly
-
     # Each of these dicts are of the following form:
     #    dict[Event][(ordered list of PB singles with associated user ID, ranked list of PB singles)]
     # where the ordered list of PB singles contains tuples of the form (user_id, single as string)
@@ -525,29 +525,27 @@ def cmp_to_key(mycmp):
 
 def get_ordered_users_pb_singles_for_event(event_id):
     """ Gets all users' PB singles for the specified event, ordered by single value. """
-    
-    # TODO: BLACKLIST - rework to disregard these bogus results directly
 
-    print('Determining site-wide user PB singles for event {}'.format(event_id))
-
+    # pylint: disable=C0301
     results = DB.session.\
-            query(UserEventResults).\
-            join(CompetitionEvent).\
-            join(Event).\
-            join(Competition).\
-            filter(Event.id == event_id).\
-            filter(UserEventResults.is_complete).\
-            filter(UserEventResults.was_pb_single).\
-            group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.single, Competition.id).\
-            order_by(UserEventResults.id.desc()).\
-            values(UserEventResults.user_id, UserEventResults.single, Competition.id)
+        query(UserEventResults).\
+        join(CompetitionEvent).\
+        join(Event).\
+        join(Competition).\
+        filter(Event.id == event_id).\
+        filter(UserEventResults.is_complete).\
+        filter(UserEventResults.was_pb_single).\
+        filter(UserEventResults.is_blacklisted.is_(False)).\
+        group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.single, Competition.id).\
+        order_by(UserEventResults.id.desc()).\
+        values(UserEventResults.user_id, UserEventResults.single, Competition.id)
 
     # NOTE: if adding anything to this tuple being selected in values(...) below, add it to the
     # end so that code already indexing this tuple doesn't get all jacked
 
     found_users = set()
     filtered_results = list()
-    for user_id, single, comp_id in results:
+    for user_id, single, _ in results:
         if user_id in found_users:
             continue
         found_users.add(user_id)
@@ -561,20 +559,20 @@ def get_ordered_users_pb_singles_for_event(event_id):
 def get_ordered_users_pb_singles_for_event_for_event_results(event_id):
     """ Gets all users' PB singles for the specified event, ordered by single value. """
 
-    # TODO: BLACKLIST - rework to disregard these bogus results directly
-
+    # pylint: disable=C0301
     results = DB.session.\
-            query(UserEventResults).\
-            join(User).\
-            join(CompetitionEvent).\
-            join(Event).\
-            join(Competition).\
-            filter(Event.id == event_id).\
-            filter(UserEventResults.is_complete).\
-            filter(UserEventResults.was_pb_single).\
-            group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username).\
-            order_by(UserEventResults.id.desc()).\
-            values(UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username)
+        query(UserEventResults).\
+        join(User).\
+        join(CompetitionEvent).\
+        join(Event).\
+        join(Competition).\
+        filter(Event.id == event_id).\
+        filter(UserEventResults.is_complete).\
+        filter(UserEventResults.was_pb_single).\
+        filter(UserEventResults.is_blacklisted.is_(False)).\
+        group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username).\
+        order_by(UserEventResults.id.desc()).\
+        values(UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username)
 
     # NOTE: if adding anything to this tuple being selected in values(...) below, add it to the
     # end so that code already indexing this tuple doesn't get all jacked
@@ -596,20 +594,20 @@ def get_ordered_users_pb_singles_for_event_for_event_results(event_id):
 def get_ordered_users_pb_averages_for_event_for_event_results(event_id):
     """ Gets all users' PB averages for the specified event, ordered by average value. """
 
-    # TODO: BLACKLIST - rework to disregard these bogus results directly
-
+    # pylint: disable=C0301
     results = DB.session.\
-            query(UserEventResults).\
-            join(User).\
-            join(CompetitionEvent).\
-            join(Event).\
-            join(Competition).\
-            filter(Event.id == event_id).\
-            filter(UserEventResults.is_complete).\
-            filter(UserEventResults.was_pb_average).\
-            group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username).\
-            order_by(UserEventResults.id.desc()).\
-            values(UserEventResults.user_id, UserEventResults.average, Competition.id, Competition.title, User.username)
+        query(UserEventResults).\
+        join(User).\
+        join(CompetitionEvent).\
+        join(Event).\
+        join(Competition).\
+        filter(Event.id == event_id).\
+        filter(UserEventResults.is_complete).\
+        filter(UserEventResults.was_pb_average).\
+        filter(UserEventResults.is_blacklisted.is_(False)).\
+        group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username).\
+        order_by(UserEventResults.id.desc()).\
+        values(UserEventResults.user_id, UserEventResults.average, Competition.id, Competition.title, User.username)
 
     # NOTE: if adding anything to this tuple being selected in values(...) below, add it to the
     # end so that code already indexing this tuple doesn't get all jacked
@@ -631,21 +629,19 @@ def get_ordered_users_pb_averages_for_event_for_event_results(event_id):
 def get_ordered_users_pb_averages_for_event(event_id):
     """ Gets all users' PB averages for the specified event, ordered by average value. """
 
-    # TODO: BLACKLIST - rework to disregard these bogus results directly
-
-    print('Determining site-wide user PB averages for event {}'.format(event_id))
-
+    # pylint: disable=C0301
     results = DB.session.\
-            query(UserEventResults).\
-            join(CompetitionEvent).\
-            join(Event).\
-            join(Competition).\
-            filter(Event.id == event_id).\
-            filter(UserEventResults.is_complete).\
-            filter(UserEventResults.was_pb_average).\
-            group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.average, Competition.id).\
-            order_by(UserEventResults.id.desc()).\
-            values(UserEventResults.user_id, UserEventResults.average, Competition.id)
+        query(UserEventResults).\
+        join(CompetitionEvent).\
+        join(Event).\
+        join(Competition).\
+        filter(Event.id == event_id).\
+        filter(UserEventResults.is_complete).\
+        filter(UserEventResults.was_pb_average).\
+        filter(UserEventResults.is_blacklisted.is_(False)).\
+        group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.average, Competition.id).\
+        order_by(UserEventResults.id.desc()).\
+        values(UserEventResults.user_id, UserEventResults.average, Competition.id)
 
     found_users = set()
     filtered_results = list()

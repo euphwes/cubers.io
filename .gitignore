@@ -107,5 +107,8 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# DXPowerDB
+# sqlite test db
 cube_competitions.sqlite
+
+# VSCode settings
+.vscode/

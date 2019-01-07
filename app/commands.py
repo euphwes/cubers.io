@@ -9,19 +9,21 @@ import base64
 import click
 
 from pyTwistyScrambler import scrambler222, scrambler333, scrambler444, scrambler555,\
-     scrambler666, scrambler777, megaminxScrambler, skewbScrambler, squareOneScrambler,\
-     pyraminxScrambler, clockScrambler, cuboidsScrambler
+    scrambler666, scrambler777, megaminxScrambler, skewbScrambler, squareOneScrambler,\
+    pyraminxScrambler, clockScrambler, cuboidsScrambler
 
 from app.util.generate_comp import generate_new_competition
 from app.util.score_comp import score_previous_competition
 
 from . import CUBERS_APP
 from .persistence.models import EventFormat
-from .persistence.comp_manager import get_event_by_name, save_new_competition, get_active_competition,\
-      get_all_user_results_for_user_and_event, get_all_events, get_all_competitions, bulk_update_comps
+from .persistence.comp_manager import get_event_by_name, save_new_competition,\
+    get_active_competition, get_all_complete_user_results_for_user_and_event, get_all_events,\
+    get_all_competitions, bulk_update_comps
+from .persistence.user_manager import get_all_users, get_user_by_username
 from .persistence.user_results_manager import get_all_null_is_complete_event_results,\
-      get_all_na_average_event_results, save_event_results_for_user, get_all_complete_event_results,\
-      bulk_save_event_results, precalculate_user_site_rankings
+    get_all_na_average_event_results, save_event_results_for_user, get_all_complete_event_results,\
+    bulk_save_event_results, precalculate_user_site_rankings
 from .util.events_util import determine_best_single, determine_bests, determine_event_result
 from .util.reddit_util import build_times_string
 from .routes.home import do_reddit_submit
@@ -42,7 +44,7 @@ def score_and_generate_new_comp(all_events, title):
 @click.option('--comp_id', '-i', type=int)
 @click.option('--rerun', '-r', is_flag=True, default=False)
 def score_comp_only(comp_id, rerun):
-    """ TODO: Score only the specified competition, optionally as a re-run. """
+    """ Score only the specified competition, optionally as a re-run. """
     score_previous_competition(is_rerun=rerun, comp_id=comp_id)
 
 
@@ -50,7 +52,7 @@ def score_comp_only(comp_id, rerun):
 @click.option('--all_events', is_flag=True, default=False)
 @click.option('--title', '-t', type=str, default=None)
 def generate_new_comp_only(all_events, title):
-    """ TODO: Only generate a new competition, don't score the previous one. """
+    """ Only generate a new competition, don't score the previous one. """
     generate_new_competition(all_events=all_events, title=title)
     precalculate_user_site_rankings()
 
@@ -150,7 +152,7 @@ def recalculate_pbs():
         event_results_to_save_at_end = list()
 
         for event in all_events:
-            user_event_results = get_all_user_results_for_user_and_event(user.id, event.id)
+            user_event_results = get_all_complete_user_results_for_user_and_event(user.id, event.id)
             if not user_event_results:
                 continue
 
@@ -177,7 +179,6 @@ def recalculate_pbs():
                     result.was_pb_average = False
 
         bulk_save_event_results(event_results_to_save_at_end)
-
 
 
 @CUBERS_APP.cli.command()
