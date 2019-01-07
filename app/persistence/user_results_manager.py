@@ -1,18 +1,10 @@
 """ Utility module for providing access to business logic for user solves. """
 
-from collections import OrderedDict
-import json
-
-from ranking import Ranking
-
 from app import DB
 from app.persistence.comp_manager import get_comp_event_by_id,\
-    get_all_user_results_for_comp_and_user, get_active_competition,\
-    get_all_competitions_user_has_participated_in, get_all_events_user_has_participated_in,\
-    get_all_complete_user_results_for_comp_and_user, get_all_events, get_previous_competition
-from app.persistence.user_manager import get_all_users
+    get_all_user_results_for_comp_and_user, get_active_competition
 from app.persistence.models import Competition, CompetitionEvent, Event, UserEventResults,\
-    User, UserSolve, EventFormat, UserSiteRankings
+    User, UserSolve, EventFormat
 from app.util.events_util import determine_bests, determine_best_single, determine_event_result
 from app.util.reddit_util import build_times_string
 
@@ -29,19 +21,6 @@ def pb_repr(time):
         return starting_max
     else:
         return int(time)
-
-
-def get_user_participated_competitions_count(user_id):
-    """ Returns a count of the number of competitions a user has participated in. """
-
-    return DB.session.\
-            query(Competition).\
-            join(CompetitionEvent).\
-            join(UserEventResults).\
-            filter(UserEventResults.is_complete).\
-            filter(UserEventResults.user_id == user_id).\
-            distinct(Competition.id).\
-            count()
 
 
 def get_user_completed_solves_count(user_id):
@@ -108,6 +87,8 @@ def build_all_user_results(user_events_dict):
 def build_user_event_results(comp_event_id, solves, comment):
     """ Builds a UserEventsResult object from a competition_event ID and a list of scrambles
     and associated solve times. """
+
+    # TODO: this probably belongs somewhere else, probably in a business logic module
 
     comp_event = get_comp_event_by_id(comp_event_id)
     expected_num_solves = comp_event.Event.totalSolves
@@ -281,33 +262,3 @@ def __save_existing_event_results(existing_results, new_results):
 
     DB.session.commit()
     return existing_results
-
-
-def get_site_rankings_for_user(user_id):
-    """ Retrieves a UserSiteRankings record for the specified user. """
-
-    return DB.session.\
-        query(UserSiteRankings).\
-        filter(UserSiteRankings.user_id == user_id).\
-        first()
-
-
-def save_or_update_site_rankings_for_user(user_id, site_rankings, previous_comp):
-    """ Create or update a UserSiteRankings record for the specified user. """
-
-    rankings_record = get_site_rankings_for_user(user_id)
-
-    if rankings_record:
-        print('Updating UserSiteRankings for user {}'.format(user_id))
-        rankings_record.data    = json.dumps(site_rankings)
-        rankings_record.comp_id = previous_comp.id
-
-    else:
-        print('Creating UserSiteRankings for user {}'.format(user_id))
-        rankings_record         = UserSiteRankings()
-        rankings_record.data    = json.dumps(site_rankings)
-        rankings_record.comp_id = previous_comp.id
-        rankings_record.user_id = user_id
-
-    DB.session.add(rankings_record)
-    DB.session.commit()

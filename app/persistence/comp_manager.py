@@ -11,17 +11,17 @@ CompetitionGenResources, UserEventResults, User
 
 # -------------------------------------------------------------------------------------------------
 
-def get_competition_gen_resources():
-    """ Gets the current competition generation resources record. """
+def get_user_participated_competitions_count(user_id):
+    """ Returns a count of the number of competitions a user has participated in. """
 
-    return CompetitionGenResources.query.one()
-
-
-def save_competition_gen_resources(comp_gen_resource):
-    """ Saves the competition generation resources record. """
-
-    DB.session.add(comp_gen_resource)
-    DB.session.commit()
+    return DB.session.\
+            query(Competition).\
+            join(CompetitionEvent).\
+            join(UserEventResults).\
+            filter(UserEventResults.is_complete).\
+            filter(UserEventResults.user_id == user_id).\
+            distinct(Competition.id).\
+            count()
 
 
 def get_event_by_name(name):
@@ -273,3 +273,20 @@ def save_new_competition(title, reddit_id, event_data):
     DB.session.commit()
 
     return new_comp
+
+
+# -------------------------------------------------------------------------------------------------
+#              Stuff for CompetitionGenResources, which doesn't need its own file
+# -------------------------------------------------------------------------------------------------
+
+def get_competition_gen_resources():
+    """ Gets the CompetitionGenResources record. """
+
+    return CompetitionGenResources.query.one()
+
+
+def save_competition_gen_resources(comp_gen_resource):
+    """ Saves the CompetitionGenResources record. """
+
+    DB.session.add(comp_gen_resource)
+    DB.session.commit()
