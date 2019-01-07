@@ -1,13 +1,12 @@
 """ SQLAlchemy models for all database entries. """
 
+from collections import OrderedDict
+import json
+
 from flask_login import LoginManager, UserMixin
 from sqlalchemy.orm import relationship
 
 from app import DB, CUBERS_APP
-from app.util.times_util import convert_centiseconds_to_friendly_time
-
-import json
-from collections import OrderedDict
 
 #pylint: disable=C0103
 Text       = DB.Text
@@ -87,7 +86,7 @@ class Scramble(Model):
 class UserEventResults(Model):
     """ A model detailing a user's results for a single event at competition. References the user,
     the competitionEvent, the single and average result for the event. These values are either in
-    centiseconds (ex: "1234" = 12.34s) or `DNF` """
+    centiseconds (ex: "1234" = 12.34s), units for FMC (ex: "28" = 28 moves) or "DNF". """
     __tablename__     = 'user_event_results'
     id                = Column(Integer, primary_key=True)
     user_id           = Column(Integer, ForeignKey('users.id'))
@@ -102,6 +101,8 @@ class UserEventResults(Model):
     times_string      = Column(Text)
     was_pb_single     = Column(Boolean)
     was_pb_average    = Column(Boolean)
+    is_blacklisted    = Column(Boolean)
+    blacklist_note    = Column(String(256))
 
 
 class CompetitionEvent(Model):
@@ -145,15 +146,6 @@ class Competition(Model):
     events           = relationship('CompetitionEvent', backref='Competition',
                                     primaryjoin=id == CompetitionEvent.competition_id)
 
-    def get_comp_event_for_event(self, event):
-        """ Returns the CompetitionEvent in this Competition for the given Event, if it exists,
-        otherwise returns None. """
-
-        for comp_event in self.events:
-            if comp_event.event_id == event.id:
-                return comp_event
-        return None
-
 
 class CompetitionGenResources(Model):
     """ A record for maintaining the current state of the competition generation. """
@@ -164,15 +156,6 @@ class CompetitionGenResources(Model):
     current_comp_num    = Column(Integer)
     current_bonus_index = Column(Integer)
     current_OLL_index   = Column(Integer)
-
-
-class Blacklist(Model):
-    """ A record for holding the username of a person who's blacklisted from the results. """
-    __tablename__  = 'blacklist'
-    id       = Column(Integer, primary_key=True)
-    user_id  = Column(Integer, ForeignKey('users.id'))
-    comp_id  = Column(Integer, ForeignKey('competitions.id'), index=True)
-    user     = relationship('User', primaryjoin = user_id == User.id)
 
 
 class UserSiteRankings(Model):

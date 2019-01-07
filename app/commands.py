@@ -22,8 +22,6 @@ from .persistence.comp_manager import get_event_by_name, save_new_competition, g
 from .persistence.user_results_manager import get_all_null_is_complete_event_results,\
       get_all_na_average_event_results, save_event_results_for_user, get_all_complete_event_results,\
       bulk_save_event_results, precalculate_user_site_rankings
-from .persistence.user_manager import blacklist_user_for_competition, get_blacklisted_users_for_competition,\
-      get_user_by_username, get_all_users
 from .util.events_util import determine_best_single, determine_bests, determine_event_result
 from .util.reddit_util import build_times_string
 from .routes.home import do_reddit_submit
@@ -65,24 +63,6 @@ def calculate_all_user_site_rankings():
     """ Calculates UserSiteRankings for all users as of the current comp. """
 
     precalculate_user_site_rankings()
-
-
-@CUBERS_APP.cli.command()
-@click.option('--username', '-u', type=str)
-@click.option('--comp_id', '-c', type=int)
-def blacklist_user_for_comp(username, comp_id):
-    """ Add a blacklist entry for the specified user and competition. """
-
-    blacklist_user_for_competition(username, comp_id)
-
-
-@CUBERS_APP.cli.command()
-@click.option('--comp_id', '-c', type=int)
-def show_blacklisted_users_for_comp(comp_id):
-    """ Show the blacklisted users for the specified competition. """
-
-    for user in get_blacklisted_users_for_competition(comp_id):
-        print(user.username)
 
 
 @CUBERS_APP.cli.command()

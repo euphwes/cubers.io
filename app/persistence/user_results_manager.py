@@ -5,9 +5,9 @@ from app.persistence.comp_manager import get_comp_event_by_id,\
     get_all_user_results_for_comp_and_user, get_active_competition, get_all_competitions_user_has_participated_in,\
     get_all_events_user_has_participated_in, get_all_complete_user_results_for_comp_and_user, get_all_events,\
     get_previous_competition
-from app.persistence.user_manager import get_comp_userlist_blacklist_map, get_all_users
+from app.persistence.user_manager import get_all_users
 from app.persistence.models import Competition, CompetitionEvent, Event, UserEventResults,\
-    User, UserSolve, EventFormat, Blacklist, UserSiteRankings
+    User, UserSolve, EventFormat, UserSiteRankings
 from app.util.events_util import determine_bests, determine_best_single, determine_event_result
 from app.util.reddit_util import build_times_string
 
@@ -334,8 +334,9 @@ def precalculate_user_site_rankings():
     """ Precalculate user site rankings for event PBs for all users. """
 
     all_events = get_all_events()
-    blacklist_mapping = get_comp_userlist_blacklist_map()
     previous_comp = get_previous_competition()
+
+    # TODO: BLACKLIST - rework to disregard these bogus results directly
 
     # Each of these dicts are of the following form:
     #    dict[Event][(ordered list of PB singles with associated user ID, ranked list of PB singles)]
@@ -353,7 +354,7 @@ def precalculate_user_site_rankings():
         # Retrieve the the list of (user ID, PB single) tuples in order of single
         # and build a ranking of those singles values (identical values are ranked the same),
         # then stick that in the dict for the current event
-        ordered_PB_singles = get_ordered_users_pb_singles_for_event(event.id, blacklist_mapping)
+        ordered_PB_singles = get_ordered_users_pb_singles_for_event(event.id)
         singles_values = list()
         for single in ordered_PB_singles:
             try:
@@ -371,7 +372,7 @@ def precalculate_user_site_rankings():
         # Retrieve the the list of (user ID, PB average) tuples in order of average
         # and build a ranking of those averages values (identical values are ranked the same),
         # then stick that in the dict for the current event
-        ordered_PB_averages = get_ordered_users_pb_averages_for_event(event.id, blacklist_mapping)
+        ordered_PB_averages = get_ordered_users_pb_averages_for_event(event.id)
         averages_values = list()
         for average in ordered_PB_averages:
             try:
@@ -388,8 +389,8 @@ def precalculate_user_site_rankings():
         # Calculate site rankings for the user
         site_rankings = calculate_site_rankings_for_user(user.id, events_PB_singles, events_PB_averages)
 
-        # If the rankings dict contains no entries, the user hasn't competed in anything,
-        # or falls into the blacklist for all of their events. Don't bother saving anything
+        # If the rankings dict contains no entries, the user hasn't competed in anything.
+        # Don't bother saving anything
         if not site_rankings.keys():
             continue
 
@@ -456,8 +457,8 @@ def calculate_site_rankings_for_user(user_id, event_singles_map, event_averages_
                 our_user_single = s[1]
                 break
 
-        # If we didn't find the index, it must mean the user doesn't have a record in this list. Possibly
-        # because they were filtered due to the blacklist? Go ahead and bail and go to the next event
+        # If we didn't find the index, it must mean the user doesn't have a record in this list.
+        # Go ahead and bail and go to the next event
         if our_user_single_index == -1:
             continue
 
@@ -522,8 +523,10 @@ def cmp_to_key(mycmp):
     return comparator
 
 
-def get_ordered_users_pb_singles_for_event(event_id, blacklist_mapping):
+def get_ordered_users_pb_singles_for_event(event_id):
     """ Gets all users' PB singles for the specified event, ordered by single value. """
+    
+    # TODO: BLACKLIST - rework to disregard these bogus results directly
 
     print('Determining site-wide user PB singles for event {}'.format(event_id))
 
@@ -547,8 +550,6 @@ def get_ordered_users_pb_singles_for_event(event_id, blacklist_mapping):
     for user_id, single, comp_id in results:
         if user_id in found_users:
             continue
-        if comp_id in blacklist_mapping.keys() and user_id in blacklist_mapping[comp_id]:
-            continue
         found_users.add(user_id)
         filtered_results.append((user_id, single))
 
@@ -557,8 +558,10 @@ def get_ordered_users_pb_singles_for_event(event_id, blacklist_mapping):
     return filtered_results
 
 
-def get_ordered_users_pb_singles_for_event_for_event_results(event_id, blacklist_mapping):
+def get_ordered_users_pb_singles_for_event_for_event_results(event_id):
     """ Gets all users' PB singles for the specified event, ordered by single value. """
+
+    # TODO: BLACKLIST - rework to disregard these bogus results directly
 
     results = DB.session.\
             query(UserEventResults).\
@@ -581,8 +584,6 @@ def get_ordered_users_pb_singles_for_event_for_event_results(event_id, blacklist
     for user_id, single, comp_id, comp_name, username in results:
         if user_id in found_users:
             continue
-        if comp_id in blacklist_mapping.keys() and user_id in blacklist_mapping[comp_id]:
-            continue
         found_users.add(user_id)
 
         filtered_results.append((user_id, single, comp_id, username, comp_name))
@@ -592,8 +593,10 @@ def get_ordered_users_pb_singles_for_event_for_event_results(event_id, blacklist
     return filtered_results
 
 
-def get_ordered_users_pb_averages_for_event_for_event_results(event_id, blacklist_mapping):
+def get_ordered_users_pb_averages_for_event_for_event_results(event_id):
     """ Gets all users' PB averages for the specified event, ordered by average value. """
+
+    # TODO: BLACKLIST - rework to disregard these bogus results directly
 
     results = DB.session.\
             query(UserEventResults).\
@@ -616,8 +619,6 @@ def get_ordered_users_pb_averages_for_event_for_event_results(event_id, blacklis
     for user_id, average, comp_id, comp_name, username in results:
         if user_id in found_users:
             continue
-        if comp_id in blacklist_mapping.keys() and user_id in blacklist_mapping[comp_id]:
-            continue
         found_users.add(user_id)
 
         filtered_results.append((user_id, average, comp_id, username, comp_name))
@@ -627,8 +628,10 @@ def get_ordered_users_pb_averages_for_event_for_event_results(event_id, blacklis
     return filtered_results
 
 
-def get_ordered_users_pb_averages_for_event(event_id, blacklist_mapping):
+def get_ordered_users_pb_averages_for_event(event_id):
     """ Gets all users' PB averages for the specified event, ordered by average value. """
+
+    # TODO: BLACKLIST - rework to disregard these bogus results directly
 
     print('Determining site-wide user PB averages for event {}'.format(event_id))
 
@@ -646,10 +649,8 @@ def get_ordered_users_pb_averages_for_event(event_id, blacklist_mapping):
 
     found_users = set()
     filtered_results = list()
-    for user_id, average, comp_id in results:
+    for user_id, average, _ in results:
         if user_id in found_users:
-            continue
-        if comp_id in blacklist_mapping.keys() and user_id in blacklist_mapping[comp_id]:
             continue
         found_users.add(user_id)
         filtered_results.append((user_id, average))

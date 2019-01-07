@@ -1,10 +1,9 @@
 """ Routes related to displaying competition results. """
 
-from flask import render_template, redirect
+from flask import render_template
 from flask_login import current_user
 
 from app import CUBERS_APP
-from app.persistence.user_manager import get_comp_userlist_blacklist_map
 from app.persistence.user_results_manager import get_ordered_users_pb_singles_for_event_for_event_results,\
     get_ordered_users_pb_averages_for_event_for_event_results
 from app.persistence.comp_manager import get_events_id_name_mapping, get_event_by_name
@@ -24,9 +23,7 @@ def event_results(event_name):
     if not event:
         return "oops " + event_name
 
-    blacklist_mapping = get_comp_userlist_blacklist_map()
-
-    singles = get_ordered_users_pb_singles_for_event_for_event_results(event.id, blacklist_mapping)
+    singles = get_ordered_users_pb_singles_for_event_for_event_results(event.id)
     singles = convert_to_pbRecords(singles)
     singles_values = list()
     for single in singles:
@@ -38,7 +35,7 @@ def event_results(event_name):
     for i, single in enumerate(singles):
         single.rank = ranked_singles[i][0]
 
-    averages = get_ordered_users_pb_averages_for_event_for_event_results(event.id, blacklist_mapping)
+    averages = get_ordered_users_pb_averages_for_event_for_event_results(event.id)
     averages = convert_to_pbRecords(averages)
     averages_values = list()
     for average in averages:

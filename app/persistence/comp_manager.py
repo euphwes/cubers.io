@@ -3,11 +3,11 @@
 from collections import OrderedDict
 from datetime import datetime
 
+from sqlalchemy.orm import joinedload
+
 from app import DB
 from app.persistence.models import Competition, CompetitionEvent, Event, Scramble,\
-CompetitionGenResources, UserEventResults, User, Blacklist
-
-from sqlalchemy.orm import joinedload
+CompetitionGenResources, UserEventResults, User
 
 # -------------------------------------------------------------------------------------------------
 

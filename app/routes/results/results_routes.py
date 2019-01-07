@@ -5,7 +5,6 @@ from flask_login import current_user
 
 from app import CUBERS_APP
 from app.persistence import comp_manager
-from app.persistence.user_manager import get_blacklisted_users_for_competition
 
 # -------------------------------------------------------------------------------------------------
 
@@ -40,8 +39,6 @@ def comp_results(comp_id):
         # TODO: do this right, with a neat 404 or something
         return "Oops, that's not a real competition. Try again, ya clown."
 
-    blacklisted_users = get_blacklisted_users_for_competition(comp_id)
-
     comp_events = comp_manager.get_all_comp_events_for_comp(comp_id)
 
     results = comp_manager.get_all_complete_user_results_for_comp(comp_id)
@@ -52,10 +49,6 @@ def comp_results(comp_id):
     event_ids     = {event.Event.name : event.Event.id for event in comp_events}
 
     for result in results:
-        # Skip results for users that are in the blacklist, unless it's the current user
-        # This way blacklisted users will see their own results, but others won't
-        if (result.User in blacklisted_users) and (result.User != current_user):
-            continue
         event_name = result.CompetitionEvent.Event.name
         solves_helper = result.times_string.split(', ')
         while len(solves_helper) < 5:

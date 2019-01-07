@@ -1,10 +1,11 @@
 """ module doc """
 
+# TODO: module doc
+
 import re
 from time import sleep
 
 from app.persistence.comp_manager import get_active_competition, get_competition, save_competition
-from app.persistence.user_manager import get_blacklisted_users_for_competition
 from app.util.reddit_util import get_submission_with_id, submit_competition_post,\
 get_permalink_for_comp_thread, update_results_thread
 from app.util.times_util import convert_seconds_to_friendly_time
@@ -21,14 +22,6 @@ def filter_no_author(entries):
     contain any author=None.  """
 
     return [e for e in entries if e.author is not None]
-
-
-def filter_blacklisted_users(entries, comp_id):
-    """ Returns a filtered list of competition entries (which here are PRAW Comments) which do
-    not contain any authors from the blacklist. """
-
-    blacklist = [user.username for user in get_blacklisted_users_for_competition(comp_id)]
-    return [e for e in entries if e.author.name not in blacklist]
 
 
 def filter_entries_with_no_events(entries, event_names):
@@ -48,6 +41,8 @@ def filter_entries_that_are_wip(entries):
 
 def score_previous_competition(is_rerun=False, comp_id=None):
     """ Score the previous competition and post the results. """
+
+    # TODO: comment more thoroughly below
 
     # Get the reddit thread ID and the competition model for the competition to be scored
     if comp_id:
@@ -74,9 +69,11 @@ def score_previous_competition(is_rerun=False, comp_id=None):
 
     # Filter out all the entry comments we don't want
     entries = filter_no_author(entries)
-    entries = filter_blacklisted_users(entries, competition_being_scored.id)
     entries = filter_entries_with_no_events(entries, event_names)
     entries = filter_entries_that_are_wip(entries)
+
+    # TODO: BLACKLIST - filter events from user entries if that event is blacklisted
+    # aka the userEventResults for this comp, user, and is blacklisted
 
     # Create a competitor record for each entry
     competitors = [Competitor(entry) for entry in entries]
@@ -89,8 +86,7 @@ def score_previous_competition(is_rerun=False, comp_id=None):
     competitors = list(set(competitors))
 
     # Build up a dictionary of event name to participant list
-    # Participant list contains tuple of (username, event result)
-    # Participant list is sorted by event result
+    # Participant list contains tuple of (username, event result), sorted by event result
     comp_event_results = dict()
     for event_name in event_names:
         participating_users = list()
