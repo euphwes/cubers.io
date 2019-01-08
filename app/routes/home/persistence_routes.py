@@ -10,18 +10,21 @@ from app.persistence.models import EventFormat
 from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import build_user_event_results,\
     save_event_results_for_user, build_all_user_results, are_results_different_than_existing,\
-    get_comment_id_by_comp_id_and_user, get_event_results_for_user, determine_if_any_pbs
-from app.persistence.comp_manager import get_competition, get_all_complete_user_results_for_comp_and_user,\
-    get_event_by_name
+    get_comment_id_by_comp_id_and_user, get_event_results_for_user, set_pb_flags,\
+    get_all_complete_user_results_for_comp_and_user
+from app.persistence.comp_manager import get_competition
+from app.persistence.events_manager import get_event_by_name
 from app.util.reddit_util import build_times_string, convert_centiseconds_to_friendly_time,\
-    build_comment_source_from_events_results, submit_comment_for_user, get_permalink_for_comp_thread,\
-    update_comment_for_user, get_permalink_for_user_and_comment
+    build_comment_source_from_events_results, submit_comment_for_user, update_comment_for_user,\
+    get_permalink_for_user_and_comment
 
 # -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.route('/save_event', methods=['POST'])
 def save_event():
     """ A route for saving a specific event to the database. """
+
+    # TODO: clean this up, a lot of this is business logic which shouldn't be in here
 
     if not current_user.is_authenticated:
         return abort(400, "authenticated users only")
@@ -32,17 +35,18 @@ def save_event():
         user = get_user_by_username(current_user.username)
 
         if event_result.is_complete:
-            event_result = determine_if_any_pbs(user, event_result)
+            event_result = set_pb_flags(user, event_result)
 
         # Figure out if we need to repost the results to Reddit or not
         if event_result.is_complete:
-            # if these results are complete, but different than what's already there, we should submit again
-            # because it means the user altered a time (add/remove penalty, manual time entry, etc)
+            # Ff these results are complete, but different than what's already there, we should
+            # submit again because it means the user altered a time (add/remove penalty,
+            # manual time entry, etc)
             should_do_reddit_submit = are_results_different_than_existing(event_result, user)
         else:
-            # if these results are incomplete, and the user currently has complete results saved, it means
-            # they deleted a time. The event will no longer be complete, and so we should submit again to 
-            # delete that event
+            # If these results are incomplete, and the user currently has complete results saved,
+            # it means they deleted a time. The event will no longer be complete, and so we should
+            # submit again to delete that event
             previous_results = get_event_results_for_user(event_result.comp_event_id, user)
             should_do_reddit_submit = previous_results and previous_results.is_complete
 
@@ -53,6 +57,8 @@ def save_event():
 
         return ('', 204) # intentionally empty, 204 No Content
 
+    # TODO: figure out what exceptions can happen here
+    # pylint: disable=W0703
     except Exception as ex:
         return abort(500, str(ex))
 
@@ -74,7 +80,7 @@ def get_event_summaries():
 
 @CUBERS_APP.route('/comment_url/<int:comp_id>')
 def comment_url(comp_id):
-    """ A route for retrieving the user's Reddit comment direct URL for a given competition event. """
+    """ A route for retrieving the user's Reddit comment direct URL for a given comp event. """
 
     if not current_user.is_authenticated:
         return ""
@@ -89,6 +95,8 @@ def comment_url(comp_id):
 
 def build_summary(event):
     """ Builds the summary for the event and returns it. """
+
+    # TODO: does this belong here?
 
     build_results = build_user_event_results
     friendly = convert_centiseconds_to_friendly_time
@@ -115,6 +123,8 @@ def build_summary(event):
 
 def do_reddit_submit(comp_id, user):
     """ Handle submitting a new, or updating an existing, Reddit comment. """
+
+    # TODO: does this belong here?
 
     comp = get_competition(comp_id)
     reddit_thread_id = comp.reddit_thread_id

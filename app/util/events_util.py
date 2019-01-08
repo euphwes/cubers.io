@@ -6,6 +6,9 @@ DNF = 'DNF'
 
 # -------------------------------------------------------------------------------------------------
 
+# TODO: once all the myriad logic that goes into building UserEventsResults is put in its own
+# business logic module, move everything here into there as well
+
 def determine_best_single(solves):
     """ Determines the best single in the set of solves. """
 

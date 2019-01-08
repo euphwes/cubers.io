@@ -8,23 +8,19 @@ import base64
 
 import click
 
-from pyTwistyScrambler import scrambler222, scrambler333, scrambler444, scrambler555,\
-    scrambler666, scrambler777, megaminxScrambler, skewbScrambler, squareOneScrambler,\
-    pyraminxScrambler, clockScrambler, cuboidsScrambler
-
 from app.util.generate_comp import generate_new_competition
 from app.util.score_comp import score_previous_competition
 
 from . import CUBERS_APP
 from .business.rankings import precalculate_user_site_rankings
 from .persistence.models import EventFormat
-from .persistence.comp_manager import get_event_by_name, save_new_competition,\
-    get_active_competition, get_all_complete_user_results_for_user_and_event, get_all_events,\
+from .persistence.comp_manager import save_new_competition, get_active_competition,\
     get_all_competitions, bulk_update_comps
+from .persistence.events_manager import get_event_by_name, get_all_events
 from .persistence.user_manager import get_all_users, get_user_by_username
 from .persistence.user_results_manager import get_all_null_is_complete_event_results,\
     get_all_na_average_event_results, save_event_results_for_user, get_all_complete_event_results,\
-    bulk_save_event_results
+    bulk_save_event_results, get_all_complete_user_results_for_user_and_event
 from .util.events_util import determine_best_single, determine_bests, determine_event_result
 from .util.reddit_util import build_times_string
 from .routes.home import do_reddit_submit
@@ -35,7 +31,8 @@ from .routes.home import do_reddit_submit
 @click.option('--all_events', is_flag=True, default=False)
 @click.option('--title', '-t', type=str)
 def score_and_generate_new_comp(all_events, title):
-    """ Scores the previous competition, and generates a new competition based on the previous one. """
+    """ Scores the previous competition, and generates a new competition. """
+
     score_previous_competition()
     generate_new_competition(all_events=all_events, title=title)
     precalculate_user_site_rankings()
@@ -46,6 +43,7 @@ def score_and_generate_new_comp(all_events, title):
 @click.option('--rerun', '-r', is_flag=True, default=False)
 def score_comp_only(comp_id, rerun):
     """ Score only the specified competition, optionally as a re-run. """
+
     score_previous_competition(is_rerun=rerun, comp_id=comp_id)
 
 
@@ -54,6 +52,7 @@ def score_comp_only(comp_id, rerun):
 @click.option('--title', '-t', type=str, default=None)
 def generate_new_comp_only(all_events, title):
     """ Only generate a new competition, don't score the previous one. """
+
     generate_new_competition(all_events=all_events, title=title)
     precalculate_user_site_rankings()
 
@@ -84,52 +83,14 @@ def fix_goofy_comp_names():
 
     bulk_update_comps(comps_to_be_updated)
 
-# -------------------------------------------------------------------------------------------------
-# Below are test comp generation commands, not intended to be used in production
-# -------------------------------------------------------------------------------------------------
-
-@CUBERS_APP.cli.command()
-@click.option('--title', '-t', type=str)
-@click.option('--reddit_id', '-r', type=str, default='')
-def create_new_test_comp(title, reddit_id):
-    """ Creates a new dummy competition for testing purposes. """
-
-    event_data = []
-    for event_name, scrambler in EVENTS_HELPER.items():
-        data = dict()
-        num_solves = get_event_by_name(event_name).totalSolves
-        data['scrambles'] = [scrambler() for _ in range(num_solves)]
-        data['name'] = event_name
-        event_data.append(data)
-
-    if not reddit_id:
-        reddit_id = str(uuid.uuid4()).replace('-','')[:10]
-
-    save_new_competition(title, reddit_id, event_data)
-
-
-@CUBERS_APP.cli.command()
-@click.option('--data', '-d', type=str)
-def create_new_test_comp_from_b64_data(data):
-    """ Creates a test competition based on the data provided. """
-
-    json_data = base64.b64decode(data).decode()
-    data = json.loads(json_data)
-
-    title     = data['title']
-    reddit_id = data['reddit_id']
-    event_data = [event_info for event_info in data['events']]
-
-    save_new_competition(title, reddit_id, event_data)
-
-# -------------------------------------------------------------------------------------------------
-# Below are utility commands intended to just be one-offs, to backfill or fix broken data
-# -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.cli.command()
 def recalculate_pbs():
     """ Works through every user, every event type, and re-calculates PB averages and singles
     and sets appropriate flags on UserEventResults. """
+
+    # TODO: move this into some business logic module somewhere else, and wrap around it here
+    # this will need to be called whenever an UserEventResults is manually blacklisted
 
     all_users = get_all_users()
     user_count = len(all_users)
@@ -181,6 +142,9 @@ def recalculate_pbs():
 
         bulk_save_event_results(event_results_to_save_at_end)
 
+# -------------------------------------------------------------------------------------------------
+# Below are utility commands intended to just be one-offs, to backfill or fix broken data
+# -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.cli.command()
 @click.option('--username', '-u', type=str)
@@ -283,9 +247,16 @@ def fix_user_event_results(user_event_results):
         total_fixed += 1
         print("Fixed {} of {} UserEventResults".format(total_fixed, total_to_fix))
 
+
 # -------------------------------------------------------------------------------------------------
 # Utility functions for producing scrambles for specific events
 # -------------------------------------------------------------------------------------------------
+
+# pylint: disable=C0411
+from pyTwistyScrambler import scrambler222, scrambler333, scrambler444, scrambler555,\
+    scrambler666, scrambler777, megaminxScrambler, skewbScrambler, squareOneScrambler,\
+    pyraminxScrambler, clockScrambler, cuboidsScrambler
+
 
 def get_2_3_4_relay_scramble():
     """ Get a single scramble for a 2-3-4 relay event, which consists of individual scrambles
@@ -295,14 +266,17 @@ def get_2_3_4_relay_scramble():
     s4 = scrambler444.get_WCA_scramble()
     return "2x2: {}\n3x3: {}\n4x4: {}".format(s2, s3, s4)
 
+
 def get_3_relay_of_3():
     """ Get a single scramble for a 3x3 relay of 3 event, which is 3 individual 3x3 scrambles. """
     scrambles = [scrambler333.get_WCA_scramble() for i in range(3)]
     return "1. {}\n2. {}\n3. {}".format(*scrambles)
 
+
 def get_COLL_scramble():
     """ Return a 'COLL' scramble, which just calls out a specific COLL to perform. """
     return "COLL E" + str(random.choice(range(1,15)))
+
 
 EVENTS_HELPER = {
     "3x3":             scrambler333.get_WCA_scramble,
@@ -335,3 +309,42 @@ EVENTS_HELPER = {
     "PLL Time Attack": lambda: "Just do every PLL",
     "3x3 Mirror Blocks/Bump": scrambler333.get_WCA_scramble,
 }
+
+
+# -------------------------------------------------------------------------------------------------
+# Below are test comp generation commands, not intended to be used in production
+# -------------------------------------------------------------------------------------------------
+
+@CUBERS_APP.cli.command()
+@click.option('--title', '-t', type=str)
+@click.option('--reddit_id', '-r', type=str, default='')
+def create_new_test_comp(title, reddit_id):
+    """ Creates a new dummy competition for testing purposes. """
+
+    event_data = []
+    for event_name, scrambler in EVENTS_HELPER.items():
+        data = dict()
+        num_solves = get_event_by_name(event_name).totalSolves
+        data['scrambles'] = [scrambler() for _ in range(num_solves)]
+        data['name'] = event_name
+        event_data.append(data)
+
+    if not reddit_id:
+        reddit_id = str(uuid.uuid4()).replace('-','')[:10]
+
+    save_new_competition(title, reddit_id, event_data)
+
+
+@CUBERS_APP.cli.command()
+@click.option('--data', '-d', type=str)
+def create_new_test_comp_from_b64_data(data):
+    """ Creates a test competition based on the data provided. """
+
+    json_data = base64.b64decode(data).decode()
+    data = json.loads(json_data)
+
+    title     = data['title']
+    reddit_id = data['reddit_id']
+    event_data = [event_info for event_info in data['events']]
+
+    save_new_competition(title, reddit_id, event_data)

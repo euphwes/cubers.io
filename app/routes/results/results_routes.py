@@ -1,32 +1,34 @@
 """ Routes related to displaying competition results. """
 
 from flask import render_template, redirect
-from flask_login import current_user
 
 from app import CUBERS_APP
-from app.persistence import comp_manager
+from app.persistence.comp_manager import get_active_competition, get_complete_competitions,\
+    get_previous_competition, get_competition, get_all_comp_events_for_comp
+from app.persistence.user_results_manager import get_all_complete_user_results_for_comp
 
 # -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.route('/leaderboards/')
 def results_list():
     """ A route for showing which competitions results can be viewed for. """
-    comps = comp_manager.get_complete_competitions()
-    comp = comp_manager.get_active_competition()
+
+    comps = get_complete_competitions()
+    comp = get_active_competition()
     return render_template("results/results_list.html", comps=comps, active=comp)
 
 
 @CUBERS_APP.route('/redirect_curr/')
 def curr_leaders():
     """ Redirects to the current competition's leaderboards. """
-    comp = comp_manager.get_active_competition()
+    comp = get_active_competition()
     return redirect("leaderboards/{}".format(comp.id))
 
 
 @CUBERS_APP.route('/redirect_prev/')
 def prev_leaders():
     """ Redirects to the current competition's leaderboards. """
-    comp = comp_manager.get_previous_competition()
+    comp = get_previous_competition()
     return redirect("leaderboards/{}".format(comp.id))
 
 
@@ -34,14 +36,12 @@ def prev_leaders():
 def comp_results(comp_id):
     """ A route for showing results for a specific competition. """
 
-    competition = comp_manager.get_competition(comp_id)
+    competition = get_competition(comp_id)
     if not competition:
-        # TODO: do this right, with a neat 404 or something
         return "Oops, that's not a real competition. Try again, ya clown."
 
-    comp_events = comp_manager.get_all_comp_events_for_comp(comp_id)
-
-    results = comp_manager.get_all_complete_user_results_for_comp(comp_id)
+    comp_events = get_all_comp_events_for_comp(comp_id)
+    results = get_all_complete_user_results_for_comp(comp_id)
 
     event_names   = [event.Event.name for event in comp_events]
     event_results = {event.Event.name : list() for event in comp_events}
@@ -66,6 +66,7 @@ def comp_results(comp_id):
         event_results=event_results, event_names=event_names, event_formats=event_formats,\
         event_ids=event_ids)
 
+# TODO: put the UserEventResults sorting stuff somewhere else
 
 def sort_results(val1, val2):
     result1 = val1.result

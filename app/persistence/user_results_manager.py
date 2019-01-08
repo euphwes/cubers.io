@@ -1,8 +1,7 @@
 """ Utility module for providing access to business logic for user solves. """
 
 from app import DB
-from app.persistence.comp_manager import get_comp_event_by_id,\
-    get_all_user_results_for_comp_and_user, get_active_competition
+from app.persistence.comp_manager import get_comp_event_by_id, get_active_competition
 from app.persistence.models import Competition, CompetitionEvent, Event, UserEventResults,\
     User, UserSolve, EventFormat
 from app.util.events_util import determine_bests, determine_best_single, determine_event_result
@@ -130,8 +129,8 @@ def build_user_event_results(comp_event_id, solves, comment):
         results.is_complete = len(results.solves) == expected_num_solves
 
     # If complete, set the result (either best single, mean, or average) depending on event format
-    # Also store the "times string" so we don't have to recalculate this again later, notably slowing down the
-    # leaderboards tables.
+    # Also store the "times string" so we don't have to recalculate this again later, notably
+    # slowing down the leaderboards tables.
     if results.is_complete:
         results.result = determine_event_result(results.single, results.average, event_format)
         is_fmc = event_name == 'FMC'

@@ -1,4 +1,4 @@
-""" module doc here """
+""" Data, templates, and logic for posting a competition thread to Reddit. """
 
 from arrow import utcnow
 
@@ -6,6 +6,8 @@ from app.util.reddit_util import submit_competition_post
 from app.util.events_resources import EVENT_COLL
 
 # -------------------------------------------------------------------------------------------------
+
+# TODO: move this into a business logic module
 
 POST_TEMPLATE = """##**Welcome to the weekly competition for {comp_title}!**
 
@@ -55,6 +57,8 @@ EVENT_NAME_LINE_TEMPLATE = '\n\n**{}:**\n\n'
 def post_competition(comp_title, comp_num, event_data, curr_bonus, upcoming_bonus):
     """ Post the competition to Reddit and return the Reddit ID. """
 
+    # TODO: magic strings below to constants
+
     now = utcnow().to('US/Eastern')
     due_date  = now.shift(weeks=1).format('hh:mm A on dddd, MMMM Do YYYY')
     tz_offset = now.shift(weeks=1).format('ZZ')
@@ -68,7 +72,7 @@ def post_competition(comp_title, comp_num, event_data, curr_bonus, upcoming_bonu
             event_section += EVENT_NAME_LINE_TEMPLATE.format(event['name'])
             event_section += SCRAMBLE_LINE_TEMPLATE.format(event['scrambles'][0] + ' (5 times)')
             continue
-            
+
         event_section += EVENT_NAME_LINE_TEMPLATE.format(event['name'])
         for scramble in event['scrambles']:
             event_section += SCRAMBLE_LINE_TEMPLATE.format(scramble)

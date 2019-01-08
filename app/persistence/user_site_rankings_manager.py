@@ -10,8 +10,6 @@ from app.persistence.models import UserSiteRankings
 def get_site_rankings_for_user(user_id):
     """ Retrieves a UserSiteRankings record for the specified user. """
 
-    a = v.dosomething()
-    
     return DB.session.\
         query(UserSiteRankings).\
         filter(UserSiteRankings.user_id == user_id).\

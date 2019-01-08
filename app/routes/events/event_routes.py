@@ -13,7 +13,8 @@ from app.persistence.comp_manager import get_event_by_name
 def event_results(event_name):
     """ A route for showing the global top results for a specific event. """
 
-    # for some reason the urlencode and urldecode isn't handling forward slash properly
+    # For some reason the urlencode and urldecode isn't handling forward slash properly
+    # and we named the mirror blocks event with a slash...
     event_name = event_name.replace('%2F', '/')
 
     event = get_event_by_name(event_name)

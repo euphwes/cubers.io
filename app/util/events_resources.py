@@ -2,17 +2,18 @@
 
 #pylint: disable=C0103
 
+from random import choice
+
 from pyTwistyScrambler import scrambler333, scrambler222, scrambler444, scrambler555,\
     scrambler666, scrambler777, squareOneScrambler, megaminxScrambler, pyraminxScrambler,\
     cuboidsScrambler, skewbScrambler, clockScrambler
-
-from random import choice
 
 # -------------------------------------------------------------------------------------------------
 
 class Event:
     """ Encapsulates everything we need to know about an event. """
 
+    # pylint: disable=C0301
     def __init__(self, name, scramble_func, num_scrambles, is_weekly, has_explanation=False, scramble_generator=False):
         self.name = name
         self.scramble_func = scramble_func
@@ -33,6 +34,7 @@ class Event:
 
 def redi_scrambler():
     """ Returns a scramble for a Redi cube in MoYu notation. """
+
     scramble = list()
     possible_moves = [["R", "R'"],["L", "L'"]]
 
@@ -45,20 +47,26 @@ def redi_scrambler():
 
     return ' '.join(scramble)
 
+
 def COLL_scrambler(coll_num):
     """ Get a 'scramble' for the current COLL, which just says which one we're doing. """
+
     return "This week we're doing COLL {}".format(coll_num)
+
 
 def FMC_scrambler():
     """ Returns an FMC scramble, which is just a normal WCA scramble with R' U' F padding. """
+
     scramble = scrambler333.get_WCA_scramble().strip()
     while does_FMC_scramble_have_cancellations(scramble):
         scramble = scrambler333.get_WCA_scramble().strip()
     return "R' U' F {} R' U' F".format(scramble)
 
+
 def does_FMC_scramble_have_cancellations(scramble):
     """ Returns whether the supplied scramble would have cancellations when padding with
     R' U' F at the beginning and end, as FMC regulations require. """
+
     scramble = scramble.split(' ') # turn it into a list of moves
 
     # check if there are any obvious cancellations: F touch F at the beginning,
@@ -86,14 +94,18 @@ def does_FMC_scramble_have_cancellations(scramble):
     # no cancellations! woohoo, we can use this scramble
     return False
 
+
 def scrambler_234_relay():
     """ Get a scramble for the 2-3-4 relay event. """
+
     yield scrambler222.get_WCA_scramble()
     yield scrambler333.get_WCA_scramble()
     yield scrambler444.get_WCA_scramble()
 
+
 def scrambler_333_relay():
     """ Get a scramble for the 3x3 relay of 3 event. """
+
     yield scrambler333.get_WCA_scramble()
     yield scrambler333.get_WCA_scramble()
     yield scrambler333.get_WCA_scramble()
@@ -196,21 +208,25 @@ __COLL_LIST = [
 
 def get_num_COLLs():
     """ Returns the length of the COLLs list. """
+
     return len(__COLL_LIST)
 
 
 def get_num_bonus_events():
     """ Returns the length of the bonus events list. """
+
     return len(__BONUS_EVENTS)
 
 
 def get_weekly_events():
     """ Return all the weekly events. """
+
     return __WEEKLY_EVENTS
 
 
 def get_bonus_events():
     """ Return all the bonus events. """
+
     return __BONUS_EVENTS
 
 
@@ -218,15 +234,18 @@ def get_bonus_events_rotation_starting_at(starting_index, count=5):
     """ Gets a list of `count` bonus events starting at the specified index. Use a doubled list
     of bonus events as a 'trick' to wrap around to the beginning if the starting index and count
     bring us past the end of the list. """
+
     double_wide = __BONUS_EVENTS * 2
     return double_wide[starting_index : starting_index + count]
 
 
 def get_bonus_events_without_current(bonus_events):
     """ Gets a list of the bonus events except for the current ones. """
+
     return [e for e in __BONUS_EVENTS if e not in bonus_events]
 
 
 def get_COLL_at_index(index):
     """ Gets the COLL at the specified index. """
+
     return __COLL_LIST[index]

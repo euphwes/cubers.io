@@ -121,7 +121,6 @@ def get_comp_name_from_date():
         week  = week_of_month(today)
     )
 
-#pylint: disable=C0103
 def correct_relays_scrambles_for_database(event_data):
     """ The relay events should display the scrambles as 3 individual scrambles for the
     Reddit competition post, but just one 'triple scramble' for the database. Fix that here. """

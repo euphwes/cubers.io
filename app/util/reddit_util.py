@@ -1,5 +1,4 @@
 """ Utility functions for dealing with PRAW Reddit instances. """
-#pylint: disable=C0103
 
 from sys import maxsize as MAX
 from urllib.parse import urljoin
@@ -36,7 +35,6 @@ REDDIT_URL_ROOT = 'http://www.reddit.com'
 
 # -------------------------------------------------------------------------------------------------
 
-#pylint: disable=C0103
 def build_comment_source_from_events_results(events_results, username):
     """ Builds the source of a Reddit comment that meets the formatting requirements of the
     /r/cubers weekly competition scoring script. """

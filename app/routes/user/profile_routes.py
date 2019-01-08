@@ -1,14 +1,14 @@
 """ Routes related to displaying competition results. """
 
-from flask import render_template, redirect
-from flask_login import current_user
+from flask import render_template
 
 from app import CUBERS_APP
+from app.business.user_history import get_user_competition_history
+from app.persistence.comp_manager import get_user_participated_competitions_count
 from app.persistence.user_manager import get_user_by_username
-from app.persistence.user_results_manager import get_user_competition_history,\
-    get_user_completed_solves_count, get_user_participated_competitions_count,\
-    get_site_rankings_for_user
-from app.persistence.comp_manager import get_events_id_name_mapping
+from app.persistence.user_results_manager import get_user_completed_solves_count
+from app.persistence.events_manager import get_events_id_name_mapping
+from app.persistence.user_site_rankings_manager import get_site_rankings_for_user
 
 # -------------------------------------------------------------------------------------------------
 

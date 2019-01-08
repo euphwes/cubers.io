@@ -59,12 +59,18 @@ def prompt_login():
 
 def fill_any_existing_user_data(user, event):
     """ Checks """
+
+    # TODO: docstring above
+
+    # TODO comment below to describe
+
+    # TODO possibly clean this up somehow with another named data structure or something?
+
     prev = get_event_results_for_user(event['comp_event_id'], user)
     if not prev:
         return event
 
     scrambles_completed = 0
-    total_scrambles     = len(event['scrambles'])
 
     event['comment'] = prev.comment
     for solve in prev.solves:
@@ -77,8 +83,7 @@ def fill_any_existing_user_data(user, event):
             scram['isDNF'] = solve.is_dnf
             scrambles_completed += 1
 
-    # need to check both to make sure events created before the is_complete flag get properly marked complete
-    if prev.is_complete or (scrambles_completed == total_scrambles or (event['event_format'] == 'Bo3' and scrambles_completed > 0)):
+    if prev.is_complete:
         event['summary'] = build_summary(event)
         event['status']  = 'complete'
     elif scrambles_completed > 0:

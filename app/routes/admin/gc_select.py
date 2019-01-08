@@ -5,8 +5,8 @@ import random
 from flask import render_template
 
 from app import CUBERS_APP
-from app.persistence.comp_manager import get_complete_competitions, get_active_competition,\
-    get_competition, get_participants_in_competition
+from app.persistence.comp_manager import get_complete_competitions, get_competition,\
+    get_participants_in_competition
 
 # -------------------------------------------------------------------------------------------------
 

@@ -1,6 +1,5 @@
-""" module doc """
-
-# TODO: module doc
+""" Business logic for reading comments in a competition's Reddit thread, parsing submissions,
+scoring users, and posting the results. """
 
 import re
 from time import sleep
@@ -163,6 +162,9 @@ def find_events(comment, events):
 # -------------------------------------------------------------------------------------------------
 
 class Competitor:
+    """ Encapsulates a Competitor (who posts a Reddit comment to the competition thread), and the
+    information relating to their submission (times, events participated in, etc). """
+
     def __init__(self, entry):
         parse_results = parse(entry.body)
         self.events = parse_results[1]
@@ -196,12 +198,14 @@ class Competitor:
 # -------------------------------------------------------------------------------------------------
 
 def parse(post):
-    """ ... """
+    """ Parse a comment body to extract the user's submitted times and events information. """
 
-    # As as long as a line of text "fits" this pattern, we will get a successful match. Otherwise we get 'None'.
+    # As as long as a line of text "fits" this pattern, we will get a successful match.
+    # Otherwise we get 'None'.
     matcher = re.compile('^(.+?)\\:\\s*([^\\s]+).*')
 
-    # Create a second matcher to find "empty" results. ONLY apply it if the first rule didn't match. (see below)
+    # Create a second matcher to find "empty" results.
+    # ONLY apply it if the first rule didn't match. (see below)
     dnf_matcher = re.compile('^([^\\:\\s]+)\\s*\\:.*')
 
     times = list()
@@ -217,63 +221,61 @@ def parse(post):
         result = matcher.match(content)
         dnf_result = dnf_matcher.match(content)
 
-        name = ''
         average = ''
-        if result != None:
+        if result is not None:
             # We have gotten a puzzle name and an average.
-            name = result.group(1)      #The first group was name.
-            if (result.group(1).lower() == "mirror blocks"):
+            if result.group(1).lower() == "mirror blocks":
                 events.append("3x3 Mirror Blocks/Bump")
-            elif (result.group(1).lower() == "3x3 mirror blocks/bump"):
+            elif result.group(1).lower() == "3x3 mirror blocks/bump":
                 events.append("3x3 Mirror Blocks/Bump")
-            elif (result.group(1).lower() == "3x3 relay"):
+            elif result.group(1).lower() == "3x3 relay":
                 events.append("3x3 Relay of 3")
-            elif (result.group(1).lower() == "relay of 3"):
+            elif result.group(1).lower() == "relay of 3":
                 events.append("3x3 Relay of 3")
-            elif (result.group(1).lower() == "5x5x5"):
+            elif result.group(1).lower() == "5x5x5":
                 events.append("5x5")
-            elif (result.group(1).lower() == "6x6x6"):
+            elif result.group(1).lower() == "6x6x6":
                 events.append("6x6")
-            elif (result.group(1).lower() == "7x7x7"):
+            elif result.group(1).lower() == "7x7x7":
                 events.append("7x7")
-            elif (result.group(1).lower() == "4x4oh"):
+            elif result.group(1).lower() == "4x4oh":
                 events.append("4x4 OH")
-            elif (result.group(1).lower() == "pyra"):
+            elif result.group(1).lower() == "pyra":
                 events.append("Pyraminx")
-            elif (result.group(1).lower() == "blind"):
+            elif result.group(1).lower() == "blind":
                 events.append("3BLD")
-            elif (result.group(1).lower() == "4x4oh"):
+            elif result.group(1).lower() == "4x4oh":
                 events.append("4x4 OH")
-            elif (result.group(1).lower() == "f2l"):
+            elif result.group(1).lower() == "f2l":
                 events.append("F2L")
-            elif (result.group(1).lower() == "bld"):
+            elif result.group(1).lower() == "bld":
                 events.append("3BLD")
-            elif (result.group(1).lower() == "pll time attack"):
+            elif result.group(1).lower() == "pll time attack":
                 events.append("PLL Time Attack")
-            elif (result.group(1).lower() == "3x3 mirror blocks/bump"):
+            elif result.group(1).lower() == "3x3 mirror blocks/bump":
                 events.append("3x3 Mirror Blocks/Bump")
-            elif (result.group(1).lower() == "3x3 mirror blocks"):
+            elif result.group(1).lower() == "3x3 mirror blocks":
                 events.append("3x3 Mirror Blocks/Bump")
-            elif (result.group(1).lower() == "mirror blocks/bump"):
+            elif result.group(1).lower() == "mirror blocks/bump":
                 events.append("3x3 Mirror Blocks/Bump")
-            elif (result.group(1).lower() == "3x3 with feet"):
+            elif result.group(1).lower() == "3x3 with feet":
                 events.append("3x3 With Feet")
-            elif (result.group(1).lower() == "3x3 oh"):
+            elif result.group(1).lower() == "3x3 oh":
                 events.append("3x3OH")
-            elif (result.group(1).lower() == "oll"):
+            elif result.group(1).lower() == "oll":
                 events.append("OH OLL")
             else:
                 events.append(result.group(1))
-                
+
             average = result.group(2)   #The second group was average.
-            if (":" in average):
+            if ":" in average:
                 try:
                     mins = (int)(average[0: average.index(":")])
                     secs = (int)(average[average.index(":") + 1: average.index(".")])
                     dec = (int)(average[average.index(".") + 1: average.index(".") + 3])
 
                     secs += mins * 60
-                    if (dec < 10):
+                    if dec < 10:
                         average = str(secs) + ".0" + str(dec)
                     else:
                         average = str(secs) + "." + str(dec)
@@ -286,13 +288,12 @@ def parse(post):
             except:
                 times.append("Error")
 
-        elif dnf_result != None:
+        elif dnf_result is not None:
             # We have a puzzle name, but no average.
-            name = dnf_result.group(1)
             events.append(dnf_result.group(1))
             times.append("Error")
 
         else:
-            #If a line didn't match any of the two rules, skip it.
+            # If a line didn't match any of the two rules, skip it.
             continue
     return [times, events, raw_times]

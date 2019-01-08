@@ -1,7 +1,6 @@
 """ Utility module for persisting and retrieving Competitions, and information related
 to Competitions. """
 
-from collections import OrderedDict
 from datetime import datetime
 
 from sqlalchemy.orm import joinedload
