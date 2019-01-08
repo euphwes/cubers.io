@@ -1,6 +1,6 @@
 """ Routes related to displaying competition results. """
 
-from flask import render_template, redirect, abort
+from flask import render_template, redirect
 from flask_login import current_user
 
 from app import CUBERS_APP
@@ -8,6 +8,7 @@ from app.persistence.comp_manager import get_active_competition, get_complete_co
     get_previous_competition, get_competition, get_all_comp_events_for_comp
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp,\
     blacklist_results, unblacklist_results, UserEventResultsDoesNotExistException
+from app.business.rankings import precalculate_site_rankings_for_event
 
 # -------------------------------------------------------------------------------------------------
 
@@ -16,13 +17,18 @@ def blacklist(results_id):
     """ Blacklists the specified UserEventResults. """
 
     if not (current_user.is_authenticated and current_user.is_admin):
-        return ("Hey, you're not allowed to do this.", 500)
+        return ("Hey, you're not allowed to do that.", 500)
 
+    # pylint: disable=W0703
     try:
         note = "Manually blacklisted by {}".format(current_user.username)
         results = blacklist_results(results_id, note)
-        # TODO: recalc site rankings
-        # event_to_recalc = results.CompetitionEvent.Event
+        # TODO: recalculate PBs just for this user
+
+        # Blacklisting a result will bump this person down in the ranks, meaning other people will
+        # rise in the ranks. Recalculate UserSiteRankings for all users, just for this event
+        precalculate_site_rankings_for_event(results.CompetitionEvent.Event)
+
         return ('', 204)
 
     except UserEventResultsDoesNotExistException as ex:
@@ -37,12 +43,17 @@ def unblacklist(results_id):
     """ Unblacklists the specified UserEventResults. """
 
     if not (current_user.is_authenticated and current_user.is_admin):
-        return ("Hey, you're not allowed to do this.", 500)
+        return ("Hey, you're not allowed to do that.", 500)
 
+    # pylint: disable=W0703
     try:
         results = unblacklist_results(results_id)
-        # TODO: recalc site rankings
-        # event_to_recalc = results.CompetitionEvent.Event
+        # TODO: recalculate PBs just for this user
+
+        # Unlacklisting a result will bump this person up in the ranks, meaning other people will
+        # fall in the ranks. Recalculate UserSiteRankings for all users, just for this event
+        precalculate_site_rankings_for_event(results.CompetitionEvent.Event)
+
         return ('', 204)
 
     except UserEventResultsDoesNotExistException as ex:
@@ -65,6 +76,7 @@ def results_list():
 @CUBERS_APP.route('/redirect_curr/')
 def curr_leaders():
     """ Redirects to the current competition's leaderboards. """
+
     comp = get_active_competition()
     return redirect("leaderboards/{}".format(comp.id))
 
@@ -72,6 +84,7 @@ def curr_leaders():
 @CUBERS_APP.route('/redirect_prev/')
 def prev_leaders():
     """ Redirects to the current competition's leaderboards. """
+
     comp = get_previous_competition()
     return redirect("leaderboards/{}".format(comp.id))
 

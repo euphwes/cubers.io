@@ -9,11 +9,52 @@ from app.persistence.models import Competition, CompetitionEvent, Event, UserEve
 from app.persistence.comp_manager import get_previous_competition
 from app.persistence.events_manager import get_all_events, get_all_events_user_has_participated_in
 from app.persistence.user_manager import get_all_users
-from app.persistence.user_site_rankings_manager import save_or_update_site_rankings_for_user
+from app.persistence.user_site_rankings_manager import save_or_update_site_rankings_for_user,\
+    update_one_event_site_rankings_for_user
 
 # -------------------------------------------------------------------------------------------------
 #                   Stuff for pre-calculating user PB records with site rankings
 # -------------------------------------------------------------------------------------------------
+
+def precalculate_site_rankings_for_event(event):
+    """ Precalculate user site rankings for just the specified event. """
+
+    # It doesn't make sense to keep COLL records, since it's a single alg that changes weekly
+    if event.name == "COLL":
+        return
+
+    # Each of these dicts are of the following form:
+    #    dict[Event][ordered list of PersonalBestRecords]
+    events_pb_singles = dict()
+    events_pb_averages = dict()
+
+    # Retrieve the the ordered list of PersonalBestRecords for singles for this event
+    ordered_pb_singles = get_ordered_pb_singles_for_event(event.id)
+
+    # If nobody at all has competed in this event, just leave
+    if not ordered_pb_singles:
+        return
+
+    events_pb_singles[event] = ordered_pb_singles
+
+    # Retrieve the the ordered list of PersonalBestRecords for averages for this event
+    ordered_pb_averages = get_ordered_pb_averages_for_event(event.id)
+    events_pb_averages[event] = ordered_pb_averages
+
+    # Iterate through all users to determine their site rankings and PBs
+    for user in get_all_users():
+
+        # Calculate site rankings for the user for just this event
+        rankings = _calculate_site_rankings_for_user(user.id, events_pb_singles,\
+            events_pb_averages, event_override=event)
+
+        # If the user hasn't competed in anything, no need to save site rankings.
+        if not rankings.keys():
+            continue
+
+        # Save to the database
+        update_one_event_site_rankings_for_user(user.id, rankings, event)
+
 
 def precalculate_user_site_rankings():
     """ Precalculate user site rankings for event PBs for all users. """
@@ -49,7 +90,7 @@ def precalculate_user_site_rankings():
     for user in get_all_users():
 
         # Calculate site rankings for the user
-        rankings = calculate_site_rankings_for_user(user.id, events_pb_singles, events_pb_averages)
+        rankings = _calculate_site_rankings_for_user(user.id, events_pb_singles, events_pb_averages)
 
         # If the user hasn't competed in anything, no need to save site rankings.
         if not rankings.keys():
@@ -59,17 +100,24 @@ def precalculate_user_site_rankings():
         save_or_update_site_rankings_for_user(user.id, rankings, previous_comp)
 
 
-def calculate_site_rankings_for_user(user_id, event_singles_map, event_averages_map):
-    """ Returns a dict of the user's PB singles and averages for all events they've
-    participated in, as well as their rankings amongst the site's users. Format is:
-    dict[Event][(single, single_site_ranking, average, average_site_ranking)] """
+def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages_map, event_override=None):
+    """ Returns a dict of the user's PB singles and averages for all events they've participated in,
+    as well as their rankings amongst the site's users. Format is:
+    dict[event ID][(single, single_site_ranking, average, average_site_ranking)] """
 
     print('Calculating site rankings for user {}'.format(user_id))
 
     user_rankings = OrderedDict()
 
-    for event in get_all_events_user_has_participated_in(user_id):
+    # If an event_override is specified, only calculate rankings for that specific event
+    if event_override:
+        events_to_consider = [event_override]
 
+    # Otherwise work through all events for this user
+    else:
+        events_to_consider = get_all_events_user_has_participated_in(user_id)
+
+    for event in events_to_consider:
         pb_single    = ''
         single_rank  = ''
         pb_average   = ''
