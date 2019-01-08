@@ -57,7 +57,9 @@ def are_results_different_than_existing(comp_event_results, user):
     return existing_results.comment != comp_event_results.comment
 
 
-def determine_if_any_pbs(user, event_result):
+def set_pb_flags(user, event_result):
+    """ Sets the appropriate flag if either the single or average for this event is a PB. """
+
     comp_event = get_comp_event_by_id(event_result.comp_event_id)
     event_id = comp_event.Event.id
 
@@ -167,37 +169,41 @@ def get_pbs_for_user_and_event_excluding_latest(user_id, event_id):
     results for this comp, and the logic determining if this comp has a PB result doesn't include
     this comp itself. """
 
+    # TODO: refactor this somewhere where user event results are processed, and use funcs below:
+    # get_pb_single_event_results_except_current_comp
+    # get_pb_average_event_results_except_current_comp
+
     current_comp_id = get_active_competition().id
 
     results_with_pb_singles = DB.session.\
-            query(UserEventResults).\
-            join(User).\
-            join(CompetitionEvent).\
-            join(Competition).\
-            join(Event).\
-            filter(Event.id == event_id).\
-            filter(User.id == user_id).\
-            filter(Competition.id != current_comp_id).\
-            filter(UserEventResults.was_pb_single).\
-            filter(UserEventResults.is_complete).\
-            order_by(UserEventResults.id).\
-            all()
+        query(UserEventResults).\
+        join(User).\
+        join(CompetitionEvent).\
+        join(Competition).\
+        join(Event).\
+        filter(Event.id == event_id).\
+        filter(User.id == user_id).\
+        filter(Competition.id != current_comp_id).\
+        filter(UserEventResults.was_pb_single).\
+        filter(UserEventResults.is_complete).\
+        order_by(UserEventResults.id).\
+        all()
 
     singles = [pb_repr(r.single) for r in results_with_pb_singles]
 
     results_with_pb_averages = DB.session.\
-            query(UserEventResults).\
-            join(User).\
-            join(CompetitionEvent).\
-            join(Competition).\
-            join(Event).\
-            filter(Event.id == event_id).\
-            filter(User.id == user_id).\
-            filter(Competition.id != current_comp_id).\
-            filter(UserEventResults.was_pb_average).\
-            filter(UserEventResults.is_complete).\
-            order_by(UserEventResults.id).\
-            all()
+        query(UserEventResults).\
+        join(User).\
+        join(CompetitionEvent).\
+        join(Competition).\
+        join(Event).\
+        filter(Event.id == event_id).\
+        filter(User.id == user_id).\
+        filter(Competition.id != current_comp_id).\
+        filter(UserEventResults.was_pb_average).\
+        filter(UserEventResults.is_complete).\
+        order_by(UserEventResults.id).\
+        all()
 
     averages = [pb_repr(r.average) for r in results_with_pb_averages]
 
@@ -207,8 +213,107 @@ def get_pbs_for_user_and_event_excluding_latest(user_id, event_id):
     return pb_single, pb_average
 
 
+def get_pb_single_event_results_except_current_comp(user_id, event_id):
+    """ Returns the UserEventResults which were a PB single for the specified user and event. """
+
+    current_comp_id = get_active_competition().id
+
+    return DB.session.\
+        query(UserEventResults).\
+        join(User).\
+        join(CompetitionEvent).\
+        join(Competition).\
+        join(Event).\
+        filter(Event.id == event_id).\
+        filter(User.id == user_id).\
+        filter(Competition.id != current_comp_id).\
+        filter(UserEventResults.was_pb_single).\
+        filter(UserEventResults.is_blacklisted.isnot(True)).\
+        filter(UserEventResults.is_complete).\
+        order_by(UserEventResults.id).\
+        all()
+
+
+def get_pb_average_event_results_except_current_comp(user_id, event_id):
+    """ Returns the UserEventResults which were a PB average for the specified user and event. """
+
+    current_comp_id = get_active_competition().id
+
+    return DB.session.\
+        query(UserEventResults).\
+        join(User).\
+        join(CompetitionEvent).\
+        join(Competition).\
+        join(Event).\
+        filter(Event.id == event_id).\
+        filter(User.id == user_id).\
+        filter(Competition.id != current_comp_id).\
+        filter(UserEventResults.was_pb_average).\
+        filter(UserEventResults.is_blacklisted.isnot(True)).\
+        filter(UserEventResults.is_complete).\
+        order_by(UserEventResults.id).\
+        all()
+
+
+def get_all_complete_user_results_for_comp(comp_id):
+    """ Gets all complete UserEventResults for the specified competition. """
+
+    return DB.session.\
+        query(UserEventResults).\
+        join(CompetitionEvent).\
+        join(Competition).\
+        join(Event).\
+        filter(Competition.id == comp_id).\
+        filter(UserEventResults.is_complete)
+
+
+def get_all_complete_user_results_for_comp_and_user(comp_id, user_id):
+    """ Gets all complete UserEventResults for the specified competition and user. """
+
+    return DB.session.\
+        query(UserEventResults).\
+        join(User).\
+        join(CompetitionEvent).\
+        join(Competition).\
+        join(Event).\
+        filter(Competition.id == comp_id).\
+        filter(User.id == user_id).\
+        filter(UserEventResults.is_complete).\
+        all()
+
+
+def get_all_user_results_for_comp_and_user(comp_id, user_id):
+    """ Gets all UserEventResults for the specified competition and user. """
+
+    return DB.session.\
+        query(UserEventResults).\
+        join(User).\
+        join(CompetitionEvent).\
+        join(Competition).\
+        join(Event).\
+        filter(Competition.id == comp_id).\
+        filter(User.id == user_id)
+
+
+def get_all_complete_user_results_for_user_and_event(user_id, event_id):
+    """ Gets all complete UserEventResults for the specified event and user
+    i.e all 3x3 results for joe """
+
+    return DB.session.\
+        query(UserEventResults).\
+        join(User).\
+        join(CompetitionEvent).\
+        join(Event).\
+        filter(Event.id == event_id).\
+        filter(User.id == user_id).\
+        filter(UserEventResults.is_complete).\
+        order_by(UserEventResults.id).\
+        all()
+
+
 def bulk_save_event_results(results_list):
     """ Save a bunch of results at once. """
+    
     for result in results_list:
         DB.session.add(result)
     DB.session.commit()

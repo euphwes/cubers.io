@@ -16,6 +16,7 @@ from app.util.generate_comp import generate_new_competition
 from app.util.score_comp import score_previous_competition
 
 from . import CUBERS_APP
+from .business.rankings import precalculate_user_site_rankings
 from .persistence.models import EventFormat
 from .persistence.comp_manager import get_event_by_name, save_new_competition,\
     get_active_competition, get_all_complete_user_results_for_user_and_event, get_all_events,\
@@ -23,7 +24,7 @@ from .persistence.comp_manager import get_event_by_name, save_new_competition,\
 from .persistence.user_manager import get_all_users, get_user_by_username
 from .persistence.user_results_manager import get_all_null_is_complete_event_results,\
     get_all_na_average_event_results, save_event_results_for_user, get_all_complete_event_results,\
-    bulk_save_event_results, precalculate_user_site_rankings
+    bulk_save_event_results
 from .util.events_util import determine_best_single, determine_bests, determine_event_result
 from .util.reddit_util import build_times_string
 from .routes.home import do_reddit_submit

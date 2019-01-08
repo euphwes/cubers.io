@@ -12,7 +12,7 @@ def get_all_users():
 
 
 def update_or_create_user(username, refresh_token):
-    """ Updates a user with the provided refresh token, or creates a new user. Returns the user. """
+    """ Creates or updates a user with the provided refresh token. Returns the user. """
 
     user = get_user_by_username(username)
 

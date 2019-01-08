@@ -1,4 +1,5 @@
-""" Utility module for providing access to business logic for competitions, events, etc. """
+""" Utility module for persisting and retrieving Competitions, and information related
+to Competitions. """
 
 from collections import OrderedDict
 from datetime import datetime
@@ -8,27 +9,22 @@ from sqlalchemy.orm import joinedload
 from app import DB
 from app.persistence.models import Competition, CompetitionEvent, Event, Scramble,\
 CompetitionGenResources, UserEventResults, User
+from app.persistence.events_manager import get_event_by_name
 
 # -------------------------------------------------------------------------------------------------
 
-def get_user_participated_competitions_count(user_id):
-    """ Returns a count of the number of competitions a user has participated in. """
+def get_competition(competition_id):
+    """ Get a competition by id """
 
-    return DB.session.\
-            query(Competition).\
-            join(CompetitionEvent).\
-            join(UserEventResults).\
-            filter(UserEventResults.is_complete).\
-            filter(UserEventResults.user_id == user_id).\
-            distinct(Competition.id).\
-            count()
+    return Competition.query.\
+        get(competition_id)
 
 
-def get_event_by_name(name):
-    """ Returns an event by name. """
+def get_competition_by_reddit_id(reddit_id):
+    """ Get a competition by reddit thread id """
 
-    return Event.query.\
-        filter(Event.name == name).\
+    return Competition.query.\
+        filter(Competition.reddit_thread_id == reddit_id).\
         first()
 
 
@@ -59,99 +55,31 @@ def get_all_comp_events_for_comp(comp_id):
         order_by(Event.id)
 
 
-def get_all_complete_user_results_for_comp(comp_id):
-    """ Gets all complete UserEventResults for the specified competition. """
+def get_comp_event_by_id(comp_event_id):
+    """ Returns a competition_event by id. """
+
+    return CompetitionEvent.query.\
+        filter(CompetitionEvent.id == comp_event_id).\
+        first()
+
+
+def get_user_participated_competitions_count(user_id):
+    """ Returns a count of the number of competitions a user has participated in. """
 
     return DB.session.\
-        query(UserEventResults).\
-        join(CompetitionEvent).\
-        join(Competition).\
-        join(Event).\
-        filter(Competition.id == comp_id).\
-        filter(UserEventResults.is_complete)
-
-
-def get_all_complete_user_results_for_comp_and_user(comp_id, user_id):
-    """ Gets all complete UserEventResults for the specified competition and user. """
-
-    return DB.session.\
-        query(UserEventResults).\
-        join(User).\
-        join(CompetitionEvent).\
-        join(Competition).\
-        join(Event).\
-        filter(Competition.id == comp_id).\
-        filter(User.id == user_id).\
-        filter(UserEventResults.is_complete).\
-        all()
-
-
-def get_all_user_results_for_comp_and_user(comp_id, user_id):
-    """ Gets all UserEventResults for the specified competition and user. """
-
-    return DB.session.\
-        query(UserEventResults).\
-        join(User).\
-        join(CompetitionEvent).\
-        join(Competition).\
-        join(Event).\
-        filter(Competition.id == comp_id).\
-        filter(User.id == user_id)
-
-
-def get_all_complete_user_results_for_user_and_event(user_id, event_id):
-    """ Gets all complete UserEventResults for the specified event and user
-    i.e all 3x3 results for joe """
-
-    return DB.session.\
-        query(UserEventResults).\
-        join(User).\
-        join(CompetitionEvent).\
-        join(Event).\
-        filter(Event.id == event_id).\
-        filter(User.id == user_id).\
-        filter(UserEventResults.is_complete).\
-        order_by(UserEventResults.id).\
-        all()
-
-
-def get_all_events():
-    """ Returns a list of all events. """
-
-    return DB.session.\
-        query(Event).\
-        order_by(Event.id).\
-        all()
-
-
-def get_events_id_name_mapping():
-    """ Returns a dictionary of event ID to name mappings. """
-
-    mapping = OrderedDict()
-    for event in get_all_events():
-        mapping[event.id] = event.name
-
-    return mapping
-
-
-def get_all_events_user_has_participated_in(user_id):
-    """ Returns a list of all events. """
-
-    return DB.session.\
-        query(Event).\
+        query(Competition).\
         join(CompetitionEvent).\
         join(UserEventResults).\
-        filter(UserEventResults.user_id == user_id).\
         filter(UserEventResults.is_complete).\
-        distinct(Event.id).\
-        all()
+        filter(UserEventResults.user_id == user_id).\
+        distinct(Competition.id).\
+        count()
 
 
 def get_participants_in_competition(comp_id):
     """ Returns a list of all participants in the specified competition. Participant is defined
     as somebody who has any complete UserEventResults in the specified competition. """
 
-    # pylint: disable=C0121
     results = DB.session.\
         query(UserEventResults).\
         join(CompetitionEvent).\
@@ -213,34 +141,11 @@ def get_all_competitions_user_has_participated_in(user_id):
         all()
 
 
-def get_competition(competition_id):
-    """ Get a competition by id """
-
-    return Competition.query.\
-        get(competition_id)
-
-
-def get_competition_by_reddit_id(reddit_id):
-    """ Get a competition by reddit thread id """
-
-    return Competition.query.\
-        filter(Competition.reddit_thread_id == reddit_id).\
-        first()
-
-
 def save_competition(competition):
     """ Save a modified competition object. """
 
     DB.session.add(competition)
     DB.session.commit()
-
-
-def get_comp_event_by_id(comp_event_id):
-    """ Returns a competition_event by id. """
-
-    return CompetitionEvent.query.\
-        filter(CompetitionEvent.id == comp_event_id).\
-        first()
 
 
 def save_new_competition(title, reddit_id, event_data):
@@ -273,7 +178,6 @@ def save_new_competition(title, reddit_id, event_data):
     DB.session.commit()
 
     return new_comp
-
 
 # -------------------------------------------------------------------------------------------------
 #              Stuff for CompetitionGenResources, which doesn't need its own file
