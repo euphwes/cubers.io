@@ -1,6 +1,7 @@
 """ Routes related to displaying competition results. """
 
 from flask import render_template, redirect
+from flask_login import current_user
 
 from app import CUBERS_APP
 from app.persistence.comp_manager import get_active_competition, get_complete_competitions,\
@@ -41,7 +42,19 @@ def comp_results(comp_id):
         return "Oops, that's not a real competition. Try again, ya clown."
 
     comp_events = get_all_comp_events_for_comp(comp_id)
-    results = get_all_complete_user_results_for_comp(comp_id)
+
+    # If the page is being viewed by an admin, include blacklisted results and set `show_admin`
+    # flag so we render the controls for toggling blacklist status
+    if current_user.is_authenticated and current_user.is_admin:
+        print('Admin {} viewing page, setting show_admin=True'.format(current_user.username))
+        show_admin = True
+        results = get_all_complete_user_results_for_comp(comp_id, omit_blacklisted=False)
+
+    # Otherwise this is being viewed by a normal user, omit blacklisted results like normal
+    # and don't set the `show_admin` flag
+    else:
+        show_admin = False
+        results = get_all_complete_user_results_for_comp(comp_id)
 
     event_names   = [event.Event.name for event in comp_events]
     event_results = {event.Event.name : list() for event in comp_events}
@@ -64,7 +77,7 @@ def comp_results(comp_id):
 
     return render_template("results/results_comp.html", alternative_title=alternative_title,\
         event_results=event_results, event_names=event_names, event_formats=event_formats,\
-        event_ids=event_ids)
+        event_ids=event_ids, show_admin=show_admin)
 
 # TODO: put the UserEventResults sorting stuff somewhere else
 

@@ -51,6 +51,9 @@
                                     <th scope="col">Average</th>
                                     <th scope="col">Best</th>
                                     <th scope="col" colspan="5" class="d-none d-md-table-cell">Solves</th>
+                                    {% if show_admin %}
+                                    <th scope="col">Action</th>
+                                    {% endif %}
                                 </tr>
                             </thead>
                             <tbody>
@@ -83,6 +86,17 @@
                                         {% for solve in result.solves_helper %}
                                         <td scope="col" class="d-none d-md-table-cell">{{ solve }}</td>
                                         {% endfor %}
+                                    {% endif %}
+                                    {% if show_admin %}
+                                        {% if result.is_blacklisted %}
+                                            <td scope="col">
+                                                <button class="btn btn-primary btn-xs btn-unblacklist" data-result-id="{{result.id}}" data-result-event="{{event_name}}" data-result-username="{{result.User.username}}">Unblacklist</button>
+                                            </th>
+                                        {% else %}
+                                            <td scope="col">
+                                                <button class="btn btn-danger btn-xs btn-blacklist" data-result-id="{{result.id}}" data-result-event="{{event_name}}" data-result-username="{{result.User.username}}">blacklist</button>
+                                            </th>
+                                        {% endif %}
                                     {% endif %}
                                 </tr>
                                 {% endfor %}

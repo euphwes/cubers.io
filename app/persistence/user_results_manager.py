@@ -254,16 +254,23 @@ def get_pb_average_event_results_except_current_comp(user_id, event_id):
         all()
 
 
-def get_all_complete_user_results_for_comp(comp_id):
+def get_all_complete_user_results_for_comp(comp_id, omit_blacklisted=True):
     """ Gets all complete UserEventResults for the specified competition. """
 
-    return DB.session.\
+    results_query = DB.session.\
         query(UserEventResults).\
         join(CompetitionEvent).\
         join(Competition).\
         join(Event).\
         filter(Competition.id == comp_id).\
         filter(UserEventResults.is_complete)
+
+    # Omitting blacklisted means only including results which are *not* True,
+    # aka including results where the blacklist flag is False or null/None
+    if omit_blacklisted:
+        results_query = results_query.filter(UserEventResults.is_blacklisted.isnot(True))
+
+    return results_query
 
 
 def get_all_complete_user_results_for_comp_and_user(comp_id, user_id):
