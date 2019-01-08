@@ -6,6 +6,8 @@
 
         this._registerEventsDataManagerListeners();
         this._registerAppModeManagerListeners();
+
+        this.defaultNavbarTitle = $('.navbar-brand').text();
     };
 
     /**
@@ -57,9 +59,10 @@
     };
 
     /**
-     * Shows the main screen.
+     * Shows the main screen, returning the navbar title back to its original value.
      */
     MainScreenManager.prototype._showMainScreen = function() {
+        $('.navbar-brand').text(this.defaultNavbarTitle);
         this.$mainScreenDiv.ultraShow();
     };
 
