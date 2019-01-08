@@ -1,24 +1,74 @@
 <div class="navbar navbar-expand-md navbar-dark fixed-top cubers-navbar">
     <div class="container-fluid">
         {% if alternative_title %}
-        <a class="navbar-brand" href="/">{{ alternative_title }}</a>
+        <a class="navbar-brand py-0" href="/">{{ alternative_title }}</a>
         {% else %}
         {% if current_competition %}
-        <a class="navbar-brand" href="/">{{ current_competition.title }}</a>
+        <a class="navbar-brand py-0" href="/">{{ current_competition.title }}</a>
         {% else %}
-        <a class="navbar-brand" href="/">cubers.io</a>
+        <a class="navbar-brand py-0" href="/">cubers.io</a>
         {% endif %}
         {% endif %}
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler py-0" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div id="navbarCollapse" class="collapse navbar-collapse">
-            <ul class="navbar-nav ml-auto">
+        <div id="navbarCollapse" class="collapse navbar-collapse py-0">
+            <ul class="navbar-nav ml-auto py-0">
                 <!--<li class="nav-item">
                     <a class="nav-link" href="#">Other</a>
                 </li>-->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" href="#">Leaderboards</a>
+                    <a class="nav-link dropdown-toggle py-0" role="button" data-toggle="dropdown" data-submenu href="#">Records</a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                        <div class="dropdown dropright dropdown-submenu">
+                            <button class="dropdown-item dropdown-toggle" type="button">
+                                WCA Events
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='3x3') }}">3x3</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='2x2') }}">2x2</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='4x4') }}">4x4</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='5x5') }}">5x5</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='6x6') }}">6x6</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='7x7') }}">7x7</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='3x3OH') }}">3x3OH</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='3x3 With Feet') }}">3x3 With Feet</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='Square-1') }}">Square-1</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='Clock') }}">Clock</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='FMC') }}">FMC</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='Pyraminx') }}">Pyraminx</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='Megaminx') }}">Megaminx</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='Skewb') }}">Skewb</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='3BLD') }}">3BLD</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='4BLD') }}">4BLD</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='5BLD') }}">5BLD</a>
+                            </div>
+                        </div>
+                        <div class="dropdown dropright dropdown-submenu">
+                            <button class="dropdown-item dropdown-toggle" type="button">
+                                Bonus Events
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='Kilominx') }}">Kilominx</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='Redi Cube') }}">Redi Cube</a>
+                                <a class="dropdown-item slim-nav-item" href="/event/3x3%20Mirror%20Blocks%252FBump">3x3 Mirror Blocks/Bump</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='Void Cube') }}">Void Cube</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='4x4 OH') }}">4x4 OH</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='3x3x2') }}">3x3x2</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='3x3x4') }}">3x3x4</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='3x3x5') }}">3x3x5</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='2GEN') }}">2GEN</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='F2L') }}">F2L</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='LSE') }}">LSE</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='2-3-4 Relay') }}">2-3-4 Relay</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='3x3 Relay of 3') }}">3x3 Relay of 3</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='PLL Time Attack') }}">PLL Time Attack</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle py-0" role="button" data-toggle="dropdown" href="#">Leaderboards</a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="{{ url_for('curr_leaders') }}">Current Competition</a>
                         <a class="dropdown-item" href="{{ url_for('prev_leaders') }}">Last Week's Competition</a>
@@ -28,13 +78,11 @@
                 </li>
                 {% if current_user.is_authenticated %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" href="#">
-                        <i class="fas fa-star" style="margin-right: 5px; color: yellow; font-size: 10px;"></i>{{ current_user.username }}
+                    <a class="nav-link dropdown-toggle py-0" role="button" data-toggle="dropdown" href="#">
+                        {{ current_user.username }}
                     </a>
                     <div class="dropdown-menu dropdown-menu-right">
-                        <a class="dropdown-item" href="{{ url_for('profile', username=current_user.username) }}">
-                            <i class="fas fa-star" style="margin-right: 5px; font-size: 10px;"></i>Profile (new!)
-                        </a>
+                        <a class="dropdown-item" href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
                         <!--<a class="dropdown-item" href="#">Settings</a>-->
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>

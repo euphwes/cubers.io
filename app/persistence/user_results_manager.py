@@ -378,9 +378,12 @@ def precalculate_user_site_rankings():
                 averages_values.append(int(average[1]))
             except:
                 averages_values.append(9999999999999)
-        ranked_PB_averages = list(Ranking(averages_values, start=1, reverse=True))
 
-        events_PB_averages[event] = (ordered_PB_averages, ranked_PB_averages)
+        if averages_values:
+            ranked_PB_averages = list(Ranking(averages_values, start=1, reverse=True))
+            events_PB_averages[event] = (ordered_PB_averages, ranked_PB_averages)
+        else:
+            events_PB_averages[event] = (list(), list())
 
     # Iterate through all users to determine their site rankings and PBs
     for user in get_all_users():
