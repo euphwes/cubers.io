@@ -6,10 +6,10 @@ from ranking import Ranking
 
 from app import DB
 from app.persistence.models import Competition, CompetitionEvent, Event, UserEventResults, User
-from app.persistence.comp_manager import get_all_events, get_previous_competition,\
-    get_all_events_user_has_participated_in
+from app.persistence.comp_manager import get_previous_competition
+from app.persistence.events_manager import get_all_events, get_all_events_user_has_participated_in
 from app.persistence.user_manager import get_all_users
-from app.persistence.user_results_manager import save_or_update_site_rankings_for_user
+from app.persistence.user_site_rankings_manager import save_or_update_site_rankings_for_user
 
 # -------------------------------------------------------------------------------------------------
 #                   Stuff for pre-calculating user PB records with site rankings
@@ -241,6 +241,7 @@ def get_ordered_pb_singles_for_event(event_id):
     # pylint: disable=C0301
     results = DB.session.\
         query(UserEventResults).\
+        join(User).\
         join(CompetitionEvent).\
         join(Event).\
         join(Competition).\
@@ -251,10 +252,11 @@ def get_ordered_pb_singles_for_event(event_id):
         group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username).\
         order_by(UserEventResults.id.desc()).\
         values(UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username)
+    # pylint: enable=C0301
 
     # NOTE: if adding anything to this tuple being selected in values(...) above, add it to the
-    # end so that code indexing this tuple doesn't get all jacked. Make sure to make an identical addition
-    # to `get_ordered_pb_averages_for_event` and update `_build_PersonalBestRecord`
+    # end so that code indexing this tuple doesn't get all jacked. Make sure to make an identical
+    # addition to `get_ordered_pb_averages_for_event` and update `_build_PersonalBestRecord`
 
     personal_bests = [_build_PersonalBestRecord(result) for result in results]
     personal_bests = _filter_one_pb_per_user(personal_bests)
@@ -282,12 +284,20 @@ def get_ordered_pb_averages_for_event(event_id):
         group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.average, Competition.id, Competition.title, User.username).\
         order_by(UserEventResults.id.desc()).\
         values(UserEventResults.user_id, UserEventResults.average, Competition.id, Competition.title, User.username)
+    # pylint: enable=C0301
 
     # NOTE: if adding anything to this tuple being selected in values(...) above, add it to the
-    # end so that code indexing this tuple doesn't get all jacked. Make sure to make an identical addition
-    # to `get_ordered_pb_singles_for_event` and update `_build_PersonalBestRecord`
+    # end so that code indexing this tuple doesn't get all jacked. Make sure to make an identical
+    # addition to `get_ordered_pb_singles_for_event` and update `_build_PersonalBestRecord`
 
     personal_bests = [_build_PersonalBestRecord(result) for result in results]
+
+    # Some events don't have averages, so it's ok to just return an empty list. Checking here
+    # instead of checking `results` above, because `results` is a generator and the contents have't
+    # been iterated yet
+    if not personal_bests:
+        return list()
+
     personal_bests = _filter_one_pb_per_user(personal_bests)
     personal_bests = _sort_by_speed(personal_bests)
     personal_bests = _determine_ranks(personal_bests)

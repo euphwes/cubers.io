@@ -45,9 +45,9 @@
                                 </td>
     
                                 {% if event_name == "FMC" %}
-                                <td>{{ record.pb | format_fmc_result }}</td>
+                                <td>{{ record.personal_best | format_fmc_result }}</td>
                                 {% else %}
-                                <td>{{ record.pb | friendly_time }}</td>
+                                <td>{{ record.personal_best | friendly_time }}</td>
                                 {% endif %}
     
                                 <td class="d-none d-md-table-cell">
@@ -77,9 +77,9 @@
                                 </td>
     
                                 {% if event_name == "FMC" %}
-                                <td>{{ record.pb | format_fmc_result }}</td>
+                                <td>{{ record.personal_best | format_fmc_result }}</td>
                                 {% else %}
-                                <td>{{ record.pb | friendly_time }}</td>
+                                <td>{{ record.personal_best | friendly_time }}</td>
                                 {% endif %}
     
                                 <td class="d-none d-md-table-cell">

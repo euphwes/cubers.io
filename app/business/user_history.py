@@ -2,8 +2,8 @@
 
 from collections import OrderedDict
 
-from app.persistence.comp_manager import get_all_events_user_has_participated_in,\
-    get_all_competitions_user_has_participated_in
+from app.persistence.comp_manager import get_all_competitions_user_has_participated_in
+from app.persistence.events_manager import get_all_events_user_has_participated_in
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp_and_user
 
 # -------------------------------------------------------------------------------------------------

@@ -40,6 +40,7 @@ pkginfo==1.4.2
 praw==5.4.0
 prawcore==0.14.0
 prompt-toolkit==1.0.15
+psycopg2-binary==2.7.6.1
 pycparser==2.18
 PyExecJS==1.5.1
 Pygments==2.2.0
