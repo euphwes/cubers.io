@@ -1,6 +1,6 @@
-@import "common.less";
+@import (reference) "common.less";
 
-@navbar-color: #021e38;
+@navbar-color: #042f57;
 
 //------------------------------------------------------------------------
 
@@ -12,16 +12,25 @@
         color: @off-white !important;
     }
 
+    .navbar-brand {
+        font-size: 18px;
+    }
+
     .dropdown-menu a {
         color: black !important;
     }
 
     .nav-item {
-        margin: 0px 10px;
+        margin: 0px 4px;
+        font-size: 14px;
 
         &:last-of-type {
             margin-right: 0px;
         }
+    }
+
+    .dropdown-item {
+        font-size: 14px;
     }
 
     .navbar-brand {
@@ -29,5 +38,11 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+
+    .slim-nav-item {
+        padding-bottom: .125rem!important;
+        padding-top: .125rem!important;
+        font-size: 14px;
     }
 }
