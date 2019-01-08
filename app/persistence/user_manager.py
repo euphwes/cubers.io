@@ -5,6 +5,18 @@ from app.persistence.models import User
 
 # -------------------------------------------------------------------------------------------------
 
+class UserDoesNotExistException(Exception):
+    """ An error raised when an attempting an operation on a user which does not exist. """
+
+    def __init__(self, username):
+        self.username = username
+        super(UserDoesNotExistException, self).__init__()
+
+    def __str__(self):
+        return "There is no user with the username '{}'".format(self.username)
+
+# -------------------------------------------------------------------------------------------------
+
 def get_all_users():
     """ Get all users. """
 
@@ -30,3 +42,35 @@ def get_user_by_username(username):
     """ Returns the user with this username, or else `None` if no such user exists. """
 
     return User.query.filter_by(username=username).first()
+
+
+def set_user_as_admin(username):
+    """ Sets admin status for a user. Raises UserDoesNotExistException if no such user exists. """
+
+    user = get_user_by_username(username)
+    if not user:
+        raise UserDoesNotExistException(username)
+
+    user.is_admin = True
+    DB.session.add(user)
+    DB.session.commit()
+
+
+def unset_user_as_admin(username):
+    """ Removes admin status for a user. Raises UserDoesNotExistException if user doesn't exist. """
+
+    user = get_user_by_username(username)
+    if not user:
+        raise UserDoesNotExistException(username)
+
+    user.is_admin = False
+    DB.session.add(user)
+    DB.session.commit()
+
+
+def get_all_admins():
+    """ Returns a list of all admin users. """
+
+    return User.query.\
+        filter_by(is_admin=True).\
+        all()

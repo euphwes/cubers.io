@@ -17,7 +17,8 @@ from .persistence.models import EventFormat
 from .persistence.comp_manager import save_new_competition, get_active_competition,\
     get_all_competitions, bulk_update_comps
 from .persistence.events_manager import get_event_by_name, get_all_events
-from .persistence.user_manager import get_all_users, get_user_by_username
+from .persistence.user_manager import get_all_users, get_user_by_username, get_all_admins,\
+    set_user_as_admin, unset_user_as_admin, UserDoesNotExistException
 from .persistence.user_results_manager import get_all_null_is_complete_event_results,\
     get_all_na_average_event_results, save_event_results_for_user, get_all_complete_event_results,\
     bulk_save_event_results, get_all_complete_user_results_for_user_and_event
@@ -59,6 +60,41 @@ def generate_new_comp_only(all_events, title):
 # -------------------------------------------------------------------------------------------------
 # Below are admin commands, for one-off app administration needs
 # -------------------------------------------------------------------------------------------------
+
+@CUBERS_APP.cli.command()
+@click.option('--username', '-u', type=str)
+def set_admin(username):
+    """ Sets the specified user as an admin. """
+
+    try:
+        set_user_as_admin(username)
+    except UserDoesNotExistException as ex:
+        print(ex)
+
+
+@CUBERS_APP.cli.command()
+@click.option('--username', '-u', type=str)
+def remove_admin(username):
+    """ Removes admin status for the specified user. """
+
+    try:
+        unset_user_as_admin(username)
+    except UserDoesNotExistException as ex:
+        print(ex)
+
+
+@CUBERS_APP.cli.command()
+def list_admins():
+    """ Lists all the admin users. """
+
+    admins = get_all_admins()
+    if not admins:
+        print('\nNo admins set')
+    else:
+        print('\nThe following users are admins:')
+        for user in get_all_admins():
+            print(user.username)
+
 
 @CUBERS_APP.cli.command()
 def calculate_all_user_site_rankings():
