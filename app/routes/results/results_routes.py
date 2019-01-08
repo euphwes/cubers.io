@@ -1,12 +1,55 @@
 """ Routes related to displaying competition results. """
 
-from flask import render_template, redirect
+from flask import render_template, redirect, abort
 from flask_login import current_user
 
 from app import CUBERS_APP
 from app.persistence.comp_manager import get_active_competition, get_complete_competitions,\
     get_previous_competition, get_competition, get_all_comp_events_for_comp
-from app.persistence.user_results_manager import get_all_complete_user_results_for_comp
+from app.persistence.user_results_manager import get_all_complete_user_results_for_comp,\
+    blacklist_results, unblacklist_results, UserEventResultsDoesNotExistException
+
+# -------------------------------------------------------------------------------------------------
+
+@CUBERS_APP.route('/results/blacklist/<int:results_id>/')
+def blacklist(results_id):
+    """ Blacklists the specified UserEventResults. """
+
+    if not (current_user.is_authenticated and current_user.is_admin):
+        return ("Hey, you're not allowed to do this.", 500)
+
+    try:
+        note = "Manually blacklisted by {}".format(current_user.username)
+        results = blacklist_results(results_id, note)
+        # TODO: recalc site rankings
+        # event_to_recalc = results.CompetitionEvent.Event
+        return ('', 204)
+
+    except UserEventResultsDoesNotExistException as ex:
+        return (str(ex), 500)
+
+    except Exception as ex:
+        return (str(ex), 500)
+
+
+@CUBERS_APP.route('/results/unblacklist/<int:results_id>/')
+def unblacklist(results_id):
+    """ Unblacklists the specified UserEventResults. """
+
+    if not (current_user.is_authenticated and current_user.is_admin):
+        return ("Hey, you're not allowed to do this.", 500)
+
+    try:
+        results = unblacklist_results(results_id)
+        # TODO: recalc site rankings
+        # event_to_recalc = results.CompetitionEvent.Event
+        return ('', 204)
+
+    except UserEventResultsDoesNotExistException as ex:
+        return (str(ex), 500)
+
+    except Exception as ex:
+        return (str(ex), 500)
 
 # -------------------------------------------------------------------------------------------------
 

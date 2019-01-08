@@ -9,6 +9,19 @@ from app.util.reddit_util import build_times_string
 
 # -------------------------------------------------------------------------------------------------
 
+class UserEventResultsDoesNotExistException(Exception):
+    """ An error raised when an attempting an operation on a UserEventResults
+    which does not exist. """
+
+    def __init__(self, results_id):
+        self.results_id = results_id
+        super(UserEventResultsDoesNotExistException, self).__init__()
+
+    def __str__(self):
+        return "There is no UserEventResults with id {}".format(self.results_id)
+
+# -------------------------------------------------------------------------------------------------
+
 # TODO factor this out into a shared location or utility
 starting_max  = 999999999999
 dnf_hack_time = 999999999000
@@ -20,6 +33,46 @@ def pb_repr(time):
         return starting_max
     else:
         return int(time)
+
+
+def blacklist_results(results_id, note):
+    """ Blacklists the specified UserEventResults. """
+
+    results = DB.session.\
+        query(UserEventResults).\
+        filter(UserEventResults.id == results_id).\
+        first()
+
+    if not results:
+        raise UserEventResultsDoesNotExistException(results_id)
+
+    results.is_blacklisted = True
+    results.blacklist_note = note
+
+    DB.session.add(results)
+    DB.session.commit()
+
+    return results
+
+
+def unblacklist_results(results_id):
+    """ Unblacklists the specified UserEventResults. """
+
+    results = DB.session.\
+        query(UserEventResults).\
+        filter(UserEventResults.id == results_id).\
+        first()
+
+    if not results:
+        raise UserEventResultsDoesNotExistException(results_id)
+
+    results.is_blacklisted = False
+    results.blacklist_note = ''
+
+    DB.session.add(results)
+    DB.session.commit()
+
+    return results
 
 
 def get_user_completed_solves_count(user_id):
@@ -319,7 +372,7 @@ def get_all_complete_user_results_for_user_and_event(user_id, event_id):
 
 def bulk_save_event_results(results_list):
     """ Save a bunch of results at once. """
-    
+
     for result in results_list:
         DB.session.add(result)
     DB.session.commit()

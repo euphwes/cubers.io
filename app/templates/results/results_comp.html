@@ -6,6 +6,9 @@
 
 {% block content %}
 <div class="container-fluid cubers-container white-container" style="margin-top: 15px;">
+    {% if show_admin %}
+    <div id="loading-spinner" class="loading hidden_icon"></div>
+    {% endif %}
     <div class="row">
         <div class="col-2 col-md-2 col-lg-2">
             <div class="results-links-area">
@@ -90,7 +93,7 @@
                                     {% if show_admin %}
                                         {% if result.is_blacklisted %}
                                             <td scope="col">
-                                                <button class="btn btn-primary btn-xs btn-unblacklist" data-result-id="{{result.id}}" data-result-event="{{event_name}}" data-result-username="{{result.User.username}}">Unblacklist</button>
+                                                <button class="btn btn-success btn-xs btn-unblacklist" data-result-id="{{result.id}}" data-result-event="{{event_name}}" data-result-username="{{result.User.username}}">unblacklist</button>
                                             </th>
                                         {% else %}
                                             <td scope="col">
@@ -117,6 +120,49 @@
         if (!Boolean(new MobileDetect(window.navigator.userAgent).mobile())) {
             $('[data-toggle="tooltip"]').tooltip();
         }
+
+        var perform_admin_action = function(action, className, url, $event_btn) {
+            var username   = $event_btn.data("result-username");
+            var result_id  = $event_btn.data("result-id");
+            var event_name = $event_btn.data("result-event");
+
+            var confirm_msg = action + " this " + event_name + " result for " + username + "?";
+            confirm_msg += "<br><br>This will cause a site-wide recalculation of rankings for this event."
+
+            bootbox.confirm({
+                message: confirm_msg,
+                buttons: {
+                    confirm: {
+                        label: action,
+                        className: className
+                    },
+                    cancel: {
+                        label: 'Cancel',
+                    }
+                },
+                callback: function (confirmed) {
+                    if (confirmed) {
+                        $('#loading-spinner').removeClass('hidden_icon');
+                        $.get(url + result_id, function(){
+                            location.reload();
+                        })
+                        .fail(function(request, status, error) {
+                            $('#loading-spinner').addClass('hidden_icon');
+                            bootbox.alert(request.responseText);
+                        });
+                    }
+                }
+            });
+        };
+
+        $('.btn-unblacklist').click(function() {
+            perform_admin_action("Unblacklist", "btn-success", "/results/unblacklist/", $(this));
+        });
+
+        $('.btn-blacklist').click(function() {
+            perform_admin_action("Blacklist", "btn-danger", "/results/blacklist/", $(this));
+        });
+
     })
 </script>
 {% endblock %}
