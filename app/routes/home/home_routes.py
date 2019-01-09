@@ -15,79 +15,114 @@ from app.persistence.user_results_manager import get_event_results_for_user
 def index():
     """ Main page for the app. Shows cards for every event in the current competition."""
 
-    # TODO: comment below to explain wtf is going on
-
     if (not current_user.is_authenticated) and (not 'nologin' in request.args):
         return redirect(url_for(".prompt_login"))
 
     comp = comp_manager.get_active_competition()
 
-    # Just make this DB query once, so we don't have to keep doing it
-    # below when we fill in any existing user data.
-    if current_user.is_authenticated:
-        user = get_user_by_username(current_user.username)
+    # If somebody is logged in, get that user so we can pre-fill the events data later.
+    user = get_user_by_username(current_user.username) if current_user.is_authenticated else None
 
+    # This `events_for_json` dictionary is rendered into the page as a Javascript object, to be
+    # pulled in by the main JS app's events data manager. Keys are competitionEvent ID and the
+    # values are a dictionary containing the event name, event ID, event format, user comment,
+    # and scrambles. The scrambles here a dictionary themselves containing the scramble ID, actual
+    # scramble text, and has a placeholder for any complete user times to be filled in.
     events_for_json = dict()
+
+    # Iterate over each competition event in this event, get the dict representation of it
+    # that can be used in the front end to render everything. If there is a logged-in user,
+    # fill that event dict with info about that user's completed solves, comments, etc
     for comp_event in comp.events:
         event_dict = comp_event.to_front_end_consolidated_dict()
-        if current_user.is_authenticated:
-            event = fill_any_existing_user_data(user, event_dict)
+        fill_user_data_for_event(user, event_dict)
         events_for_json[str(comp_event.id)] = event_dict
 
+    # Build a list of competition events in this comp, ordered by their event ID
+    # This ordering ensures events are ordered relative to each other in the same way each comp
     ordered_comp_events = list([comp_event for comp_event in comp.events])
     ordered_comp_events.sort(key=lambda c: c.event_id)
 
+    # Record which events are complete and which are incomplete, so we can render the event cards
+    # on the front end directly with the correct completion status (checkmark for complete, clock
+    # for started but incomplete). Otherwise we need to calculate that after the page loads and
+    # there's a fugly flicker when we apply those styles to the event cards
     complete_events = dict()
     incomplete_events = dict()
     for comp_event_id, event in events_for_json.items():
-        if event.get('status', '') == 'complete':
+        if event.get(STATUS, '') == STATUS_COMPLETE:
             complete_events[int(comp_event_id)] = event
-        elif event.get('status', '') == 'incomplete':
+        elif event.get(STATUS, '') == STATUS_INCOMPLETE:
             incomplete_events[int(comp_event_id)] = event
 
+    # Phew finally we can just render the page
+    # pylint: disable=C0330
     return render_template('index.html', current_competition=comp, events_data=events_for_json,
-                           ordered_comp_events=ordered_comp_events, complete_events=complete_events,
-                           incomplete_events=incomplete_events, comp_id=comp.id)
+        ordered_comp_events=ordered_comp_events, complete_events=complete_events,
+        incomplete_events=incomplete_events, comp_id=comp.id)
 
 
 @CUBERS_APP.route('/prompt_login')
 def prompt_login():
     """ Prompts the user to login for the best experience. """
+
     comp = comp_manager.get_active_competition()
     return render_template('prompt_login/prompt_login.html', current_competition=comp)
 
 # -------------------------------------------------------------------------------------------------
 
-def fill_any_existing_user_data(user, event):
-    """ Checks """
+# The front-end dictionary keys
+COMMENT       = 'comment'
+SOLVES        = 'scrambles' # Because the solve times are paired with the scrambles in the front end
+TIME          = 'time'
+SCRAMBLE_ID   = 'id'
+IS_DNF        = 'isDNF'
+IS_PLUS_TWO   = 'isPlusTwo'
+COMP_EVENT_ID = 'comp_event_id'
+STATUS        = 'status'
+SUMMARY       = 'summary'
 
-    # TODO: docstring above
+# Completeness status
+STATUS_COMPLETE   = 'complete'
+STATUS_INCOMPLETE = 'incomplete'
 
-    # TODO comment below to describe
+def fill_user_data_for_event(user, event_data):
+    """ Checks if the user has a UserEventResults for this competition event. If they do, aggregate
+    their data (user comment, solve times, solve penalty flags, etc) into the event data dictionary
+    being passed to the front end so it's available at render-time and available to the JS app's
+    events data manager.  """
 
-    # TODO possibly clean this up somehow with another named data structure or something?
+    # If there's no logged in user, there's nothing to fill in
+    if not user:
+        return
 
-    prev = get_event_results_for_user(event['comp_event_id'], user)
-    if not prev:
-        return event
+    # Get UserEventResults for this competition event and user.
+    # If there are no results, there's nothing to fill in, so we can just bail.
+    results = get_event_results_for_user(event_data[COMP_EVENT_ID], user)
+    if not results:
+        return
 
-    scrambles_completed = 0
+    # Remember the user's comment, so we can use it up front if they visit that event again
+    event_data[COMMENT] = results.comment
 
-    event['comment'] = prev.comment
-    for solve in prev.solves:
-        scramble_id = solve.scramble_id
-        for scram in event['scrambles']:
-            if scram['id'] != scramble_id:
+    # Iterate through all the solves completed by the user, matching them to a scramble in
+    # the events data. Record the time and penalty information so we have it up front.
+    for solve in results.solves:
+        for scramble in event_data[SOLVES]:
+            if scramble[SCRAMBLE_ID] != solve.scramble_id:
                 continue
-            scram['time'] = solve.time
-            scram['isPlusTwo'] = solve.is_plus_two
-            scram['isDNF'] = solve.is_dnf
-            scrambles_completed += 1
 
-    if prev.is_complete:
-        event['summary'] = build_event_summary(event, user)
-        event['status']  = 'complete'
-    elif scrambles_completed > 0:
-        event['status']  = 'incomplete'
+            scramble[TIME]        = solve.time
+            scramble[IS_DNF]      = solve.is_dnf
+            scramble[IS_PLUS_TWO] = solve.is_plus_two
 
-    return event
+    # If the UserEventResults indicates the user has completed the event, then set the event status
+    # to complete so we can stick the nice pleasing checkmark on the card at render time
+    if results.is_complete:
+        event_data[STATUS]  = STATUS_COMPLETE
+        event_data[SUMMARY] = build_event_summary(event_data, user)
+
+    # If the event is not complete but has some solves, set the status as 'incomplete' so we can
+    # render the
+    elif bool(list(results.solves)):
+        event_data[STATUS] = STATUS_INCOMPLETE
