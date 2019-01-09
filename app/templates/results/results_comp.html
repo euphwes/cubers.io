@@ -61,12 +61,21 @@
                             </thead>
                             <tbody>
                                 {% for result in event_results[event_name] %}
+
                                 {% if current_user.is_authenticated and current_user.username == result.User.username %}
                                     {% set its_me = 'hey-its-me' %}
                                 {% else %}
                                     {% set its_me = '' %}
                                 {% endif %}
-                                <tr class="{{ its_me }}">
+
+                                {% if result.is_blacklisted %}
+                                    {% set blacklist_class = 'blacklisted-result' %}
+                                    {% set its_me = '' %}
+                                {% else %}
+                                    {% set blacklist_class = '' %}
+                                {% endif %}
+
+                                <tr class="{{ its_me }} {{ blacklist_class }}">
                                     <td scope="row">{{ loop.index }}</td>
                                     <td scope="col" class="d-none d-md-table-cell">
                                         {% if result.comment|trim() %}
