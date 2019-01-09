@@ -6,14 +6,12 @@ from flask import request, abort
 from flask_login import current_user
 
 from app import CUBERS_APP
-from app.business.user_results import build_user_event_results
-from app.persistence.models import EventFormat
+from app.business.user_results import build_user_event_results, build_event_summary
 from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import save_event_results_for_user,\
     are_results_different_than_existing, get_comment_id_by_comp_id_and_user,\
     get_event_results_for_user, get_all_complete_user_results_for_comp_and_user
 from app.persistence.comp_manager import get_competition
-from app.persistence.events_manager import get_event_by_name
 from app.util.reddit_util import build_times_string, convert_centiseconds_to_friendly_time,\
     build_comment_source_from_events_results, submit_comment_for_user, update_comment_for_user,\
     get_permalink_for_user_and_comment
@@ -23,8 +21,6 @@ from app.util.reddit_util import build_times_string, convert_centiseconds_to_fri
 @CUBERS_APP.route('/save_event', methods=['POST'])
 def save_event():
     """ A route for saving a specific event to the database. """
-
-    # TODO: clean this up, a lot of this is business logic which shouldn't be in here
 
     if not current_user.is_authenticated:
         return abort(400, "authenticated users only")
@@ -53,7 +49,7 @@ def save_event():
 
         return ('', 204) # intentionally empty, 204 No Content
 
-    # TODO: figure out what exceptions can happen here, probably mostly Reddit ones
+    # TODO: Figure out specific exceptions that can happen here, probably mostly Reddit ones
     # pylint: disable=W0703
     except Exception as ex:
         return abort(500, str(ex))
@@ -71,7 +67,7 @@ def get_event_summaries():
     data = request.get_json()
     user = get_user_by_username(current_user.username)
 
-    summaries = {event['comp_event_id']: build_summary(event, user) for event in data}
+    summaries = {event['comp_event_id']: build_event_summary(event, user) for event in data}
 
     return json.dumps(summaries)
 
@@ -89,36 +85,6 @@ def comment_url(comp_id):
         return ""
 
     return get_permalink_for_user_and_comment(user, comment_id)
-
-
-def build_summary(event, user):
-    """ Builds the summary for the event and returns it. """
-
-    # TODO: does this belong here?
-
-    friendly = convert_centiseconds_to_friendly_time
-
-    wrapped_dict = dict()
-    wrapped_dict[event['comp_event_id']] = event
-
-    results = build_user_event_results(wrapped_dict, user)
-    event_format = get_event_by_name(event['name']).eventFormat
-    is_fmc   = event['name'] == 'FMC'
-    is_blind = event['name'] in ('3BLD', '2BLD', '4BLD', '5BLD', 'MBLD')
-
-    if event_format == EventFormat.Bo1:
-        return friendly(results.single)
-
-    best = results.single if (event_format == EventFormat.Bo3) else results.average
-    if not is_fmc:
-        best = friendly(best)
-    else:
-        best = (best/100)
-        if best == int(best):
-            best = int(best)
-
-    times_string = build_times_string(results.solves, event_format, is_fmc, is_blind)
-    return "{} = {}".format(best, times_string)
 
 
 def do_reddit_submit(comp_id, user):

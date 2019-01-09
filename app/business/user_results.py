@@ -1,21 +1,25 @@
 """ Methods for processing UserEventResults. """
 
 from app.persistence.comp_manager import get_comp_event_by_id
+from app.persistence.events_manager import get_event_by_name
 from app.persistence.user_results_manager import get_pb_single_event_results_except_current_comp,\
     get_pb_average_event_results_except_current_comp
 from app.persistence.models import UserEventResults, UserSolve, EventFormat
+from app.util.times_util import convert_centiseconds_to_friendly_time
 from app.util.events_util import determine_bests, determine_best_single, determine_event_result
 from app.util.reddit_util import build_times_string
 
 # -------------------------------------------------------------------------------------------------
 
 # The front-end dictionary keys
-COMMENT     = 'comment'
-SOLVES      = 'scrambles' # Because the solve times are paired with the scrambles in the front end
-TIME        = 'time'
-SCRAMBLE_ID = 'id'
-IS_DNF      = 'isDNF'
-IS_PLUS_TWO = 'isPlusTwo'
+COMMENT       = 'comment'
+SOLVES        = 'scrambles' # Because the solve times are paired with the scrambles in the front end
+TIME          = 'time'
+SCRAMBLE_ID   = 'id'
+IS_DNF        = 'isDNF'
+IS_PLUS_TWO   = 'isPlusTwo'
+COMP_EVENT_ID = 'comp_event_id'
+NAME          = 'name'
 
 # Other useful constant values
 FMC          = 'FMC'
@@ -75,7 +79,6 @@ def build_user_solves(solves_data):
     user_solves = list()
 
     for solve in solves_data:
-
         time = solve[TIME]
 
         # If the user hasn't recorded a time for this scramble, then just skip to the next
@@ -121,6 +124,43 @@ def set_single_and_average(user_event_results, expected_num_solves, event_format
         user_event_results.single  = single
         user_event_results.average = average
 
+
+def build_event_summary(event, user):
+    """ Builds the times summary for the event and returns it.
+    Ex. 2:49.46 = 2:53.39, 2:44.87, (2:58.07), 2:50.14, (2:26.52) """
+
+    event_name   = event[NAME]
+    event_format = get_event_by_name(event_name).eventFormat
+
+    # Wrap up the events data in the format expected by `build_user_event_results`
+    event_data_dict = dict()
+    event_data_dict[event[COMP_EVENT_ID]] = event
+
+    # Build up the UserEventResults
+    results = build_user_event_results(event_data_dict, user)
+
+    # If the format is Bo1 (best of 1) just return human-friendly representation of the time
+    if event_format == EventFormat.Bo1:
+        return convert_centiseconds_to_friendly_time(results.single)
+
+    # The time on the left side of the `=` is the best single in a Bo3 event, otherwise it's the
+    # overall average for the event
+    best = results.single if (event_format == EventFormat.Bo3) else results.average
+
+    # If this isn't FMC, convert to human-friendly time
+    if not event_name == FMC:
+        best = convert_centiseconds_to_friendly_time(best)
+
+    # If this is FMC, convert the faux centiseconds representation to the number of moves
+    # 2833 --> 28.33 moves
+    # If the number of moves is an integer, represent it without the trailing ".00"
+    # 2800 --> 28 moves, not 28.00 moves
+    else:
+        best = (best/100)
+        if best == int(best):
+            best = int(best)
+
+    return "{} = {}".format(best, results.times_string)
 
 # -------------------------------------------------------------------------------------------------
 #                  Stuff related to processing PBs (personal bests) below

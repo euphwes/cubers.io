@@ -86,7 +86,7 @@ class Scramble(Model):
 class UserEventResults(Model):
     """ A model detailing a user's results for a single event at competition. References the user,
     the competitionEvent, the single and average result for the event. These values are either in
-    centiseconds (ex: "1234" = 12.34s), units for FMC (ex: "28" = 28 moves) or "DNF". """
+    centiseconds (ex: "1234" = 12.34s), 10x units for FMC (ex: "2833" = 28.33 moves) or "DNF". """
     __tablename__     = 'user_event_results'
     id                = Column(Integer, primary_key=True)
     user_id           = Column(Integer, ForeignKey('users.id'))

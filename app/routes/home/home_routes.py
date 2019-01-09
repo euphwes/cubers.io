@@ -4,17 +4,18 @@ from flask import render_template, request, redirect, url_for
 from flask_login import current_user
 
 from app import CUBERS_APP
+from app.business.user_results import build_event_summary
 from app.persistence import comp_manager
 from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import get_event_results_for_user
-
-from app.routes.home.persistence_routes import build_summary
 
 # -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.route('/')
 def index():
     """ Main page for the app. Shows cards for every event in the current competition."""
+
+    # TODO: comment below to explain wtf is going on
 
     if (not current_user.is_authenticated) and (not 'nologin' in request.args):
         return redirect(url_for(".prompt_login"))
@@ -84,7 +85,7 @@ def fill_any_existing_user_data(user, event):
             scrambles_completed += 1
 
     if prev.is_complete:
-        event['summary'] = build_summary(event, user)
+        event['summary'] = build_event_summary(event, user)
         event['status']  = 'complete'
     elif scrambles_completed > 0:
         event['status']  = 'incomplete'
