@@ -173,10 +173,11 @@ def get_all_complete_user_results_for_comp(comp_id, omit_blacklisted=True):
     return results_query
 
 
-def get_all_complete_user_results_for_comp_and_user(comp_id, user_id):
-    """ Gets all complete UserEventResults for the specified competition and user. """
+def get_all_complete_user_results_for_comp_and_user(comp_id, user_id, include_blacklisted=True):
+    """ Gets all complete UserEventResults for the specified competition and user. Includes
+    blacklisted results by default, but can optionally exclude them. """
 
-    return DB.session.\
+    results_query = DB.session.\
         query(UserEventResults).\
         join(User).\
         join(CompetitionEvent).\
@@ -184,8 +185,13 @@ def get_all_complete_user_results_for_comp_and_user(comp_id, user_id):
         join(Event).\
         filter(Competition.id == comp_id).\
         filter(User.id == user_id).\
-        filter(UserEventResults.is_complete).\
-        all()
+        filter(UserEventResults.is_complete)
+
+    # If we don't want blacklisted results, filter those out.
+    if not include_blacklisted:
+        results_query = results_query.filter(UserEventResults.is_blacklisted.isnot(True))
+
+    return results_query.all()
 
 
 def get_all_user_results_for_comp_and_user(comp_id, user_id):

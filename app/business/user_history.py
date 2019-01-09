@@ -8,7 +8,7 @@ from app.persistence.user_results_manager import get_all_complete_user_results_f
 
 # -------------------------------------------------------------------------------------------------
 
-def get_user_competition_history(user):
+def get_user_competition_history(user, include_blacklisted=False):
     """ Returns user competition history in the following format:
     dict[Event][dict[Competition][UserEventResults]] """
 
@@ -28,7 +28,9 @@ def get_user_competition_history(user):
         id_to_events[event.id] = event
 
     for comp in all_comps:
-        for results in get_all_complete_user_results_for_comp_and_user(comp.id, user.id):
+        for results in get_all_complete_user_results_for_comp_and_user(comp.id, user.id,\
+                include_blacklisted=include_blacklisted):
+
             event = id_to_events[results.CompetitionEvent.event_id]
 
             # Doesn't make sense to keep COLL records, since it's a single alg that changes weekly
