@@ -22,8 +22,7 @@ def blacklist(results_id):
 
     # pylint: disable=W0703
     try:
-        note = "Manually blacklisted by {}".format(current_user.username)
-        results = blacklist_results(results_id, note)
+        results = blacklist_results(results_id)
 
         # Recalculate PBs just for the affected user and event
         recalculate_user_pbs_for_event(results.user_id, results.CompetitionEvent.event_id)

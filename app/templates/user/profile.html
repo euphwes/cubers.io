@@ -107,9 +107,10 @@
                                 <th scope="col">Single</th>
                                 <th scope="col">Average</th>
                                 <th scope="col" colspan="5" class="d-none d-md-table-cell">Solves</th>
+                                <th scope="col"></th>
                             </tr>
                             <tr class="event_name_row">
-                                <th scope="col" colspan="8">
+                                <th scope="col" colspan="9">
                                     <img class="event-image" src="/static/images/cube-{{event_item.id}}.png">
                                     {{ event_item.name }}
                                 </th>
@@ -117,6 +118,13 @@
                         </thead>
                         <tbody>
                             {% for comp, results in comps.items() %}
+
+                                {% if results.is_blacklisted %}
+                                    {% set blacklist_class = 'blacklisted-result' %}
+                                {% else %}
+                                    {% set blacklist_class = '' %}
+                                {% endif %}
+
                                 {% if event_item.name == "FMC" %}
                                     {% set single_val = results.single | format_fmc_result %}
                                     {% set average_val = results.average | format_fmc_result %}
@@ -130,7 +138,7 @@
                                 {% if results.was_pb_average %}
                                     {% set average_class = "pb-indicator" %}
                                 {% endif %}
-                                <tr>
+                                <tr class="{{blacklist_class}}">
                                     <td>
                                         <a href="/leaderboards/{{ comp.id }}">{{ comp.title }}</a>
                                     </td>
@@ -139,6 +147,15 @@
                                     {% for solve_time in results.solves_helper %}
                                     <td class="d-none d-md-table-cell">{{ solve_time }}</td>
                                     {% endfor %}
+
+                                    {% if results.is_blacklisted %}
+                                        {% set the_comment = results.blacklist_note|trim() %}
+                                        <td scope="col" class="d-none d-md-table-cell">
+                                            <span class="far fa-question-circle spacer" data-toggle="tooltip" data-placement="bottom" title="{{the_comment}}"></span>
+                                        </td>
+                                    {% else %}
+                                        <td scope="col" class="d-none d-md-table-cell"></td>
+                                    {% endif %}
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -150,4 +167,14 @@
     </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block additional_script %}
+<script>
+    $(function () {
+        if (!Boolean(new MobileDetect(window.navigator.userAgent).mobile())) {
+            $('[data-toggle="tooltip"]').tooltip();
+        }
+    })
+</script>
 {% endblock %}
