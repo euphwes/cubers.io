@@ -20,20 +20,28 @@
         $dot.html('.');
         $seconds.html(seconds);
         $centiseconds.html(centiseconds);
-    }
+    };
 
     /**
      * Show all zeros.
      */
     TimerDisplayManager.prototype._showZero = function() {     
         this._displayTime("0", "00");
-    }
+    };
 
     /**
      * Event handler for the timer's stop event - updates display time
      */
     TimerDisplayManager.prototype._handleTimerStop = function(timerStopData) {
         this._displayTime(timerStopData.friendly_seconds, timerStopData.friendly_centiseconds);
+        $('.timer-wrapper').removeClass('fullscreen');
+    };
+
+    /**
+     * Event handler for the timer's start event - updates display time
+     */
+    TimerDisplayManager.prototype._handleTimerStart = function () {
+        $('.timer-wrapper').addClass('fullscreen');
     };
 
     /**
@@ -48,6 +56,7 @@
      */
     TimerDisplayManager.prototype._registerTimerEventHandlers = function() {
         app.timer.on(app.EVENT_TIMER_STOP, this._handleTimerStop.bind(this));
+        app.timer.on(app.EVENT_TIMER_START, this._handleTimerStart.bind(this));
         app.timer.on(app.EVENT_TIMER_INTERVAL, this._handleTimerInterval.bind(this));
     };
 

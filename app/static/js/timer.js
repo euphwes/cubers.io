@@ -48,8 +48,9 @@
                 // to stop the timer and then automatically advance to the next scramble
                 $('.timer-wrapper').off("touchend");
                 this._start();
-                $('.timer-wrapper').on("touchend", function() {
+                $('.timer-wrapper').on("touchend", function(e) {
                     $('.timer-wrapper').off("touchend");
+                    e.preventDefault();
                     this._stop();
                 }.bind(this));
             }.bind(this));

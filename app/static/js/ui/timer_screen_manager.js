@@ -50,6 +50,15 @@
             scramblePreviewIsSupported : scramblePreviewIsSupported,
         };
 
+        // Change the navbar title to indicate the event
+        // On mobile, just the event name to save room, but on desktop show comp name + event
+        if (data.isMobile) {
+            $('.navbar-brand').text(data.event_name);
+        } else {
+            var currTitle = $('.navbar-brand').text();
+            $('.navbar-brand').text(data.event_name + " – " + currTitle);
+        }
+
         // FMC requires manual entry of integer times, and no timer
         data.isFMC = data.event_name === 'FMC';
 
