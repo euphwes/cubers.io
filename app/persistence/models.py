@@ -104,6 +104,11 @@ class UserEventResults(Model):
     is_blacklisted    = Column(Boolean)
     blacklist_note    = Column(String(256))
 
+    def set_solves(self, incoming_solves):
+        """ Utility method to set a list of UserSolves for this UserEventResults. """
+
+        self.solves.extend(incoming_solves)
+
 
 class CompetitionEvent(Model):
     """ Associative model for an event held at a competition - FKs to the competition and event,

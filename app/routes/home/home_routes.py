@@ -84,7 +84,7 @@ def fill_any_existing_user_data(user, event):
             scrambles_completed += 1
 
     if prev.is_complete:
-        event['summary'] = build_summary(event)
+        event['summary'] = build_summary(event, user)
         event['status']  = 'complete'
     elif scrambles_completed > 0:
         event['status']  = 'incomplete'

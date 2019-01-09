@@ -20,7 +20,7 @@ def profile(username):
     if not user:
         return "oops"
 
-    # TODO: indicate blacklisted results in user's competition history table
+    # TODO: BLACKLIST indicate blacklisted results in user's competition history table
     comp_history = get_user_competition_history(user)
 
     solve_count = get_user_completed_solves_count(user.id)

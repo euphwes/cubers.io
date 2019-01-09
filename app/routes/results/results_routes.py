@@ -23,7 +23,7 @@ def blacklist(results_id):
     try:
         note = "Manually blacklisted by {}".format(current_user.username)
         results = blacklist_results(results_id, note)
-        # TODO: recalculate PBs just for this user
+        # TODO: BLACKLIST recalculate PBs just for this user
 
         # Blacklisting a result will bump this person down in the ranks, meaning other people will
         # rise in the ranks. Recalculate UserSiteRankings for all users, just for this event
@@ -43,12 +43,12 @@ def unblacklist(results_id):
     """ Unblacklists the specified UserEventResults. """
 
     if not (current_user.is_authenticated and current_user.is_admin):
-        return ("Hey, you're not allowed to do that.", 500)
+        return ("Hey, you're not allowed to do that.", 403)
 
     # pylint: disable=W0703
     try:
         results = unblacklist_results(results_id)
-        # TODO: recalculate PBs just for this user
+        # TODO: BLACKLIST recalculate PBs just for this user
 
         # Unlacklisting a result will bump this person up in the ranks, meaning other people will
         # fall in the ranks. Recalculate UserSiteRankings for all users, just for this event

@@ -6,12 +6,12 @@ from flask import request, abort
 from flask_login import current_user
 
 from app import CUBERS_APP
+from app.business.user_results import build_user_event_results
 from app.persistence.models import EventFormat
 from app.persistence.user_manager import get_user_by_username
-from app.persistence.user_results_manager import build_user_event_results,\
-    save_event_results_for_user, build_all_user_results, are_results_different_than_existing,\
-    get_comment_id_by_comp_id_and_user, get_event_results_for_user, set_pb_flags,\
-    get_all_complete_user_results_for_comp_and_user
+from app.persistence.user_results_manager import save_event_results_for_user,\
+    are_results_different_than_existing, get_comment_id_by_comp_id_and_user,\
+    get_event_results_for_user, get_all_complete_user_results_for_comp_and_user
 from app.persistence.comp_manager import get_competition
 from app.persistence.events_manager import get_event_by_name
 from app.util.reddit_util import build_times_string, convert_centiseconds_to_friendly_time,\
@@ -30,12 +30,8 @@ def save_event():
         return abort(400, "authenticated users only")
 
     try:
-        user_events_dict  = request.get_json()
-        event_result = build_all_user_results(user_events_dict)[0]
         user = get_user_by_username(current_user.username)
-
-        if event_result.is_complete:
-            event_result = set_pb_flags(user, event_result)
+        event_result = build_user_event_results(request.get_json(), user)
 
         # Figure out if we need to repost the results to Reddit or not
         if event_result.is_complete:
@@ -57,7 +53,7 @@ def save_event():
 
         return ('', 204) # intentionally empty, 204 No Content
 
-    # TODO: figure out what exceptions can happen here
+    # TODO: figure out what exceptions can happen here, probably mostly Reddit ones
     # pylint: disable=W0703
     except Exception as ex:
         return abort(500, str(ex))
@@ -73,7 +69,9 @@ def get_event_summaries():
         6:26.83 = 6:46.17, 5:50.88, 6:43.44           --> for a Mo3 event """
 
     data = request.get_json()
-    summaries = {event['comp_event_id']: build_summary(event) for event in data}
+    user = get_user_by_username(current_user.username)
+
+    summaries = {event['comp_event_id']: build_summary(event, user) for event in data}
 
     return json.dumps(summaries)
 
@@ -93,15 +91,17 @@ def comment_url(comp_id):
     return get_permalink_for_user_and_comment(user, comment_id)
 
 
-def build_summary(event):
+def build_summary(event, user):
     """ Builds the summary for the event and returns it. """
 
     # TODO: does this belong here?
 
-    build_results = build_user_event_results
     friendly = convert_centiseconds_to_friendly_time
 
-    results = build_results(event['comp_event_id'], event['scrambles'], event['comment'])
+    wrapped_dict = dict()
+    wrapped_dict[event['comp_event_id']] = event
+
+    results = build_user_event_results(wrapped_dict, user)
     event_format = get_event_by_name(event['name']).eventFormat
     is_fmc   = event['name'] == 'FMC'
     is_blind = event['name'] in ('3BLD', '2BLD', '4BLD', '5BLD', 'MBLD')
