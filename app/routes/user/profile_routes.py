@@ -19,7 +19,7 @@ def profile(username):
 
     user = get_user_by_username(username)
     if not user:
-        return ("oops", 404)
+        return ("oops, can't find a user with username '{}'".format(username), 404)
 
     # Determine whether we're showing blacklisted results
     include_blacklisted = should_show_blacklisted_results(username)
@@ -57,13 +57,14 @@ def should_show_blacklisted_results(profile_username):
     if not current_user.is_authenticated:
         return False
 
-    # Users can see their own blacklisted results
-    if current_user.username == profile_username:
-        return True
-
     # If the user viewing a page is an admin, they can see blacklisted results
     if get_user_by_username(current_user.username).is_admin:
         return True
+
+    # Users can see their own blacklisted results
+    if current_user.username == profile_username:
+        # return True
+        return False # let's not let them see it for now, and talk through it some more
 
     # Everybody else can't see blacklisted results
     return False
