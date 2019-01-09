@@ -3,7 +3,8 @@
 from app.persistence.comp_manager import get_comp_event_by_id
 from app.persistence.events_manager import get_event_by_name
 from app.persistence.user_results_manager import get_pb_single_event_results_except_current_comp,\
-    get_pb_average_event_results_except_current_comp
+    bulk_save_event_results, get_pb_average_event_results_except_current_comp,\
+    get_all_complete_user_results_for_user_and_event
 from app.persistence.models import UserEventResults, UserSolve, EventFormat
 from app.util.times_util import convert_centiseconds_to_friendly_time
 from app.util.events_util import determine_bests, determine_best_single, determine_event_result
@@ -212,3 +213,50 @@ def get_pbs_for_user_and_event_excluding_latest(user_id, event_id):
     pb_average = min(averages) if averages else NO_PB_YET
 
     return pb_single, pb_average
+
+
+def recalculate_user_pbs_for_event(user_id, event_id):
+    """ Recalculates PBs for all UserEventResults for the specified user and event. """
+
+    # Get the user's event results for this event. If they don't have any, we can just bail
+    results = get_all_complete_user_results_for_user_and_event(user_id, event_id)
+    if not results:
+        return
+
+    # Store the results to save all at once. More efficient that way
+    event_results_to_save_at_end = list()
+    event_results_to_save_at_end.extend(results)
+
+    # Start off at the beginning assuming no PBs
+    pb_single_so_far  = NO_PB_YET
+    pb_average_so_far = NO_PB_YET
+
+    # Iterate over each result from earliest to latest, checking the singles and averages to see
+    # if they are faster than the current fastest to date. Update the UserEventResult PB flags
+    # as appropriate
+    for result in results:
+
+        # If the result is blacklisted, it's not under consideration for PBs.
+        # Make sure the PB flags are False and skip to the next result
+        if result.is_blacklisted:
+            result.was_pb_single  = False
+            result.was_pb_average = False
+            continue
+
+        current_single  = __pb_representation(result.single)
+        current_average = __pb_representation(result.average)
+
+        if current_single < pb_single_so_far:
+            pb_single_so_far = current_single
+            result.was_pb_single = True
+        else:
+            result.was_pb_single = False
+
+        if current_average < pb_average_so_far:
+            pb_average_so_far = current_average
+            result.was_pb_average = True
+        else:
+            result.was_pb_average = False
+
+    # Save all the UserEventResults with the modified PB flags
+    bulk_save_event_results(event_results_to_save_at_end)

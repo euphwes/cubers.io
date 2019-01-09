@@ -8,23 +8,23 @@ import base64
 
 import click
 
+from app import CUBERS_APP
+from app.business.user_results import recalculate_user_pbs_for_event
+from app.business.rankings import precalculate_user_site_rankings
+from app.persistence.models import EventFormat
+from app.persistence.comp_manager import save_new_competition, get_active_competition,\
+    get_all_competitions, bulk_update_comps
+from app.persistence.events_manager import get_event_by_name, get_all_events
+from app.persistence.user_manager import get_all_users, get_user_by_username, get_all_admins,\
+    set_user_as_admin, unset_user_as_admin, UserDoesNotExistException
+from app.persistence.user_results_manager import get_all_null_is_complete_event_results,\
+    get_all_na_average_event_results, save_event_results_for_user, get_all_complete_event_results,\
+    bulk_save_event_results
+from app.util.events_util import determine_best_single, determine_bests, determine_event_result
+from app.util.reddit_util import build_times_string
 from app.util.generate_comp import generate_new_competition
 from app.util.score_comp import score_previous_competition
-
-from . import CUBERS_APP
-from .business.rankings import precalculate_user_site_rankings
-from .persistence.models import EventFormat
-from .persistence.comp_manager import save_new_competition, get_active_competition,\
-    get_all_competitions, bulk_update_comps
-from .persistence.events_manager import get_event_by_name, get_all_events
-from .persistence.user_manager import get_all_users, get_user_by_username, get_all_admins,\
-    set_user_as_admin, unset_user_as_admin, UserDoesNotExistException
-from .persistence.user_results_manager import get_all_null_is_complete_event_results,\
-    get_all_na_average_event_results, save_event_results_for_user, get_all_complete_event_results,\
-    bulk_save_event_results, get_all_complete_user_results_for_user_and_event
-from .util.events_util import determine_best_single, determine_bests, determine_event_result
-from .util.reddit_util import build_times_string
-from .routes.home import do_reddit_submit
+from app.routes.home import do_reddit_submit
 
 # -------------------------------------------------------------------------------------------------
 
@@ -125,58 +125,15 @@ def recalculate_pbs():
     """ Works through every user, every event type, and re-calculates PB averages and singles
     and sets appropriate flags on UserEventResults. """
 
-    # TODO: move this into some business logic module somewhere else, and wrap around it here
-    # this will need to be called whenever an UserEventResults is manually blacklisted
-
     all_users = get_all_users()
     user_count = len(all_users)
 
     all_events = get_all_events()
 
-    starting_max = 999999999999
-    dnf_hack_time = 999999999000
-
-    def pb_repr(time):
-        if time == "DNF":
-            return dnf_hack_time
-        elif time == '':
-            return starting_max
-        else:
-            return int(time)
-
     for i, user in enumerate(all_users):
         print("\nRecalculating PBs for {} ({}/{})".format(user.username, i+1, user_count))
-
-        event_results_to_save_at_end = list()
-
         for event in all_events:
-            user_event_results = get_all_complete_user_results_for_user_and_event(user.id, event.id)
-            if not user_event_results:
-                continue
-
-            event_results_to_save_at_end.extend(user_event_results)
-
-            print("Processing {}".format(event.name))
-            pb_average_so_far = starting_max
-            pb_single_so_far = starting_max
-
-            for result in user_event_results:
-                s = pb_repr(result.single)
-                a = pb_repr(result.average)
-
-                if s < pb_single_so_far:
-                    pb_single_so_far = s
-                    result.was_pb_single = True
-                else:
-                    result.was_pb_single = False
-
-                if a < pb_average_so_far:
-                    pb_average_so_far = a
-                    result.was_pb_average = True
-                else:
-                    result.was_pb_average = False
-
-        bulk_save_event_results(event_results_to_save_at_end)
+            recalculate_user_pbs_for_event(user.id, event.id)
 
 # -------------------------------------------------------------------------------------------------
 # Below are utility commands intended to just be one-offs, to backfill or fix broken data

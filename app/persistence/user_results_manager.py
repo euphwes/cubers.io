@@ -202,8 +202,7 @@ def get_all_user_results_for_comp_and_user(comp_id, user_id):
 
 
 def get_all_complete_user_results_for_user_and_event(user_id, event_id):
-    """ Gets all complete UserEventResults for the specified event and user
-    i.e all 3x3 results for joe """
+    """ Gets all complete UserEventResults for the specified event and user. """
 
     return DB.session.\
         query(UserEventResults).\

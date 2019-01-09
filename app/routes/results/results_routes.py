@@ -4,11 +4,12 @@ from flask import render_template, redirect
 from flask_login import current_user
 
 from app import CUBERS_APP
+from app.business.user_results import recalculate_user_pbs_for_event
+from app.business.rankings import precalculate_site_rankings_for_event
 from app.persistence.comp_manager import get_active_competition, get_complete_competitions,\
     get_previous_competition, get_competition, get_all_comp_events_for_comp
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp,\
     blacklist_results, unblacklist_results, UserEventResultsDoesNotExistException
-from app.business.rankings import precalculate_site_rankings_for_event
 
 # -------------------------------------------------------------------------------------------------
 
@@ -17,13 +18,15 @@ def blacklist(results_id):
     """ Blacklists the specified UserEventResults. """
 
     if not (current_user.is_authenticated and current_user.is_admin):
-        return ("Hey, you're not allowed to do that.", 500)
+        return ("Hey, you're not allowed to do that.", 403)
 
     # pylint: disable=W0703
     try:
         note = "Manually blacklisted by {}".format(current_user.username)
         results = blacklist_results(results_id, note)
-        # TODO: BLACKLIST recalculate PBs just for this user
+
+        # Recalculate PBs just for the affected user and event
+        recalculate_user_pbs_for_event(results.user_id, results.CompetitionEvent.event_id)
 
         # Blacklisting a result will bump this person down in the ranks, meaning other people will
         # rise in the ranks. Recalculate UserSiteRankings for all users, just for this event
@@ -48,7 +51,9 @@ def unblacklist(results_id):
     # pylint: disable=W0703
     try:
         results = unblacklist_results(results_id)
-        # TODO: BLACKLIST recalculate PBs just for this user
+
+        # Recalculate PBs just for the affected user and event
+        recalculate_user_pbs_for_event(results.user_id, results.CompetitionEvent.event_id)
 
         # Unlacklisting a result will bump this person up in the ranks, meaning other people will
         # fall in the ranks. Recalculate UserSiteRankings for all users, just for this event
