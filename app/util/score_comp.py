@@ -5,6 +5,9 @@ import re
 from time import sleep
 
 from app.persistence.comp_manager import get_active_competition, get_competition, save_competition
+from app.persistence.user_manager import get_username_id_map
+from app.persistence.events_manager import get_events_name_id_mapping
+from app.persistence.user_results_manager import get_blacklisted_entries_for_comp
 from app.util.reddit_util import get_submission_with_id, submit_competition_post,\
 get_permalink_for_comp_thread, update_results_thread
 from app.util.times_util import convert_seconds_to_friendly_time
@@ -36,12 +39,51 @@ def filter_entries_that_are_wip(entries):
 
     return [e for e in entries if ("WIP" not in e.body) and ("FORMATTINGADVICE" not in e.body)]
 
+
+def filter_blacklisted_competitor_events(competitors, comp_id):
+    """ Removes events from the provided list of Competitors which correspond to blacklisted
+    UserEventResults for this competition. """
+
+    # This a set() that contains tuples of (user_id, event_id)
+    blacklisted_results_set = get_blacklisted_entries_for_comp(comp_id)
+
+    # These are maps of event name to event id, and username to user id
+    # Since the entries being passed in only have event names and usernames, we need an efficient
+    # way to map them IDs so we can check the blacklist set
+    username_id_map  = get_username_id_map()
+    eventname_id_map = get_events_name_id_mapping()
+
+    # Iterate over entries and compare user_id and event_id combo to stuff in this set
+    for competitor in competitors:
+        user_id = username_id_map.get(competitor.raw_name, None)
+        if not user_id:
+            continue
+
+        indices_to_remove = list()
+        for i, event in enumerate(competitor.events):
+            event_id = eventname_id_map[event]
+            if (user_id, event_id) in blacklisted_results_set:
+                indices_to_remove.append(i)
+
+        if indices_to_remove:
+            # reverse, so we can remove elements from competitor.events and competitor.times in
+            # the reversed order. For example if the indices are [5, 2, 1], we can remove
+            # competitor.events[5] and the elements at 2 and 1 are still in the same place.
+            # Not true if we remove 1, 2, and 5 in that order
+            indices_to_remove.reverse()
+
+            # remove the events and times at the indices we remembered earlier
+            for i in indices_to_remove:
+                del competitor.events[i]
+                del competitor.times[i]
+
+            # rebuilds the event-to-time mapping we use below in the scoring
+            competitor.rebuild_event_time_map()
+
 # -------------------------------------------------------------------------------------------------
 
 def score_previous_competition(is_rerun=False, comp_id=None):
     """ Score the previous competition and post the results. """
-
-    # TODO: comment more thoroughly below
 
     # Get the reddit thread ID and the competition model for the competition to be scored
     if comp_id:
@@ -71,9 +113,6 @@ def score_previous_competition(is_rerun=False, comp_id=None):
     entries = filter_entries_with_no_events(entries, event_names)
     entries = filter_entries_that_are_wip(entries)
 
-    # TODO: BLACKLIST - filter events from user entries if that event is blacklisted
-    # aka the userEventResults for this comp, user, and is blacklisted
-
     # Create a competitor record for each entry
     competitors = [Competitor(entry) for entry in entries]
 
@@ -83,6 +122,9 @@ def score_previous_competition(is_rerun=False, comp_id=None):
 
     # Remove duplicate users
     competitors = list(set(competitors))
+
+    # Filter out events for competitors if their UserEventResults for this comp, user, and event is blacklisted
+    filter_blacklisted_competitor_events(competitors, competition_being_scored.id)
 
     # Build up a dictionary of event name to participant list
     # Participant list contains tuple of (username, event result), sorted by event result
@@ -100,6 +142,8 @@ def score_previous_competition(is_rerun=False, comp_id=None):
         for i, record in enumerate(participating_users):
             record[2].points += (num_event_participants - (i+1) + 1)
         comp_event_results[event_name] = participating_users
+
+    # TODO: comment more thoroughly below
 
     permalink  = get_permalink_for_comp_thread(submission_id)
     comp_title = competition_being_scored.title
@@ -170,8 +214,14 @@ class Competitor:
         self.events = parse_results[1]
         self.times = parse_results[0]
         self.name = '/u/{}'.format(entry.author.name)
+        self.raw_name = entry.author.name
         self.points = 0
         self.fix_times()
+        self.rebuild_event_time_map()
+
+    def rebuild_event_time_map(self):
+        """ Rebuilds the event_time_map if any entries from events and times were removed
+        due to blacklist filtering. """
         self.event_time_map = dict(zip(self.events, self.times))
 
     def fix_times(self):

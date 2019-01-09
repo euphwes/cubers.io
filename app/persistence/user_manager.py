@@ -74,3 +74,13 @@ def get_all_admins():
     return User.query.\
         filter_by(is_admin=True).\
         all()
+
+
+def get_username_id_map():
+    """ Returns a map of all user's username to their ID. """
+
+    mapping = dict()
+    for user in get_all_users():
+        mapping[user.username] = user.id
+
+    return mapping

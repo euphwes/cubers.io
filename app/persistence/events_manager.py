@@ -34,6 +34,16 @@ def get_events_id_name_mapping():
     return mapping
 
 
+def get_events_name_id_mapping():
+    """ Returns a dictionary of event name to ID mappings. """
+
+    mapping = OrderedDict()
+    for event in get_all_events():
+        mapping[event.name] = event.id
+
+    return mapping
+
+
 def get_all_events_user_has_participated_in(user_id):
     """ Returns a list of all events. """
 

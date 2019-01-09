@@ -176,6 +176,23 @@ def get_all_complete_user_results_for_comp(comp_id, omit_blacklisted=True):
     return results_query
 
 
+def get_blacklisted_entries_for_comp(comp_id):
+    """ Returns a list of tuples of (user_id, event_id) for all blacklisted UserEventResults in
+    the specified competition. """
+
+    results = DB.session.\
+        query(UserEventResults).\
+        join(CompetitionEvent).\
+        join(Competition).\
+        join(Event).\
+        filter(Competition.id == comp_id).\
+        filter(UserEventResults.is_complete).\
+        filter(UserEventResults.is_blacklisted.is_(True)).\
+        all()
+
+    return [(result.user_id, result.CompetitionEvent.event_id) for result in results]
+
+
 def get_all_complete_user_results_for_comp_and_user(comp_id, user_id, include_blacklisted=True):
     """ Gets all complete UserEventResults for the specified competition and user. Includes
     blacklisted results by default, but can optionally exclude them. """
