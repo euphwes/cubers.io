@@ -9,7 +9,8 @@ import base64
 import click
 
 from app import CUBERS_APP
-from app.business.user_results import recalculate_user_pbs_for_event
+from app.business.user_results import recalculate_user_pbs_for_event, determine_best_single,\
+    determine_bests, determine_event_result
 from app.business.rankings import precalculate_user_site_rankings
 from app.persistence.models import EventFormat
 from app.persistence.comp_manager import save_new_competition, get_active_competition,\
@@ -20,7 +21,6 @@ from app.persistence.user_manager import get_all_users, get_user_by_username, ge
 from app.persistence.user_results_manager import get_all_null_is_complete_event_results,\
     get_all_na_average_event_results, save_event_results_for_user, get_all_complete_event_results,\
     bulk_save_event_results
-from app.util.events_util import determine_best_single, determine_bests, determine_event_result
 from app.util.reddit_util import build_times_string
 from app.util.generate_comp import generate_new_competition
 from app.util.score_comp import score_previous_competition

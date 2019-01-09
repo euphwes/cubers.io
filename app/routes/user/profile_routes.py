@@ -19,7 +19,7 @@ def profile(username):
 
     user = get_user_by_username(username)
     if not user:
-        return "oops"
+        return ("oops", 404)
 
     # Determine whether we're showing blacklisted results
     include_blacklisted = should_show_blacklisted_results(username)
