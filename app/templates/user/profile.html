@@ -81,12 +81,12 @@
                 {% for event_item, _ in history.items() %}
                 {% if loop.index0 == 0 %}
                 <li class="active nav-item">
-                    <a href="#tab{{event_item.name}}" class="nav-link active show" role="tab" data-toggle="tab">
+                    <a href="#tab{{event_item.name | slugify}}" class="nav-link active show" role="tab" data-toggle="tab">
                         <img class="tab-event-image" src="/static/images/cube-{{event_item.id}}.png">
                     </a>
                 {% else %}
                 <li class="nav-item">
-                    <a href="#tab{{event_item.name}}" class="nav-link" role="tab" data-toggle="tab">
+                    <a href="#tab{{event_item.name | slugify}}" class="nav-link" role="tab" data-toggle="tab">
                         <img class="tab-event-image" src="/static/images/cube-{{event_item.id}}.png">
                     </a>
                 {% endif %}
@@ -96,9 +96,9 @@
             <div class="tab-content justify-content-center pt-3">
                 {% for event_item, comps in history.items() %}
                 {% if loop.index0 == 0 %}
-                <div class="tab-pane active" id="tab{{event_item.name}}">
+                <div class="tab-pane active" id="tab{{event_item.name | slugify}}">
                 {% else %}
-                <div class="tab-pane" id="tab{{event_item.name}}">
+                <div class="tab-pane" id="tab{{event_item.name | slugify}}">
                 {% endif %}
                     <table class="table table-sm table-striped table-cubersio">
                         <thead class="thead-dark">
