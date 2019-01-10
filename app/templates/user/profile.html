@@ -119,7 +119,7 @@
                         <tbody>
                             {% for comp, results in comps.items() %}
 
-                                {% if results.is_blacklisted %}
+                                {% if results.is_blacklisted and is_admin_viewing %}
                                     {% set blacklist_class = 'blacklisted-result' %}
                                 {% else %}
                                     {% set blacklist_class = '' %}
@@ -148,7 +148,7 @@
                                     <td class="d-none d-md-table-cell">{{ solve_time }}</td>
                                     {% endfor %}
 
-                                    {% if results.is_blacklisted %}
+                                    {% if results.is_blacklisted and is_admin_viewing %}
                                         {% set the_comment = results.blacklist_note|trim() %}
                                         <td scope="col" class="d-none d-md-table-cell">
                                             <span class="far fa-question-circle spacer" data-toggle="tooltip" data-placement="bottom" title="{{the_comment}}"></span>

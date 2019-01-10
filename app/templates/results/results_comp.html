@@ -68,7 +68,7 @@
                                     {% set its_me = '' %}
                                 {% endif %}
 
-                                {% if result.is_blacklisted %}
+                                {% if result.is_blacklisted and show_admin %}
                                     {% set blacklist_class = 'blacklisted-result' %}
                                     {% set its_me = '' %}
                                 {% else %}

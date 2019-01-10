@@ -10,6 +10,7 @@ from app.persistence.comp_manager import get_active_competition, get_complete_co
     get_previous_competition, get_competition, get_all_comp_events_for_comp
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp,\
     blacklist_results, unblacklist_results, UserEventResultsDoesNotExistException
+from app.routes.util import is_admin_viewing
 
 # -------------------------------------------------------------------------------------------------
 
@@ -103,24 +104,25 @@ def comp_results(comp_id):
 
     comp_events = get_all_comp_events_for_comp(comp_id)
 
-    # If the page is being viewed by an admin, include blacklisted results and set `show_admin`
-    # flag so we render the controls for toggling blacklist status
-    if current_user.is_authenticated and current_user.is_admin:
-        print('Admin {} viewing page, setting show_admin=True'.format(current_user.username))
-        show_admin = True
-        results = get_all_complete_user_results_for_comp(comp_id, omit_blacklisted=False)
+    # If the page is being viewed by an admin, render the controls for toggling blacklist status
+    # and also apply additional styling on blacklisted results to make them easier to see
+    show_admin = is_admin_viewing()
 
-    # Otherwise this is being viewed by a normal user, omit blacklisted results like normal
-    # and don't set the `show_admin` flag
-    else:
-        show_admin = False
-        results = get_all_complete_user_results_for_comp(comp_id)
+    # Get all results including blacklisted ones
+    results = get_all_complete_user_results_for_comp(comp_id, omit_blacklisted=False)
 
+    # Filter out the appropriate blacklisted results, depending on who's viewing
+    results = filter_blacklisted_results(results, show_admin, current_user)
+
+    # Some utility mappings keyed on event name to make rendering stuff easier in the template
     event_names   = [event.Event.name for event in comp_events]
     event_results = {event.Event.name : list() for event in comp_events}
     event_formats = {event.Event.name : event.Event.eventFormat for event in comp_events}
     event_ids     = {event.Event.name : event.Event.id for event in comp_events}
 
+    # Split the times string into components, add to a list called `"solves_helper` which
+    # is used in the UI to show individual solves, and make sure the length == 5, filled
+    # with empty strings if necessary
     for result in results:
         event_name = result.CompetitionEvent.Event.name
         solves_helper = result.times_string.split(', ')
@@ -138,6 +140,22 @@ def comp_results(comp_id):
     return render_template("results/results_comp.html", alternative_title=alternative_title,\
         event_results=event_results, event_names=event_names, event_formats=event_formats,\
         event_ids=event_ids, show_admin=show_admin)
+
+# -------------------------------------------------------------------------------------------------
+
+def filter_blacklisted_results(results, show_admin, current_user):
+    """ Filters out the appropriate blacklisted results depending on who is viewing the page.
+    Admins see all results, non-logged viewers see no blacklisted results, and logged-in viewers
+    only see their own. """
+
+    if show_admin:
+        return results
+
+    if not current_user.is_authenticated:
+        return [r for r in results if not r.is_blacklisted]
+
+    target_username = current_user.username
+    return [r for r in results if (not r.is_blacklisted) or (r.User.username == target_username)]
 
 # TODO: put the UserEventResults sorting stuff somewhere else
 
