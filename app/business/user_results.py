@@ -196,8 +196,8 @@ def determine_if_should_be_autoblacklisted(results):
         '6x6':           (7382, 7710),
         '7x7':           (10789, 11163),
         '3BLD':          (1655, 2029),
-        '4BLD':          (8641, 9999999999999),  # very big dummy average because WCA doesn't track 4BLD WR average
-        '5BLD':          (18101, 9999999999999), # very big dummy average because WCA doesn't track 5BLD WR average
+        '4BLD':          (8641, 1),  # very low dummy average because WCA doesn't track 4BLD WR average
+        '5BLD':          (18101, 1), # very low dummy average because WCA doesn't track 5BLD WR average
         'Square-1':      (00, 00),
         'Clock':         (340, 456),
         '3x3OH':         (688, 942),

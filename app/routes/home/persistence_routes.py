@@ -30,7 +30,10 @@ def save_event():
         event_result = build_user_event_results(request.get_json(), user)
 
         # Check if these event results should be autoblacklisted, and set their blacklist flag
-        # notes if so
+        # notes if so.
+        # NOTE: don't do this check directly inside `build_user_event_results` above, because
+        # other code paths use that. We only need to do the autoblacklist check before actually
+        # saving results
         event_result = determine_if_should_be_autoblacklisted(event_result)
 
         # Figure out if we need to repost the results to Reddit or not
