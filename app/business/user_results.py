@@ -1,5 +1,6 @@
 """ Methods for processing UserEventResults. """
 
+from app import CUBERS_APP
 from app.persistence.comp_manager import get_comp_event_by_id
 from app.persistence.events_manager import get_event_by_name
 from app.persistence.user_results_manager import get_pb_single_event_results_except_current_comp,\
@@ -25,6 +26,14 @@ NAME          = 'name'
 FMC          = 'FMC'
 DNF          = 'DNF'
 BLIND_EVENTS = ('2BLD', '3BLD', '4BLD', '5BLD')
+
+# Auto-blacklist notes
+_AUTO_NOTE_TEMPLATE = "This result has been automatically blacklisted, because your {type} is less "
+_AUTO_NOTE_TEMPLATE += "than the WR {type} for this event. If you believe this is an error, please "
+_AUTO_NOTE_TEMPLATE += "contact a cubers.io admin."""
+
+AUTO_BL_SINGLE  = _AUTO_NOTE_TEMPLATE.format(type="single")
+AUTO_BL_AVERAGE = _AUTO_NOTE_TEMPLATE.format(type="average")
 
 # -------------------------------------------------------------------------------------------------
 
@@ -162,6 +171,83 @@ def build_event_summary(event, user):
             best = int(best)
 
     return "{} = {}".format(best, results.times_string)
+
+
+def determine_if_should_be_autoblacklisted(results):
+    """ Determines if this UserEventResults should be auto-blacklisted because of an absurdly low
+    time. Start off with 0.75 * the current world records as a threshold and adjust depending on
+    how this experiment goes. """
+
+    # If the results aren't complete, don't blacklist yet even if we otherwise would have
+    if not results.is_complete:
+        return results
+
+    # A multiplicative factor to adjust autoblacklist thresholds up or down, relative to WR
+    threshold_factor = CUBERS_APP.config['AUTO_BL_FACTOR']
+
+    # Dictionary of event name to tuple of (WR single, WR average) in centiseconds
+    # WCA WRs as of 09 Jan 2019
+    # pylint: disable=C0301
+    blacklist_thresholds = {
+        '2x2':           (49, 121),
+        '3x3':           (347, 580),
+        '4x4':           (1842, 2113),
+        '5x5':           (3728, 4236),
+        '6x6':           (7382, 7710),
+        '7x7':           (10789, 11163),
+        '3BLD':          (1655, 2029),
+        '4BLD':          (8641, 9999999999999),  # very big dummy average because WCA doesn't track 4BLD WR average
+        '5BLD':          (18101, 9999999999999), # very big dummy average because WCA doesn't track 5BLD WR average
+        'Square-1':      (00, 00),
+        'Clock':         (340, 456),
+        '3x3OH':         (688, 942),
+        'Pyraminx':      (91, 187),
+        'Megaminx':      (2781, 3203),
+        'Skewb':         (110, 203),
+        'FMC':           (1800, 2400),  # in "centi-moves"
+        '3x3 With Feet': (1696, 2222)
+    }
+
+    # Retrieve the WR thresholds tuple by event name
+    comp_event = get_comp_event_by_id(results.comp_event_id)
+    thresholds = blacklist_thresholds.get(comp_event.Event.name, None)
+
+    # If we don't have any thresholds for the event, no chance of auto-blacklist
+    if not thresholds:
+        return False
+
+    wr_single, wr_average = thresholds
+
+    # Check if the result's single should cause this to be auto-blacklisted
+    try:
+        # If the single is too low, set the blacklisted flag and note,
+        # and unset any PB flags which were probably set earlier when
+        # build the UserEventResults
+        if int(results.single) <= (threshold_factor * wr_single):
+            results.is_blacklisted = True
+            results.blacklist_note = AUTO_BL_SINGLE
+            results.was_pb_average = False
+            results.was_pb_single  = False
+            return results
+    except ValueError:
+        pass # int() failed, probably because the single is a DNF
+
+    # Check if the result's average should cause this to be auto-blacklisted
+    try:
+        # If the average is too low, set the blacklisted flag and note,
+        # and unset any PB flags which were probably set earlier when
+        # build the UserEventResults
+        if int(results.average) <= (threshold_factor * wr_average):
+            results.is_blacklisted = True
+            results.blacklist_note = AUTO_BL_AVERAGE
+            results.was_pb_average = False
+            results.was_pb_single  = False
+            return results
+    except ValueError:
+        pass # int() failed, probably because the average is a DNF
+
+    return results
+
 
 # -------------------------------------------------------------------------------------------------
 #                  Stuff related to processing PBs (personal bests) below

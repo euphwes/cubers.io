@@ -22,6 +22,8 @@ class Config(object):
     TARGET_SUBREDDIT        = environ.get('TARGET_SUBREDDIT', TEST_SUBREDDIT)
     IS_DEVO                 = TARGET_SUBREDDIT == TEST_SUBREDDIT
 
+    AUTO_BL_FACTOR          = float(environ.get('AUTO_BL_FACTOR', 1.0))
+
     SQLALCHEMY_DATABASE_URI = environ.get('DATABASE_URL')
     if not SQLALCHEMY_DATABASE_URI:
         basedir = abspath(dirname(__file__))

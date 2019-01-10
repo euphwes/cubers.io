@@ -6,7 +6,8 @@ from flask import request, abort
 from flask_login import current_user
 
 from app import CUBERS_APP
-from app.business.user_results import build_user_event_results, build_event_summary
+from app.business.user_results import build_user_event_results, build_event_summary,\
+    determine_if_should_be_autoblacklisted
 from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import save_event_results_for_user,\
     are_results_different_than_existing, get_comment_id_by_comp_id_and_user,\
@@ -27,6 +28,10 @@ def save_event():
     try:
         user = get_user_by_username(current_user.username)
         event_result = build_user_event_results(request.get_json(), user)
+
+        # Check if these event results should be autoblacklisted, and set their blacklist flag
+        # notes if so
+        event_result = determine_if_should_be_autoblacklisted(event_result)
 
         # Figure out if we need to repost the results to Reddit or not
         if event_result.is_complete:

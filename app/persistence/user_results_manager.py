@@ -270,6 +270,8 @@ def __save_existing_event_results(existing_results, new_results):
     existing_results.times_string   = new_results.times_string
     existing_results.was_pb_average = new_results.was_pb_average
     existing_results.was_pb_single  = new_results.was_pb_single
+    existing_results.is_blacklisted = new_results.is_blacklisted
+    existing_results.blacklist_note = new_results.blacklist_note
 
     # Update any existing solves with the data coming in from the new solves
     for old_solve in existing_results.solves:
