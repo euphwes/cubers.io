@@ -14,7 +14,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-12 col-md-10 offset-md-1">
+        <div class="col-12 col-md-8 offset-md-2">
             <ul class="nav nav-tabs justify-content-center pt-1" role="tablist">
                 <li class="active nav-item">
                     <a href="#tab_single" class="nav-link active show" role="tab" data-toggle="tab">Single</a>
@@ -32,14 +32,30 @@
                         <thead class="thead-dark">
                             <tr>
                                 <th scope="col">Rank</th>
+                                {% if current_user.is_authenticated %}
+                                <th scope="col">
+                                    User
+                                    <i class="fas fa-arrow-down" style="padding-left: 5px; color: white; cursor: pointer;" id="scrollSingle"></i>
+                                </th>
+                                {% else %}
                                 <th scope="col">User</th>
+                                {% endif %}
                                 <th scope="col">Single</th>
                                 <th class="d-none d-md-table-cell" scope="col">Competition</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for record in singles %}
-                            <tr>
+
+                            {% if current_user.is_authenticated and current_user.username == record.username %}
+                                {% set its_me = 'hey-its-me' %}
+                                {% set me_id = 'thisIsMeSingle' %}
+                            {% else %}
+                                {% set its_me = '' %}
+                                {% set me_id = '' %}
+                            {% endif %}
+
+                            <tr class="{{ its_me }}" id = "{{ me_id }}">
                                 <td>{{ record.rank }}</td>
                                 <td>
                                     <a href="{{ url_for('profile', username=record.username) }}">/u/{{ record.username }}</a>
@@ -64,14 +80,30 @@
                         <thead class="thead-dark">
                             <tr>
                                 <th scope="col">Rank</th>
+                                {% if current_user.is_authenticated %}
+                                <th scope="col">
+                                    User
+                                    <i class="fas fa-arrow-down" style="padding-left: 5px; color: white; cursor: pointer;" id="scrollAverage"></i>
+                                </th>
+                                {% else %}
                                 <th scope="col">User</th>
+                                {% endif %}
                                 <th scope="col">Average</th>
                                 <th class="d-none d-md-table-cell" scope="col">Competition</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for record in averages %}
-                            <tr>
+
+                            {% if current_user.is_authenticated and current_user.username == record.username %}
+                                {% set its_me = 'hey-its-me' %}
+                                {% set me_id = 'thisIsMeAverage' %}
+                            {% else %}
+                                {% set its_me = '' %}
+                                {% set me_id = '' %}
+                            {% endif %}
+
+                            <tr class="{{ its_me }}" id = "{{ me_id }}">
                                 <td>{{ record.rank }}</td>
                                 <td>
                                     <a href="{{ url_for('profile', username=record.username) }}">/u/{{ record.username }}</a>
@@ -95,4 +127,26 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block additional_script %}
+<script>
+    $(function () {
+
+        $('#scrollSingle').click(function(){
+            $('html, body').animate({
+                scrollTop: $("#thisIsMeSingle").offset().top - 80
+            }, 1000);
+            return false;
+        });
+
+        $('#scrollAverage').click(function(){
+            $('html, body').animate({
+                scrollTop: $("#thisIsMeAverage").offset().top - 80
+            }, 1000);
+            return false;
+        });
+
+    })
+</script>
 {% endblock %}
