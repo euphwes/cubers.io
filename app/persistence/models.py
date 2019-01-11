@@ -170,9 +170,8 @@ class UserSiteRankings(Model):
     id          = Column(Integer, primary_key=True)
     user_id     = Column(Integer, ForeignKey('users.id'), index=True)
     user        = relationship('User', primaryjoin = user_id == User.id)
-    comp_id     = Column(Integer, ForeignKey('competitions.id'))
-    competition = relationship('Competition', primaryjoin = comp_id == Competition.id)
     data        = Column(String(2048))
+    timestamp   = Column(DateTime)
 
     def get_site_rankings_data_as_dict(self):
         """ Deserializes data field to json to return site rankings info as a dict. """

@@ -43,14 +43,24 @@ def profile(username):
     site_rankings_record = get_site_rankings_for_user(user.id)
     if site_rankings_record:
         site_rankings = site_rankings_record.get_site_rankings_data_as_dict()
-        previous_comp = site_rankings_record.competition.title
+
+        # If it exists, get the timestamp formatted like "2019 Jan 11"
+        if site_rankings_record.timestamp:
+            rankings_ts = site_rankings_record.timestamp.strftime('%Y %b %d')
+
+        # If there is no timestamp, just say that the rankings as accurate as of the last comp
+        # This should only happen briefly after I added the timestamp to the rankings table,
+        # but before the rankings were re-calculated
+        else:
+            rankings_ts = "last competition-ish"
+
     else:
+        rankings_ts   = None
         site_rankings = None
-        previous_comp = None
 
     return render_template("user/profile.html", user=user, solve_count=solve_count,\
         comp_count=comps_count, history=history, rankings=site_rankings,\
-        event_id_name_map=event_id_name_map, previous_comp=previous_comp,\
+        event_id_name_map=event_id_name_map, rankings_ts=rankings_ts,\
         is_admin_viewing=show_admin)
 
 # -------------------------------------------------------------------------------------------------

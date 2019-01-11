@@ -60,7 +60,6 @@ def precalculate_user_site_rankings():
     """ Precalculate user site rankings for event PBs for all users. """
 
     all_events = get_all_events()
-    previous_comp = get_previous_competition()
 
     # Each of these dicts are of the following form:
     #    dict[Event][ordered list of PersonalBestRecords]
@@ -90,18 +89,19 @@ def precalculate_user_site_rankings():
     for user in get_all_users():
 
         # Calculate site rankings for the user
-        rankings = _calculate_site_rankings_for_user(user.id, events_pb_singles, events_pb_averages)
+        # pylint: disable=C0301
+        rankings = _calculate_site_rankings_for_user(user.id, events_pb_singles, events_pb_averages, events_list=all_events)
 
         # If the user hasn't competed in anything, no need to save site rankings.
         if not rankings.keys():
             continue
 
         # Save to the database
-        save_or_update_site_rankings_for_user(user.id, rankings, previous_comp)
+        save_or_update_site_rankings_for_user(user.id, rankings)
 
 
 # pylint: disable=C0301
-def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages_map, event_override=None):
+def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages_map, event_override=None, events_list=None):
     """ Returns a dict of the user's PB singles and averages for all events they've participated in,
     as well as their rankings amongst the site's users. Format is:
     dict[event ID][(single, single_site_ranking, average, average_site_ranking)] """
@@ -114,7 +114,7 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
 
     # Otherwise work through all events for this user
     else:
-        events_to_consider = get_all_events_user_has_participated_in(user_id)
+        events_to_consider = events_list if events_list else get_all_events()
 
     for event in events_to_consider:
         pb_single    = ''
@@ -137,10 +137,10 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
                 single_rank = personal_best.rank
                 break
 
-        # If our user has no singles results for this event, skip to the next event,
-        # since they can't possibly have an average
+        # If our user has no single for this event, their site ranking is
+        # (1 + total number of people with a rank for this event)
         if not pb_single:
-            continue
+            single_rank = len(ranked_singles) + 1
 
         # See if there's a result for our user in the averages. It's ok if there isn't, either
         # because the user doesn't have an average or this event doesn't have averages. we'll just
@@ -150,6 +150,11 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
                 pb_average   = personal_best.personal_best
                 average_rank = personal_best.rank
                 break
+
+        # If our user has no average for this event, their site ranking is
+        # (1 + total number of people with a rank for this event)
+        if not pb_single:
+            average_rank = len(ranked_averages) + 1
 
         # Records the user's rankings and PBs for this event
         user_rankings[event.id] = (pb_single, single_rank, pb_average, average_rank)
