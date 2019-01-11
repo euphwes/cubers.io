@@ -212,7 +212,7 @@ class UserSiteRankings(Model):
         sum of ranks information. """
 
         data = self.__get_site_rankings_data_as_dict()
-        return {key : value for key, value in data.items() if key is isinstance(key, int)}
+        return {key : value for key, value in data.items() if isinstance(key, int)}
 
 
     def get_combined_sum_of_ranks(self):
