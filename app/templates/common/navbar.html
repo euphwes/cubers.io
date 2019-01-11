@@ -65,6 +65,17 @@
                                 <a class="dropdown-item slim-nav-item" href="{{ url_for('event_results', event_name='PLL Time Attack') }}">PLL Time Attack</a>
                             </div>
                         </div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown dropright dropdown-submenu">
+                            <button class="dropdown-item dropdown-toggle" type="button">
+                                Sum of Ranks
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('sum_of_ranks', sor_type='all') }}">Combined</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('sum_of_ranks', sor_type='wca') }}">WCA Events Only</a>
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('sum_of_ranks', sor_type='non_wca') }}">Non-WCA Events Only</a>
+                            </div>
+                        </div>
                     </div>
                 </li>
                 <li class="nav-item dropdown">

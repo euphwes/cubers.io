@@ -18,6 +18,14 @@ def get_site_rankings_for_user(user_id):
         first()
 
 
+def get_all_user_site_rankings():
+    """ Retrieves all UserSiteRankings records. """
+
+    return DB.session.\
+        query(UserSiteRankings).\
+        all()
+
+
 def save_or_update_site_rankings_for_user(user_id, site_rankings):
     """ Create or update a UserSiteRankings record for the specified user. """
 

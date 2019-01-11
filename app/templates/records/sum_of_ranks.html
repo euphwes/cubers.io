@@ -1,0 +1,72 @@
+{% extends "common/base.html" %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid cubers-container white-container event-results-container">
+    <div class="row">
+        <div class="col-12">
+            <h3 class="text-center">
+                {{ title }}
+            </h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-md-6 offset-md-3">
+            <ul class="nav nav-tabs justify-content-center pt-1" role="tablist">
+                <li class="active nav-item">
+                    <a href="#tab_single" class="nav-link active show" role="tab" data-toggle="tab">By Single</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#tab_average" class="nav-link" role="tab" data-toggle="tab">By Average</a>
+                </li>
+            </ul>
+            
+            <div class="tab-content justify-content-center pt-3">
+                <div class="tab-pane active" id="tab_single">
+                    <table class="table table-sm table-striped table-cubersio">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Rank</th>
+                                <th scope="col">User</th>
+                                <th scope="col">Sum of Ranks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sor in sor_sorted_by_single %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ sor.username }}</td>
+                                <td>{{ sor.single }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="tab_average">
+                    <table class="table table-sm table-striped table-cubersio">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Rank</th>
+                                <th scope="col">User</th>
+                                <th scope="col">Sum of Ranks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sor in sor_sorted_by_average %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ sor.username }}</td>
+                                <td>{{ sor.average }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
