@@ -3,7 +3,8 @@
 from collections import OrderedDict
 
 from app import DB
-from app.persistence.models import CompetitionEvent, Event, UserEventResults
+from app.persistence.models import Event, CompetitionEvent, UserEventResults
+from app.util.events_resources import get_WCA_event_names, get_non_WCA_event_names
 
 # -------------------------------------------------------------------------------------------------
 
@@ -22,6 +23,22 @@ def get_all_events():
         query(Event).\
         order_by(Event.id).\
         all()
+
+
+# pylint: disable=C0103
+def get_all_WCA_events():
+    """ Returns a list of all WCA events. """
+
+    wca_names = set(get_WCA_event_names())
+    return [e for e in get_all_events() if e.name in wca_names]
+
+
+# pylint: disable=C0103
+def get_all_non_WCA_events():
+    """ Returns a list of all non-WCA events. """
+
+    non_wca_names = set(get_non_WCA_event_names())
+    return [e for e in get_all_events() if e.name in non_wca_names]
 
 
 def get_events_id_name_mapping():

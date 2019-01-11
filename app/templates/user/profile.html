@@ -28,19 +28,20 @@
                     <tr>
                         <th>Combined</th>
                         <th>WCA Events</th>
-                        <th>Bonus Events</th>
+                        <th>Non-WCA Events</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>{{ comp_count }}</td>
                         <td>{{ solve_count }}</td>
+
                         {% if sor_all %}
-                        <td>{{sor_all.single}}, {{sor_all.average}}</td>
-                        <td>{{sor_wca.single}}, {{sor_wca.average}}</td>
-                        <td>{{sor_bonus.single}}, {{sor_bonus.average}}</td>
+                            <td>{{sor_all.single}}, {{sor_all.average}}</td>
+                            <td>{{sor_wca.single}}, {{sor_wca.average}}</td>
+                            <td>{{sor_non_wca.single}}, {{sor_non_wca.average}}</td>
                         {% else %}
-                        <td colspan="3">Not yet calculated</td>
+                            <td colspan="3">Not yet calculated</td>
                         {% endif %}
 
                     </tr>

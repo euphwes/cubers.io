@@ -8,9 +8,9 @@ from app.business.user_history import get_user_competition_history
 from app.persistence.comp_manager import get_user_participated_competitions_count
 from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import get_user_completed_solves_count
-from app.persistence.events_manager import get_events_id_name_mapping
+from app.persistence.events_manager import get_events_id_name_mapping, get_all_WCA_events,\
+    get_all_non_WCA_events
 from app.persistence.user_site_rankings_manager import get_site_rankings_for_user
-from app.persistence.models import SumOfRanks
 from app.routes.util import is_admin_viewing
 
 # -------------------------------------------------------------------------------------------------
@@ -46,17 +46,17 @@ def profile(username):
         site_rankings = site_rankings_record.get_site_rankings_data_as_dict()
 
         # Get sum of ranks
-        sor_all   = site_rankings_record.get_sum_of_ranks()
-        sor_wca   = site_rankings_record.get_sum_of_ranks()
-        sor_bonus = site_rankings_record.get_sum_of_ranks()
+        sor_all     = site_rankings_record.get_combined_sum_of_ranks()
+        sor_wca     = site_rankings_record.get_WCA_sum_of_ranks(get_all_WCA_events())
+        sor_non_wca = site_rankings_record.get_non_WCA_sum_of_ranks(get_all_non_WCA_events())
 
         # If it exists, get the timestamp formatted like "2019 Jan 11"
         if site_rankings_record.timestamp:
             rankings_ts = site_rankings_record.timestamp.strftime('%Y %b %d')
 
         # If there is no timestamp, just say that the rankings as accurate as of the last comp
-        # This should only happen briefly after I added the timestamp to the rankings table,
-        # but before the rankings were re-calculated
+        # This should only happen briefly after I add the timestamp to the rankings table,
+        # but before the rankings are re-calculated
         else:
             rankings_ts = "last competition-ish"
 
@@ -65,12 +65,12 @@ def profile(username):
         site_rankings = None
         sor_all       = None
         sor_wca       = None
-        sor_bonus     = None
+        sor_non_wca   = None
 
     return render_template("user/profile.html", user=user, solve_count=solve_count,\
         comp_count=comps_count, history=history, rankings=site_rankings,\
         event_id_name_map=event_id_name_map, rankings_ts=rankings_ts,\
-        is_admin_viewing=show_admin, sor_all=sor_all, sor_wca=sor_wca, sor_bonus=sor_bonus)
+        is_admin_viewing=show_admin, sor_all=sor_all, sor_wca=sor_wca, sor_non_wca=sor_non_wca)
 
 # -------------------------------------------------------------------------------------------------
 

@@ -190,12 +190,46 @@ class UserSiteRankings(Model):
         return site_rankings
 
 
-    def get_sum_of_ranks(self):
-        """ Gets the user's sum of ranks as a tuple of (single, average). """
+    def get_combined_sum_of_ranks(self):
+        """ Gets the user's combined sum of ranks as a tuple of (single, average)
+        for all events. """
+
+        return self.__build_sum_of_ranks(self.get_site_rankings_data_as_dict())
+
+
+    def get_WCA_sum_of_ranks(self, wca_events):
+        """ Gets the user's combined sum of ranks as a tuple of (single, average)
+        for only WCA events. """
+
+        wca_event_ids = set(e.id for e in wca_events)
+
+        filtered_ranking_data = {event_id : ranks for event_id, ranks
+                                 in self.get_site_rankings_data_as_dict().items()
+                                 if event_id in wca_event_ids}
+
+        return self.__build_sum_of_ranks(filtered_ranking_data)
+
+
+    def get_non_WCA_sum_of_ranks(self, non_wca_events):
+        """ Gets the user's combined sum of ranks as a tuple of (single, average)
+        for only non-WCA events. """
+
+        non_wca_event_ids = set(e.id for e in non_wca_events)
+
+        filtered_ranking_data = {event_id : ranks for event_id, ranks
+                                 in self.get_site_rankings_data_as_dict().items()
+                                 if event_id in non_wca_event_ids}
+
+        return self.__build_sum_of_ranks(filtered_ranking_data)
+
+
+    def __build_sum_of_ranks(self, filtered_ranking_data):
+        """ Builds a SumOfRanks with the ranking data passed in, which can be complete or
+        filtered depending on the needs of the caller. """
 
         sum_single_rank = 0
         sum_average_rank = 0
-        for _, ranks in self.get_site_rankings_data_as_dict().items():
+        for _, ranks in filtered_ranking_data.items():
             sum_single_rank += int(ranks[1])
             sum_average_rank += int(ranks[3]) if ranks[3] else 0
 
