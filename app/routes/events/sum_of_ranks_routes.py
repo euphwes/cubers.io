@@ -40,12 +40,21 @@ def sum_of_ranks(sor_type):
 
     # Make a copy of the list of sum of ranks for the averages. The original list will hold the
     # ranks sorted by single. Sort the two lists by single and average value respectively
-    averages = all_sum_of_ranks.copy()
-    all_sum_of_ranks.sort(key=cmp_to_key(sort_sum_of_ranks_by_single))
-    averages.sort(key=cmp_to_key(sort_sum_of_ranks_by_average))
+    singles = sorted(all_sum_of_ranks, key=cmp_to_key(sort_sum_of_ranks_by_single))
+    averages = sorted(all_sum_of_ranks.copy(), key=cmp_to_key(sort_sum_of_ranks_by_average))
+
+    # Filter out all SumOfRanks from the singles where the single matches the lowest single,
+    # to remove all users who haven't completed any solves, and have the lowest possible ranking
+    lowest_sum_single = singles[-1].single
+    singles = [s for s in singles if s.single != lowest_sum_single]
+
+    # Filter out all SumOfRanks from the averages where the average matches the lowest average,
+    # to remove all users who haven't completed any solves, and have the lowest possible ranking
+    lowest_sum_average = all_sum_of_ranks[-1].average
+    averages = [s for s in averages if s.average != lowest_sum_average]
 
     return render_template("records/sum_of_ranks.html", title=title,\
-        alternative_title="Sum of Ranks", sor_sorted_by_single=all_sum_of_ranks,\
+        alternative_title="Sum of Ranks", sor_sorted_by_single=singles,\
         sor_sorted_by_average=averages)
 
 # -------------------------------------------------------------------------------------------------
