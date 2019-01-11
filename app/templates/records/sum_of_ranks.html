@@ -38,7 +38,9 @@
                             {% for sor in sor_sorted_by_single %}
                             <tr>
                                 <td>{{ loop.index }}</td>
-                                <td>{{ sor.username }}</td>
+                                <td>
+                                    <a href="{{ url_for('profile', username=sor.username) }}">/u/{{ sor.username }}</a>
+                                </td>
                                 <td>{{ sor.single }}</td>
                             </tr>
                             {% endfor %}
@@ -58,7 +60,9 @@
                             {% for sor in sor_sorted_by_average %}
                             <tr>
                                 <td>{{ loop.index }}</td>
-                                <td>{{ sor.username }}</td>
+                                <td>
+                                    <a href="{{ url_for('profile', username=sor.username) }}">/u/{{ sor.username }}</a>
+                                </td>
                                 <td>{{ sor.average }}</td>
                             </tr>
                             {% endfor %}
