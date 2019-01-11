@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid cubers-container white-container event-results-container">
+<div class="container-fluid cubers-container white-container sum-of-ranks-container">
     <div class="row">
         <div class="col-12">
             <h3 class="text-center">
@@ -30,13 +30,27 @@
                         <thead class="thead-dark">
                             <tr>
                                 <th scope="col">Rank</th>
+                                {% if current_user.is_authenticated %}
+                                <th scope="col">
+                                    User
+                                    <i class="fas fa-arrow-down" style="padding-left: 5px; color: white; cursor: pointer;" id="scrollSingle"></i>
+                                </th>
+                                {% else %}
                                 <th scope="col">User</th>
+                                {% endif %}
                                 <th scope="col">Sum of Ranks</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for sor in sor_sorted_by_single %}
-                            <tr>
+                            {% if current_user.is_authenticated and current_user.username == sor.username %}
+                                {% set its_me = 'hey-its-me' %}
+                                {% set me_id = 'thisIsMeSingle' %}
+                            {% else %}
+                                {% set its_me = '' %}
+                                {% set me_id = '' %}
+                            {% endif %}
+                            <tr class="{{ its_me }}" id="{{ me_id }}">
                                 <td>{{ loop.index }}</td>
                                 <td>
                                     <a href="{{ url_for('profile', username=sor.username) }}">/u/{{ sor.username }}</a>
@@ -52,13 +66,27 @@
                         <thead class="thead-dark">
                             <tr>
                                 <th scope="col">Rank</th>
+                                {% if current_user.is_authenticated %}
+                                <th scope="col">
+                                    User
+                                    <i class="fas fa-arrow-down" style="padding-left: 5px; color: white; cursor: pointer;" id="scrollAverage"></i>
+                                </th>
+                                {% else %}
                                 <th scope="col">User</th>
+                                {% endif %}
                                 <th scope="col">Sum of Ranks</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for sor in sor_sorted_by_average %}
-                            <tr>
+                            {% if current_user.is_authenticated and current_user.username == sor.username %}
+                                {% set its_me = 'hey-its-me' %}
+                                {% set me_id = 'thisIsMeAverage' %}
+                            {% else %}
+                                {% set its_me = '' %}
+                                {% set me_id = '' %}
+                            {% endif %}
+                            <tr class="{{ its_me }}" id="{{ me_id }}">
                                 <td>{{ loop.index }}</td>
                                 <td>
                                     <a href="{{ url_for('profile', username=sor.username) }}">/u/{{ sor.username }}</a>
@@ -73,4 +101,26 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block additional_script %}
+<script>
+    $(function () {
+
+        $('#scrollSingle').click(function(){
+            $('html, body').animate({
+                scrollTop: $("#thisIsMeSingle").offset().top - 80
+            }, 1000);
+            return false;
+        });
+
+        $('#scrollAverage').click(function(){
+            $('html, body').animate({
+                scrollTop: $("#thisIsMeAverage").offset().top - 80
+            }, 1000);
+            return false;
+        });
+
+    })
+</script>
 {% endblock %}
