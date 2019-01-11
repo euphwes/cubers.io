@@ -1,4 +1,4 @@
-""" Routes related to displaying competition results. """
+""" Routes related to displaying event records. """
 
 from flask import render_template
 

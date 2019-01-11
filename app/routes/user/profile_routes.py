@@ -43,12 +43,12 @@ def profile(username):
     # can build their site ranking table
     site_rankings_record = get_site_rankings_for_user(user.id)
     if site_rankings_record:
-        site_rankings = site_rankings_record.get_site_rankings_data_as_dict()
+        site_rankings = site_rankings_record.get_site_rankings_and_pbs()
 
         # Get sum of ranks
         sor_all     = site_rankings_record.get_combined_sum_of_ranks()
-        sor_wca     = site_rankings_record.get_WCA_sum_of_ranks(get_all_WCA_events())
-        sor_non_wca = site_rankings_record.get_non_WCA_sum_of_ranks(get_all_non_WCA_events())
+        sor_wca     = site_rankings_record.get_WCA_sum_of_ranks()
+        sor_non_wca = site_rankings_record.get_non_WCA_sum_of_ranks()
 
         # If it exists, get the timestamp formatted like "2019 Jan 11"
         if site_rankings_record.timestamp:
@@ -74,11 +74,11 @@ def profile(username):
 
 # -------------------------------------------------------------------------------------------------
 
-def should_show_blacklisted_results(profile_username, is_admin_viewing):
+def should_show_blacklisted_results(profile_username, is_admin_here):
     """ Determine if we want to show blacklisted results in the competition history. """
 
     # If the user viewing a page is an admin, they can see blacklisted results
-    if is_admin_viewing:
+    if is_admin_here:
         return True
 
     # Non-logged-in users can't see blacklisted results

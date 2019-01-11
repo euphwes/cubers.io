@@ -7,7 +7,6 @@ from flask_login import current_user
 
 from app import CUBERS_APP
 from app.business.user_results import recalculate_user_pbs_for_event
-from app.business.rankings import precalculate_site_rankings_for_event
 from app.persistence.comp_manager import get_active_competition, get_complete_competitions,\
     get_previous_competition, get_competition, get_all_comp_events_for_comp
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp,\
@@ -86,15 +85,6 @@ def unblacklist(results_id):
 
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.route('/leaderboards/')
-def results_list():
-    """ A route for showing which competitions results can be viewed for. """
-
-    comps = get_complete_competitions()
-    comp = get_active_competition()
-    return render_template("results/results_list.html", comps=comps, active=comp)
-
-
 @CUBERS_APP.route('/redirect_curr/')
 def curr_leaders():
     """ Redirects to the current competition's leaderboards. """
@@ -109,6 +99,15 @@ def prev_leaders():
 
     comp = get_previous_competition()
     return redirect("leaderboards/{}".format(comp.id))
+
+
+@CUBERS_APP.route('/leaderboards/')
+def results_list():
+    """ A route for showing which competitions results can be viewed for. """
+
+    comps = get_complete_competitions()
+    comp = get_active_competition()
+    return render_template("results/results_list.html", comps=comps, active=comp)
 
 
 @CUBERS_APP.route('/leaderboards/<int:comp_id>/')

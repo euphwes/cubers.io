@@ -7,7 +7,8 @@ from ranking import Ranking
 from app import DB
 from app.persistence.models import Competition, CompetitionEvent, Event, UserEventResults, User
 from app.persistence.comp_manager import get_previous_competition
-from app.persistence.events_manager import get_all_events, get_all_events_user_has_participated_in
+from app.persistence.events_manager import get_all_events, get_all_WCA_events,\
+    get_all_non_WCA_events
 from app.persistence.user_manager import get_all_users
 from app.persistence.user_site_rankings_manager import save_or_update_site_rankings_for_user,\
     update_one_event_site_rankings_for_user
@@ -18,6 +19,9 @@ from app.persistence.user_site_rankings_manager import save_or_update_site_ranki
 
 def precalculate_site_rankings_for_event(event):
     """ Precalculate user site rankings for just the specified event. """
+
+    # NOTE: this is unused right now, turns out this is too slow to do it on the fly within the
+    # web app. I'll probably take it out later, but keeping it here for now in case I can reuse it
 
     # It doesn't make sense to keep COLL records, since it's a single alg that changes weekly
     if event.name == "COLL":
@@ -41,12 +45,14 @@ def precalculate_site_rankings_for_event(event):
     ordered_pb_averages = get_ordered_pb_averages_for_event(event.id)
     events_pb_averages[event] = ordered_pb_averages
 
+    wca_events = get_all_WCA_events()
+
     # Iterate through all users to determine their site rankings and PBs
     for user in get_all_users():
 
         # Calculate site rankings for the user for just this event
         rankings = _calculate_site_rankings_for_user(user.id, events_pb_singles,\
-            events_pb_averages, event_override=event)
+            events_pb_averages, wca_events, event_override=event)
 
         # If the user hasn't competed in anything, no need to save site rankings.
         if not rankings.keys():
@@ -60,6 +66,7 @@ def precalculate_user_site_rankings():
     """ Precalculate user site rankings for event PBs for all users. """
 
     all_events = get_all_events()
+    wca_events = get_all_WCA_events()
 
     # Each of these dicts are of the following form:
     #    dict[Event][ordered list of PersonalBestRecords]
@@ -86,11 +93,15 @@ def precalculate_user_site_rankings():
         events_pb_averages[event] = ordered_pb_averages
 
     # Iterate through all users to determine their site rankings and PBs
-    for user in get_all_users():
+    all_users = get_all_users()
+    user_count = len(all_users)
+    for i, user in enumerate(all_users):
+
+        print("Calculating site rankings for {} ({}/{})".format(user.username, i+1, user_count))
 
         # Calculate site rankings for the user
         # pylint: disable=C0301
-        rankings = _calculate_site_rankings_for_user(user.id, events_pb_singles, events_pb_averages, events_list=all_events)
+        rankings = _calculate_site_rankings_for_user(user.id, events_pb_singles, events_pb_averages, wca_events, events_list=all_events)
 
         # If the user hasn't competed in anything, no need to save site rankings.
         if not rankings.keys():
@@ -101,12 +112,16 @@ def precalculate_user_site_rankings():
 
 
 # pylint: disable=C0301
-def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages_map, event_override=None, events_list=None):
+def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages_map, wca_events, event_override=None, events_list=None):
     """ Returns a dict of the user's PB singles and averages for all events they've participated in,
     as well as their rankings amongst the site's users. Format is:
     dict[event ID][(single, single_site_ranking, average, average_site_ranking)] """
 
     user_rankings = OrderedDict()
+
+    # Get the IDs of the WCA events in a set, to make lookup fast later when accumulating sums
+    # for the various sum of ranks status
+    wca_event_ids = set(e.id for e in wca_events)
 
     # If an event_override is specified, only calculate rankings for that specific event
     if event_override:
@@ -115,6 +130,12 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
     # Otherwise work through all events for this user
     else:
         events_to_consider = events_list if events_list else get_all_events()
+
+    # Start off all sum of ranks stats at 0
+    # [single, average]
+    sor_all     = [0, 0]
+    sor_wca     = [0, 0]
+    sor_non_wca = [0, 0]
 
     for event in events_to_consider:
         pb_single    = ''
@@ -158,6 +179,21 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
 
         # Records the user's rankings and PBs for this event
         user_rankings[event.id] = (pb_single, single_rank, pb_average, average_rank)
+
+        # Accumulate sum of ranks
+        sor_all[0] += single_rank
+        sor_all[1] += average_rank if average_rank else 0
+        if event.id in wca_event_ids:
+            sor_wca[0] += single_rank
+            sor_wca[1] += average_rank if average_rank else 0
+        else:
+            sor_non_wca[0] += single_rank
+            sor_non_wca[1] += average_rank if average_rank else 0
+
+    # Save the sum of ranks tuples in the data being saved to the DB
+    user_rankings['sor_all']     = sor_all
+    user_rankings['sor_wca']     = sor_wca
+    user_rankings['sor_non_wca'] = sor_non_wca
 
     return user_rankings
 
