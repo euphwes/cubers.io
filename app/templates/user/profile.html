@@ -4,6 +4,8 @@
 {{ super() }}
 {% endblock %}
 
+{% set sor_explanation = "The sum of site rankings across all events.\nEvents not participated in give a `number of participants + 1` rank.\nLower is better." %}
+
 {% block content %}
 <div class="container-fluid cubers-container white-container profile-container">
     <div class="row">
@@ -16,14 +18,31 @@
             <table class="table table-sm table-striped table-cubersio text-center">
                 <thead class="thead-dark">
                     <tr>
-                        <th scope="col">Competitions</th>
-                        <th scope="col">Completed Solves</th>
+                        <th rowspan="2">Competitions</th>
+                        <th rowspan="2">Completed Solves</th>
+                        <th colspan="3">
+                            Sum of Ranks (Single, Average)
+                            <span style="font-weight: normal; padding-left: 5px;" class="fas fa-question-circle spacer" data-toggle="tooltip" data-placement="bottom" title="{{ sor_explanation }}"></span>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>Combined</th>
+                        <th>WCA Events</th>
+                        <th>Bonus Events</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>{{ comp_count }}</td>
                         <td>{{ solve_count }}</td>
+                        {% if sor_all %}
+                        <td>{{sor_all.single}}, {{sor_all.average}}</td>
+                        <td>{{sor_wca.single}}, {{sor_wca.average}}</td>
+                        <td>{{sor_bonus.single}}, {{sor_bonus.average}}</td>
+                        {% else %}
+                        <td colspan="3">Not yet calculated</td>
+                        {% endif %}
+
                     </tr>
                 </tbody>
             </table>

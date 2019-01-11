@@ -1,6 +1,6 @@
 """ SQLAlchemy models for all database entries. """
 
-from collections import OrderedDict
+from collections import namedtuple, OrderedDict
 import json
 
 from flask_login import LoginManager, UserMixin
@@ -26,6 +26,9 @@ class EventFormat():
     Mo3 = "Mo3"
     Bo3 = "Bo3"
     Bo1 = "Bo1"
+
+# Container for sum of ranks data
+SumOfRanks = namedtuple('SumOfRanks', ['single', 'average'])
 
 # -------------------------------------------------------------------------------------------------
 
@@ -165,7 +168,7 @@ class CompetitionGenResources(Model):
 
 class UserSiteRankings(Model):
     """ A record for holding pre-calculated user PB single and averages, and site rankings,
-    for each event they have participated in. """
+    for each event they have participated in."""
     __tablename__  = 'user_site_rankings'
     id          = Column(Integer, primary_key=True)
     user_id     = Column(Integer, ForeignKey('users.id'), index=True)
@@ -174,7 +177,8 @@ class UserSiteRankings(Model):
     timestamp   = Column(DateTime)
 
     def get_site_rankings_data_as_dict(self):
-        """ Deserializes data field to json to return site rankings info as a dict. """
+        """ Deserializes data field to json to return site rankings info as a dict.
+        dict[event ID][(single, single_site_ranking, average, average_site_ranking)] """
 
         # The keys (event ID) get converted to strings when serializing to json.
         # We need them as ints, so iterate through the deserialized dict, building a new
@@ -184,6 +188,18 @@ class UserSiteRankings(Model):
             site_rankings[int(key)] = value
 
         return site_rankings
+
+
+    def get_sum_of_ranks(self):
+        """ Gets the user's sum of ranks as a tuple of (single, average). """
+
+        sum_single_rank = 0
+        sum_average_rank = 0
+        for _, ranks in self.get_site_rankings_data_as_dict().items():
+            sum_single_rank += int(ranks[1])
+            sum_average_rank += int(ranks[3]) if ranks[3] else 0
+
+        return SumOfRanks(single=sum_single_rank, average=sum_average_rank)
 
 
 class UserSolve(Model):
