@@ -37,9 +37,13 @@ def blacklist(results_id):
         # Recalculate PBs just for the affected user and event
         recalculate_user_pbs_for_event(results.user_id, results.CompetitionEvent.event_id)
 
+        # TODO: temporarily taking this out - it's taking too long (30s+ per request), causing
+        # Heroku timeouts. Revisit and see if we can make it faster. For now, please manually
+        # initiate a site rankings recalculation.
+        #
         # Blacklisting a result will bump this person down in the ranks, meaning other people will
         # rise in the ranks. Recalculate UserSiteRankings for all users, just for this event
-        precalculate_site_rankings_for_event(results.CompetitionEvent.Event)
+        # precalculate_site_rankings_for_event(results.CompetitionEvent.Event)
 
         return ('', 204)
 
@@ -64,9 +68,13 @@ def unblacklist(results_id):
         # Recalculate PBs just for the affected user and event
         recalculate_user_pbs_for_event(results.user_id, results.CompetitionEvent.event_id)
 
+        # TODO: temporarily taking this out - it's taking too long (30s+ per request), causing
+        # Heroku timeouts. Revisit and see if we can make it faster. For now, please manually
+        # initiate a site rankings recalculation.
+        #
         # Unlacklisting a result will bump this person up in the ranks, meaning other people will
         # fall in the ranks. Recalculate UserSiteRankings for all users, just for this event
-        precalculate_site_rankings_for_event(results.CompetitionEvent.Event)
+        # precalculate_site_rankings_for_event(results.CompetitionEvent.Event)
 
         return ('', 204)
 
