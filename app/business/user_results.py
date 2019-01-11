@@ -1,5 +1,7 @@
 """ Methods for processing UserEventResults. """
 
+from arrow import now
+
 from app import CUBERS_APP
 from app.persistence.comp_manager import get_comp_event_by_id
 from app.persistence.events_manager import get_event_by_name
@@ -28,12 +30,11 @@ DNF          = 'DNF'
 BLIND_EVENTS = ('2BLD', '3BLD', '4BLD', '5BLD')
 
 # Auto-blacklist notes
-_AUTO_NOTE_TEMPLATE = "This result has been automatically blacklisted, because your {type} is less "
-_AUTO_NOTE_TEMPLATE += "than the WR {type} for this event. If you believe this is an error, please "
-_AUTO_NOTE_TEMPLATE += "contact a cubers.io admin."""
+_AUTO_NOTE_TEMPLATE = "Results automatically hidden on {date} because the {type} is less than the "
+_AUTO_NOTE_TEMPLATE += "'{factor} * WR {type}' threshold for this event."
 
-AUTO_BL_SINGLE  = _AUTO_NOTE_TEMPLATE.format(type="single")
-AUTO_BL_AVERAGE = _AUTO_NOTE_TEMPLATE.format(type="average")
+SINGLE  = 'single'
+AVERAGE = 'average'
 
 # -------------------------------------------------------------------------------------------------
 
@@ -175,8 +176,8 @@ def build_event_summary(event, user):
 
 def determine_if_should_be_autoblacklisted(results):
     """ Determines if this UserEventResults should be auto-blacklisted because of an absurdly low
-    time. Start off with 0.75 * the current world records as a threshold and adjust depending on
-    how this experiment goes. """
+    time. Uses a multiplicative factor of the current world records as a threshold, which is
+    adjustable by environment variable. """
 
     # If the results aren't complete, don't blacklist yet even if we otherwise would have
     if not results.is_complete:
@@ -224,8 +225,10 @@ def determine_if_should_be_autoblacklisted(results):
         # and unset any PB flags which were probably set earlier when
         # build the UserEventResults
         if int(results.single) <= (threshold_factor * wr_single):
+            timestamp = now().format('YYYY-MM-DD')
+            note = _AUTO_NOTE_TEMPLATE.format(type=SINGLE, date=timestamp, factor=threshold_factor)
+            results.blacklist_note = note
             results.is_blacklisted = True
-            results.blacklist_note = AUTO_BL_SINGLE
             results.was_pb_average = False
             results.was_pb_single  = False
             return results
@@ -238,8 +241,10 @@ def determine_if_should_be_autoblacklisted(results):
         # and unset any PB flags which were probably set earlier when
         # build the UserEventResults
         if int(results.average) <= (threshold_factor * wr_average):
+            timestamp = now().format('YYYY-MM-DD')
+            note = _AUTO_NOTE_TEMPLATE.format(type=AVERAGE, date=timestamp, factor=threshold_factor)
+            results.blacklist_note = note
             results.is_blacklisted = True
-            results.blacklist_note = AUTO_BL_AVERAGE
             results.was_pb_average = False
             results.was_pb_single  = False
             return results
@@ -247,7 +252,6 @@ def determine_if_should_be_autoblacklisted(results):
         pass # int() failed, probably because the average is a DNF
 
     return results
-
 
 # -------------------------------------------------------------------------------------------------
 #                  Stuff related to processing PBs (personal bests) below

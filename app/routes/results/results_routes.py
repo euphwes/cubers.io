@@ -1,5 +1,7 @@
 """ Routes related to displaying competition results. """
 
+from arrow import now
+
 from flask import render_template, redirect
 from flask_login import current_user
 
@@ -14,6 +16,10 @@ from app.routes.util import is_admin_viewing
 
 # -------------------------------------------------------------------------------------------------
 
+DEFAULT_BLACKLIST_NOTE = """Results manually hidden by {username} on {date}."""
+
+# -------------------------------------------------------------------------------------------------
+
 @CUBERS_APP.route('/results/blacklist/<int:results_id>/')
 def blacklist(results_id):
     """ Blacklists the specified UserEventResults. """
@@ -23,7 +29,10 @@ def blacklist(results_id):
 
     # pylint: disable=W0703
     try:
-        results = blacklist_results(results_id)
+        actor = current_user.username
+        timestamp = now().format('YYYY-MM-DD')
+        note = DEFAULT_BLACKLIST_NOTE.format(username=actor, date=timestamp)
+        results = blacklist_results(results_id, note)
 
         # Recalculate PBs just for the affected user and event
         recalculate_user_pbs_for_event(results.user_id, results.CompetitionEvent.event_id)

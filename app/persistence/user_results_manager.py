@@ -18,12 +18,9 @@ class UserEventResultsDoesNotExistException(Exception):
     def __str__(self):
         return "There is no UserEventResults with id {}".format(self.results_id)
 
-DEFAULT_BLACKLIST_NOTE = """This result has been manually blacklisted.
-If this is an error, please contact a cubers.io admin."""
-
 # -------------------------------------------------------------------------------------------------
 
-def blacklist_results(results_id, note=DEFAULT_BLACKLIST_NOTE):
+def blacklist_results(results_id, note):
     """ Blacklists the specified UserEventResults. """
 
     results = DB.session.\

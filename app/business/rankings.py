@@ -100,12 +100,11 @@ def precalculate_user_site_rankings():
         save_or_update_site_rankings_for_user(user.id, rankings, previous_comp)
 
 
+# pylint: disable=C0301
 def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages_map, event_override=None):
     """ Returns a dict of the user's PB singles and averages for all events they've participated in,
     as well as their rankings amongst the site's users. Format is:
     dict[event ID][(single, single_site_ranking, average, average_site_ranking)] """
-
-    print('Calculating site rankings for user {}'.format(user_id))
 
     user_rankings = OrderedDict()
 
