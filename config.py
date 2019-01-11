@@ -1,7 +1,7 @@
 """ Contains all the config values for this web app. """
 
-import os
 from os import environ
+from os.path import abspath, dirname, join as path_join
 
 # -------------------------------------------------------------------------------------------------
 
@@ -22,10 +22,12 @@ class Config(object):
     TARGET_SUBREDDIT        = environ.get('TARGET_SUBREDDIT', TEST_SUBREDDIT)
     IS_DEVO                 = TARGET_SUBREDDIT == TEST_SUBREDDIT
 
+    AUTO_BL_FACTOR          = float(environ.get('AUTO_BL_FACTOR', 1.0))
+
     SQLALCHEMY_DATABASE_URI = environ.get('DATABASE_URL')
     if not SQLALCHEMY_DATABASE_URI:
-        basedir = os.path.abspath(os.path.dirname(__file__))
-        SQLALCHEMY_DATABASE_URI =  'sqlite:///' + os.path.join(basedir, 'cube_competitions.sqlite')
+        basedir = abspath(dirname(__file__))
+        SQLALCHEMY_DATABASE_URI =  'sqlite:///' + path_join(basedir, 'cube_competitions.sqlite')
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     TEMPLATES_AUTO_RELOAD = True

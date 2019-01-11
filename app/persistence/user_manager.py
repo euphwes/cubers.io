@@ -1,17 +1,31 @@
 """ Utility module for providing access to business logic for users. """
 
 from app import DB
-from app.persistence.models import User, Blacklist
+from app.persistence.models import User
+
+# -------------------------------------------------------------------------------------------------
+
+class UserDoesNotExistException(Exception):
+    """ An error raised when an attempting an operation on a user which does not exist. """
+
+    def __init__(self, username):
+        self.username = username
+        super(UserDoesNotExistException, self).__init__()
+
+    def __str__(self):
+        return "There is no user with the username '{}'".format(self.username)
 
 # -------------------------------------------------------------------------------------------------
 
 def get_all_users():
     """ Get all users. """
+
     return User.query.all()
 
 
 def update_or_create_user(username, refresh_token):
-    """ Updates a user with the provided refresh token, or creates a new user. Returns the user. """
+    """ Creates or updates a user with the provided refresh token. Returns the user. """
+
     user = get_user_by_username(username)
 
     if user:
@@ -26,41 +40,47 @@ def update_or_create_user(username, refresh_token):
 
 def get_user_by_username(username):
     """ Returns the user with this username, or else `None` if no such user exists. """
+
     return User.query.filter_by(username=username).first()
 
 
-def blacklist_user_for_competition(username, comp_id):
-    """ Adds an entry to the database blacklisting the user for the specified competition. """
+def set_user_as_admin(username):
+    """ Sets admin status for a user. Raises UserDoesNotExistException if no such user exists. """
 
     user = get_user_by_username(username)
     if not user:
-        raise ValueError("Oops, that user doesn't exist.")
+        raise UserDoesNotExistException(username)
 
-    blacklist_entry = Blacklist()
-    blacklist_entry.user_id = user.id
-    blacklist_entry.comp_id = comp_id
-
-    DB.session.add(blacklist_entry)
+    user.is_admin = True
+    DB.session.add(user)
     DB.session.commit()
 
 
-def get_blacklisted_users_for_competition(comp_id):
-    """ Returns a list of users blacklisted for the specified competition. """
+def unset_user_as_admin(username):
+    """ Removes admin status for a user. Raises UserDoesNotExistException if user doesn't exist. """
 
-    return [entry.user for entry in Blacklist.query.filter_by(comp_id=comp_id).all()]
+    user = get_user_by_username(username)
+    if not user:
+        raise UserDoesNotExistException(username)
+
+    user.is_admin = False
+    DB.session.add(user)
+    DB.session.commit()
 
 
-def get_comp_userlist_blacklist_map():
-    """ Returns a mapping of blacklisted users to the comps they were blacklisted from:
-    dict[competition_id][list(user_id)] """
+def get_all_admins():
+    """ Returns a list of all admin users. """
+
+    return User.query.\
+        filter_by(is_admin=True).\
+        all()
+
+
+def get_username_id_map():
+    """ Returns a map of all user's username to their ID. """
 
     mapping = dict()
-    for entry in Blacklist.query.all():
-        user_id = entry.user_id
-        comp_id = entry.comp_id
-        if comp_id not in mapping.keys():
-            mapping[comp_id] = list()
-        mapping[comp_id].append(user_id)
+    for user in get_all_users():
+        mapping[user.username] = user.id
 
     return mapping
-        
