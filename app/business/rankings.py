@@ -1,14 +1,15 @@
 """ Business logic for determining user site rankings and PBs. """
 
 from collections import OrderedDict
+from datetime import datetime
+import json
 
 from ranking import Ranking
 
 from app import DB
-from app.persistence.models import Competition, CompetitionEvent, Event, UserEventResults, User
-from app.persistence.comp_manager import get_previous_competition
-from app.persistence.events_manager import get_all_events, get_all_WCA_events,\
-    get_all_non_WCA_events
+from app.persistence.models import Competition, CompetitionEvent, Event, UserEventResults, User,\
+    UserSiteRankings
+from app.persistence.events_manager import get_all_events, get_all_WCA_events
 from app.persistence.user_manager import get_all_users
 from app.persistence.user_site_rankings_manager import save_or_update_site_rankings_for_user,\
     update_one_event_site_rankings_for_user
@@ -103,10 +104,6 @@ def precalculate_user_site_rankings():
         # pylint: disable=C0301
         rankings = _calculate_site_rankings_for_user(user.id, events_pb_singles, events_pb_averages, wca_events, events_list=all_events)
 
-        # If the user hasn't competed in anything, no need to save site rankings.
-        if not rankings.keys():
-            continue
-
         # Save to the database
         save_or_update_site_rankings_for_user(user.id, rankings)
 
@@ -117,7 +114,7 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
     as well as their rankings amongst the site's users. Format is:
     dict[event ID][(single, single_site_ranking, average, average_site_ranking)] """
 
-    user_rankings = OrderedDict()
+    user_rankings_data = OrderedDict()
 
     # Get the IDs of the WCA events in a set, to make lookup fast later when accumulating sums
     # for the various sum of ranks status
@@ -136,6 +133,9 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
     sor_all     = [0, 0]
     sor_wca     = [0, 0]
     sor_non_wca = [0, 0]
+
+    # Create the actual UserSiteRankings object to stick the data in when we're done
+    user_site_rankings = UserSiteRankings()
 
     for event in events_to_consider:
         pb_single    = ''
@@ -178,7 +178,7 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
             average_rank = len(ranked_averages) + 1
 
         # Records the user's rankings and PBs for this event
-        user_rankings[event.id] = (pb_single, single_rank, pb_average, average_rank)
+        user_rankings_data[event.id] = (pb_single, single_rank, pb_average, average_rank)
 
         # Accumulate sum of ranks
         sor_all[0] += single_rank
@@ -190,12 +190,18 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
             sor_non_wca[0] += single_rank
             sor_non_wca[1] += average_rank if average_rank else 0
 
-    # Save the sum of ranks tuples in the data being saved to the DB
-    user_rankings['sor_all']     = sor_all
-    user_rankings['sor_wca']     = sor_wca
-    user_rankings['sor_non_wca'] = sor_non_wca
+    # Save the event site rankings data as serialized json into the UserSiteRankigns
+    # Set values for Sum Of Ranks, single and average, for combined, WCA, and non-WCA
+    user_site_rankings.data                = json.dumps(user_rankings_data)
+    user_site_rankings.timestamp           = datetime.now()
+    user_site_rankings.sum_all_single      = sor_all[0]
+    user_site_rankings.sum_all_average     = sor_all[1]
+    user_site_rankings.sum_wca_single      = sor_wca[0]
+    user_site_rankings.sum_wca_average     = sor_wca[1]
+    user_site_rankings.sum_non_wca_single  = sor_non_wca[0]
+    user_site_rankings.sum_non_wca_average = sor_non_wca[1]
 
-    return user_rankings
+    return user_site_rankings
 
 
 # -------------------------------------------------------------------------------------------------

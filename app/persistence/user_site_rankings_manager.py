@@ -2,8 +2,6 @@
 
 import json
 
-from datetime import datetime
-
 from app import DB
 from app.persistence.models import UserSiteRankings
 
@@ -26,24 +24,28 @@ def get_all_user_site_rankings():
         all()
 
 
-def save_or_update_site_rankings_for_user(user_id, site_rankings):
+def save_or_update_site_rankings_for_user(user_id, new_user_site_rankings):
     """ Create or update a UserSiteRankings record for the specified user. """
 
     rankings_record = get_site_rankings_for_user(user_id)
 
     # If this user already has a site rankings record, just update it
     if rankings_record:
-        rankings_record.data      = json.dumps(site_rankings)
-        rankings_record.timestamp = datetime.now()
+        rankings_record.data = new_user_site_rankings.data
+        rankings_record.timestamp = new_user_site_rankings.timestamp
+        rankings_record.sum_all_single = new_user_site_rankings.sum_all_single
+        rankings_record.sum_all_average = new_user_site_rankings.sum_all_average
+        rankings_record.sum_wca_single = new_user_site_rankings.sum_wca_single
+        rankings_record.sum_wca_average = new_user_site_rankings.sum_wca_average
+        rankings_record.sum_non_wca_single = new_user_site_rankings.sum_non_wca_single
+        rankings_record.sum_non_wca_average = new_user_site_rankings.sum_non_wca_average
+        DB.session.add(rankings_record)
 
     # If not, create a new one
     else:
-        rankings_record           = UserSiteRankings()
-        rankings_record.data      = json.dumps(site_rankings)
-        rankings_record.timestamp = datetime.now()
-        rankings_record.user_id   = user_id
+        new_user_site_rankings.user_id = user_id
+        DB.session.add(new_user_site_rankings)
 
-    DB.session.add(rankings_record)
     DB.session.commit()
 
 

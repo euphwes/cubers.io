@@ -170,11 +170,17 @@ class UserSiteRankings(Model):
     """ A record for holding pre-calculated user PB single and averages, and site rankings,
     for each event they have participated in."""
     __tablename__  = 'user_site_rankings'
-    id          = Column(Integer, primary_key=True)
-    user_id     = Column(Integer, ForeignKey('users.id'), index=True)
-    user        = relationship('User', primaryjoin = user_id == User.id)
-    data        = Column(String(2048))
-    timestamp   = Column(DateTime)
+    id                  = Column(Integer, primary_key=True)
+    user_id             = Column(Integer, ForeignKey('users.id'), index=True)
+    user                = relationship('User', primaryjoin = user_id == User.id)
+    data                = Column(String(2048))
+    timestamp           = Column(DateTime)
+    sum_all_single      = Column(Integer)
+    sum_all_average     = Column(Integer)
+    sum_wca_single      = Column(Integer)
+    sum_wca_average     = Column(Integer)
+    sum_non_wca_single  = Column(Integer)
+    sum_non_wca_average = Column(Integer)
 
     # Save the data as a dict so we don't have to deserialize it every time it's
     # retrieved for the same object
