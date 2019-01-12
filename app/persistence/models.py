@@ -219,7 +219,7 @@ class UserSiteRankings(Model):
     def get_WCA_sum_of_ranks(self):
         """ Returns SumOfRanks data structure for combined sum of ranks. """
 
-        return SumOfRanks(single=self.sum_all_single, average=self.sum_all_average,\
+        return SumOfRanks(single=self.sum_wca_single, average=self.sum_wca_average,\
             username=self.user.username)
 
 
