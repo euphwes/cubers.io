@@ -2,6 +2,8 @@
 
 import json
 
+from sqlalchemy.sql import func
+
 from app import DB
 from app.persistence.models import UserSiteRankings
 
@@ -16,11 +18,105 @@ def get_site_rankings_for_user(user_id):
         first()
 
 
-def get_all_user_site_rankings():
-    """ Retrieves all UserSiteRankings records. """
+def get_user_site_rankings_all_sorted_single():
+    """ Retrieves all UserSiteRankings sorted by combined single sum of ranks, excluding records
+    with the maximum combined single sum of ranks. These indicate users who haven't participated
+    at all. """
 
+    max_combined_single = DB.session.\
+        query(func.max(UserSiteRankings.sum_all_single)).\
+        first()[0]
+
+    # pylint: disable=C0121
     return DB.session.\
         query(UserSiteRankings).\
+        filter(UserSiteRankings.sum_all_single != max_combined_single).\
+        order_by(UserSiteRankings.sum_all_single.asc()).\
+        all()
+
+
+def get_user_site_rankings_all_sorted_average():
+    """ Retrieves all UserSiteRankings sorted by combined average sum of ranks, excluding records
+    with the maximum combined average sum of ranks. These indicate users who haven't participated
+    at all. """
+
+    max_combined_average = DB.session.\
+        query(func.max(UserSiteRankings.sum_all_average)).\
+        first()[0]
+
+    # pylint: disable=C0121
+    return DB.session.\
+        query(UserSiteRankings).\
+        filter(UserSiteRankings.sum_all_average != max_combined_average).\
+        order_by(UserSiteRankings.sum_all_average.asc()).\
+        all()
+
+
+def get_user_site_rankings_wca_sorted_single():
+    """ Retrieves all UserSiteRankings sorted by WCA single sum of ranks, excluding records
+    with the maximum WCA single sum of ranks. These indicate users who haven't participated
+    at all. """
+
+    max_combined_single = DB.session.\
+        query(func.max(UserSiteRankings.sum_wca_single)).\
+        first()[0]
+
+    # pylint: disable=C0121
+    return DB.session.\
+        query(UserSiteRankings).\
+        filter(UserSiteRankings.sum_wca_single != max_combined_single).\
+        order_by(UserSiteRankings.sum_wca_single.asc()).\
+        all()
+
+
+def get_user_site_rankings_wca_sorted_average():
+    """ Retrieves all UserSiteRankings sorted by WCA average sum of ranks, excluding records
+    with the maximum WCA average sum of ranks. These indicate users who haven't participated
+    at all. """
+
+    max_combined_average = DB.session.\
+        query(func.max(UserSiteRankings.sum_wca_average)).\
+        first()[0]
+
+    # pylint: disable=C0121
+    return DB.session.\
+        query(UserSiteRankings).\
+        filter(UserSiteRankings.sum_wca_average != max_combined_average).\
+        order_by(UserSiteRankings.sum_wca_average.asc()).\
+        all()
+
+
+def get_user_site_rankings_non_wca_sorted_single():
+    """ Retrieves all UserSiteRankings sorted by non-WCA single sum of ranks, excluding records
+    with the maximum non-WCA single sum of ranks. These indicate users who haven't participated
+    at all. """
+
+    max_combined_single = DB.session.\
+        query(func.max(UserSiteRankings.sum_non_wca_single)).\
+        first()[0]
+
+    # pylint: disable=C0121
+    return DB.session.\
+        query(UserSiteRankings).\
+        filter(UserSiteRankings.sum_non_wca_single != max_combined_single).\
+        order_by(UserSiteRankings.sum_non_wca_single.asc()).\
+        all()
+
+
+def get_user_site_rankings_non_wca_sorted_average():
+    """ Retrieves all UserSiteRankings sorted by non-WCA average sum of ranks, excluding records
+    with the maximum non-WCA average sum of ranks. These indicate users who haven't participated
+    at all. """
+
+    max_combined_average = DB.session.\
+        query(func.max(UserSiteRankings.sum_non_wca_average)).\
+        first()[0]
+
+    # pylint: disable=C0121
+    return DB.session.\
+        query(UserSiteRankings).\
+        filter(UserSiteRankings.sum_non_wca_average != max_combined_average).\
+        order_by(UserSiteRankings.sum_non_wca_average.asc()).\
         all()
 
 

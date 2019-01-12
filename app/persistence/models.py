@@ -186,16 +186,9 @@ class UserSiteRankings(Model):
     # retrieved for the same object
     __data_as_dict = None
 
-    # Keys for accessing sum of ranks data
-    __SUM_OF_RANKS_ALL     = 'sor_all'
-    __SUM_OF_RANKS_WCA     = 'sor_wca'
-    __SUM_OF_RANKS_NON_WCA = 'sor_non_wca'
-
-
     def __get_site_rankings_data_as_dict(self):
         """ Deserializes data field to json to return site rankings info as a dict.
-        If key == event_id, value = (single, single_site_ranking, average, average_site_ranking)
-        If key == sor_all/wca/non_wca, value = (sum of ranks single, sum of ranks average) """
+        If key == event_id, value = (single, single_site_ranking, average, average_site_ranking)"""
 
         if not self.__data_as_dict:
             # The keys (event ID) get converted to strings when serializing to json.
@@ -203,11 +196,7 @@ class UserSiteRankings(Model):
             # one with ints as keys instead of strings. Return that.
             site_rankings = OrderedDict()
             for key, value in json.loads(self.data, object_pairs_hook=OrderedDict).items():
-                try:
-                    site_rankings[int(key)] = value
-                except ValueError:
-                    # Non-integer keys are the sum-of-ranks ones
-                    site_rankings[key] = value
+                site_rankings[int(key)] = value
             self.__data_as_dict = site_rankings
 
         return self.__data_as_dict
@@ -217,35 +206,28 @@ class UserSiteRankings(Model):
         """ Returns just the site rankings and PBs information in dictionary format, without the
         sum of ranks information. """
 
-        data = self.__get_site_rankings_data_as_dict()
-        return {key : value for key, value in data.items() if isinstance(key, int)}
+        return self.__get_site_rankings_data_as_dict()
 
 
     def get_combined_sum_of_ranks(self):
-        """ Gets the user's combined sum of ranks as a tuple of (single, average)
-        for all events. """
+        """ Returns SumOfRanks data structure for combined sum of ranks. """
 
-        data = self.__get_site_rankings_data_as_dict()
-        single, average = data.get(self.__SUM_OF_RANKS_ALL, ("?", "?"))
-        return SumOfRanks(single=single, average=average, username=self.user.username)
+        return SumOfRanks(single=self.sum_all_single, average=self.sum_all_average,\
+            username=self.user.username)
 
 
     def get_WCA_sum_of_ranks(self):
-        """ Gets the user's combined sum of ranks as a tuple of (single, average)
-        for only WCA events. """
+        """ Returns SumOfRanks data structure for combined sum of ranks. """
 
-        data = self.__get_site_rankings_data_as_dict()
-        single, average = data.get(self.__SUM_OF_RANKS_WCA, ("?", "?"))
-        return SumOfRanks(single=single, average=average, username=self.user.username)
+        return SumOfRanks(single=self.sum_all_single, average=self.sum_all_average,\
+            username=self.user.username)
 
 
     def get_non_WCA_sum_of_ranks(self):
-        """ Gets the user's combined sum of ranks as a tuple of (single, average)
-        for only non-WCA events. """
+        """ Returns SumOfRanks data structure for combined sum of ranks. """
 
-        data = self.__get_site_rankings_data_as_dict()
-        single, average = data.get(self.__SUM_OF_RANKS_NON_WCA, ("?", "?"))
-        return SumOfRanks(single=single, average=average, username=self.user.username)
+        return SumOfRanks(single=self.sum_non_wca_single, average=self.sum_non_wca_average,\
+            username=self.user.username)
 
 
 class UserSolve(Model):

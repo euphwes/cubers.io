@@ -3,7 +3,10 @@
 from flask import render_template
 
 from app import CUBERS_APP
-from app.persistence.user_site_rankings_manager import get_all_user_site_rankings
+from app.persistence.user_site_rankings_manager import get_user_site_rankings_all_sorted_single,\
+    get_user_site_rankings_all_sorted_average, get_user_site_rankings_wca_sorted_average,\
+    get_user_site_rankings_wca_sorted_single, get_user_site_rankings_non_wca_sorted_average,\
+    get_user_site_rankings_non_wca_sorted_single
 
 # -------------------------------------------------------------------------------------------------
 
@@ -20,38 +23,32 @@ def sum_of_ranks(sor_type):
     if not sor_type in (SOR_TYPE_ALL, SOR_TYPE_WCA, SOR_TYPE_NON_WCA):
         return ("I don't know what kind of Sum of Ranks this is.", 404)
 
-    # Retrieve all the user site rankings objects at once
-    all_site_rankings = get_all_user_site_rankings()
+    singles  = get_user_site_rankings_all_sorted_single()
+    averages = get_user_site_rankings_all_sorted_average()
 
     # If "all", get combined Sum of Ranks
     if sor_type == SOR_TYPE_ALL:
         title = "Sum of Ranks – Combined"
-        all_sum_of_ranks = [ranking.get_combined_sum_of_ranks() for ranking in all_site_rankings]
+        singles  = get_user_site_rankings_all_sorted_single()
+        averages = get_user_site_rankings_all_sorted_average()
+        singles  = [s.get_combined_sum_of_ranks() for s in singles]
+        averages = [a.get_combined_sum_of_ranks() for a in averages]
 
     # If "wca", get WCA Sum of Ranks
     elif sor_type == SOR_TYPE_WCA:
         title = "Sum of Ranks – WCA"
-        all_sum_of_ranks = [ranking.get_WCA_sum_of_ranks() for ranking in all_site_rankings]
+        singles  = get_user_site_rankings_wca_sorted_single()
+        averages = get_user_site_rankings_wca_sorted_average()
+        singles  = [s.get_WCA_sum_of_ranks() for s in singles]
+        averages = [a.get_WCA_sum_of_ranks() for a in averages]
 
     # Otherwise must be "non_wca", so get non-WCA Sum of Ranks
     else:
         title = "Sum of Ranks – Non-WCA"
-        all_sum_of_ranks = [ranking.get_non_WCA_sum_of_ranks() for ranking in all_site_rankings]
-
-    # Make a copy of the list of sum of ranks for the averages. The original list will hold the
-    # ranks sorted by single. Sort the two lists by single and average value respectively
-    singles = sorted(all_sum_of_ranks, key=cmp_to_key(sort_sum_of_ranks_by_single))
-    averages = sorted(all_sum_of_ranks.copy(), key=cmp_to_key(sort_sum_of_ranks_by_average))
-
-    # Filter out all SumOfRanks from the singles where the single matches the lowest single,
-    # to remove all users who haven't completed any solves, and have the lowest possible ranking
-    lowest_sum_single = singles[-1].single
-    singles = [s for s in singles if s.single != lowest_sum_single]
-
-    # Filter out all SumOfRanks from the averages where the average matches the lowest average,
-    # to remove all users who haven't completed any solves, and have the lowest possible ranking
-    lowest_sum_average = all_sum_of_ranks[-1].average
-    averages = [s for s in averages if s.average != lowest_sum_average]
+        singles  = get_user_site_rankings_non_wca_sorted_single()
+        averages = get_user_site_rankings_non_wca_sorted_average()
+        singles  = [s.get_non_WCA_sum_of_ranks() for s in singles]
+        averages = [a.get_non_WCA_sum_of_ranks() for a in averages]
 
     return render_template("records/sum_of_ranks.html", title=title,\
         alternative_title="Sum of Ranks", sor_sorted_by_single=singles,\
