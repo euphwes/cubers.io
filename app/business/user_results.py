@@ -215,7 +215,7 @@ def determine_if_should_be_autoblacklisted(results):
 
     # If we don't have any thresholds for the event, no chance of auto-blacklist
     if not thresholds:
-        return False
+        return results
 
     wr_single, wr_average = thresholds
 

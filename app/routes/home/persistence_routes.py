@@ -71,6 +71,8 @@ def get_event_summaries():
     Ex: 15.24 = 14.09, 16.69, 14.94, (10.82), (18.39) --> for a Ao5 event
         6:26.83 = 6:46.17, 5:50.88, 6:43.44           --> for a Mo3 event """
 
+    # TODO: account for nobody being logged in below
+
     data = request.get_json()
     user = get_user_by_username(current_user.username)
 
