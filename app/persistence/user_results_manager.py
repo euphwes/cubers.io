@@ -208,6 +208,9 @@ def get_all_complete_user_results_for_comp_and_user(comp_id, user_id, include_bl
     if not include_blacklisted:
         results_query = results_query.filter(UserEventResults.is_blacklisted.isnot(True))
 
+    # Make sure the events get ordered in a predictable way
+    results_query = results_query.order_by(Event.id)
+
     return results_query.all()
 
 

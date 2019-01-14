@@ -4,7 +4,8 @@ scoring users, and posting the results. """
 import re
 from time import sleep
 
-from app.persistence.comp_manager import get_active_competition, get_competition, save_competition
+from app.persistence.comp_manager import get_active_competition, get_competition, save_competition,\
+    get_all_comp_events_for_comp
 from app.persistence.user_manager import get_username_id_map
 from app.persistence.events_manager import get_events_name_id_mapping
 from app.persistence.user_results_manager import get_blacklisted_entries_for_comp
@@ -100,7 +101,7 @@ def score_previous_competition(is_rerun=False, comp_id=None):
     submission_id = competition_being_scored.reddit_thread_id
 
     # Build a list of event names that were in this competition
-    event_names = [comp_event.Event.name for comp_event in competition_being_scored.events]
+    event_names = [comp_event.Event.name for comp_event in get_all_comp_events_for_comp(competition_being_scored.id)]
 
     # Get the PRAW Submission object and make sure we have all the top-level comments
     submission = get_submission_with_id(submission_id)

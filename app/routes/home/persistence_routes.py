@@ -95,7 +95,7 @@ def comment_url(comp_id):
 def do_reddit_submit(comp_id, user):
     """ Handle submitting a new, or updating an existing, Reddit comment. """
 
-    # TODO: does this belong here?
+    # TODO: probably should put this in the Reddit util
 
     comp = get_competition(comp_id)
     reddit_thread_id = comp.reddit_thread_id
