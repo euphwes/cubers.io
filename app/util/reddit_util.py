@@ -1,13 +1,11 @@
 """ Utility functions for dealing with PRAW Reddit instances. """
 
-from sys import maxsize as MAX
 from urllib.parse import urljoin
 
 from flask import url_for
 from praw import Reddit
 
 from app import CUBERS_APP
-from app.persistence.models import EventFormat
 from app.persistence.comp_manager import get_comp_event_by_id
 from app.util.times_util import convert_centiseconds_to_friendly_time
 from app.persistence.user_manager import get_user_by_username
@@ -42,8 +40,6 @@ def build_comment_source_from_events_results(events_results, username):
     comment_source = ''
     event_line_template = '**{}: {}** = {}\n{}'
 
-    convert_to_friendly = convert_centiseconds_to_friendly_time
-
     for results in events_results:
         comp_event   = get_comp_event_by_id(results.comp_event_id)
         event_name   = comp_event.Event.name
@@ -56,7 +52,7 @@ def build_comment_source_from_events_results(events_results, username):
             if event_result == int(event_result):
                 event_result = int(event_result)
         else:
-            event_result = convert_to_friendly(results.result)
+            event_result = convert_centiseconds_to_friendly_time(results.result)
 
         line = event_line_template.format(event_name, event_result, times_string, comment)
         comment_source += line
@@ -80,73 +76,6 @@ def build_user_comment(comment_body):
         reddit_comment_body += '>' + line + "\n\n"
 
     return reddit_comment_body
-
-
-def build_times_string(solves, event_format, is_fmc=False, is_blind=False, want_list=False):
-    """ Builds a list of individual times, with best/worst times in parens if appropriate
-    for the given event format. """
-
-    # TODO: this probably goes somewhere else, probably user results manager
-
-    # TODO: comment this more thorougly below
-
-    time_convert = convert_centiseconds_to_friendly_time
-
-    # Bo1 is special, just return the friendly representation of the one time
-    if event_format == EventFormat.Bo1:
-        return 'DNF' if solves[0].is_dnf else time_convert(solves[0].get_total_time())
-
-    # FMC is special, the 'time' is actually the number of moves, not number of centiseconds
-    # so don't convert to "friendly times" because that makes no sense
-    if not is_fmc:
-        friendly_times = [time_convert(solve.get_total_time()) for solve in solves]
-    else:
-        friendly_times = [str(int(solve.get_total_time() / 100)) for solve in solves]
-
-    for i, solve in enumerate(solves):
-        if solve.is_plus_two:
-            friendly_times[i] = friendly_times[i] + "+"
-
-    curr_best   = MAX
-    curr_worst  = -1
-    best_index  = -1
-    worst_index = -1
-
-    dnf_indicies   = list()
-    have_found_dnf = False
-
-    for i, solve in enumerate(solves):
-        if (not solve.is_dnf) and (solve.get_total_time() < curr_best):
-            best_index = i
-            curr_best  = solve.get_total_time()
-
-        if (not have_found_dnf) and (solve.get_total_time() > curr_worst):
-            worst_index = i
-            curr_worst  = solve.get_total_time()
-
-        if solve.is_dnf:
-            if not have_found_dnf:
-                worst_index = i
-                have_found_dnf = True
-            dnf_indicies.append(i)
-
-    for i in dnf_indicies:
-        if is_blind:
-            friendly_times[i] = 'DNF(' + friendly_times[i] + ')'
-        else:
-            friendly_times[i] = 'DNF'
-
-    if event_format == EventFormat.Bo3:
-        while len(friendly_times) < 3:
-            friendly_times.append('DNS')
-
-    if event_format in [EventFormat.Bo3, EventFormat.Mo3]:
-        return friendly_times if want_list else ', '.join(friendly_times)
-
-    friendly_times[best_index] = '({})'.format(friendly_times[best_index])
-    friendly_times[worst_index] = '({})'.format(friendly_times[worst_index])
-
-    return friendly_times if want_list else ', '.join(friendly_times)
 
 
 def get_new_reddit():

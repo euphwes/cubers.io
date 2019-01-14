@@ -7,8 +7,6 @@ from app.util.events_resources import EVENT_COLL
 
 # -------------------------------------------------------------------------------------------------
 
-# TODO: move this into a business logic module
-
 POST_TEMPLATE = """##**Welcome to the weekly competition for {comp_title}!**
 
 This is /r/cubers weekly competition #{comp_num}.

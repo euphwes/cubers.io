@@ -123,6 +123,12 @@ def get_user_site_rankings_non_wca_sorted_average():
 def save_or_update_site_rankings_for_user(user_id, new_user_site_rankings):
     """ Create or update a UserSiteRankings record for the specified user. """
 
+    # TODO: We can speed this up by querying for all site rankings at once, instead of 1 at a time
+    # Stick that in a dict[user_id] = site_rankings
+    # Accept all the calculated site rankings above instead of just one at a time
+    # Do the logic below to update or create
+    # Add all the records to a list then bulk session add and commit
+
     rankings_record = get_site_rankings_for_user(user_id)
 
     # If this user already has a site rankings record, just update it
