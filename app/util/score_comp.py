@@ -61,7 +61,13 @@ def filter_blacklisted_competitor_events(competitors, comp_id):
 
         indices_to_remove = list()
         for i, event in enumerate(competitor.events):
-            event_id = eventname_id_map[event]
+
+            # if the script parses something wrong and the event key isn't in here, just skip to the next event
+            try:
+                event_id = eventname_id_map[event]
+            except KeyError:
+                continue
+
             if (user_id, event_id) in blacklisted_results_set:
                 indices_to_remove.append(i)
 
