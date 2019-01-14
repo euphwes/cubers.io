@@ -43,7 +43,7 @@
                         </thead>
                         <tbody>
                             {% for sor in sor_sorted_by_single %}
-                            {% if current_user.is_authenticated and current_user.username == sor.username %}
+                            {% if current_user.is_authenticated and current_user.username == sor[1] %}
                                 {% set its_me = 'hey-its-me' %}
                                 {% set me_id = 'thisIsMeSingle' %}
                             {% else %}
@@ -53,9 +53,9 @@
                             <tr class="{{ its_me }}" id="{{ me_id }}">
                                 <td>{{ loop.index }}</td>
                                 <td>
-                                    <a href="{{ url_for('profile', username=sor.username) }}">/u/{{ sor.username }}</a>
+                                    <a href="{{ url_for('profile', username=sor[1]) }}">/u/{{ sor[1] }}</a>
                                 </td>
-                                <td>{{ sor.single }}</td>
+                                <td>{{ sor[0] }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -79,7 +79,7 @@
                         </thead>
                         <tbody>
                             {% for sor in sor_sorted_by_average %}
-                            {% if current_user.is_authenticated and current_user.username == sor.username %}
+                            {% if current_user.is_authenticated and current_user.username == sor[1] %}
                                 {% set its_me = 'hey-its-me' %}
                                 {% set me_id = 'thisIsMeAverage' %}
                             {% else %}
@@ -89,9 +89,9 @@
                             <tr class="{{ its_me }}" id="{{ me_id }}">
                                 <td>{{ loop.index }}</td>
                                 <td>
-                                    <a href="{{ url_for('profile', username=sor.username) }}">/u/{{ sor.username }}</a>
+                                    <a href="{{ url_for('profile', username=sor[1]) }}">/u/{{ sor[1] }}</a>
                                 </td>
-                                <td>{{ sor.average }}</td>
+                                <td>{{ sor[0] }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

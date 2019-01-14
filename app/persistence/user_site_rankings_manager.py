@@ -2,11 +2,10 @@
 
 import json
 
-from sqlalchemy.orm import joinedload
 from sqlalchemy.sql import func
 
 from app import DB
-from app.persistence.models import UserSiteRankings
+from app.persistence.models import UserSiteRankings, User
 
 # -------------------------------------------------------------------------------------------------
 
@@ -28,10 +27,9 @@ def get_user_site_rankings_all_sorted_single():
         query(func.max(UserSiteRankings.sum_all_single)).\
         first()[0]
 
-    # pylint: disable=C0121
     return DB.session.\
-        query(UserSiteRankings).\
-        options(joinedload(UserSiteRankings.user)).\
+        query(UserSiteRankings.sum_all_single, User.username).\
+        join(User).\
         filter(UserSiteRankings.sum_all_single != max_combined_single).\
         order_by(UserSiteRankings.sum_all_single.asc()).\
         all()
@@ -46,10 +44,9 @@ def get_user_site_rankings_all_sorted_average():
         query(func.max(UserSiteRankings.sum_all_average)).\
         first()[0]
 
-    # pylint: disable=C0121
     return DB.session.\
-        query(UserSiteRankings).\
-        options(joinedload(UserSiteRankings.user)).\
+        query(UserSiteRankings.sum_all_average, User.username).\
+        join(User).\
         filter(UserSiteRankings.sum_all_average != max_combined_average).\
         order_by(UserSiteRankings.sum_all_average.asc()).\
         all()
@@ -64,10 +61,9 @@ def get_user_site_rankings_wca_sorted_single():
         query(func.max(UserSiteRankings.sum_wca_single)).\
         first()[0]
 
-    # pylint: disable=C0121
     return DB.session.\
-        query(UserSiteRankings).\
-        options(joinedload(UserSiteRankings.user)).\
+        query(UserSiteRankings.sum_wca_single, User.username).\
+        join(User).\
         filter(UserSiteRankings.sum_wca_single != max_combined_single).\
         order_by(UserSiteRankings.sum_wca_single.asc()).\
         all()
@@ -82,10 +78,9 @@ def get_user_site_rankings_wca_sorted_average():
         query(func.max(UserSiteRankings.sum_wca_average)).\
         first()[0]
 
-    # pylint: disable=C0121
     return DB.session.\
-        query(UserSiteRankings).\
-        options(joinedload(UserSiteRankings.user)).\
+        query(UserSiteRankings.sum_wca_average, User.username).\
+        join(User).\
         filter(UserSiteRankings.sum_wca_average != max_combined_average).\
         order_by(UserSiteRankings.sum_wca_average.asc()).\
         all()
@@ -100,10 +95,9 @@ def get_user_site_rankings_non_wca_sorted_single():
         query(func.max(UserSiteRankings.sum_non_wca_single)).\
         first()[0]
 
-    # pylint: disable=C0121
     return DB.session.\
-        query(UserSiteRankings).\
-        options(joinedload(UserSiteRankings.user)).\
+        query(UserSiteRankings.sum_non_wca_single, User.username).\
+        join(User).\
         filter(UserSiteRankings.sum_non_wca_single != max_combined_single).\
         order_by(UserSiteRankings.sum_non_wca_single.asc()).\
         all()
@@ -118,10 +112,9 @@ def get_user_site_rankings_non_wca_sorted_average():
         query(func.max(UserSiteRankings.sum_non_wca_average)).\
         first()[0]
 
-    # pylint: disable=C0121
     return DB.session.\
-        query(UserSiteRankings).\
-        options(joinedload(UserSiteRankings.user)).\
+        query(UserSiteRankings.sum_non_wca_average, User.username).\
+        join(User).\
         filter(UserSiteRankings.sum_non_wca_average != max_combined_average).\
         order_by(UserSiteRankings.sum_non_wca_average.asc()).\
         all()

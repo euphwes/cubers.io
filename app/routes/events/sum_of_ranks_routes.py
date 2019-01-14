@@ -31,24 +31,18 @@ def sum_of_ranks(sor_type):
         title = "Sum of Ranks – Combined"
         singles  = get_user_site_rankings_all_sorted_single()
         averages = get_user_site_rankings_all_sorted_average()
-        singles  = [s.get_combined_sum_of_ranks() for s in singles]
-        averages = [a.get_combined_sum_of_ranks() for a in averages]
 
     # If "wca", get WCA Sum of Ranks
     elif sor_type == SOR_TYPE_WCA:
         title = "Sum of Ranks – WCA"
         singles  = get_user_site_rankings_wca_sorted_single()
         averages = get_user_site_rankings_wca_sorted_average()
-        singles  = [s.get_WCA_sum_of_ranks() for s in singles]
-        averages = [a.get_WCA_sum_of_ranks() for a in averages]
 
     # Otherwise must be "non_wca", so get non-WCA Sum of Ranks
     else:
         title = "Sum of Ranks – Non-WCA"
         singles  = get_user_site_rankings_non_wca_sorted_single()
         averages = get_user_site_rankings_non_wca_sorted_average()
-        singles  = [s.get_non_WCA_sum_of_ranks() for s in singles]
-        averages = [a.get_non_WCA_sum_of_ranks() for a in averages]
 
     return render_template("records/sum_of_ranks.html", title=title,\
         alternative_title="Sum of Ranks", sor_sorted_by_single=singles,\
