@@ -79,7 +79,9 @@ def build_user_event_results(user_events_dict, user):
         results.times_string = build_times_string(results.solves, event_format, is_fmc, is_blind)
 
         # Determine and set if the user set any PBs in this event
-        set_pb_flags(user, results, event_id)
+        # If there's no user, no need to check PB flags
+        if user:
+            set_pb_flags(user, results, event_id)
 
     return results
 
