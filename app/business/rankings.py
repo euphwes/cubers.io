@@ -18,51 +18,6 @@ from app.persistence.user_site_rankings_manager import save_or_update_site_ranki
 #                   Stuff for pre-calculating user PB records with site rankings
 # -------------------------------------------------------------------------------------------------
 
-def precalculate_site_rankings_for_event(event):
-    """ Precalculate user site rankings for just the specified event. """
-
-    # NOTE: this is unused right now, turns out this is too slow to do it on the fly within the
-    # web app. I'll probably take it out later, but keeping it here for now in case I can reuse it
-
-    # It doesn't make sense to keep COLL records, since it's a single alg that changes weekly
-    if event.name == "COLL":
-        return
-
-    # Each of these dicts are of the following form:
-    #    dict[Event][ordered list of PersonalBestRecords]
-    events_pb_singles = dict()
-    events_pb_averages = dict()
-
-    # Retrieve the the ordered list of PersonalBestRecords for singles for this event
-    ordered_pb_singles = get_ordered_pb_singles_for_event(event.id)
-
-    # If nobody at all has competed in this event, just leave
-    if not ordered_pb_singles:
-        return
-
-    events_pb_singles[event] = ordered_pb_singles
-
-    # Retrieve the the ordered list of PersonalBestRecords for averages for this event
-    ordered_pb_averages = get_ordered_pb_averages_for_event(event.id)
-    events_pb_averages[event] = ordered_pb_averages
-
-    wca_events = get_all_WCA_events()
-
-    # Iterate through all users to determine their site rankings and PBs
-    for user in get_all_users():
-
-        # Calculate site rankings for the user for just this event
-        rankings = _calculate_site_rankings_for_user(user.id, events_pb_singles,\
-            events_pb_averages, wca_events, event_override=event)
-
-        # If the user hasn't competed in anything, no need to save site rankings.
-        if not rankings.keys():
-            continue
-
-        # Save to the database
-        update_one_event_site_rankings_for_user(user.id, rankings, event)
-
-
 def precalculate_user_site_rankings():
     """ Precalculate user site rankings for event PBs for all users. """
 
