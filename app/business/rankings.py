@@ -223,6 +223,7 @@ class PersonalBestRecord():
         self.username      = kwargs.get('username')
         self.comp_title    = kwargs.get('comp_title')
         self.personal_best = kwargs.get('personal_best')
+        self.comment       = kwargs.get('comment')
         self.rank          = '-1'
 
 
@@ -231,13 +232,14 @@ def _build_PersonalBestRecord(query_tuple):
     """ Builds a PersonalBestRecord from the 5-tuple returned from the ordered PB queries below.
     The tuple looks like (user_id, single/average, comp_id, comp_title, username). """
 
-    user_id, result, comp_id, comp_title, username = query_tuple
+    user_id, result, comp_id, comp_title, username, comment = query_tuple
     return PersonalBestRecord(
         personal_best = result,
         user_id       = user_id,
         username      = username,
         comp_id       = comp_id,
-        comp_title    = comp_title
+        comp_title    = comp_title,
+        comment       = comment
     )
 
 
@@ -345,7 +347,7 @@ def get_ordered_pb_singles_for_event(event_id):
         filter(UserEventResults.is_blacklisted.isnot(True)).\
         group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username).\
         order_by(UserEventResults.id.desc()).\
-        values(UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username)
+        values(UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username, UserEventResults.comment)
     # pylint: enable=C0301
 
     # NOTE: if adding anything to this tuple being selected in values(...) above, add it to the
@@ -377,7 +379,7 @@ def get_ordered_pb_averages_for_event(event_id):
         filter(UserEventResults.is_blacklisted.isnot(True)).\
         group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.average, Competition.id, Competition.title, User.username).\
         order_by(UserEventResults.id.desc()).\
-        values(UserEventResults.user_id, UserEventResults.average, Competition.id, Competition.title, User.username)
+        values(UserEventResults.user_id, UserEventResults.average, Competition.id, Competition.title, User.username, UserEventResults.comment)
     # pylint: enable=C0301
 
     # NOTE: if adding anything to this tuple being selected in values(...) above, add it to the

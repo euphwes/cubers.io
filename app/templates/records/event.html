@@ -40,6 +40,7 @@
                                 {% else %}
                                 <th scope="col">User</th>
                                 {% endif %}
+                                <th scope="col" class="d-none d-md-table-cell"></th>
                                 <th scope="col">Single</th>
                                 <th class="d-none d-md-table-cell" scope="col">Competition</th>
                             </tr>
@@ -59,6 +60,13 @@
                                 <td>{{ record.rank }}</td>
                                 <td>
                                     <a href="{{ url_for('profile', username=record.username) }}">/u/{{ record.username }}</a>
+                                </td>
+
+                                <td scope="col" class="d-none d-md-table-cell text-center">
+                                    {% if record.comment|trim() %}
+                                    {% set the_comment = record.comment if record.comment|length < 350 else record.comment[:350] + "..." %}
+                                    <span class="far fa-comment spacer" data-toggle="tooltip" data-placement="bottom" title="{{the_comment}}"></span>
+                                    {% endif %}
                                 </td>
     
                                 {% if event_name == "FMC" %}
@@ -88,6 +96,7 @@
                                 {% else %}
                                 <th scope="col">User</th>
                                 {% endif %}
+                                <th scope="col" class="d-none d-md-table-cell"></th>
                                 <th scope="col">Average</th>
                                 <th class="d-none d-md-table-cell" scope="col">Competition</th>
                             </tr>
@@ -107,6 +116,13 @@
                                 <td>{{ record.rank }}</td>
                                 <td>
                                     <a href="{{ url_for('profile', username=record.username) }}">/u/{{ record.username }}</a>
+                                </td>
+
+                                <td scope="col" class="d-none d-md-table-cell text-center">
+                                    {% if record.comment|trim() %}
+                                    {% set the_comment = record.comment if record.comment|length < 350 else record.comment[:350] + "..." %}
+                                    <span class="far fa-comment spacer" data-toggle="tooltip" data-placement="bottom" title="{{the_comment}}"></span>
+                                    {% endif %}
                                 </td>
     
                                 {% if event_name == "FMC" %}
@@ -146,6 +162,10 @@
             }, 1000);
             return false;
         });
+
+        if (!Boolean(new MobileDetect(window.navigator.userAgent).mobile())) {
+            $('[data-toggle="tooltip"]').tooltip();
+        }
 
     })
 </script>

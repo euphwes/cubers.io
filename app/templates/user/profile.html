@@ -123,6 +123,7 @@
                     <table class="table table-sm table-striped table-cubersio">
                         <thead class="thead-dark">
                             <tr>
+                                <th scope="col" class="d-none d-md-table-cell"></th>
                                 <th scope="col">Competition</th>
                                 <th scope="col">Single</th>
                                 <th scope="col">Average</th>
@@ -130,7 +131,7 @@
                                 <th scope="col"></th>
                             </tr>
                             <tr class="event_name_row">
-                                <th scope="col" colspan="9">
+                                <th scope="col" colspan="10">
                                     <img class="event-image" src="/static/images/cube-{{event_item.id}}.png">
                                     {{ event_item.name }}
                                 </th>
@@ -159,9 +160,13 @@
                                     {% set average_class = "pb-indicator" %}
                                 {% endif %}
                                 <tr class="{{blacklist_class}}">
-                                    <td>
-                                        <a href="/leaderboards/{{ comp.id }}">{{ comp.title }}</a>
+                                    <td scope="col" class="d-none d-md-table-cell text-center">
+                                        {% if results.comment|trim() %}
+                                        {% set the_comment = results.comment if results.comment|length < 350 else results.comment[:350] + "..." %}
+                                        <span class="far fa-comment spacer" data-toggle="tooltip" data-placement="bottom" title="{{the_comment}}"></span>
+                                        {% endif %}
                                     </td>
+                                    <td><a href="/leaderboards/{{ comp.id }}">{{ comp.title }}</a></td>
                                     <td class="{{single_class}}">{{ single_val }}</td>
                                     <td class="{{average_class}}">{{ average_val }}</td>
                                     {% for solve_time in results.solves_helper %}

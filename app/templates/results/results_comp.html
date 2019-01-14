@@ -79,7 +79,7 @@
                                     <td scope="row">{{ loop.index }}</td>
                                     <td scope="col" class="d-none d-md-table-cell">
                                         {% if result.comment|trim() %}
-                                        {% set the_comment = result.comment if result.comment|length < 500 else result.comment[:500] + "..." %}
+                                        {% set the_comment = result.comment if result.comment|length < 350 else result.comment[:350] + "..." %}
                                         <span class="far fa-comment spacer" data-toggle="tooltip" data-placement="bottom" title="{{the_comment}}"></span>
                                         {% endif %}
                                     </td>
