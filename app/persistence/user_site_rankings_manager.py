@@ -2,6 +2,7 @@
 
 import json
 
+from sqlalchemy.orm import joinedload
 from sqlalchemy.sql import func
 
 from app import DB
@@ -30,6 +31,7 @@ def get_user_site_rankings_all_sorted_single():
     # pylint: disable=C0121
     return DB.session.\
         query(UserSiteRankings).\
+        options(joinedload(UserSiteRankings.user)).\
         filter(UserSiteRankings.sum_all_single != max_combined_single).\
         order_by(UserSiteRankings.sum_all_single.asc()).\
         all()
@@ -47,6 +49,7 @@ def get_user_site_rankings_all_sorted_average():
     # pylint: disable=C0121
     return DB.session.\
         query(UserSiteRankings).\
+        options(joinedload(UserSiteRankings.user)).\
         filter(UserSiteRankings.sum_all_average != max_combined_average).\
         order_by(UserSiteRankings.sum_all_average.asc()).\
         all()
@@ -64,6 +67,7 @@ def get_user_site_rankings_wca_sorted_single():
     # pylint: disable=C0121
     return DB.session.\
         query(UserSiteRankings).\
+        options(joinedload(UserSiteRankings.user)).\
         filter(UserSiteRankings.sum_wca_single != max_combined_single).\
         order_by(UserSiteRankings.sum_wca_single.asc()).\
         all()
@@ -81,6 +85,7 @@ def get_user_site_rankings_wca_sorted_average():
     # pylint: disable=C0121
     return DB.session.\
         query(UserSiteRankings).\
+        options(joinedload(UserSiteRankings.user)).\
         filter(UserSiteRankings.sum_wca_average != max_combined_average).\
         order_by(UserSiteRankings.sum_wca_average.asc()).\
         all()
@@ -98,6 +103,7 @@ def get_user_site_rankings_non_wca_sorted_single():
     # pylint: disable=C0121
     return DB.session.\
         query(UserSiteRankings).\
+        options(joinedload(UserSiteRankings.user)).\
         filter(UserSiteRankings.sum_non_wca_single != max_combined_single).\
         order_by(UserSiteRankings.sum_non_wca_single.asc()).\
         all()
@@ -115,6 +121,7 @@ def get_user_site_rankings_non_wca_sorted_average():
     # pylint: disable=C0121
     return DB.session.\
         query(UserSiteRankings).\
+        options(joinedload(UserSiteRankings.user)).\
         filter(UserSiteRankings.sum_non_wca_average != max_combined_average).\
         order_by(UserSiteRankings.sum_non_wca_average.asc()).\
         all()
