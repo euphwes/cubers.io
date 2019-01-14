@@ -1,4 +1,4 @@
-""" Logic for creating a new competition based on the last one. """
+""" Business logic for creating a new competition. """
 
 from datetime import datetime
 

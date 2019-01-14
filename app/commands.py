@@ -1,4 +1,4 @@
-""" Utility Flask commands for testing the app. """
+""" Utility Flask commands for administrating the app. """
 #pylint: disable=C0103
 
 import uuid

@@ -1,6 +1,10 @@
 (function() {
     var app = window.app;
 
+    // NOTE: to whoever is looking at this file - it's freaking ugly
+    // Will be reworking this in the near future to move to a state-based timer,
+    // and away from this callback-ridden monstrosity.
+
     // These are the events that Timer can emit
     var EVENT_TIMER_START    = 'event_timer_start';
     var EVENT_TIMER_INTERVAL = 'event_timer_interval';

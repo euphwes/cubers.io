@@ -11,8 +11,8 @@ from app.persistence.models import Competition, CompetitionEvent, Event, UserEve
     UserSiteRankings
 from app.persistence.events_manager import get_all_events, get_all_WCA_events
 from app.persistence.user_manager import get_all_users
-from app.persistence.user_site_rankings_manager import save_or_update_site_rankings_for_user,\
-    update_one_event_site_rankings_for_user
+from app.persistence.user_site_rankings_manager import save_or_update_site_rankings_for_user
+from app.util.sorting_utils import sort_personal_best_records
 
 # -------------------------------------------------------------------------------------------------
 #                   Stuff for pre-calculating user PB records with site rankings
@@ -215,50 +215,6 @@ def _filter_one_pb_per_user(personal_bests):
     return filtered_pbs
 
 
-def _sort_by_speed(personal_bests):
-    """ Sorts a list of PersonalBestRecords by `personal_best` which is either the single or
-    average time/result. Takes into account DNFs, etc. """
-
-    def _sort_pbs(pb_1, pb_2):
-        """ Compares `personal_best` values from two PersonalBestRecords. Lack of a result
-        to be sorted to the end, DNFs right before that, then compare time values directly. """
-        val1 = pb_1.personal_best
-        val2 = pb_2.personal_best
-        if not val1:
-            val1 = 100000000
-        if not val2:
-            val2 = 100000000
-        if val1 == 'DNF':
-            val1 = 99999999
-        if val2 == 'DNF':
-            val2 = 99999999
-        return int(val1) - int(val2)
-
-    def _cmp_to_key(mycmp):
-        """ Converts a cmp= function into a key= function.
-        Utility func for sorting custom objects by specified values. """
-        # pylint: disable=C0103,C0111,W0613
-        class comparator:
-            def __init__(self, obj, *args):
-                self.obj = obj
-            def __lt__(self, other):
-                return mycmp(self.obj, other.obj) < 0
-            def __gt__(self, other):
-                return mycmp(self.obj, other.obj) > 0
-            def __eq__(self, other):
-                return mycmp(self.obj, other.obj) == 0
-            def __le__(self, other):
-                return mycmp(self.obj, other.obj) <= 0
-            def __ge__(self, other):
-                return mycmp(self.obj, other.obj) >= 0
-            def __ne__(self, other):
-                return mycmp(self.obj, other.obj) != 0
-        return comparator
-
-    personal_bests.sort(key=_cmp_to_key(_sort_pbs))
-    return personal_bests
-
-
 def _determine_ranks(personal_bests):
     """ Takes an ordered list of PersonalBestRecords and assigns each PersonalBestRecord a rank.
     Ranks are the same for PersonalBestRecords with identical times.
@@ -311,7 +267,7 @@ def get_ordered_pb_singles_for_event(event_id):
 
     personal_bests = [_build_PersonalBestRecord(result) for result in results]
     personal_bests = _filter_one_pb_per_user(personal_bests)
-    personal_bests = _sort_by_speed(personal_bests)
+    personal_bests.sort(key=sort_personal_best_records)
     personal_bests = _determine_ranks(personal_bests)
 
     return personal_bests
@@ -350,7 +306,7 @@ def get_ordered_pb_averages_for_event(event_id):
         return list()
 
     personal_bests = _filter_one_pb_per_user(personal_bests)
-    personal_bests = _sort_by_speed(personal_bests)
+    personal_bests.sort(key=sort_personal_best_records)
     personal_bests = _determine_ranks(personal_bests)
 
     return personal_bests

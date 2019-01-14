@@ -47,32 +47,3 @@ def sum_of_ranks(sor_type):
     return render_template("records/sum_of_ranks.html", title=title,\
         alternative_title="Sum of Ranks", sor_sorted_by_single=singles,\
         sor_sorted_by_average=averages)
-
-# -------------------------------------------------------------------------------------------------
-
-# TODO: put the sum of ranks sorting stuff somewhere else
-
-def sort_sum_of_ranks_by_single(val1, val2):
-    return val1.single - val2.single
-
-def sort_sum_of_ranks_by_average(val1, val2):
-    return val1.average - val2.average
-
-def cmp_to_key(mycmp):
-    'Convert a cmp= function into a key= function'
-    class comparator:
-        def __init__(self, obj, *args):
-            self.obj = obj
-        def __lt__(self, other):
-            return mycmp(self.obj, other.obj) < 0
-        def __gt__(self, other):
-            return mycmp(self.obj, other.obj) > 0
-        def __eq__(self, other):
-            return mycmp(self.obj, other.obj) == 0
-        def __le__(self, other):
-            return mycmp(self.obj, other.obj) <= 0
-        def __ge__(self, other):
-            return mycmp(self.obj, other.obj) >= 0
-        def __ne__(self, other):
-            return mycmp(self.obj, other.obj) != 0
-    return comparator

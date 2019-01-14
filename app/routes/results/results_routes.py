@@ -11,6 +11,7 @@ from app.persistence.comp_manager import get_active_competition, get_complete_co
     get_previous_competition, get_competition, get_all_comp_events_for_comp
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp,\
     blacklist_results, unblacklist_results, UserEventResultsDoesNotExistException
+from app.util.sorting_utils import sort_user_event_results
 from app.routes.util import is_admin_viewing
 
 # -------------------------------------------------------------------------------------------------
@@ -133,7 +134,7 @@ def comp_results(comp_id):
 
     # Sort the results
     for event_name, results in event_results.items():
-        results.sort(key=cmp_to_key(sort_results))
+        results.sort(key=sort_user_event_results)
 
     alternative_title = "{} leaderboards".format(competition.title)
 
@@ -143,7 +144,7 @@ def comp_results(comp_id):
 
 # -------------------------------------------------------------------------------------------------
 
-def filter_blacklisted_results(results, show_admin, current_user):
+def filter_blacklisted_results(results, show_admin, curr_user):
     """ Filters out the appropriate blacklisted results depending on who is viewing the page.
     Admins see all results, non-logged viewers see no blacklisted results, and logged-in viewers
     only see their own. """
@@ -151,43 +152,8 @@ def filter_blacklisted_results(results, show_admin, current_user):
     if show_admin:
         return results
 
-    if not current_user.is_authenticated:
+    if not curr_user.is_authenticated:
         return [r for r in results if not r.is_blacklisted]
 
-    target_username = current_user.username
+    target_username = curr_user.username
     return [r for r in results if (not r.is_blacklisted) or (r.User.username == target_username)]
-
-# TODO: put the UserEventResults sorting stuff somewhere else
-
-def sort_results(val1, val2):
-    result1 = val1.result
-    result2 = val2.result
-    if not result1:
-        result1 = 100000000
-    if not result2:
-        result2 = 100000000
-    if result1 == 'DNF':
-        result1 = 99999999
-    if result2 == 'DNF':
-        result2 = 99999999
-    return int(result1) - int(result2)
-
-
-def cmp_to_key(mycmp):
-    'Convert a cmp= function into a key= function'
-    class comparator:
-        def __init__(self, obj, *args):
-            self.obj = obj
-        def __lt__(self, other):
-            return mycmp(self.obj, other.obj) < 0
-        def __gt__(self, other):
-            return mycmp(self.obj, other.obj) > 0
-        def __eq__(self, other):
-            return mycmp(self.obj, other.obj) == 0
-        def __le__(self, other):
-            return mycmp(self.obj, other.obj) <= 0
-        def __ge__(self, other):
-            return mycmp(self.obj, other.obj) >= 0
-        def __ne__(self, other):
-            return mycmp(self.obj, other.obj) != 0
-    return comparator
