@@ -20,8 +20,8 @@ TARGET_SUBREDDIT = CUBERS_APP.config['TARGET_SUBREDDIT']
 IS_DEVO          = CUBERS_APP.config['IS_DEVO']
 USER_AGENT       = 'web:rcubersComps:v0.01 by /u/euphwes'
 
-PROD_CUBERSIO_ACCT = 'cubers_io'
-DEVO_CUBERSIO_ACCT = 'cubers_io_test'
+PROD_CUBERSIO_ACCT = CUBERS_APP.config['PROD_CUBERSIO_ACCT']
+DEVO_CUBERSIO_ACCT = CUBERS_APP.config['DEVO_CUBERSIO_ACCT']
 
 COMMENT_FOOTER_TEMPLATE = '\n'.join([
     '',

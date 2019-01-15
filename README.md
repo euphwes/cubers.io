@@ -12,7 +12,7 @@ See a list of all events being held during this week's competition, as well as i
 
 ![cubers.io homepage](https://i.imgur.com/SSkRJeM.png)
 
-Clicking on an event brings to a timer, where you can see the scrambles for the event as well as a scramble preview image for supported event. Times are recorded for you to track your progress, and a context menu is available for manual time entry and administration of time solve penalties.
+Clicking on an event brings you to a timer, where you can see the scrambles for the event as well as a scramble preview image for supported event. Times are recorded for you to track your progress, and a context menu is available for manual time entry and administration of time solve penalties.
 
 ![cubers.io event page](https://i.imgur.com/rZFyFxx.png)
 

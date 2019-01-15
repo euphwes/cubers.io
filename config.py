@@ -7,6 +7,9 @@ from os.path import abspath, dirname, join as path_join
 
 TEST_SUBREDDIT = 'cubecomps'
 
+DEFAULT_PROD_ACCOUNT = 'cubers_io'
+DEFAULT_DEVO_ACCOUNT = 'cubers_io_test'
+
 # -------------------------------------------------------------------------------------------------
 
 class Config(object):
@@ -23,6 +26,9 @@ class Config(object):
     IS_DEVO                 = TARGET_SUBREDDIT == TEST_SUBREDDIT
 
     AUTO_BL_FACTOR          = float(environ.get('AUTO_BL_FACTOR', 1.0))
+
+    PROD_CUBERSIO_ACCT      = environ.get('PROD_CUBERSIO_ACCT', DEFAULT_PROD_ACCOUNT)
+    DEVO_CUBERSIO_ACCT      = environ.get('DEVO_CUBERSIO_ACCT', DEFAULT_DEVO_ACCOUNT)
 
     SQLALCHEMY_DATABASE_URI = environ.get('DATABASE_URL')
     if not SQLALCHEMY_DATABASE_URI:
