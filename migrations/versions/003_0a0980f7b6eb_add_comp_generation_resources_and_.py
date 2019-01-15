@@ -39,14 +39,16 @@ def upgrade():
         batch_op.drop_index('ix_competitions_title')
         batch_op.drop_column('userPointResults')
 
+    # Historical note: this was initially set to start comps at  293,
+    # since cubers.io launched and began running with /r/cubers at weekly competition #293.
     op.bulk_insert(
         comp_gen_table,
         [
             {
                 'prev_comp_thread_id': '',
-                'current_comp_num'   : 293,
-                'current_bonus_index': -5,
-                'current_OLL_index'  : -1,
+                'current_comp_num'   : 1,
+                'current_bonus_index': 0,
+                'current_OLL_index'  : 0,
             },
         ]
     )
