@@ -23,7 +23,7 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('comp_id', sa.Integer(), nullable=True),
     sa.Column('data', sa.String(length=2048), nullable=True),
-    sa.ForeignKeyConstraint(['comp_id'], ['competitions.id'], ),
+    sa.ForeignKeyConstraint(['comp_id'], ['competitions.id'], name='user_site_rankings_comp_id_fkey'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
