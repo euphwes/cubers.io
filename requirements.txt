@@ -57,7 +57,7 @@ python-slugify==2.0.1
 pyTwistyScrambler==1.2
 pytz==2018.7
 ranking==0.3.1
-requests==2.18.4
+requests>=2.20.0
 requests-toolbelt==0.8.0
 simplegeneric==0.8.1
 six==1.11.0
@@ -67,7 +67,7 @@ traitlets==4.3.2
 twine==1.11.0
 Unidecode==1.0.23
 update-checker==0.16
-urllib3==1.22
+urllib3>=1.23
 visitor==0.1.3
 wcwidth==0.1.7
 webassets==0.12.1
