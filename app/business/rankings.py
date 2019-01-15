@@ -102,8 +102,11 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
         if event.name == "COLL":
             continue
 
-        # get the lists ranked singles and averages for the current event
-        ranked_singles = event_singles_map[event]
+        # Get the lists ranked singles and averages for the current event. If there's nothing
+        # in the map for that event, nobody has competed in it yet, so we can skip to the next.
+        ranked_singles = event_singles_map.get(event, None)
+        if not ranked_singles:
+            continue
         ranked_averages = event_averages_map[event]
 
         # See if there's a result for our user in the singles
@@ -219,6 +222,11 @@ def _determine_ranks(personal_bests):
     """ Takes an ordered list of PersonalBestRecords and assigns each PersonalBestRecord a rank.
     Ranks are the same for PersonalBestRecords with identical times.
     Ex: [12, 13, 14, 14, 15] would have ranks [1, 2, 3, 3, 5] """
+
+    # If `personal_bests` is empty, we can't use the ranking mechanism below, so just return
+    # the empty list
+    if not personal_bests:
+        return personal_bests
 
     # Build a list of just the time values of the personal bests, to be fed into the ranking
     # mechanism. If the PB time value cannot be interpreted as an int, it's probably a DNF so
