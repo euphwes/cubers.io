@@ -350,8 +350,10 @@ def set_pb_flags(user, event_result, event_id):
 
     pb_single, pb_average = get_pbs_for_user_and_event_excluding_latest(user.id, event_id)
 
-    event_result.was_pb_single = __pb_representation(event_result.single) < pb_single
-    event_result.was_pb_average = __pb_representation(event_result.average) < pb_average
+    # If the current single or average are tied with, or faster than, the user's current PB,
+    # then flag this result as a PB. Tied PBs count as PBs in WCA rules
+    event_result.was_pb_single = __pb_representation(event_result.single) <= pb_single
+    event_result.was_pb_average = __pb_representation(event_result.average) <= pb_average
 
     return event_result
 
@@ -404,13 +406,15 @@ def recalculate_user_pbs_for_event(user_id, event_id):
         current_single  = __pb_representation(result.single)
         current_average = __pb_representation(result.average)
 
-        if current_single < pb_single_so_far:
+        # If the current single or average are tied with, or faster than, the user's current PB,
+        # then flag this result as a PB. Tied PBs count as PBs in WCA rules
+        if current_single <= pb_single_so_far:
             pb_single_so_far = current_single
             result.was_pb_single = True
         else:
             result.was_pb_single = False
 
-        if current_average < pb_average_so_far:
+        if current_average <= pb_average_so_far:
             pb_average_so_far = current_average
             result.was_pb_average = True
         else:
