@@ -68,6 +68,11 @@ def build_user_event_results(user_events_dict, user):
     # Determine if the user has completed their results for this event
     set_is_complete(results, event_format, expected_num_solves)
 
+    # Figure out if this is for an FMC event, for a blind event, or neither
+    # Useful for deciding how to represent results to the user
+    results.is_fmc = event_name == FMC
+    results.is_blind = event_name in BLIND_EVENTS
+
     if results.is_complete:
         # Set the result (either best single, mean, or average) depending on event format
         results.result = determine_event_result(results.single, results.average, event_format)
@@ -75,9 +80,7 @@ def build_user_event_results(user_events_dict, user):
         # Store the "times string" so we don't have to recalculate this again later.
         # It's fairly expensive, so doing this for every UserEventResults in the competition slows
         # down the leaderboards noticeably.
-        is_fmc = event_name == FMC
-        is_blind = event_name in BLIND_EVENTS
-        results.times_string = build_times_string(results.solves, event_format, is_fmc, is_blind)
+        results.times_string = build_times_string(results, event_format)
 
         # Determine and set if the user set any PBs in this event
         # If there's no user, no need to check PB flags
@@ -177,11 +180,13 @@ def build_event_summary(event, user):
     return "{} = {}".format(best, results.times_string)
 
 
-def build_times_string(solves, event_format, is_fmc=False, is_blind=False, want_list=False):
+def build_times_string(results, event_format, want_list=False):
     """ Builds a list of individual times, with best/worst times in parens if appropriate
     for the given event format. """
 
     # TODO: comment this more thorougly below
+
+    solves = results.solves
 
     time_convert = convert_centiseconds_to_friendly_time
 
@@ -191,7 +196,7 @@ def build_times_string(solves, event_format, is_fmc=False, is_blind=False, want_
 
     # FMC is special, the 'time' is actually the number of moves, not number of centiseconds
     # so don't convert to "friendly times" because that makes no sense
-    if not is_fmc:
+    if not results.is_fmc:
         friendly_times = [time_convert(solve.get_total_time()) for solve in solves]
     else:
         friendly_times = [str(int(solve.get_total_time() / 100)) for solve in solves]
@@ -224,7 +229,7 @@ def build_times_string(solves, event_format, is_fmc=False, is_blind=False, want_
             dnf_indicies.append(i)
 
     for i in dnf_indicies:
-        if is_blind:
+        if results.is_blind:
             friendly_times[i] = 'DNF(' + friendly_times[i] + ')'
         else:
             friendly_times[i] = 'DNF'

@@ -107,6 +107,7 @@
             }
             console.log(data);
             data = JSON.parse(data);
+            console.log(data);
             event.summary = data[event.comp_event_id];
             var emit_data = { 'comp_event_id': event.comp_event_id, 'result': event.summary.split(" = ")[0] };
             this.emit(EVENT_SUMMARY_CHANGE, emit_data);

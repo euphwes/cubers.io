@@ -7,6 +7,7 @@ from flask_login import LoginManager, UserMixin
 from sqlalchemy.orm import relationship
 
 from app import DB, CUBERS_APP
+from app.util.times_util import convert_centiseconds_to_friendly_time
 
 #pylint: disable=C0103
 Text       = DB.Text
@@ -107,10 +108,52 @@ class UserEventResults(Model):
     is_blacklisted    = Column(Boolean)
     blacklist_note    = Column(String(256))
 
+    # To determine how to format friendly representations of results, single, average
+    is_fmc   = False
+    is_blind = False
+
+
     def set_solves(self, incoming_solves):
         """ Utility method to set a list of UserSolves for this UserEventResults. """
 
         self.solves.extend(incoming_solves)
+
+
+    def friendly_result(self):
+        """ Get a user-friendly representation of this UserEventResults's result field. """
+
+        return self.__format_for_friendly(self.result)
+
+
+    def friendly_single(self):
+        """ Get a user-friendly representation of this UserEventResults's single field. """
+
+        return self.__format_for_friendly(self.single)
+
+
+    def friendly_average(self):
+        """ Get a user-friendly representation of this UserEventResults's average field. """
+
+        return self.__format_for_friendly(self.average)
+
+
+    def __format_for_friendly(self, value):
+        """ Utility method to return a friendly representation of the value passed in. Depends
+        on whether or not this UserEventResults is for an FMC event or not. """
+
+        if not value:
+            return ''
+
+        if value == 'DNF':
+            return value
+
+        if self.is_fmc:
+            converted_value = int(value)/100
+            if converted_value == int(converted_value):
+                converted_value = int(converted_value)
+            return converted_value
+
+        return convert_centiseconds_to_friendly_time(value)
 
 
 class CompetitionEvent(Model):

@@ -54,7 +54,18 @@ def save_event():
         if should_do_reddit_submit:
             do_reddit_submit(saved_results.CompetitionEvent.Competition.id, user)
 
-        return ('', 204) # intentionally empty, 204 No Content
+        # Build up a dictionary of relevant information about the event results so far, to include
+        # the summary (aka times string), PB flags, single and average, and complete status
+        event_info = {
+            'isComplete'  : saved_results.is_complete,
+            'single'      : saved_results.friendly_single(),
+            'wasPbSingle' : saved_results.was_pb_single,
+            'average'     : saved_results.friendly_average(),
+            'wasPbAverage': saved_results.was_pb_average,
+            'summary'     : saved_results.times_string,
+            'result'      : saved_results.friendly_result(),
+        }
+        return json.dumps(event_info)
 
     # TODO: Figure out specific exceptions that can happen here, probably mostly Reddit ones
     # pylint: disable=W0703
