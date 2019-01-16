@@ -102,14 +102,26 @@
 
         var onSaveCompleteRecordSummary = function (data, event) {
             if (event.status != 'complete') {
-                console.log('incomplete');
                 return;
             }
-            console.log(data);
+
+            // If the event is complete, record useful summary information about the results
+            // so we can use that to display stuff in various places
             data = JSON.parse(data);
-            console.log(data);
-            event.summary = data[event.comp_event_id];
-            var emit_data = { 'comp_event_id': event.comp_event_id, 'result': event.summary.split(" = ")[0] };
+            event.result       = data.result;
+            event.summary      = data.summary;
+            event.single       = data.single;
+            event.average      = data.average;
+            event.wasPbSingle  = data.wasPbSingle;
+            event.wasPbAverage = data.wasPbAverage;
+            var emit_data = {
+                'result'       : event.result,
+                'comp_event_id': event.comp_event_id,
+                'single'       : event.single,
+                'average'      : event.average,
+                'wasPbSingle'  : event.wasPbSingle,
+                'wasPbAvearge' : event.wasPbAvearge,
+            };
             this.emit(EVENT_SUMMARY_CHANGE, emit_data);
         }.bind(this);
 
@@ -193,6 +205,9 @@
     EventsDataManager.prototype.getEventResult = function(comp_event_id) {
         var data = {};
 
+        // TODO make sure this returns result, average, single, and pbSingle, pbAverage flags
+        // make logic more consistent between EVENT_SUMMARY_CHANGED and NOTHING_TO_ATTACH handlers in scramble display manager
+
         var format = this.events_data[comp_event_id].event_format;
         if (format == 'Bo3') {
             data.result_type = 'a best single';
@@ -205,7 +220,7 @@
         }
 
         try {
-            data.result = this.events_data[comp_event_id].summary.split(" = ")[0];
+            data.result = this.events_data[comp_event_id].result;
         } catch(err) {
             // split could possibly fail because for Bo1 events, there's no temporary summary before the real one.
             // pass back a '?' to indicate to retry until the real result comes in.

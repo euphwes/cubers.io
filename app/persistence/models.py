@@ -148,6 +148,8 @@ class UserEventResults(Model):
             return value
 
         if self.is_fmc:
+            # TODO consolidate this with the jinja filter format for fmc function, and move into
+            # the time utils module
             converted_value = int(value)/100
             if converted_value == int(converted_value):
                 converted_value = int(converted_value)
