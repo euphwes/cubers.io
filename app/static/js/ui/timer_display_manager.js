@@ -7,7 +7,7 @@
     function TimerDisplayManager() {
         this._registerTimerEventHandlers();
         this._registerScramblesManagerHandlers();
-    };
+    }
 
     /**
      * Displays the specified time on the timer display.

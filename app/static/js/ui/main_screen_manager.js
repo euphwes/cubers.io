@@ -8,7 +8,7 @@
         this._registerAppModeManagerListeners();
 
         this.defaultNavbarTitle = $('.navbar-brand').text();
-    };
+    }
 
     /**
      * Get a jQuery reference to the event card for the specified competition event ID.
@@ -49,7 +49,7 @@
     MainScreenManager.prototype._setEventCardResult = function(data) {
         this._getEventCardElementForCompEventId(data['comp_event_id'])
             .find('.event-summary').text(data['result']);
-    }
+    };
 
     /**
      * Hides the main screen.

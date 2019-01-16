@@ -19,7 +19,7 @@
 
         this._setCorrectScrambleStatus();
         this._registerTimerEventHandlers();
-    };
+    }
     EventsDataManager.prototype = Object.create(app.EventEmitter.prototype);
 
     /**
@@ -39,7 +39,13 @@
     EventsDataManager.prototype._updateSingleEventStatus = function(event) {
         // Count the total number of solves and the number of completed solves
         var total_solves     = event.scrambles.length;
-        var completed_solves = event.scrambles.filter(x => Boolean(x.time)).length;
+        var completed_solves_list = [];
+        $.each(event.scrambles, function(i, scramble){
+            if (Boolean(scramble.time)) {
+                completed_solves_list.push(scramble);
+            }
+        });
+        var completed_solves = completed_solves_list.length;
 
         // If total solves == completed solves, or in a Bo3 event at least 1 solve is complete, the event is complete.
         // Grab a times summary from the server for the complete event
@@ -208,7 +214,7 @@
 
         try {
             data.result = this.events_data[comp_event_id].summary.split(" = ")[0];
-        } catch {
+        } catch(err) {
             // split could possibly fail because for Bo1 events, there's no temporary summary before the real one.
             // pass back a '?' to indicate to retry until the real result comes in.
             data.result = "?";

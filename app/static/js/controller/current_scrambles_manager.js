@@ -11,7 +11,7 @@
     function CurrentScramblesManager() {
         app.EventEmitter.call(this);
         this._registerTimerEventHandlers();
-    };
+    }
     CurrentScramblesManager.prototype = Object.create(app.EventEmitter.prototype);
 
     /**
@@ -49,7 +49,7 @@
             var data = {
                 'event_name': app.eventsDataManager.getEventName(comp_event_id),
                 'event_result': app.eventsDataManager.getEventResult(comp_event_id),
-            }
+            };
 
             // ** HACK ALERT **
             // We might not have yet retrieved the summary (xx.xx = solve1, solve2, solve3, etc) from the server yet

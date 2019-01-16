@@ -1572,7 +1572,7 @@
 
         this._registerCurrentScramblesManagerHandlers();
         this.reset();
-    };
+    }
 
     ScrambleImageGenerator.prototype.reset = function() {
         this.mobileScalingFactor = 10;

@@ -14,7 +14,7 @@
         this.timer_panel_template = Handlebars.compile($('#timer-template').html());
 
         this._registerAppModeManagerListeners();
-    };
+    }
 
     /**
      * Destroys the context menu and hides the timer screen. The context menu needs to
@@ -109,7 +109,7 @@
                 $(this).fadeOut(function(){
                     $(this).removeClass('shown');
                 });
-            })
+            });
         });
     };
 
@@ -124,7 +124,7 @@
                 $(this).fadeOut(function(){
                     $(this).removeClass('shown');
                 });
-            })
+            });
         });
     };
 
@@ -308,11 +308,11 @@
                     name: "Delete time",
                     icon: "fas fa-trash",
                     callback: function(itemKey, opt, e) { deleteSolve($(opt.$trigger)); },
-                    disabled: function(key, opt) { return !isComplete(this) }
+                    disabled: function(key, opt) { return !isComplete(this); }
                 },
             }
         });
-    },
+    };
 
     /**
      * Register handlers for EventsDataManager events.

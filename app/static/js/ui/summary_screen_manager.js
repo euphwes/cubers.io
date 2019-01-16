@@ -7,7 +7,7 @@
     function SummaryScreenManager() {
         this.summaryPanelTemplate = Handlebars.compile($('#summary-template').html());
         this._registerAppModeManagerListeners();
-    };
+    }
 
     /**
      * Splits the events into a list of complete and incomplete event
@@ -65,7 +65,7 @@
             $.get('/comment_url/' + app.eventsDataManager.getCompId(), function(data) {
                 var anchor = $('<a>Check out your results here!</a>').attr("href", data).attr("target", "_blank");
                 $('.span_complete').append(anchor);
-            })
+            });
         }
     };
 

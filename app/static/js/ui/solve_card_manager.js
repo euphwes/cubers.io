@@ -7,7 +7,7 @@
     function SolveCardManager() {
         this._registerEventsDataMangerEventHandlers();
         this._registerCurrentScramblesManagerEventHandlers();
-    };
+    }
 
     /**
      * Returns a jQuery reference to the solve card for the specified scramble ID.

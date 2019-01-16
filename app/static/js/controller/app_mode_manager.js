@@ -15,7 +15,7 @@
 
         this._wire_event_card_click();
         this._wire_review_button();
-    };
+    }
     AppModeManager.prototype = Object.create(app.EventEmitter.prototype);
 
     /**
@@ -46,7 +46,7 @@
             app.scrambleImageGenerator.reset();
             this.emit(EVENT_APP_MODE_TO_MAIN);
         }.bind(this));
-    },
+    };
 
     /**
      * When clicking the button to return to the events panel, show 

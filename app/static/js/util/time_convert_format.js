@@ -8,8 +8,8 @@
      *      51 -->   51
      *       9 -->    9
      */
-    function convertSecondsToMinutes(seconds) {
-        var s = parseFloat(seconds);
+    function convertSecondsToMinutes(sec) {
+        var s = parseFloat(sec);
 
         var minutes = Math.floor(s / 60);
         var seconds = s % 60;
@@ -19,7 +19,7 @@
         } else {
             return seconds;
         }
-    };
+    }
 
     /**
      * Converts a time string (ss.xx, mm:ss.xx, hh:mm:ss.xx) to just centiseconds.
@@ -53,7 +53,7 @@
         }
     
         return (s * 100) + cs;
-    };
+    }
     
     /**
      * Converts an integer number of centiseconds to a string representing the
@@ -73,7 +73,7 @@
         var s = Math.floor(cs / 100);
         var remainingCs = cs % 100;
         return "" + convertSecondsToMinutes(s) + "." + ("" + remainingCs).padStart(2, "0");
-    };
+    }
 
     /**
      * Converts a string to a boolean based on the value of the string, not the presence of the string.
@@ -87,7 +87,7 @@
      */
     function evaluateBool(val) {
         return !!JSON.parse(String(val).toLowerCase());
-    };
+    }
 
     /**
      * Renders a solve time as a human-friendly string, based on penalty status and raw solve time.
@@ -100,7 +100,7 @@
             return convertRawCsForSolveCard(solve.time, true) + "+";
         }
         return convertRawCsForSolveCard(solve.time);
-    };
+    }
 
     // Make these util functions all available at the app scope
     window.app.convertSecondsToMinutes = convertSecondsToMinutes;

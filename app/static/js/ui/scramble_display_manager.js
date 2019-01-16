@@ -8,7 +8,7 @@
         this._registerCurrentScramblesManagerHandlers();
         this._registerEventsDataManagerHandlers();
         this._wireResizeHandler();
-    };
+    }
 
     /**
      * Wire up a listener for window resizes that refits the scramble text to the container for the new
@@ -34,7 +34,7 @@
      */
     ScrambleDisplayManager.prototype._showDone = function(data) {
         var text = "Congrats!<br/>You've finished " + data.event_name + " with ";
-        text += data.event_result.result_type + " of " + data.event_result.result + "."
+        text += data.event_result.result_type + " of " + data.event_result.result + ".";
 
         $('.scramble-wrapper .scram').html(text);
         textFit($('.scramble-wrapper .scram'));
@@ -53,7 +53,7 @@
             'event_name': app.eventsDataManager.getEventName(data.comp_event_id),
             'event_result': app.eventsDataManager.getEventResult(data.comp_event_id),
         });
-    }
+    };
 
     /**
      * Register handlers for current scrambles manager events.

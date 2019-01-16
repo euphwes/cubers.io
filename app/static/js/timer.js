@@ -29,7 +29,7 @@
         kd.run(function () { kd.tick(); });
 
         this._registerAppModeManagerListeners();
-    };
+    }
     Timer.prototype = Object.create(app.EventEmitter.prototype);
 
     /**
@@ -37,7 +37,7 @@
      */
     Timer.prototype.setCompEventId = function(comp_event_id) {
         this.comp_event_id = comp_event_id;
-    }
+    };
 
     /**
      * Enables the timer by setting up keyboard event listeners for starting
