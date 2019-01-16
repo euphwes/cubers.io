@@ -52,7 +52,7 @@
         // and emit an event so the card is visually updated.
         if (total_solves == completed_solves || (event.event_format == 'Bo3' && completed_solves > 0)) {
             event.status = 'complete';
-            this._recordSummaryForEvent(event);
+            console.log('complete');
             this._saveEvent(event);
             this.emit(EVENT_SET_COMPLETE, event.comp_event_id);
             return;
@@ -100,33 +100,24 @@
         var event_data = {};
         event_data[event.comp_event_id] = event;
 
+        var onSaveCompleteRecordSummary = function (data, event) {
+            if (event.status != 'complete') {
+                console.log('incomplete');
+                return;
+            }
+            console.log(data);
+            data = JSON.parse(data);
+            event.summary = data[event.comp_event_id];
+            var emit_data = { 'comp_event_id': event.comp_event_id, 'result': event.summary.split(" = ")[0] };
+            this.emit(EVENT_SUMMARY_CHANGE, emit_data);
+        }.bind(this);
+
         $.ajax({
             url: "/save_event",
             type: "POST",
             data: JSON.stringify(event_data),
             contentType: "application/json",
-            success: function() { },
-            error: function() { },
-        });
-    };
-
-    /**
-     * Makes a call out to the server to get and save a summary representation for this event
-     * Ex: average = (best) (worst) other other other
-     */
-    EventsDataManager.prototype._recordSummaryForEvent = function(event) {
-        var onSummaryComplete = function(data, event) {
-            data = JSON.parse(data);
-            event.summary = data[event.comp_event_id];
-            var emit_data = {'comp_event_id': event.comp_event_id, 'result': event.summary.split(" = ")[0]};
-            this.emit(EVENT_SUMMARY_CHANGE, emit_data);
-        }.bind(this);
-        $.ajax({
-            url: "/event_summaries",
-            type: "POST",
-            data: JSON.stringify([event]),
-            contentType: "application/json",
-            success: function(data) { onSummaryComplete(data, event); },
+            success: function (data) { onSaveCompleteRecordSummary(data, event); },
         });
     };
 
