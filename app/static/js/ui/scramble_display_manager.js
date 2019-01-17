@@ -32,27 +32,36 @@
     /**
      * Event handler for when there are no incomplete solves/scrambles left to attach.
      */
-    ScrambleDisplayManager.prototype._showDone = function(data) {
-        var text = "Congrats!<br/>You've finished " + data.event_name + " with ";
-        text += data.event_result.result_type + " of " + data.event_result.result + ".";
+    ScrambleDisplayManager.prototype._showDone = function(comp_event_id) {
+
+        comp_event_id = parseInt(comp_event_id);
+
+        // If the event isn't complete, leave early and don't show the done message
+        var data = app.eventsDataManager.getDataForEvent(comp_event_id);
+        if (data.status != 'complete') { return; }
+
+        var start = (data.wasPbSingle || data.wasPbAverage) ? "Wow!" : "Congrats!";
+
+        var text = start + "<br/>You've finished " + data.name + " with ";
+
+        if (data.wasPbSingle && data.wasPbAverage) {
+            text += "a PB single of " + data.single + " and a PB average of " + data.average + "!";
+        } else if (data.wasPbAverage) {
+            text += "a PB average of " + data.average + "!";
+        } else if (data.wasPbSingle) {
+            text += "a PB single of " + data.single + "!";
+        } else {
+            var eventFormatResultTypeMap = {
+                'Bo3': 'a best single of ',
+                'Bo1': 'a result of ',
+                'Ao5': 'an average of ',
+                'Mo3': 'a mean of',
+            };
+            text += eventFormatResultTypeMap[data.event_format] + data.result + ".";
+        }
 
         $('.scramble-wrapper .scram').html(text);
         textFit($('.scramble-wrapper .scram'));
-    };
-
-    /**
-     * Event handler for changing the "congrats you're done!" message if the result changes after
-     * this message is already displayed. Due to user adding/removing penalties, manually changing a time, etc
-     */
-    ScrambleDisplayManager.prototype._possiblyUpdateDoneMessage = function(data) {
-        var isShowingDoneMessage = $('.scramble-wrapper .scram').html().indexOf("Congrats!") !== -1;
-
-        if (!isShowingDoneMessage) { return; }
-
-        this._showDone({
-            'event_name': app.eventsDataManager.getEventName(data.comp_event_id),
-            'event_result': app.eventsDataManager.getEventResult(data.comp_event_id),
-        });
     };
 
     /**
@@ -67,7 +76,7 @@
      * Register handlers for events data manager events.
      */
     ScrambleDisplayManager.prototype._registerEventsDataManagerHandlers = function() {
-        app.eventsDataManager.on(app.EVENT_SUMMARY_CHANGE, this._possiblyUpdateDoneMessage.bind(this));
+        app.eventsDataManager.on(app.EVENT_SUMMARY_CHANGE, this._showDone.bind(this));
     };
 
     // Make ScrambleDisplayManager visible at app scope

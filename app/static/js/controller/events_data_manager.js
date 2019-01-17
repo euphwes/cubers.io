@@ -52,7 +52,6 @@
         // and emit an event so the card is visually updated.
         if (total_solves == completed_solves || (event.event_format == 'Bo3' && completed_solves > 0)) {
             event.status = 'complete';
-            console.log('complete');
             this._saveEvent(event);
             this.emit(EVENT_SET_COMPLETE, event.comp_event_id);
             return;
@@ -66,7 +65,7 @@
             this._saveEvent(event);
             this._recordIncompleteSummaryForEvent(event);
             this.emit(EVENT_SET_INCOMPLETE, event.comp_event_id);
-            this.emit(EVENT_SUMMARY_CHANGE, {'comp_event_id': event.comp_event_id, 'result': ''});
+            this.emit(EVENT_SUMMARY_CHANGE, event.comp_event_id);
             return;
         }
         
@@ -76,7 +75,7 @@
         event.summary = null;
         this._saveEvent(event);
         this.emit(EVENT_SET_NO_STATUS, event.comp_event_id);
-        this.emit(EVENT_SUMMARY_CHANGE, {'comp_event_id': event.comp_event_id, 'result': ''});
+        this.emit(EVENT_SUMMARY_CHANGE, event.comp_event_id);
     };
 
     /**
@@ -114,15 +113,8 @@
             event.average      = data.average;
             event.wasPbSingle  = data.wasPbSingle;
             event.wasPbAverage = data.wasPbAverage;
-            var emit_data = {
-                'result'       : event.result,
-                'comp_event_id': event.comp_event_id,
-                'single'       : event.single,
-                'average'      : event.average,
-                'wasPbSingle'  : event.wasPbSingle,
-                'wasPbAvearge' : event.wasPbAvearge,
-            };
-            this.emit(EVENT_SUMMARY_CHANGE, emit_data);
+
+            this.emit(EVENT_SUMMARY_CHANGE, event.comp_event_id);
         }.bind(this);
 
         $.ajax({
@@ -200,34 +192,10 @@
     };
 
     /**
-     * Returns the result for the given comp event id.
+     * Returns the event data for the given comp event id.
      */
-    EventsDataManager.prototype.getEventResult = function(comp_event_id) {
-        var data = {};
-
-        // TODO make sure this returns result, average, single, and pbSingle, pbAverage flags
-        // make logic more consistent between EVENT_SUMMARY_CHANGED and NOTHING_TO_ATTACH handlers in scramble display manager
-
-        var format = this.events_data[comp_event_id].event_format;
-        if (format == 'Bo3') {
-            data.result_type = 'a best single';
-        } else if (format == 'Bo1') {
-            data.result_type = 'a result';
-        } else if (format == 'Ao5') {
-            data.result_type = 'an average';
-        } else {
-            data.result_type = 'a mean';
-        }
-
-        try {
-            data.result = this.events_data[comp_event_id].result;
-        } catch(err) {
-            // split could possibly fail because for Bo1 events, there's no temporary summary before the real one.
-            // pass back a '?' to indicate to retry until the real result comes in.
-            data.result = "?";
-        }
-
-        return data;
+    EventsDataManager.prototype.getDataForEvent = function(comp_event_id) {
+        return this.events_data[comp_event_id];
     };
 
     /**
