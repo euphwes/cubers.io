@@ -46,9 +46,12 @@
     /**
      * Updates the result for the event card with the specified comp event ID.
      */
-    MainScreenManager.prototype._setEventCardResult = function(data) {
-        this._getEventCardElementForCompEventId(data['comp_event_id'])
-            .find('.event-summary').text(data['result']);
+    MainScreenManager.prototype._setEventCardResult = function (comp_event_id) {
+        var event_data = app.eventsDataManager.getDataForEvent(comp_event_id);
+        if (event_data.status != 'complete') { return; }
+
+        this._getEventCardElementForCompEventId(comp_event_id)
+            .find('.event-summary').text(event_data.result);
     };
 
     /**
