@@ -40,6 +40,10 @@
         var data = app.eventsDataManager.getDataForEvent(comp_event_id);
         if (data.status != 'complete') { return; }
 
+        // If the event result still is empty, we haven't gotten the result back from the server.
+        // Return early, and when the saveEvent call finishes, this will be called again
+        if (!Boolean(data.result)) { return; }
+
         var start = (data.wasPbSingle || data.wasPbAverage) ? "Wow!" : "Congrats!";
 
         var text = start + "<br/>You've finished " + data.name + " with ";
@@ -55,7 +59,7 @@
                 'Bo3': 'a best single of ',
                 'Bo1': 'a result of ',
                 'Ao5': 'an average of ',
-                'Mo3': 'a mean of',
+                'Mo3': 'a mean of ',
             };
             text += eventFormatResultTypeMap[data.event_format] + data.result + ".";
         }

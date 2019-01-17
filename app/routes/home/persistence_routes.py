@@ -57,7 +57,6 @@ def save_event():
         # Build up a dictionary of relevant information about the event results so far, to include
         # the summary (aka times string), PB flags, single and average, and complete status
         event_info = {
-            'isComplete'  : saved_results.is_complete,
             'single'      : saved_results.friendly_single(),
             'wasPbSingle' : saved_results.was_pb_single,
             'average'     : saved_results.friendly_average(),

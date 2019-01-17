@@ -72,15 +72,20 @@ def prompt_login():
 # -------------------------------------------------------------------------------------------------
 
 # The front-end dictionary keys
-COMMENT       = 'comment'
-SOLVES        = 'scrambles' # Because the solve times are paired with the scrambles in the front end
-TIME          = 'time'
-SCRAMBLE_ID   = 'id'
-IS_DNF        = 'isDNF'
-IS_PLUS_TWO   = 'isPlusTwo'
-COMP_EVENT_ID = 'comp_event_id'
-STATUS        = 'status'
-SUMMARY       = 'summary'
+COMMENT        = 'comment'
+SOLVES         = 'scrambles' # Because the solve times are paired with the scrambles in the front end
+TIME           = 'time'
+SCRAMBLE_ID    = 'id'
+IS_DNF         = 'isDNF'
+IS_PLUS_TWO    = 'isPlusTwo'
+COMP_EVENT_ID  = 'comp_event_id'
+STATUS         = 'status'
+SUMMARY        = 'summary'
+SINGLE         = 'single'
+AVERAGE        = 'average'
+RESULT         = 'result'
+WAS_PB_SINGLE  = 'wasPbSingle'
+WAS_PB_AVERAGE = 'wasPbAverage'
 
 # Completeness status
 STATUS_COMPLETE   = 'complete'
@@ -102,8 +107,14 @@ def fill_user_data_for_event(user, event_data):
     if not results:
         return
 
-    # Remember the user's comment, so we can use it up front if they visit that event again
-    event_data[COMMENT] = results.comment
+    # Remember various stats about the userEventResults, so we can use it up front
+    event_data[COMMENT]        = results.comment
+    event_data[SUMMARY]        = results.times_string
+    event_data[RESULT]         = results.friendly_result()
+    event_data[SINGLE]         = results.friendly_single()
+    event_data[AVERAGE]        = results.friendly_average()
+    event_data[WAS_PB_SINGLE]  = results.was_pb_single
+    event_data[WAS_PB_AVERAGE] = results.was_pb_average
 
     # Iterate through all the solves completed by the user, matching them to a scramble in
     # the events data. Record the time and penalty information so we have it up front.
@@ -120,9 +131,8 @@ def fill_user_data_for_event(user, event_data):
     # to complete so we can stick the nice pleasing checkmark on the card at render time
     if results.is_complete:
         event_data[STATUS]  = STATUS_COMPLETE
-        event_data[SUMMARY] = build_event_summary(event_data, user)
 
     # If the event is not complete but has some solves, set the status as 'incomplete' so we can
-    # render the
+    # render the clock thing
     elif bool(list(results.solves)):
         event_data[STATUS] = STATUS_INCOMPLETE

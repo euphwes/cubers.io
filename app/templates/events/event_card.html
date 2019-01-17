@@ -42,7 +42,7 @@
     </div>
     {% if competition_event.id in complete_events.keys() %}
         {% set int_id = competition_event.id|int %}
-        <span class="event-summary">{{ complete_events[int_id].summary.split(" = ")[0] }}</span>
+        <span class="event-summary">{{ complete_events[int_id].result }}</span>
     {% else %}
         <span class="event-summary"></span>
     {% endif %}

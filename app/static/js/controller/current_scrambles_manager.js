@@ -44,30 +44,8 @@
             };
             this.emit(EVENT_NEW_SCRAMBLE_ATTACHED, eventData);
         } else {
-            // No more scrambles left to attach to the timer, let's use the space to tell the user that
-            // they are done, and what their result was.
-
-            // ** HACK ALERT **
-            // We might not have yet retrieved the summary (xx.xx = solve1, solve2, solve3, etc) from the server yet
-            // after the last solve finished. If this is the case, the result will be a literal "?". Set this to keep retrying
-            // every 50ms or so until the result is properly set.
-            // TODO: figure out how to do this more intelligently
-            var data = app.eventsDataManager.getDataForEvent(comp_event_id);
-            console.log(data);
-            if (!Boolean(data.result)) {
-                var retry = function(){
-                    data = app.eventsDataManager.getDataForEvent(comp_event_id);
-                    if (!Boolean(data.result)) {
-                        setTimeout(retry, 50);
-                        return;
-                    }
-                    this.emit(EVENT_NOTHING_TO_ATTACH, comp_event_id);
-                }.bind(this);
-                setTimeout(retry, 50);
-                return;
-            }
-            // ** END HACK ALERT **
-
+            // No more scrambles left to attach to the timer, let's use the scramble space to tell
+            // the user that they are done, and what their result was.
             this.emit(EVENT_NOTHING_TO_ATTACH, comp_event_id);
         }
     };
