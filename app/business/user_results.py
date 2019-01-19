@@ -363,6 +363,8 @@ def set_pb_flags(user, event_result, event_id):
     # PB average flag for Bo1 isn't valid, so don't bother checking
     if event_format != EventFormat.Bo1:
         event_result.was_pb_average = __pb_representation(event_result.average) <= pb_average
+    else:
+        event_result.was_pb_average = False
 
     return event_result
 
@@ -432,6 +434,9 @@ def recalculate_user_pbs_for_event(user_id, event_id):
                 result.was_pb_average = True
             else:
                 result.was_pb_average = False
+        else:
+            result.was_pb_average = False
+
 
     # Save all the UserEventResults with the modified PB flags
     bulk_save_event_results(event_results_to_save_at_end)
