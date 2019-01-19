@@ -5,12 +5,28 @@
     // Will be reworking this in the near future to move to a state-based timer,
     // and away from this callback-ridden monstrosity.
 
-    // These are the events that Timer can emit
+    // These are the events that the timer can emit
     var EVENT_TIMER_START    = 'event_timer_start';
     var EVENT_TIMER_INTERVAL = 'event_timer_interval';
     var EVENT_TIMER_STOP     = 'event_timer_stop';
-    var EVENT_TIMER_RESET    = 'event_timer_reset';
     var EVENT_TIMER_ARMED    = 'event_timer_armed';
+
+    // These are the states the the timer can be in
+    var STATE_INACTIVE   = 0;
+    var STATE_ARMED      = 1;
+    var STATE_INSPECTION = 2;  // not using this yet, but putting it in for a placeholder
+    var STATE_RUNNING    = 3;
+    var STATE_DONE       = 4;
+
+    // Dev flag for debugging timer state
+    var debug_timer_state = false;
+    var timer_state_map = {
+        0: 'inactive',
+        1: 'armed',
+        2: 'inspection',
+        3: 'running',
+        4: 'done',
+    };
 
     /**
      * The solve timer which tracks elapsed time.
@@ -40,27 +56,28 @@
     };
 
     /**
-     * Enables the timer by setting up keyboard event listeners for starting
-     * or stopping the timer
+     * "Attach" the timer to a specific scramble_id so it can send
+     * appropriate data when it emits events.
+     */
+    Timer.prototype.attachToScramble = function(scramble_id) {
+        this.scramble_id = scramble_id;
+        this._enable();
+    };
+
+    /**
+     * Sets the timer state and optionally logs the new state to the console.
+     */
+    Timer.prototype._setState = function(new_state) {
+        this.state = new_state;
+        if (app.debug_timer_state) {
+            console.log(timer_state_map[new_state]);
+        }
+    };
+
+    /**
+     * Enables the timer by binding keyboard and touch event listeners
      */
     Timer.prototype._enable = function() {
-
-        if (app.is_mobile) {
-            $('.timer-wrapper').off("touchend");
-            $('.timer-wrapper').on("touchend", function() {
-                // start the timer, and bind a new event to spacebar keydown 
-                // to stop the timer and then automatically advance to the next scramble
-                $('.timer-wrapper').off("touchend");
-                this._start();
-                $('.timer-wrapper').on("touchend", function(e) {
-                    $('.timer-wrapper').off("touchend");
-                    e.preventDefault();
-                    this._stop();
-                }.bind(this));
-            }.bind(this));
-            return;
-        }
-
         // If the spacebar is already down when entering here, that probably means
         // that the user held it after completing the previous solve. Wait for the
         // user to release the spacebar by setting a short timeout to revisit this function
@@ -69,54 +86,78 @@
             return;
         }
 
-        // Pressing the spacebar down "arms" the timer to prepare it to start when
-        // the user releases the spacebar. Don't arm the timer if the comment input
-        // box has focus.
-        var armed = false;
-        kd.SPACE.down(function() {
-            if ($('#comment_' + this.comp_event_id).is(":focus")) { return; }
-            armed = true;
-            this.emit(EVENT_TIMER_ARMED);
-        }.bind(this));
+        // wire the spacebar events
+        kd.SPACE.up(this._handleSpaceUp.bind(this));
+        kd.SPACE.down(this._handleSpaceDown.bind(this));
 
-        // When the spacebar is released, unbind the spacebar keydown and keyup events
-        // and bind a new keydown event which will stop the timer
-        kd.SPACE.up(function() {
-        
-            // do nothing if the timer isn't armed yet by a spacebar keydown
-            if (!armed) { return; }
-            
-            // unbind the current events
-            kd.SPACE.unbindUp(); kd.SPACE.unbindDown();
-            
-            // start the timer, and bind a new event to spacebar keydown 
-            // to stop the timer and then automatically advance to the next scramble
-            this._start();
-            $(document).keydown(function(e) {
-                //var code = (e.keyCode ? e.keyCode : e.which);
-                //if (code == 27) {
-                //    //TODO: 27 == esc, cancel the timer and don't record time
-                //    e.preventDefault();
-                //    return;
-                //}
-                this._stop();
-            }.bind(this));
-        }.bind(this));
+        // wire the touch events, basically treating touchend as spacebar up and touchstart
+        // as spacebar down
+        if (app.is_mobile) {
+            $('.timer-wrapper').on("touchend", this._handleSpaceUp.bind(this));
+            $('.timer-wrapper').on("touchstart", this._handleSpaceDown.bind(this));
+        }
+
+        this._setState(STATE_INACTIVE);
     };
 
     /**
-     * "Attach" the timer to a specific scramble_id so it can send
-     * appropriate data when it emits events.
+     * Disables the timer by disabling the keypress and touch events, and disables the interval
+     * function which ticks by elapsed time.
      */
-    Timer.prototype.attachToScramble = function(scramble_id) {
-        this.scramble_id = scramble_id;
-        setTimeout(this._enable.bind(this), 500);
+    Timer.prototype._disable = function() {
+        // no more ticking
+        clearInterval(this.timer_interval);
+
+        // unbind the spacebar events
+        kd.SPACE.unbindUp();
+        kd.SPACE.unbindDown();
+
+        // unbind the touch events
+        $('.timer-wrapper').off("touchend");
+        $('.timer-wrapper').off("touchstart");
     };
- 
+
+    /**
+     * Handles the space down event, moving the timer to the appropriate state based on its
+     * current state and starting whatever logic needs to be started.
+     */
+    Timer.prototype._handleSpaceDown = function() {
+        // If the timer is inactive, arm the timer so it's ready to start.
+        if (this.state == STATE_INACTIVE) {
+            this._arm();
+            return;
+        }
+        // If the timer is running, stop it
+        if (this.state == STATE_RUNNING) {
+            this._stop();
+            return;
+        }
+    };
+
+    /**
+     * Handles the space key up event, moving the timer to the appropriate state based on its
+     * current state and starting whatever logic needs to be started.
+     */
+    Timer.prototype._handleSpaceUp = function() {
+        // If the timer is armed, start the timer
+        if (this.state == STATE_ARMED) {
+            this._start();
+            return;
+        }
+    };
+
+    /**
+     * Arms the timer by putting it a state indicating it's ready to start running.
+     */
+    Timer.prototype._arm = function() {
+        this._setState(STATE_ARMED);
+    }
+
     /**
      * Starts the timer. Captures the start time so we can determine elapsed time on subsequent ticks.
      */
     Timer.prototype._start = function() {
+        this._setState(STATE_RUNNING);
         this.start_time = new Date();
         this.timer_interval = setInterval(this._timer_intervalFunction.bind(this), 42);
         this.emit(EVENT_TIMER_START);
@@ -128,6 +169,7 @@
      * and sets the data attribute for raw time in centiseconds.
      */
     Timer.prototype._stop = function() {
+        this._setState(STATE_DONE);
         this._disable();
 
         // calculate elapsed time, 
@@ -156,26 +198,6 @@
     };
 
     /**
-     * Resets the timer.
-     */
-    Timer.prototype.reset = function() {
-        this.start_time = 0;
-        this.elapsed_time = 0;
-        this.emit(EVENT_TIMER_RESET);
-    };
-
-    /**
-     * Disables the timer by disabling the keypress events, and disables the interval function
-     * which ticks by elapsed time.
-     */
-    Timer.prototype._disable = function() {
-        clearInterval(this.timer_interval);
-        kd.SPACE.unbindDown(); kd.SPACE.unbindUp();
-        $(document).unbind("keydown");
-        $('.timer-wrapper').off("mouseup");
-    };
-
-    /**
      * Checks the current time against the start time to determine elapsed time.
      */
     Timer.prototype._timer_intervalFunction = function() {
@@ -197,7 +219,6 @@
     Timer.prototype._registerAppModeManagerListeners = function() {
         app.appModeManager.on(app.EVENT_APP_MODE_TO_MAIN, this._disable.bind(this));
         app.appModeManager.on(app.EVENT_APP_MODE_TO_SUMMARY, this._disable.bind(this));
-        app.appModeManager.on(app.EVENT_APP_MODE_TO_TIMER, this._enable.bind(this));
     };
 
     // Make timer and event names visible at app scope
@@ -205,6 +226,7 @@
     app.EVENT_TIMER_STOP     = EVENT_TIMER_STOP;
     app.EVENT_TIMER_START    = EVENT_TIMER_START;
     app.EVENT_TIMER_INTERVAL = EVENT_TIMER_INTERVAL;
-    app.EVENT_TIMER_RESET    = EVENT_TIMER_RESET;
     app.EVENT_TIMER_ARMED    = EVENT_TIMER_ARMED;
+
+    app.debug_timer_state = debug_timer_state;
 })();
