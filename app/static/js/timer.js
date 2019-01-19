@@ -61,7 +61,7 @@
      */
     Timer.prototype.attachToScramble = function(scramble_id) {
         this.scramble_id = scramble_id;
-        setTimeout(this._enable.bind(this), 500);
+        this._enable();
     };
 
     /**
