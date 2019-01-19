@@ -25,6 +25,15 @@ def get_all_events():
         all()
 
 
+def get_event_format_for_event(event_id):
+    """ Gets the event format for the specified event. """
+
+    return Event.query.\
+        filter(Event.id == event_id).\
+        first().\
+        eventFormat
+
+
 # pylint: disable=C0103
 def get_all_WCA_events():
     """ Returns a list of all WCA events. """

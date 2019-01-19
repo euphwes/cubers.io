@@ -6,7 +6,7 @@ from arrow import now
 
 from app import CUBERS_APP
 from app.persistence.comp_manager import get_comp_event_by_id
-from app.persistence.events_manager import get_event_by_name
+from app.persistence.events_manager import get_event_by_name, get_event_format_for_event
 from app.persistence.user_results_manager import get_pb_single_event_results_except_current_comp,\
     bulk_save_event_results, get_pb_average_event_results_except_current_comp,\
     get_all_complete_user_results_for_user_and_event
@@ -354,11 +354,15 @@ def set_pb_flags(user, event_result, event_id):
     """ Sets the appropriate flag if either the single or average for this event is a PB. """
 
     pb_single, pb_average = get_pbs_for_user_and_event_excluding_latest(user.id, event_id)
+    event_format = get_event_format_for_event(event_id)
 
     # If the current single or average are tied with, or faster than, the user's current PB,
     # then flag this result as a PB. Tied PBs count as PBs in WCA rules
     event_result.was_pb_single = __pb_representation(event_result.single) <= pb_single
-    event_result.was_pb_average = __pb_representation(event_result.average) <= pb_average
+
+    # PB average flag for Bo1 isn't valid, so don't bother checking
+    if event_format != EventFormat.Bo1:
+        event_result.was_pb_average = __pb_representation(event_result.average) <= pb_average
 
     return event_result
 
@@ -387,6 +391,8 @@ def recalculate_user_pbs_for_event(user_id, event_id):
     results = get_all_complete_user_results_for_user_and_event(user_id, event_id)
     if not results:
         return
+
+    event_format = get_event_format_for_event(event_id)
 
     # Store the results to save all at once. More efficient that way
     event_results_to_save_at_end = list()
@@ -419,11 +425,13 @@ def recalculate_user_pbs_for_event(user_id, event_id):
         else:
             result.was_pb_single = False
 
-        if current_average <= pb_average_so_far:
-            pb_average_so_far = current_average
-            result.was_pb_average = True
-        else:
-            result.was_pb_average = False
+        # PB average flag for Bo1 isn't valid, so don't bother checking
+        if event_format != EventFormat.Bo1:
+            if current_average <= pb_average_so_far:
+                pb_average_so_far = current_average
+                result.was_pb_average = True
+            else:
+                result.was_pb_average = False
 
     # Save all the UserEventResults with the modified PB flags
     bulk_save_event_results(event_results_to_save_at_end)
