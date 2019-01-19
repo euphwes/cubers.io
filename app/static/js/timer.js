@@ -218,7 +218,6 @@
      */
     Timer.prototype._registerAppModeManagerListeners = function() {
         app.appModeManager.on(app.EVENT_APP_MODE_TO_MAIN, this._disable.bind(this));
-        app.appModeManager.on(app.EVENT_APP_MODE_TO_TIMER, this._enable.bind(this));
         app.appModeManager.on(app.EVENT_APP_MODE_TO_SUMMARY, this._disable.bind(this));
     };
 
