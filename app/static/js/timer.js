@@ -18,6 +18,16 @@
     var STATE_RUNNING    = 3;
     var STATE_DONE       = 4;
 
+    // Dev flag for debugging timer state
+    var debug_timer_state = false;
+    var timer_state_map = {
+        0: 'inactive',
+        1: 'armed',
+        2: 'inspection',
+        3: 'running',
+        4: 'done',
+    };
+
     /**
      * The solve timer which tracks elapsed time.
      */
@@ -55,6 +65,16 @@
     };
 
     /**
+     * Sets the timer state and optionally logs the new state to the console.
+     */
+    Timer.prototype._setState = function(new_state) {
+        this.state = new_state;
+        if (app.debug_timer_state) {
+            console.log(timer_state_map[new_state]);
+        }
+    };
+
+    /**
      * Enables the timer by binding keyboard and touch event listeners
      */
     Timer.prototype._enable = function() {
@@ -77,8 +97,7 @@
             $('.timer-wrapper').on("touchstart", this._handleSpaceDown.bind(this));
         }
 
-        console.log('set inactive');
-        this.state = STATE_INACTIVE;
+        this._setState(STATE_INACTIVE);
     };
 
     /**
@@ -131,16 +150,14 @@
      * Arms the timer by putting it a state indicating it's ready to start running.
      */
     Timer.prototype._arm = function() {
-        console.log('set armed');
-        this.state = STATE_ARMED;
+        this._setState(STATE_ARMED);
     }
 
     /**
      * Starts the timer. Captures the start time so we can determine elapsed time on subsequent ticks.
      */
     Timer.prototype._start = function() {
-        console.log('set running');
-        this.state = STATE_RUNNING;
+        this._setState(STATE_RUNNING);
         this.start_time = new Date();
         this.timer_interval = setInterval(this._timer_intervalFunction.bind(this), 42);
         this.emit(EVENT_TIMER_START);
@@ -152,8 +169,7 @@
      * and sets the data attribute for raw time in centiseconds.
      */
     Timer.prototype._stop = function() {
-        console.log('set done');
-        this.state = STATE_DONE;
+        this._setState(STATE_DONE);
         this._disable();
 
         // calculate elapsed time, 
@@ -212,4 +228,6 @@
     app.EVENT_TIMER_START    = EVENT_TIMER_START;
     app.EVENT_TIMER_INTERVAL = EVENT_TIMER_INTERVAL;
     app.EVENT_TIMER_ARMED    = EVENT_TIMER_ARMED;
+
+    app.debug_timer_state = debug_timer_state;
 })();
