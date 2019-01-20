@@ -41,7 +41,15 @@
      * Event handler for the timer's start event - updates display time
      */
     TimerDisplayManager.prototype._handleTimerStart = function () {
+        $('.timer-wrapper').removeClass('armed');
+    };
+
+    /**
+     * Event handler for the timer's armed event
+     */
+    TimerDisplayManager.prototype._handleTimerArmed = function () {
         $('.timer-wrapper').addClass('fullscreen');
+        $('.timer-wrapper').addClass('armed');
     };
 
     /**
@@ -57,6 +65,7 @@
     TimerDisplayManager.prototype._registerTimerEventHandlers = function() {
         app.timer.on(app.EVENT_TIMER_STOP, this._handleTimerStop.bind(this));
         app.timer.on(app.EVENT_TIMER_START, this._handleTimerStart.bind(this));
+        app.timer.on(app.EVENT_TIMER_ARMED, this._handleTimerArmed.bind(this));
         app.timer.on(app.EVENT_TIMER_INTERVAL, this._handleTimerInterval.bind(this));
     };
 

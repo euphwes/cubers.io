@@ -151,6 +151,7 @@
      */
     Timer.prototype._arm = function() {
         this._setState(STATE_ARMED);
+        this.emit(EVENT_TIMER_ARMED);
     }
 
     /**
