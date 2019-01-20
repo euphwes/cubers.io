@@ -68,6 +68,7 @@
         app.timer.on(app.EVENT_TIMER_START, this._handleTimerStart.bind(this));
         app.timer.on(app.EVENT_TIMER_ARMED, this._handleTimerArmed.bind(this));
         app.timer.on(app.EVENT_TIMER_INTERVAL, this._handleTimerInterval.bind(this));
+        app.timer.on(app.EVENT_TIMER_CANCELLED, this._showZero.bind(this));
     };
 
     /**

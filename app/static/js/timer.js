@@ -6,10 +6,11 @@
     // and away from this callback-ridden monstrosity.
 
     // These are the events that the timer can emit
-    var EVENT_TIMER_START    = 'event_timer_start';
-    var EVENT_TIMER_INTERVAL = 'event_timer_interval';
-    var EVENT_TIMER_STOP     = 'event_timer_stop';
-    var EVENT_TIMER_ARMED    = 'event_timer_armed';
+    var EVENT_TIMER_START     = 'event_timer_start';
+    var EVENT_TIMER_INTERVAL  = 'event_timer_interval';
+    var EVENT_TIMER_STOP      = 'event_timer_stop';
+    var EVENT_TIMER_ARMED     = 'event_timer_armed';
+    var EVENT_TIMER_CANCELLED = 'event_timer_cancelled';
 
     // These are the states the the timer can be in
     var STATE_INACTIVE   = 0;
@@ -86,7 +87,8 @@
             return;
         }
 
-        // wire the spacebar events
+        // wire the keyboard events
+        $(document).keydown(this._handleOtherKeyDown.bind(this));
         kd.SPACE.up(this._handleSpaceUp.bind(this));
         kd.SPACE.down(this._handleSpaceDown.bind(this));
 
@@ -108,7 +110,8 @@
         // no more ticking
         clearInterval(this.timer_interval);
 
-        // unbind the spacebar events
+        // unbind the keyboard events
+        $(document).off('keydown');
         kd.SPACE.unbindUp();
         kd.SPACE.unbindDown();
 
@@ -147,6 +150,25 @@
     };
 
     /**
+     * Handles the keydown event for keys other than space
+     */
+    Timer.prototype._handleOtherKeyDown = function(e) {
+        // If the timer isn't running, don't do anything
+        if (this.state != STATE_RUNNING) { return; }
+
+        // Get the event's key code
+        var code = (e.keyCode ? e.keyCode : e.which);
+
+        // Key code 32 is the spacebar, which is being handled by the keydrown.js handler elsewhere.
+        // Just bail, don't handle it here.
+        if (code == 32) { return; }
+
+        // Key code 27 is ESC, which should cancel the timer. Everything else should just stop it
+        var shouldCancelTimer = (code == 27);
+        this._stop(shouldCancelTimer);
+    };
+
+    /**
      * Arms the timer by putting it a state indicating it's ready to start running.
      */
     Timer.prototype._arm = function() {
@@ -169,9 +191,20 @@
      * with a user-friendly representation of the elapsed time. Also marks the solve complete,
      * and sets the data attribute for raw time in centiseconds.
      */
-    Timer.prototype._stop = function() {
+    Timer.prototype._stop = function(timerCancelled) {
+
+        timerCancelled = timerCancelled || false; // default value of false
+
         this._setState(STATE_DONE);
         this._disable();
+
+        // If the timer was cancelled, don't record the time. Emit an event so the visible timer
+        // gets updated back to zeros. Re-enable the timer.
+        if (timerCancelled) {
+            this.emit(EVENT_TIMER_CANCELLED);
+            this._enable();
+            return;
+        }
 
         // calculate elapsed time, 
         this.elapsed_time = (new Date()) - this.start_time;
@@ -224,10 +257,11 @@
 
     // Make timer and event names visible at app scope
     app.Timer = Timer;
-    app.EVENT_TIMER_STOP     = EVENT_TIMER_STOP;
-    app.EVENT_TIMER_START    = EVENT_TIMER_START;
-    app.EVENT_TIMER_INTERVAL = EVENT_TIMER_INTERVAL;
-    app.EVENT_TIMER_ARMED    = EVENT_TIMER_ARMED;
+    app.EVENT_TIMER_STOP      = EVENT_TIMER_STOP;
+    app.EVENT_TIMER_START     = EVENT_TIMER_START;
+    app.EVENT_TIMER_INTERVAL  = EVENT_TIMER_INTERVAL;
+    app.EVENT_TIMER_ARMED     = EVENT_TIMER_ARMED;
+    app.EVENT_TIMER_CANCELLED = EVENT_TIMER_CANCELLED;
 
     app.debug_timer_state = debug_timer_state;
 })();
