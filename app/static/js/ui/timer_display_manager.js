@@ -50,6 +50,7 @@
     TimerDisplayManager.prototype._handleTimerArmed = function () {
         $('.timer-wrapper').addClass('fullscreen');
         $('.timer-wrapper').addClass('armed');
+        this._showZero();
     };
 
     /**
