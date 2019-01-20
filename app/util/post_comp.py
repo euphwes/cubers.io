@@ -19,8 +19,8 @@ will be selected at random to receive a $15 SCS gift card!
 
 For the best competition experience, visit [cubers.io](https://www.cubers.io), a web app built
 specifically for the /r/cubers weekly competition. By logging into [cubers.io](https://www.cubers.io),
-you'll benefit from a number of features, including automatic Reddit comment submission,
-leaderboards and personal competition history (coming soon)! This also guarantees that your submission
+you'll benefit from a number of features, including automatic Reddit comment submission, leaderboards, 
+event records, and personal competition history! This also guarantees that your submission
 will be formatted correctly for the scoring program.
 
 If you still want to compete by manually entering your times, please follow the instructions below:
