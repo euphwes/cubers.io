@@ -138,16 +138,21 @@
     Timer.prototype._handleSpaceDown = function(e) {
         // If the timer is inactive, arm the timer so it's ready to start.
         if (this.state == STATE_INACTIVE) {
+            // If the comment box has focus, don't start the timer
+            if ($(".comment-upload textarea").is(":focus")) { return; }
+
             this._arm();
             e.preventDefault();
             return;
         }
+
         // If the timer is running, stop it
         if (this.state == STATE_RUNNING) {
             this._stop();
             e.preventDefault();
             return;
         }
+
         e.preventDefault();
     };
 
