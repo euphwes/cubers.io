@@ -176,7 +176,6 @@
     Timer.prototype._handleOtherKeyDown = function(e) {
         // If the timer isn't running, don't do anything
         if (this.state != STATE_RUNNING) {
-            e.preventDefault();
             return;
         }
 
