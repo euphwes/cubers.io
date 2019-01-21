@@ -41,6 +41,8 @@
         this.scramble_id = 0;
         this.comp_event_id = 0;
 
+        this.isTouchDown = false;
+
         // keydrown.js's keyboard state manager is tick-based
         // this is boilerplate to make sure the kd namespace has a recurring tick
         kd.run(function () { kd.tick(); });
@@ -79,10 +81,10 @@
      * Enables the timer by binding keyboard and touch event listeners
      */
     Timer.prototype._enable = function() {
-        // If the spacebar is already down when entering here, that probably means
+        // If the spacebar or touch is already down when entering here, that probably means
         // that the user held it after completing the previous solve. Wait for the
-        // user to release the spacebar by setting a short timeout to revisit this function
-        if (kd.SPACE.isDown()) {
+        // user to release the spacebar/touch by setting a short timeout to revisit this function
+        if (kd.SPACE.isDown() || this.isTouchDown) {
             setTimeout(this._enable.bind(this), 200);
             return;
         }
@@ -95,8 +97,14 @@
         // wire the touch events, basically treating touchend as spacebar up and touchstart
         // as spacebar down
         if (app.is_mobile) {
-            $('.timer-wrapper').on("touchend", this._handleSpaceUp.bind(this));
-            $('.timer-wrapper').on("touchstart", this._handleSpaceDown.bind(this));
+            $('.timer-wrapper').on("touchend", function(e){
+                this.isTouchDown = false;
+                this._handleSpaceUp.bind(this)(e);
+            }.bind(this));
+            $('.timer-wrapper').on("touchstart", function(e){
+                this.isTouchDown = true;
+                this._handleSpaceDown.bind(this)(e);
+            }.bind(this));
         }
 
         this._setState(STATE_INACTIVE);
@@ -116,37 +124,50 @@
         kd.SPACE.unbindDown();
 
         // unbind the touch events
-        $('.timer-wrapper').off("touchend");
         $('.timer-wrapper').off("touchstart");
+
+        // do not unbind the touchend because then we can't keep track of whether
+        // the touch event has ended
+        // $('.timer-wrapper').off("touchend");
     };
 
     /**
      * Handles the space down event, moving the timer to the appropriate state based on its
      * current state and starting whatever logic needs to be started.
      */
-    Timer.prototype._handleSpaceDown = function() {
+    Timer.prototype._handleSpaceDown = function(e) {
         // If the timer is inactive, arm the timer so it's ready to start.
         if (this.state == STATE_INACTIVE) {
             this._arm();
+            e.preventDefault();
             return;
         }
         // If the timer is running, stop it
         if (this.state == STATE_RUNNING) {
             this._stop();
+            e.preventDefault();
             return;
         }
+        e.preventDefault();
     };
 
     /**
      * Handles the space key up event, moving the timer to the appropriate state based on its
      * current state and starting whatever logic needs to be started.
      */
-    Timer.prototype._handleSpaceUp = function() {
+    Timer.prototype._handleSpaceUp = function(e) {
+        // If the timer is stopped and the space goes up or touch release, don't do anything
+        if (this.state == STATE_DONE) {
+            e.preventDefault();
+            return;
+        }
         // If the timer is armed, start the timer
         if (this.state == STATE_ARMED) {
             this._start();
+            e.preventDefault();
             return;
         }
+        e.preventDefault();
     };
 
     /**
@@ -154,7 +175,10 @@
      */
     Timer.prototype._handleOtherKeyDown = function(e) {
         // If the timer isn't running, don't do anything
-        if (this.state != STATE_RUNNING) { return; }
+        if (this.state != STATE_RUNNING) {
+            e.preventDefault();
+            return;
+        }
 
         // Get the event's key code
         var code = (e.keyCode ? e.keyCode : e.which);
@@ -166,6 +190,7 @@
         // Key code 27 is ESC, which should cancel the timer. Everything else should just stop it
         var shouldCancelTimer = (code == 27);
         this._stop(shouldCancelTimer);
+        e.preventDefault();
     };
 
     /**
