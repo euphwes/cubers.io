@@ -38,19 +38,22 @@
      */
     EventsDataManager.prototype._updateSingleEventStatus = function(event) {
         // Count the total number of solves and the number of completed solves
-        var total_solves     = event.scrambles.length;
-        var completed_solves_list = [];
+        var total_solves = event.scrambles.length;
+        event.num_completed_solves = 0;
         $.each(event.scrambles, function(i, scramble){
-            if (Boolean(scramble.time)) {
-                completed_solves_list.push(scramble);
-            }
+            if (Boolean(scramble.time)) { event.num_completed_solves += 1; }
         });
-        var completed_solves = completed_solves_list.length;
+
+        // Since we're updating this event, set the "blind status" flag to incomplete
+        // until the after we save the event to the server and all 3 solves are done.
+        // This ensures that the timer screen shows the best solve at all times, from
+        // the most recently calculated event results, not stale data
+        if (event.event_format == 'Bo3') { event.blind_status = 'incomplete'; }
 
         // If total solves == completed solves, or in a Bo3 event at least 1 solve is complete, the event is complete.
         // Grab a times summary from the server for the complete event
         // and emit an event so the card is visually updated.
-        if (total_solves == completed_solves || (event.event_format == 'Bo3' && completed_solves > 0)) {
+        if (total_solves == event.num_completed_solves || (event.event_format == 'Bo3' && event.num_completed_solves > 0)) {
             event.status = 'complete';
             this._saveEvent(event);
             this.emit(EVENT_SET_COMPLETE, event.comp_event_id);
@@ -60,7 +63,7 @@
         // If the event has some completed solves, but not all, it's incomplete.
         // Build a partial summary for the incomplete event and emit an event
         // so the card is visually updated.
-        if (completed_solves > 0) {
+        if (event.num_completed_solves > 0) {
             event.status = 'incomplete';
             this._saveEvent(event);
             this._recordIncompleteSummaryForEvent(event);
@@ -99,9 +102,18 @@
         var event_data = {};
         event_data[event.comp_event_id] = event;
 
-        var onSaveCompleteRecordSummary = function (data, event) {
+        var onSaveCompleteRecordSummary = function(data, event) {
             if (event.status != 'complete') {
                 return;
+            }
+
+            // Record a separate "blind status" flag for use when deciding whether to
+            // display the user's results in the scramble area. We only want to show the
+            // result after calling save to the server, and all solves are completed, so
+            // we're confident we're showing the actual best solve and not just the best of
+            // the first 2 solves
+            if (event.event_format == 'Bo3' && event.num_completed_solves == 3) {
+                event.blind_status = 'complete';
             }
 
             // If the event is complete, record useful summary information about the results

@@ -40,6 +40,13 @@
         var data = app.eventsDataManager.getDataForEvent(comp_event_id);
         if (data.status != 'complete') { return; }
 
+        // If the event is a blind event, don't show the "done" message unless all 3 solves are done.
+        // Despite the fact we consider the event complete if any solves are complete, we don't want
+        // to hide the next scramble if there are more left.
+        if (data.event_format == 'Bo3') {
+            if (data.blind_status != 'complete') { return; }
+        }
+
         // If the event result still is empty, we haven't gotten the result back from the server.
         // Return early, and when the saveEvent call finishes, this will be called again
         if (!Boolean(data.result)) { return; }

@@ -8,6 +8,7 @@ from app.business.user_results import build_event_summary
 from app.persistence import comp_manager
 from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import get_event_results_for_user
+from app.persistence.models import EventFormat
 
 # -------------------------------------------------------------------------------------------------
 
@@ -73,7 +74,7 @@ def prompt_login():
 
 # The front-end dictionary keys
 COMMENT        = 'comment'
-SOLVES         = 'scrambles' # Because the solve times are paired with the scrambles in the front end
+SOLVES         = 'scrambles' # Because the times are paired with the scrambles in the front end
 TIME           = 'time'
 SCRAMBLE_ID    = 'id'
 IS_DNF         = 'isDNF'
@@ -86,6 +87,8 @@ AVERAGE        = 'average'
 RESULT         = 'result'
 WAS_PB_SINGLE  = 'wasPbSingle'
 WAS_PB_AVERAGE = 'wasPbAverage'
+EVENT_FORMAT   = 'event_format'
+BLIND_STATUS   = 'blind_status'
 
 # Completeness status
 STATUS_COMPLETE   = 'complete'
@@ -116,13 +119,20 @@ def fill_user_data_for_event(user, event_data):
     event_data[WAS_PB_SINGLE]  = results.was_pb_single
     event_data[WAS_PB_AVERAGE] = results.was_pb_average
 
+    # Record a "blind status" flag for blind events that helps determine whether to display the
+    # "done" messaging in the timer screen. The messaging should only be shown for blind events
+    # if all 3 solves have been done, and we're sure the results have been calculated against
+    # all 3 solves.
+    if event_data[EVENT_FORMAT] == EventFormat.Bo3:
+        num_solves = len(results.solves)
+        event_data[BLIND_STATUS] = STATUS_COMPLETE if num_solves == 3 else STATUS_INCOMPLETE
+
     # Iterate through all the solves completed by the user, matching them to a scramble in
     # the events data. Record the time and penalty information so we have it up front.
     for solve in results.solves:
         for scramble in event_data[SOLVES]:
             if scramble[SCRAMBLE_ID] != solve.scramble_id:
                 continue
-
             scramble[TIME]        = solve.time
             scramble[IS_DNF]      = solve.is_dnf
             scramble[IS_PLUS_TWO] = solve.is_plus_two
