@@ -5,6 +5,9 @@ from app.persistence.models import UserSetting
 
 # -------------------------------------------------------------------------------------------------
 
+TRUE_STR  = 'true'
+FALSE_STR = 'false'
+
 # Constants which correspond to a `setting_code` in the UserSettings database table
 # pylint: disable=R0903,C0111
 class SettingCode():
@@ -15,19 +18,19 @@ class SettingCode():
 
 # Default values for each `setting_code`
 SETTING_DEFAULTS = {
-    SettingCode.USE_INSPECTION_TIME    : 'false',
-    SettingCode.HIDE_RUNNING_TIMER     : 'false',
-    SettingCode.REDDIT_COMP_NOTIFY     : 'false',
-    SettingCode.DEFAULT_TO_MANUAL_TIME : 'false'
+    SettingCode.USE_INSPECTION_TIME    : FALSE_STR,
+    SettingCode.HIDE_RUNNING_TIMER     : FALSE_STR,
+    SettingCode.REDDIT_COMP_NOTIFY     : FALSE_STR,
+    SettingCode.DEFAULT_TO_MANUAL_TIME : FALSE_STR
 }
 
 # Acceptable values for each `setting_code`.
 # If a setting code doesn't have an entry here, the value is unconstrained.
 SETTING_ALLOWED_VALUES = {
-    SettingCode.USE_INSPECTION_TIME    : ['false', 'true'],
-    SettingCode.HIDE_RUNNING_TIMER     : ['false', 'true'],
-    SettingCode.REDDIT_COMP_NOTIFY     : ['false', 'true'],
-    SettingCode.DEFAULT_TO_MANUAL_TIME : ['false', 'true']
+    SettingCode.USE_INSPECTION_TIME    : [FALSE_STR, TRUE_STR],
+    SettingCode.HIDE_RUNNING_TIMER     : [FALSE_STR, TRUE_STR],
+    SettingCode.REDDIT_COMP_NOTIFY     : [FALSE_STR, TRUE_STR],
+    SettingCode.DEFAULT_TO_MANUAL_TIME : [FALSE_STR, TRUE_STR]
 }
 
 # -------------------------------------------------------------------------------------------------
@@ -46,6 +49,15 @@ def __create_unset_setting(user_id, setting_code):
     DB.session.commit()
 
     return user_setting
+
+
+def get_default_value_for_setting(setting_code):
+    """ Retrieves a default value for a particular setting code. """
+
+    if setting_code not in SETTING_DEFAULTS:
+        raise ValueError("That setting doesn't exist!")
+
+    return SETTING_DEFAULTS[setting_code]
 
 
 def get_setting_for_user(user_id, setting_code):
