@@ -80,12 +80,18 @@ def generate_new_competition(all_events=False, title=None):
     for bonus_event in bonus_events:
         if bonus_event == EVENT_COLL:
             scrambles = bonus_event.get_scrambles(coll_number)
+            bonus_event_dict = dict({
+                'name':      bonus_event.name,
+                'scrambles': [s[0] for s in scrambles],
+                'scrambles_for_post':  [s[1] for s in scrambles]
+            })
         else:
             scrambles = bonus_event.get_scrambles()
-        event_data.append(dict({
-            'name':      bonus_event.name,
-            'scrambles': scrambles
-        }))
+            bonus_event_dict = dict({
+                'name':      bonus_event.name,
+                'scrambles': scrambles
+            })
+        event_data.append(bonus_event_dict)
 
     # Post competition to reddit
     reddit_id = post_competition(comp_name, comp_number, event_data,\

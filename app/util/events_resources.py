@@ -8,6 +8,8 @@ from pyTwistyScrambler import scrambler333, scrambler222, scrambler444, scramble
     scrambler666, scrambler777, squareOneScrambler, megaminxScrambler, pyraminxScrambler,\
     cuboidsScrambler, skewbScrambler, clockScrambler
 
+from app.util.coll_util import get_coll_scramble
+
 # -------------------------------------------------------------------------------------------------
 
 class Event:
@@ -50,9 +52,9 @@ def redi_scrambler():
 
 
 def COLL_scrambler(coll_num):
-    """ Get a 'scramble' for the current COLL, which just says which one we're doing. """
+    """ Get a scramble for the current COLL. """
 
-    return "This week we're doing COLL {}".format(coll_num)
+    return get_coll_scramble(coll_num)
 
 
 def FMC_scrambler():

@@ -9,14 +9,19 @@ def get_coll_scramble(coll):
 
     url = "http://algdb.net/puzzle/333/coll/{}".format(coll.lower())
     href_tag = '<a href="{}" target="_blank">COLL {}</a>'.format(url, coll)
+    md_tag = '[COLL {}]({})'.format(coll, url)
+    reddit_version = "This week we're doing {}.".format(md_tag)
+
+    # pylint: disable=C0301
+    coll_wiki_link = '<a href="https://www.speedsolving.com/wiki/index.php/COLL" target="_blank"><span class="far fa-question-circle"></span></a>'
 
     message_components = [
-        "This week we're doing COLL {}.".format(href_tag),
+        "This week we're doing {} — {}".format(href_tag, coll_wiki_link),
         "Perform the algorithm below to setup the case.",
         __scramble(coll)
     ]
 
-    return '<br/>'.join(message_components)
+    return '<br/>'.join(message_components), reddit_version
 
 
 def __scramble(coll):

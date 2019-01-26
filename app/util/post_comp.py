@@ -68,7 +68,7 @@ def post_competition(comp_title, comp_num, event_data, curr_bonus, upcoming_bonu
     for event in event_data:
         if event['name'] == EVENT_COLL.name:
             event_section += EVENT_NAME_LINE_TEMPLATE.format(event['name'])
-            event_section += SCRAMBLE_LINE_TEMPLATE.format(event['scrambles'][0] + ' (5 times)')
+            event_section += SCRAMBLE_LINE_TEMPLATE.format(event['scrambles_for_post'][0] + ' (5 times)')
             continue
 
         event_section += EVENT_NAME_LINE_TEMPLATE.format(event['name'])
