@@ -158,12 +158,15 @@ def get_user_settings(user):
     retrieve default values for these settings. """
 
     # These are the settings relevant to the operation of the main cubers.io application
-    settings_to_populate = [SettingCode.DEFAULT_TO_MANUAL_TIME, SettingCode.HIDE_RUNNING_TIMER,\
-        SettingCode.USE_INSPECTION_TIME]
+    settings_to_populate = [
+        SettingCode.DEFAULT_TO_MANUAL_TIME,
+        SettingCode.HIDE_RUNNING_TIMER,
+        SettingCode.USE_INSPECTION_TIME
+    ]
 
     # If there is a logged-in user, get their settings. Otherwise just get default values
     retrieve_setting = lambda code: get_setting_for_user(user.id, code) if user \
         else get_default_value_for_setting
 
     # Send back a dictionary of setting codes and their values
-    return { code: retrieve_setting(code) for code in settings_to_populate }
+    return { code: retrieve_setting(code).setting_value for code in settings_to_populate }

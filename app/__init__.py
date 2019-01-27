@@ -37,6 +37,7 @@ ASSETS.register({
 
         'js/controller/events_data_manager.js',
         'js/controller/current_scrambles_manager.js',
+        'js/controller/user_settings_manager.js',
 
         'js/ui/solve_card_manager.js',
         'js/ui/timer_display_manager.js',
