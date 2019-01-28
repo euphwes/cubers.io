@@ -166,7 +166,7 @@ def get_user_settings(user):
 
     # If there is a logged-in user, get their settings. Otherwise just get default values
     retrieve_setting = lambda code: get_setting_for_user(user.id, code) if user \
-        else get_default_value_for_setting
+        else get_default_value_for_setting(code)
 
     # Send back a dictionary of setting codes and their values
-    return { code: retrieve_setting(code).setting_value for code in settings_to_populate }
+    return { code: retrieve_setting(code) for code in settings_to_populate }

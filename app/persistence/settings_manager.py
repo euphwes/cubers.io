@@ -69,7 +69,8 @@ def get_setting_for_user(user_id, setting_code):
         filter(UserSetting.setting_code == setting_code).\
         first()
 
-    return setting if setting else __create_unset_setting(user_id, setting_code)
+    return setting.setting_value if setting \
+        else __create_unset_setting(user_id, setting_code).setting_value
 
 
 def set_setting_for_user(user_id, setting_code, setting_value):
