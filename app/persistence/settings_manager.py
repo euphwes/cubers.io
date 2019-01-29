@@ -31,17 +31,25 @@ class SettingInfo():
 
 TRUE_STR  = 'true'
 FALSE_STR = 'false'
+CHECKBOX_CHECKED = 'on'
 
 def boolean_validator(value):
     """ Validates a boolean setting value as text. """
-    if value not in [TRUE_STR, FALSE_STR]:
-        raise ValueError("{} is not an acceptable value.".format(value))
+    if value is None:
+        return FALSE_STR
+    if value == CHECKBOX_CHECKED:
+        return TRUE_STR
+    if value in [True, False]:
+        return str(value).lower()
+    if value in [TRUE_STR, FALSE_STR]:
+        return value
+    raise ValueError("{} is not an acceptable value.".format(value))
 
 # -------------------------------------------------------------------------------------------------
 
 SETTING_INFO_MAP = {
     SettingCode.USE_INSPECTION_TIME : SettingInfo(
-        title         = "Use Inspection Time",
+        title         = "Use WCA 15s Inspection Time",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
         default_value = FALSE_STR),
@@ -116,13 +124,14 @@ def get_settings_for_user_for_edit(user_id, setting_codes):
         query(UserSetting).\
         filter(UserSetting.user_id == user_id).\
         filter(UserSetting.setting_code.in_(setting_codes)).\
+        order_by(UserSetting.setting_code).\
         all()
 
     # If the number of retrieved settings != the number of codes provided, one or more settings
     # haven't been initialized for this user. Do a dummy retrieval of all the codes provided to
     # to ensure all settings have been initialized, then call this function again and return
     # all the settings
-    if len(settings) != len(setting_codes):
+    if len(settings) < len(setting_codes):
         for code in setting_codes:
             get_setting_for_user(user_id, code)
         return get_settings_for_user_for_edit(user_id, setting_codes)
@@ -130,7 +139,7 @@ def get_settings_for_user_for_edit(user_id, setting_codes):
     return [
         SettingsEditTuple(
             code  = setting.setting_code,
-            type  = SETTING_INFO_MAP[setting.setting_code].type,
+            type  = SETTING_INFO_MAP[setting.setting_code].setting_type,
             value = setting.setting_value,
             title = SETTING_INFO_MAP[setting.setting_code].title
         )
@@ -145,7 +154,7 @@ def set_setting_for_user(user_id, setting_code, setting_value):
         raise ValueError("That setting doesn't exist!")
 
     setting_info = SETTING_INFO_MAP[setting_code]
-    setting_info.validator(setting_value)
+    setting_value = setting_info.validator(setting_value)
 
     setting = DB.session.\
         query(UserSetting).\

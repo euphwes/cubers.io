@@ -1,0 +1,36 @@
+{% extends "common/base.html" %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid cubers-container white-container profile-container">
+    <div class="row mb-3 mt-3">
+        <div class="col-8 offset-2">
+            <h4>Edit your preferences below</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-8 offset-2">
+            <form method="POST">
+                <!-- TODO: handle more types of settings cleanly, put these in a sub-template for each type -->
+                {% for setting in settings %}
+                    {% if setting.type == 'boolean' %}
+                        {% if setting.value == 'true' %}
+                            {% set checked = 'checked' %}
+                        {% else %}
+                            {% set checked = '' %}
+                        {% endif %}
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" name="{{ setting.code }}" id="{{ setting.code }}" {{ checked }}>
+                        <label class="form-check-label" for="{{ setting.code }}">{{ setting.title }}</label>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
