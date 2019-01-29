@@ -1,4 +1,4 @@
-""" Routes related to displaying competition results. """
+""" Routes related to a user's profile. """
 
 from flask import render_template
 from flask_login import current_user
