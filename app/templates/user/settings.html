@@ -5,10 +5,10 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid cubers-container white-container profile-container">
+<div class="container-fluid cubers-container white-container settings-container">
     <div class="row mb-3 mt-3">
         <div class="col-8 offset-2">
-            <h4>Edit your preferences below</h4>
+            <h4>Timer Preferences</h4>
         </div>
     </div>
     <div class="row">
@@ -18,13 +18,26 @@
                 {% for setting in settings %}
                     {% if setting.type == 'boolean' %}
                         {% if setting.value == 'true' %}
-                            {% set checked = 'checked' %}
+                            {% set true_checked = 'checked' %}
+                            {% set true_active = 'active' %}
+                            {% set false_checked = '' %}
+                            {% set false_active = '' %}
                         {% else %}
-                            {% set checked = '' %}
+                            {% set true_checked = '' %}
+                            {% set true_active = '' %}
+                            {% set false_checked = 'checked' %}
+                            {% set false_active = 'active' %}
                         {% endif %}
                     <div class="form-check mb-3">
-                        <input type="checkbox" class="form-check-input" name="{{ setting.code }}" id="{{ setting.code }}" {{ checked }}>
-                        <label class="form-check-label" for="{{ setting.code }}">{{ setting.title }}</label>
+                        <label class="form-check-label" style="margin-right: 15px;" for="{{ setting.code }}">{{ setting.title }}</label>
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-setting-toggle {{true_active}}">
+                                <input type="radio" name="{{ setting.code }}" value="true" autocomplete="off" {{true_checked}}> True
+                            </label>
+                            <label class="btn btn-setting-toggle {{false_active}}">
+                                <input type="radio" name="{{ setting.code }}" value="false" autocomplete="off" {{false_checked}}> False
+                            </label>
+                        </div>
                     </div>
                     {% endif %}
                 {% endfor %}

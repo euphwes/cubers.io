@@ -31,14 +31,11 @@ class SettingInfo():
 
 TRUE_STR  = 'true'
 FALSE_STR = 'false'
-CHECKBOX_CHECKED = 'on'
 
 def boolean_validator(value):
     """ Validates a boolean setting value as text. """
     if value is None:
         return FALSE_STR
-    if value == CHECKBOX_CHECKED:
-        return TRUE_STR
     if value in [True, False]:
         return str(value).lower()
     if value in [TRUE_STR, FALSE_STR]:
