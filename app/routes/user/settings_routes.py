@@ -14,12 +14,12 @@ from app.persistence.user_manager import get_user_by_username
 
 TIMER_SETTINGS = set([
     SettingCode.USE_INSPECTION_TIME,
-    SettingCode.HIDE_RUNNING_TIMER,
-    SettingCode.DEFAULT_TO_MANUAL_TIME
+    #SettingCode.HIDE_RUNNING_TIMER,
+    #SettingCode.DEFAULT_TO_MANUAL_TIME
 ])
 
 REDDIT_SETTINGS = set([
-    SettingCode.REDDIT_COMP_NOTIFY,
+    #SettingCode.REDDIT_COMP_NOTIFY,
 ])
 
 __ALL_SETTINGS = REDDIT_SETTINGS | TIMER_SETTINGS
@@ -41,11 +41,14 @@ def __handle_get(user):
     """ Handles displaying a user's settings for edit. """
 
     all_settings = get_settings_for_user_for_edit(user.id, __ALL_SETTINGS)
-    timer_settings  = [s for s in all_settings if s.code in TIMER_SETTINGS]
-    reddit_settings = [s for s in all_settings if s.code in REDDIT_SETTINGS]
 
-    return render_template("user/settings.html", timer_settings=timer_settings,
-                           reddit_settings=reddit_settings, alternative_title="Preferences")
+    settings_sections = {
+        "Timer Preferences":  [s for s in all_settings if s.code in TIMER_SETTINGS],
+        "Reddit Preferences": [s for s in all_settings if s.code in REDDIT_SETTINGS],
+    }
+
+    return render_template("user/settings.html", settings_sections=settings_sections,
+                           alternative_title="Preferences")
 
 
 def __handle_post(user, form):
@@ -53,6 +56,7 @@ def __handle_post(user, form):
 
     # NOTE: will need to handle validation errors on non-boolean settings in the future
 
+    # TODO: set all settings at once, so we don't have so many round-trips to the database
     for setting_code in __ALL_SETTINGS:
         setting_value = form.get(setting_code)
         set_setting_for_user(user.id, setting_code, setting_value)

@@ -7,95 +7,14 @@
 {% block content %}
 <div class="container-fluid cubers-container white-container settings-container">
     <form method="POST">
-    {% if timer_settings %}
-    <div class="row mb-3 mt-3">
-        <div class="col-8 offset-2">
-            <h4>Timer Preferences</h4>
-        </div>
-    </div>
+    {% for section_header, section_settings in settings_sections.items() %}
+        {% include 'user/settings_section.html' %}
+    {% endfor %}
     <div class="row">
         <div class="col-8 offset-2">
-            <!-- TODO: handle more types of settings cleanly, put these in a sub-template for each type -->
-            {% for setting in timer_settings %}
-                {% if setting.type == 'boolean' %}
-                    {% if setting.value == 'true' %}
-                        {% set true_checked = 'checked' %}
-                        {% set true_active = 'active' %}
-                        {% set false_checked = '' %}
-                        {% set false_active = '' %}
-                    {% else %}
-                        {% set true_checked = '' %}
-                        {% set true_active = '' %}
-                        {% set false_checked = 'checked' %}
-                        {% set false_active = 'active' %}
-                    {% endif %}
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-4">
-                                <label class="form-check-label" style="margin-right: 15px;" for="{{ setting.code }}">{{ setting.title }}</label>
-                            </div>
-                            <div class="col-8">
-                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                                    <label class="btn btn-setting-toggle {{true_active}}">
-                                        <input type="radio" name="{{ setting.code }}" value="true" autocomplete="off" {{true_checked}}> True
-                                    </label>
-                                    <label class="btn btn-setting-toggle {{false_active}}">
-                                        <input type="radio" name="{{ setting.code }}" value="false" autocomplete="off" {{false_checked}}> False
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-            {% endfor %}
+            <button type="submit" class="btn btn-primary">Submit</button>
         </div>
     </div>
-    {% endif %}
-    {% if reddit_settings %}
-    <div class="row mb-3 mt-3">
-        <div class="col-8 offset-2">
-            <h4>Reddit Preferences</h4>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-8 offset-2">
-            <!-- TODO: handle more types of settings cleanly, put these in a sub-template for each type -->
-            {% for setting in reddit_settings %}
-                {% if setting.type == 'boolean' %}
-                    {% if setting.value == 'true' %}
-                        {% set true_checked = 'checked' %}
-                        {% set true_active = 'active' %}
-                        {% set false_checked = '' %}
-                        {% set false_active = '' %}
-                    {% else %}
-                        {% set true_checked = '' %}
-                        {% set true_active = '' %}
-                        {% set false_checked = 'checked' %}
-                        {% set false_active = 'active' %}
-                    {% endif %}
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-4">
-                                <label class="form-check-label" style="margin-right: 15px;" for="{{ setting.code }}">{{ setting.title }}</label>
-                            </div>
-                            <div class="col-8">
-                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                                    <label class="btn btn-setting-toggle {{true_active}}">
-                                        <input type="radio" name="{{ setting.code }}" value="true" autocomplete="off" {{true_checked}}> True
-                                    </label>
-                                    <label class="btn btn-setting-toggle {{false_active}}">
-                                        <input type="radio" name="{{ setting.code }}" value="false" autocomplete="off" {{false_checked}}> False
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-            {% endfor %}
-        <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-    </div>
-    {% endif %}
     </form>
 </div>
 {% endblock %}
