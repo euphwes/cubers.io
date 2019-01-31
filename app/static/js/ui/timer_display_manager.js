@@ -40,7 +40,11 @@
      * Event handler for the timer's stop event - updates display time
      */
     TimerDisplayManager.prototype._handleTimerStop = function(timerStopData) {
-        this._displayTime(timerStopData.friendly_seconds, timerStopData.friendly_centiseconds);
+        if (timerStopData.isDNF) {
+            this._displayTime("DNF", "", true);
+        } else {
+            this._displayTime(timerStopData.friendly_seconds, timerStopData.friendly_centiseconds);
+        }
         $('.timer-wrapper').removeClass('fullscreen');
     };
 

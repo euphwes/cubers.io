@@ -20,7 +20,7 @@
     var STATE_DONE             = 5;
 
     // Dev flag for debugging timer state
-    var debug_timer_state = true;
+    var debug_timer_state = false;
     var timer_state_map = {
         0: 'inactive',
         1: 'armed',
@@ -52,6 +52,8 @@
         this.INSP_TIME_START = 15;
         this.AUTO_DNF_THRESHOLD = -2;
         this.AUTO_PLUS_TWO_THRESHOLD = 0;
+        this.apply_auto_dnf = false;
+        this.apply_auto_plus_two = false;
 
         // keydrown.js's keyboard state manager is tick-based
         // this is boilerplate to make sure the kd namespace has a recurring tick
@@ -163,7 +165,6 @@
         if (this.state == STATE_INACTIVE) {
             // If the comment box has focus, don't start the timer
             if ($(".comment-upload textarea").is(":focus")) { return; }
-            console.log('about to arm');
             this._arm();
             e.preventDefault();
             return;
@@ -171,7 +172,6 @@
 
         // If inspection is in progress, set "inspection armed" so releasing will start the timer
         if (this.state == STATE_INSPECTION) {
-            console.log('about to arm inspection');
             this._armInspection();
             e.preventDefault();
             return;
@@ -300,6 +300,13 @@
         // If the timer was cancelled, don't record the time. Emit an event so the visible timer
         // gets updated back to zeros. Re-enable the timer.
         if (timerCancelled) {
+            // reset the flags to auto-apply penalties if inspection is too long
+            // reset stuff related to inspection time, to start the next solve on a clean slate
+            this.inspection_start_time = 0;
+            this.inspection_end_time = 0;
+            this.apply_auto_dnf = false;
+            this.apply_auto_plus_two = false;
+
             this.emit(EVENT_TIMER_CANCELLED);
             this._enable();
             return;
@@ -323,17 +330,25 @@
         data.friendly_centiseconds = cs;
         data.friendly_time_full    = full_time;
         data.rawTimeCs             = parseInt(s*100) + parseInt(cs);
-        data.isDNF                 = false;
-        data.isPlusTwo             = false;
+
+        // check auto-penalty flags if we did inspection, else set those flags to false
+        if (this.useInspectionTime) {
+            data.isDNF = this.apply_auto_dnf;
+            data.isPlusTwo = this.apply_auto_plus_two;
+        } else {
+            data.isDNF = false;
+            data.isPlusTwo = false;
+        }
 
         // emit the event which notifies everybody else that the timer has stopped
         this.emit(EVENT_TIMER_STOP, data);
 
+        // reset the flags to auto-apply penalties if inspection is too long
         // reset stuff related to inspection time, to start the next solve on a clean slate
         this.inspection_start_time = 0;
         this.inspection_end_time = 0;
-        this.auto_dnf = false;
-        this.auto_plus_two = false;
+        this.apply_auto_dnf = false;
+        this.apply_auto_plus_two = false;
     };
 
     /**
@@ -356,13 +371,21 @@
      * Checks the current time against the start time to determine elapsed time.
      */
     Timer.prototype._inspection_intervalFunction = function() {
-        var now = new Date();
-        var diff = now - this.inspection_start_time;
-        var s = diff.getSecondsFromMs();
-        var eventData = {
-            seconds_remaining: this.INSP_TIME_START - s,
-        };
-        this.emit(EVENT_INSPECTION_INTERVAL, eventData);
+        var inspection_elapsed_seconds = ((new Date()) - this.inspection_start_time).getSecondsFromMs();
+        var seconds_remaining = this.INSP_TIME_START - inspection_elapsed_seconds;
+
+        if (seconds_remaining < this.AUTO_DNF_THRESHOLD) {
+            this.apply_auto_dnf = true;
+            this.apply_auto_plus_two = false;
+            console.log('auto dnf');
+            this._stop();
+            return;
+        } else if (seconds_remaining < this.AUTO_PLUS_TWO_THRESHOLD) {
+            console.log('auto plus 2');
+            this.apply_auto_plus_two = true;
+        }
+
+        this.emit(EVENT_INSPECTION_INTERVAL, {seconds_remaining});
     };
 
     /**
