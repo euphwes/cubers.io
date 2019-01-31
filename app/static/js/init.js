@@ -13,11 +13,12 @@
 
         app.appModeManager = new app.AppModeManager();
 
+        app.userSettingsManager = new app.UserSettingsManager();
+
         app.timer = new app.Timer();
 
         app.eventsDataManager = new app.EventsDataManager();
         app.currentScramblesManager = new app.CurrentScramblesManager();
-        app.userSettingsManager = new app.UserSettingsManager();
 
         app.solveCardManager = new app.SolveCardManager();
         app.timerDisplayManager = new app.TimerDisplayManager();
