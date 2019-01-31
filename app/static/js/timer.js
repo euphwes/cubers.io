@@ -6,6 +6,7 @@
     var EVENT_TIMER_INTERVAL       = 'event_timer_interval';
     var EVENT_INSPECTION_INTERVAL  = 'event_inspection_interval';
     var EVENT_INSPECTION_STARTED   = 'event_inspection_started';
+    var EVENT_INSPECTION_ARMED     = 'event_inspection_armed';
     var EVENT_TIMER_STOP           = 'event_timer_stop';
     var EVENT_TIMER_ARMED          = 'event_timer_armed';
     var EVENT_TIMER_CANCELLED      = 'event_timer_cancelled';
@@ -19,16 +20,15 @@
     var STATE_DONE             = 5;
 
     // Dev flag for debugging timer state
-    var debug_timer_state = false;
+    var debug_timer_state = true;
     var timer_state_map = {
         0: 'inactive',
         1: 'armed',
         2: 'inspection',
-        3: 'running',
-        4: 'done',
+        3: 'inspection armed',
+        4: 'running',
+        5: 'done',
     };
-
-    var INSP_TIME_START = 15;
 
     /**
      * The solve timer which tracks elapsed time.
@@ -48,7 +48,10 @@
 
         this.isTouchDown = false;
 
-        this.useInspectionTime = app.userSettingsManager.get_setting(app.Settings.USE_INSPECTION_TIME);
+        // values related to inspection time starting point and automatic penalty thresholds
+        this.INSP_TIME_START = 15;
+        this.AUTO_DNF_THRESHOLD = -2;
+        this.AUTO_PLUS_TWO_THRESHOLD = 0;
 
         // keydrown.js's keyboard state manager is tick-based
         // this is boilerplate to make sure the kd namespace has a recurring tick
@@ -63,6 +66,18 @@
      */
     Timer.prototype.setCompEventId = function(comp_event_id) {
         this.comp_event_id = comp_event_id;
+    };
+
+    /**
+     * If the event is a blind event, there is no inspection time. Otherwise check the setting
+     * to determine whether or not to use inspection time.
+     */
+    Timer.prototype.determineIfUsingInspectionBasedOnEvent = function(event_name) {
+        if (["2BLD", "3BLD", "4BLD", "5BLD"].includes(event_name)) {
+            this.useInspectionTime = false;
+        } else {
+            this.useInspectionTime = app.userSettingsManager.get_setting(app.Settings.USE_INSPECTION_TIME);
+        }
     };
 
     /**
@@ -124,6 +139,7 @@
     Timer.prototype._disable = function() {
         // no more ticking
         clearInterval(this.timer_interval);
+        clearInterval(this.inspection_interval);
 
         // unbind the keyboard events
         $(document).off('keydown');
@@ -147,8 +163,16 @@
         if (this.state == STATE_INACTIVE) {
             // If the comment box has focus, don't start the timer
             if ($(".comment-upload textarea").is(":focus")) { return; }
-
+            console.log('about to arm');
             this._arm();
+            e.preventDefault();
+            return;
+        }
+
+        // If inspection is in progress, set "inspection armed" so releasing will start the timer
+        if (this.state == STATE_INSPECTION) {
+            console.log('about to arm inspection');
+            this._armInspection();
             e.preventDefault();
             return;
         }
@@ -187,6 +211,13 @@
             return;
         }
 
+        // The the timer's inspection has been armed, then start the timer
+        if (this.state == STATE_INSPECTION_ARMED) {
+            this._start();
+            e.preventDefault();
+            return;
+        }
+
         e.preventDefault();
     };
 
@@ -221,9 +252,23 @@
     }
 
     /**
+     * Arms the timer from within inspection by putting it a state indicating it's ready to start running.
+     */
+    Timer.prototype._armInspection = function () {
+        this._setState(STATE_INSPECTION_ARMED);
+        this.emit(EVENT_INSPECTION_ARMED);
+    }
+
+    /**
      * Starts the timer. Captures the start time so we can determine elapsed time on subsequent ticks.
      */
     Timer.prototype._start = function() {
+
+        // If inspection was previously running, stop the inspection
+        if (this.inspection_interval) {
+            clearInterval(this.inspection_interval);
+        }
+
         this._setState(STATE_RUNNING);
         this.start_time = new Date();
         this.timer_interval = setInterval(this._timer_intervalFunction.bind(this), 42);
@@ -234,7 +279,7 @@
      * Starts the inspection countdown.
      */
     Timer.prototype._startInspection = function() {
-        this.emit(EVENT_INSPECTION_STARTED, {});
+        this.emit(EVENT_INSPECTION_STARTED, this.INSP_TIME_START);
         this._setState(STATE_INSPECTION);
         this.inspection_start_time = new Date();
         this.inspection_interval = setInterval(this._inspection_intervalFunction.bind(this), 42);
@@ -311,12 +356,11 @@
      * Checks the current time against the start time to determine elapsed time.
      */
     Timer.prototype._inspection_intervalFunction = function() {
-        console.log('inspection interval');
         var now = new Date();
         var diff = now - this.inspection_start_time;
         var s = diff.getSecondsFromMs();
         var eventData = {
-            seconds_remaining: 15 - s,
+            seconds_remaining: this.INSP_TIME_START - s,
         };
         this.emit(EVENT_INSPECTION_INTERVAL, eventData);
     };
@@ -336,6 +380,7 @@
     app.EVENT_TIMER_INTERVAL       = EVENT_TIMER_INTERVAL;
     app.EVENT_INSPECTION_INTERVAL  = EVENT_INSPECTION_INTERVAL;
     app.EVENT_INSPECTION_STARTED   = EVENT_INSPECTION_STARTED;
+    app.EVENT_INSPECTION_ARMED     = EVENT_INSPECTION_ARMED;
     app.EVENT_TIMER_ARMED          = EVENT_TIMER_ARMED;
     app.EVENT_TIMER_CANCELLED      = EVENT_TIMER_CANCELLED;
 

@@ -61,6 +61,13 @@
     };
 
     /**
+     * Event handler for the timer's inspection armed event
+     */
+    TimerDisplayManager.prototype._handleInspectionArmed = function () {
+        $('.timer-wrapper').addClass('armed');
+    };
+
+    /**
      * Event handler for the timer's interval event - updates display time
      */
     TimerDisplayManager.prototype._handleTimerInterval = function(intervalData) {
@@ -77,8 +84,9 @@
     /**
      * Event handler for the timer starting inspection time
      */
-    TimerDisplayManager.prototype._handleInspectionStarted = function () {
+    TimerDisplayManager.prototype._handleInspectionStarted = function(inspectionStartingSeconds) {
         $('.timer-wrapper').removeClass('armed');
+        this._displayTime(inspectionStartingSeconds, "", true);
     };
 
     /**
@@ -88,6 +96,7 @@
         app.timer.on(app.EVENT_TIMER_STOP, this._handleTimerStop.bind(this));
         app.timer.on(app.EVENT_TIMER_START, this._handleTimerStart.bind(this));
         app.timer.on(app.EVENT_TIMER_ARMED, this._handleTimerArmed.bind(this));
+        app.timer.on(app.EVENT_INSPECTION_ARMED, this._handleInspectionArmed.bind(this));
         app.timer.on(app.EVENT_TIMER_INTERVAL, this._handleTimerInterval.bind(this));
         app.timer.on(app.EVENT_INSPECTION_INTERVAL, this._handleInspectionInterval.bind(this));
         app.timer.on(app.EVENT_INSPECTION_STARTED, this._handleInspectionStarted.bind(this));

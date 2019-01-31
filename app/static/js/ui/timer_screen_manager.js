@@ -71,8 +71,9 @@
         $('.timer-wrapper').disableTextSelect();
 
         // Make sure the timer knows which competition event this is, so the handlers of the timer-stop
-        // event know which solve to update
+        // event know which solve to update.
         app.timer.setCompEventId(comp_event_id);
+        app.timer.determineIfUsingInspectionBasedOnEvent(data.event_name);
 
         app.currentScramblesManager.attachFirstScramble(comp_event_id);
 
