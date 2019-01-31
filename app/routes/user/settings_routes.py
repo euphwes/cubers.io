@@ -11,12 +11,18 @@ from app.persistence.user_manager import get_user_by_username
 # -------------------------------------------------------------------------------------------------
 
 # These are the settings we want the user to be able to see on the settings edit page
-VISIBLE_SETTINGS = [
+
+TIMER_SETTINGS = set([
     SettingCode.USE_INSPECTION_TIME,
-    #SettingCode.HIDE_RUNNING_TIMER,
-    #SettingCode.REDDIT_COMP_NOTIFY,
-    #SettingCode.DEFAULT_TO_MANUAL_TIME
-]
+    SettingCode.HIDE_RUNNING_TIMER,
+    SettingCode.DEFAULT_TO_MANUAL_TIME
+])
+
+REDDIT_SETTINGS = set([
+    SettingCode.REDDIT_COMP_NOTIFY,
+])
+
+__ALL_SETTINGS = REDDIT_SETTINGS | TIMER_SETTINGS
 
 # -------------------------------------------------------------------------------------------------
 
@@ -34,8 +40,12 @@ def edit_settings():
 def __handle_get(user):
     """ Handles displaying a user's settings for edit. """
 
-    settings = get_settings_for_user_for_edit(user.id, VISIBLE_SETTINGS)
-    return render_template("user/settings.html", settings=settings, alternative_title="Preferences")
+    all_settings = get_settings_for_user_for_edit(user.id, __ALL_SETTINGS)
+    timer_settings  = [s for s in all_settings if s.code in TIMER_SETTINGS]
+    reddit_settings = [s for s in all_settings if s.code in REDDIT_SETTINGS]
+
+    return render_template("user/settings.html", timer_settings=timer_settings,
+                           reddit_settings=reddit_settings, alternative_title="Preferences")
 
 
 def __handle_post(user, form):
@@ -43,7 +53,7 @@ def __handle_post(user, form):
 
     # NOTE: will need to handle validation errors on non-boolean settings in the future
 
-    for setting_code in VISIBLE_SETTINGS:
+    for setting_code in __ALL_SETTINGS:
         setting_value = form.get(setting_code)
         set_setting_for_user(user.id, setting_code, setting_value)
 
