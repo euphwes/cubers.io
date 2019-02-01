@@ -11,10 +11,10 @@
 {% endif %}
 <div class="form-group">
     <div class="row">
-        <div class="col-4">
+        <div class="col-8 col-md-4">
             <label class="form-check-label" for="{{ setting.code }}">{{ setting.title }}</label>
         </div>
-        <div class="col-8">
+        <div class="col-4 col-md-8">
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
                 <label class="btn btn-setting-toggle {{true_active}}">
                     <input type="radio" name="{{ setting.code }}" value="true" autocomplete="off" {{true_checked}}> True
