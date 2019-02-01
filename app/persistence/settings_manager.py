@@ -11,6 +11,7 @@ from app.persistence.models import UserSetting
 # pylint: disable=R0903,C0111
 class SettingCode():
     USE_INSPECTION_TIME    = 'use_inspection_time'
+    HIDE_INSPECTION_TIME   = 'hide_inspection_time'
     HIDE_RUNNING_TIMER     = 'hide_running_timer'
     REDDIT_COMP_NOTIFY     = 'reddit_comp_notify'
     DEFAULT_TO_MANUAL_TIME = 'manual_time_entry_by_default'
@@ -47,6 +48,12 @@ def boolean_validator(value):
 SETTING_INFO_MAP = {
     SettingCode.USE_INSPECTION_TIME : SettingInfo(
         title         = "Use WCA 15s Inspection Time",
+        validator     = boolean_validator,
+        setting_type  = SettingType.BOOLEAN,
+        default_value = FALSE_STR),
+
+    SettingCode.HIDE_INSPECTION_TIME : SettingInfo(
+        title         = "Hide Inspection Time Countdown",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
         default_value = FALSE_STR),
@@ -121,7 +128,6 @@ def get_settings_for_user_for_edit(user_id, setting_codes):
         query(UserSetting).\
         filter(UserSetting.user_id == user_id).\
         filter(UserSetting.setting_code.in_(setting_codes)).\
-        order_by(UserSetting.setting_code).\
         all()
 
     # If the number of retrieved settings != the number of codes provided, one or more settings
@@ -133,6 +139,16 @@ def get_settings_for_user_for_edit(user_id, setting_codes):
             get_setting_for_user(user_id, code)
         return get_settings_for_user_for_edit(user_id, setting_codes)
 
+
+    # I know this is terrible in general (O(n^2)), but it's fine for small numbers of settings,
+    # and I don't want to implement a real sort key lambda for this right now
+    ordered_settings = list()
+    for code in setting_codes:
+        for setting in settings:
+            if setting.setting_code == code:
+                ordered_settings.append(setting)
+                break
+
     return [
         SettingsEditTuple(
             code  = setting.setting_code,
@@ -140,7 +156,7 @@ def get_settings_for_user_for_edit(user_id, setting_codes):
             value = setting.setting_value,
             title = SETTING_INFO_MAP[setting.setting_code].title
         )
-        for setting in settings
+        for setting in ordered_settings
     ]
 
 

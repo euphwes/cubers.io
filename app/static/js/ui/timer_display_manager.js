@@ -73,6 +73,9 @@
      */
     TimerDisplayManager.prototype._handleInspectionArmed = function () {
         $('.timer-wrapper').addClass('armed');
+        if (app.userSettingsManager.get_setting(app.Settings.HIDE_INSPECTION_TIME)) {
+            $('.timer-wrapper').removeClass('hidden');
+        }
     };
 
     /**
@@ -94,7 +97,11 @@
      */
     TimerDisplayManager.prototype._handleInspectionStarted = function(inspectionStartingSeconds) {
         $('.timer-wrapper').removeClass('armed');
-        this._displayTime(inspectionStartingSeconds, "", true);
+        if (app.userSettingsManager.get_setting(app.Settings.HIDE_INSPECTION_TIME)) {
+            $('.timer-wrapper').addClass('hidden');
+        } else {
+            this._displayTime(inspectionStartingSeconds, "", true);
+        }
     };
 
     /**

@@ -161,6 +161,7 @@ def get_user_settings(user):
     settings_to_populate = [
         SettingCode.DEFAULT_TO_MANUAL_TIME,
         SettingCode.HIDE_RUNNING_TIMER,
+        SettingCode.HIDE_INSPECTION_TIME,
         SettingCode.USE_INSPECTION_TIME
     ]
 

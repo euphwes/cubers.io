@@ -12,17 +12,18 @@ from app.persistence.user_manager import get_user_by_username
 
 # These are the settings we want the user to be able to see on the settings edit page
 
-TIMER_SETTINGS = set([
+TIMER_SETTINGS = [
     SettingCode.USE_INSPECTION_TIME,
+    SettingCode.HIDE_INSPECTION_TIME,
     SettingCode.HIDE_RUNNING_TIMER,
     #SettingCode.DEFAULT_TO_MANUAL_TIME
-])
+]
 
-REDDIT_SETTINGS = set([
+REDDIT_SETTINGS = [
     #SettingCode.REDDIT_COMP_NOTIFY,
-])
+]
 
-__ALL_SETTINGS = REDDIT_SETTINGS | TIMER_SETTINGS
+__ALL_SETTINGS = REDDIT_SETTINGS + TIMER_SETTINGS
 
 # -------------------------------------------------------------------------------------------------
 
@@ -43,8 +44,8 @@ def __handle_get(user):
     all_settings = get_settings_for_user_for_edit(user.id, __ALL_SETTINGS)
 
     settings_sections = {
-        "Timer Preferences":  [s for s in all_settings if s.code in TIMER_SETTINGS],
-        "Reddit Preferences": [s for s in all_settings if s.code in REDDIT_SETTINGS],
+        "Timer Preferences":  [s for s in all_settings if s.code in set(TIMER_SETTINGS)],
+        "Reddit Preferences": [s for s in all_settings if s.code in set(REDDIT_SETTINGS)],
     }
 
     return render_template("user/settings.html", settings_sections=settings_sections,
