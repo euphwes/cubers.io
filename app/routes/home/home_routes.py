@@ -144,7 +144,7 @@ def fill_user_data_for_event(user, event_data):
     # If the UserEventResults indicates the user has completed the event, then set the event status
     # to complete so we can stick the nice pleasing checkmark on the card at render time
     if results.is_complete:
-        event_data[STATUS]  = STATUS_COMPLETE
+        event_data[STATUS] = STATUS_COMPLETE
 
     # If the event is not complete but has some solves, set the status as 'incomplete' so we can
     # render the clock thing

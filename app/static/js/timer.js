@@ -49,7 +49,7 @@
         this.isTouchDown = false;
 
         // values related to inspection time starting point and automatic penalty thresholds
-        this.INSP_TIME_START = 15;
+        this.INSPECTION_TIME_AMOUNT = 15;
         this.AUTO_DNF_THRESHOLD = -2;
         this.AUTO_PLUS_TWO_THRESHOLD = 0;
         this.apply_auto_dnf = false;
@@ -279,7 +279,7 @@
      * Starts the inspection countdown.
      */
     Timer.prototype._startInspection = function() {
-        this.emit(EVENT_INSPECTION_STARTED, this.INSP_TIME_START);
+        this.emit(EVENT_INSPECTION_STARTED, this.INSPECTION_TIME_AMOUNT);
         this._setState(STATE_INSPECTION);
         this.inspection_start_time = new Date();
         this.inspection_interval = setInterval(this._inspection_intervalFunction.bind(this), 42);
@@ -319,25 +319,38 @@
         // as seconds converted to minutes + decimal + centiseconds
         var s = this.elapsed_time.getSecondsFromMs();
         var cs = this.elapsed_time.getTwoDigitCentisecondsFromMs();
-        var friendly_seconds = app.convertSecondsToMinutes(s);
-        var full_time = friendly_seconds + "." + cs;
 
         var data = {};
-        data.elapsed_time          = this.elapsed_time;
-        data.scramble_id           = this.scramble_id;
-        data.comp_event_id         = this.comp_event_id;
-        data.friendly_seconds      = friendly_seconds;
-        data.friendly_centiseconds = cs;
-        data.friendly_time_full    = full_time;
-        data.rawTimeCs             = parseInt(s*100) + parseInt(cs);
+        data.elapsed_time  = this.elapsed_time;
+        data.scramble_id   = this.scramble_id;
+        data.comp_event_id = this.comp_event_id;
+        data.isDNF         = false;
+        data.isPlusTwo     = false;
 
-        // check auto-penalty flags if we did inspection, else set those flags to false
+        // Check auto-penalty flags if we did inspection time
         if (this.useInspectionTime) {
             data.isDNF = this.apply_auto_dnf;
             data.isPlusTwo = this.apply_auto_plus_two;
+            if (data.isDNF) {
+                s  = '0';
+                cs = '1';
+                // HACK ALERT!! If cs and s = 0, the total raw centiseconds is 0, which throws off
+                // a lot of Boolean(time) checks which expect a "falsy" time to indicate the solve isn't done.
+                // It's easier to just set this to something non-zero, since the value shouldn't surface anyway.
+                // TODO: fix logic to not do Boolean(time), and instead check some isSolveComplete flag
+            }
+        }
+
+        data.friendly_seconds = app.convertSecondsToMinutes(s);
+        data.friendly_centiseconds = cs;
+        data.rawTimeCs = parseInt(s*100) + parseInt(cs);
+
+        if (data.isDNF) {
+            data.friendly_time_full = "DNF";
+        } else if (data.isPlusTwo) {
+            data.friendly_time_full = (parseInt(data.friendly_seconds) + 2) + "." + cs + "+";
         } else {
-            data.isDNF = false;
-            data.isPlusTwo = false;
+            data.friendly_time_full = data.friendly_seconds + "." + cs;
         }
 
         // emit the event which notifies everybody else that the timer has stopped
@@ -372,7 +385,7 @@
      */
     Timer.prototype._inspection_intervalFunction = function() {
         var inspection_elapsed_seconds = ((new Date()) - this.inspection_start_time).getSecondsFromMs();
-        var seconds_remaining = this.INSP_TIME_START - inspection_elapsed_seconds;
+        var seconds_remaining = this.INSPECTION_TIME_AMOUNT - inspection_elapsed_seconds;
 
         if (seconds_remaining < this.AUTO_DNF_THRESHOLD) {
             this.apply_auto_dnf = true;
