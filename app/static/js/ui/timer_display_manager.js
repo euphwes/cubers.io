@@ -46,6 +46,7 @@
             this._displayTime(timerStopData.friendly_seconds, timerStopData.friendly_centiseconds);
         }
         $('.timer-wrapper').removeClass('fullscreen');
+        $('.timer-wrapper').removeClass('hidden');
     };
 
     /**
@@ -53,6 +54,9 @@
      */
     TimerDisplayManager.prototype._handleTimerStart = function () {
         $('.timer-wrapper').removeClass('armed');
+        if (app.userSettingsManager.get_setting(app.Settings.HIDE_RUNNING_TIMER)) {
+            $('.timer-wrapper').addClass('hidden');
+        }
     };
 
     /**

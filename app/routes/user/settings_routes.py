@@ -14,7 +14,7 @@ from app.persistence.user_manager import get_user_by_username
 
 TIMER_SETTINGS = set([
     SettingCode.USE_INSPECTION_TIME,
-    #SettingCode.HIDE_RUNNING_TIMER,
+    SettingCode.HIDE_RUNNING_TIMER,
     #SettingCode.DEFAULT_TO_MANUAL_TIME
 ])
 
