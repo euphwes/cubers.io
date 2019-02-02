@@ -9,17 +9,17 @@
     {% set false_checked = 'checked' %}
     {% set false_active = 'active' %}
 {% endif %}
-<div class="form-group">
+<div class="form-group" data-setting_code="{{ setting.code }}" data-affects="{{ setting.affects }}">
     <div class="row">
         <div class="col-8 col-md-4">
             <label class="form-check-label" for="{{ setting.code }}">{{ setting.title }}</label>
         </div>
         <div class="col-4 col-md-8">
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                <label class="btn btn-setting-toggle {{true_active}}">
+                <label class="btn btn-setting-toggle {{true_active}}" data-disable_me="true">
                     <input type="radio" name="{{ setting.code }}" value="true" autocomplete="off" {{true_checked}}> True
                 </label>
-                <label class="btn btn-setting-toggle {{false_active}}">
+                <label class="btn btn-setting-toggle {{false_active}}" data-disable_me="true">
                     <input type="radio" name="{{ setting.code }}" value="false" autocomplete="off" {{false_checked}}> False
                 </label>
             </div>

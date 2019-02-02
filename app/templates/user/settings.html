@@ -18,3 +18,51 @@
     </form>
 </div>
 {% endblock %}
+
+{% block additional_script %}
+<script>
+    $(function () {
+
+        // Disable or enable other settings if this one becomes disabled
+        var handleToggleEnabledForSetting = function($settingFormGroup) {
+
+            // If this setting in this form group does not have a list of setting codes in its
+            // data-affects attribute, it doesn't affect other settings, so just bail.
+            var affects = $settingFormGroup.data('affects');
+            if (affects == 'None') { return; }
+
+            // Build a list of settings that this one affects
+            var affectedSettingsList = JSON.parse(affects.replace(/'/g, '"'));
+
+            // Get the radio button value for this setting
+            var code = $settingFormGroup.data('setting_code');
+            var radioValue = $("input[name='" + code + "']:checked").val();
+
+            if (radioValue == "false") {
+                // If the radio value is false, disable the form groups and individual elements under them
+                // for each setting this one affects
+                $.each(affectedSettingsList, function(i, codeToDisable){
+                    var $groupToDisable = $("div[data-setting_code='" + codeToDisable + "']");
+                    $groupToDisable.addClass('disabled-group');
+                    $groupToDisable.find("[data-disable_me='true']").addClass('disabled');
+                });
+            } else {
+                // If the radio value is true, enable the form groups and individual elements under them
+                // for each setting this one affects
+                $.each(affectedSettingsList, function(i, codeToEnable){
+                    var $groupToEnable = $("div[data-setting_code='" + codeToEnable + "']");
+                    $groupToEnable.removeClass('disabled-group');
+                    $groupToEnable.find("[data-disable_me='true']").removeClass('disabled');
+                });
+            }
+        };
+
+        // Add a click handler to form groups to automatically disable/enable other settings
+        var affectOtherSettings = function(){ handleToggleEnabledForSetting($(this)); };
+        $('.form-group').click(function(){ setTimeout(affectOtherSettings.bind(this), 50); });
+
+        // Do initial disables on settings which should be disabled based on other settings
+        $('.form-group').each(function(i, elem){ handleToggleEnabledForSetting($(elem)); });
+    })
+</script>
+{% endblock %}

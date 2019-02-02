@@ -22,11 +22,12 @@ class SettingType():
 
 # Encapsulates necessary information about each setting
 class SettingInfo():
-    def __init__(self, title, validator, setting_type, default_value):
+    def __init__(self, title, validator, setting_type, default_value, affects=None):
         self.title = title
         self.validator = validator
         self.setting_type = setting_type
         self.default_value = default_value
+        self.affects = affects # an optional list of SettingCodes that this code enables/disables
 
 # -------------------------------------------------------------------------------------------------
 
@@ -50,7 +51,8 @@ SETTING_INFO_MAP = {
         title         = "Use WCA 15s Inspection Time",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
-        default_value = FALSE_STR),
+        default_value = FALSE_STR,
+        affects      = [SettingCode.HIDE_INSPECTION_TIME]),
 
     SettingCode.HIDE_INSPECTION_TIME : SettingInfo(
         title         = "Hide Inspection Time Countdown",
@@ -77,7 +79,7 @@ SETTING_INFO_MAP = {
         default_value = FALSE_STR)
 }
 
-SettingsEditTuple = namedtuple('SettingsEditTuple', ['code', 'title', 'value', 'type'])
+SettingsEditTuple = namedtuple('SettingsEditTuple', ['code', 'title', 'value', 'type', 'affects'])
 
 # -------------------------------------------------------------------------------------------------
 
@@ -151,10 +153,11 @@ def get_settings_for_user_for_edit(user_id, setting_codes):
 
     return [
         SettingsEditTuple(
-            code  = setting.setting_code,
-            type  = SETTING_INFO_MAP[setting.setting_code].setting_type,
-            value = setting.setting_value,
-            title = SETTING_INFO_MAP[setting.setting_code].title
+            code     = setting.setting_code,
+            value    = setting.setting_value,
+            title    = SETTING_INFO_MAP[setting.setting_code].title,
+            affects  = SETTING_INFO_MAP[setting.setting_code].affects,
+            type     = SETTING_INFO_MAP[setting.setting_code].setting_type
         )
         for setting in ordered_settings
     ]
