@@ -5,7 +5,7 @@ from flask_login import current_user
 
 from app import CUBERS_APP
 from app.persistence.settings_manager import get_settings_for_user_for_edit, set_setting_for_user,\
-    SettingCode
+    SettingCode, SettingType, FALSE_STR
 from app.persistence.user_manager import get_user_by_username
 
 # -------------------------------------------------------------------------------------------------
@@ -48,8 +48,15 @@ def __handle_get(user):
         "Reddit Preferences": [s for s in all_settings if s.code in set(REDDIT_SETTINGS)],
     }
 
+    disabled_settings = list()
+    for setting in all_settings:
+        if setting.type != SettingType.BOOLEAN:
+            continue
+        if setting.value == FALSE_STR and bool(setting.affects):
+            disabled_settings.extend(setting.affects)
+
     return render_template("user/settings.html", settings_sections=settings_sections,
-                           alternative_title="Preferences")
+                           disabled_settings=disabled_settings, alternative_title="Preferences")
 
 
 def __handle_post(user, form):

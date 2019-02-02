@@ -52,7 +52,7 @@ SETTING_INFO_MAP = {
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
         default_value = FALSE_STR,
-        affects      = [SettingCode.HIDE_INSPECTION_TIME]),
+        affects       = [SettingCode.HIDE_INSPECTION_TIME]),
 
     SettingCode.HIDE_INSPECTION_TIME : SettingInfo(
         title         = "Hide Inspection Time Countdown",

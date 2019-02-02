@@ -22,7 +22,6 @@
 {% block additional_script %}
 <script>
     $(function () {
-
         // Disable or enable other settings if this one becomes disabled
         var handleToggleEnabledForSetting = function($settingFormGroup) {
 
@@ -60,9 +59,6 @@
         // Add a click handler to form groups to automatically disable/enable other settings
         var affectOtherSettings = function(){ handleToggleEnabledForSetting($(this)); };
         $('.form-group').click(function(){ setTimeout(affectOtherSettings.bind(this), 50); });
-
-        // Do initial disables on settings which should be disabled based on other settings
-        $('.form-group').each(function(i, elem){ handleToggleEnabledForSetting($(elem)); });
     })
 </script>
 {% endblock %}
