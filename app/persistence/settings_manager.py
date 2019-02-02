@@ -16,9 +16,19 @@ class SettingCode():
     REDDIT_COMP_NOTIFY     = 'reddit_comp_notify'
     DEFAULT_TO_MANUAL_TIME = 'manual_time_entry_by_default'
 
+    # Custom cube colors
+    USE_CUSTOM_CUBE_COLORS = 'use_custom_cube_colors'
+    CUSTOM_CUBE_COLOR_U    = 'custom_cube_color_U'
+    CUSTOM_CUBE_COLOR_F    = 'custom_cube_color_F'
+    CUSTOM_CUBE_COLOR_R    = 'custom_cube_color_R'
+    CUSTOM_CUBE_COLOR_D    = 'custom_cube_color_D'
+    CUSTOM_CUBE_COLOR_B    = 'custom_cube_color_B'
+    CUSTOM_CUBE_COLOR_L    = 'custom_cube_color_L'
+
 # Denotes the type of setting, aka boolean, free-form text, etc
 class SettingType():
-    BOOLEAN = 'boolean'
+    BOOLEAN   = 'boolean'
+    HEX_COLOR = 'hex_color'  # hex color code aka "#FFC1D2"
 
 # Encapsulates necessary information about each setting
 class SettingInfo():
@@ -44,6 +54,23 @@ def boolean_validator(value):
         return value
     raise ValueError("{} is not an acceptable value.".format(value))
 
+
+HEX_CHARACTERS = set([c for c in 'ABCDEF0123456789'])
+
+def hex_color_validator(value):
+    """ Validates a string which represents a color in hex format. """
+
+    if value[0] != "#":
+        raise ValueError("{} is not a hex color value. It does not start with '#'.".format(value))
+
+    for char in value[1:]:
+        if char not in HEX_CHARACTERS:
+            msg = "{} is not a hex color value. {} is not hexadecimal.".format(value, char)
+            raise ValueError(msg)
+
+    return value
+
+
 # -------------------------------------------------------------------------------------------------
 
 SETTING_INFO_MAP = {
@@ -52,31 +79,88 @@ SETTING_INFO_MAP = {
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
         default_value = FALSE_STR,
-        affects       = [SettingCode.HIDE_INSPECTION_TIME]),
+        affects       = [SettingCode.HIDE_INSPECTION_TIME]
+    ),
 
     SettingCode.HIDE_INSPECTION_TIME : SettingInfo(
         title         = "Hide Inspection Time Countdown",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
-        default_value = FALSE_STR),
+        default_value = FALSE_STR
+    ),
 
     SettingCode.HIDE_RUNNING_TIMER : SettingInfo(
         title         = "Hide Timer While Running",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
-        default_value = FALSE_STR),
+        default_value = FALSE_STR
+    ),
 
     SettingCode.REDDIT_COMP_NOTIFY : SettingInfo(
         title         = "Receive New Competition Reddit Notification",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
-        default_value = FALSE_STR),
+        default_value = FALSE_STR
+    ),
 
     SettingCode.DEFAULT_TO_MANUAL_TIME : SettingInfo(
         title         = "Use Manual Time Entry",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
-        default_value = FALSE_STR)
+        default_value = FALSE_STR
+    ),
+
+    SettingCode.USE_CUSTOM_CUBE_COLORS : SettingInfo(
+        title         = "Use Custom Cube Colors",
+        validator     = boolean_validator,
+        setting_type  = SettingType.BOOLEAN,
+        default_value = FALSE_STR,
+        affects       = [SettingCode.CUSTOM_CUBE_COLOR_B, SettingCode.CUSTOM_CUBE_COLOR_D,
+                         SettingCode.CUSTOM_CUBE_COLOR_F, SettingCode.CUSTOM_CUBE_COLOR_L,
+                         SettingCode.CUSTOM_CUBE_COLOR_R, SettingCode.CUSTOM_CUBE_COLOR_U]
+    ),
+
+    SettingCode.CUSTOM_CUBE_COLOR_U : SettingInfo(
+        title         = "Color for U",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = "#FFFFFF"
+    ),
+
+    SettingCode.CUSTOM_CUBE_COLOR_F : SettingInfo(
+        title         = "Color for F",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = "#00FF00"
+    ),
+
+    SettingCode.CUSTOM_CUBE_COLOR_R : SettingInfo(
+        title         = "Color for R",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = "#FF0000"
+    ),
+
+    SettingCode.CUSTOM_CUBE_COLOR_D : SettingInfo(
+        title         = "Color for D",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = "#FFFF00"
+    ),
+
+    SettingCode.CUSTOM_CUBE_COLOR_B : SettingInfo(
+        title         = "Color for B",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = "#0000FF"
+    ),
+
+    SettingCode.CUSTOM_CUBE_COLOR_L : SettingInfo(
+        title         = "Color for L",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = "#FF8800"
+    ),
 }
 
 SettingsEditTuple = namedtuple('SettingsEditTuple', ['code', 'title', 'value', 'type', 'affects'])

@@ -1153,6 +1153,8 @@
             var width = 45;
             var gap = width / 10;
             var posit = [];
+
+            // Order is    U,      B,      R,      D,      F       L
             var colors = ['#fff', '#00f', '#f00', '#ff0', '#0f0', '#f80'];
 
             var ftrans = [
@@ -1335,6 +1337,8 @@
             var width = 30;
 
             var posit = [];
+
+            // Order is    D,      L,      B,      U,      R,      F
             var colors = ['#ff0', '#fa0', '#00f', '#fff', '#f00', '#0d0'];
 
             function face(f, size) {
