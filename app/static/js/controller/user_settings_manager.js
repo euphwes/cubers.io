@@ -9,6 +9,15 @@
     Settings.HIDE_RUNNING_TIMER     = 'hide_running_timer';
     Settings.DEFAULT_TO_MANUAL_TIME = 'manual_time_entry_by_default';
 
+    // Stuff related to custom cube colors
+    Settings.USE_CUSTOM_CUBE_COLORS = 'use_custom_cube_colors';
+    Settings.CUSTOM_CUBE_COLOR_U    = 'custom_cube_color_U';
+    Settings.CUSTOM_CUBE_COLOR_F    = 'custom_cube_color_F';
+    Settings.CUSTOM_CUBE_COLOR_R    = 'custom_cube_color_R';
+    Settings.CUSTOM_CUBE_COLOR_D    = 'custom_cube_color_D';
+    Settings.CUSTOM_CUBE_COLOR_B    = 'custom_cube_color_B';
+    Settings.CUSTOM_CUBE_COLOR_L    = 'custom_cube_color_L';
+
     /**
      * Manages user settings
      */

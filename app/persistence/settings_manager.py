@@ -44,6 +44,15 @@ class SettingInfo():
 TRUE_STR  = 'true'
 FALSE_STR = 'false'
 
+DEFAULT_CUBE_COLORS = {
+    'U': '#FFFFFF',
+    'F': '#00FF00',
+    'R': '#FF0000',
+    'D': '#FFFF00',
+    'B': '#0000FF',
+    'L': '#FF8800',
+}
+
 def boolean_validator(value):
     """ Validates a boolean setting value as text. """
     if value is None:
@@ -69,7 +78,6 @@ def hex_color_validator(value):
             raise ValueError(msg)
 
     return value
-
 
 # -------------------------------------------------------------------------------------------------
 
@@ -121,49 +129,50 @@ SETTING_INFO_MAP = {
     ),
 
     SettingCode.CUSTOM_CUBE_COLOR_U : SettingInfo(
-        title         = "Color for U",
+        title         = "U Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
-        default_value = "#FFFFFF"
+        default_value = DEFAULT_CUBE_COLORS["U"]
     ),
 
     SettingCode.CUSTOM_CUBE_COLOR_F : SettingInfo(
-        title         = "Color for F",
+        title         = "F Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
-        default_value = "#00FF00"
+        default_value = DEFAULT_CUBE_COLORS["F"]
     ),
 
     SettingCode.CUSTOM_CUBE_COLOR_R : SettingInfo(
-        title         = "Color for R",
+        title         = "R Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
-        default_value = "#FF0000"
+        default_value = DEFAULT_CUBE_COLORS["R"]
     ),
 
     SettingCode.CUSTOM_CUBE_COLOR_D : SettingInfo(
-        title         = "Color for D",
+        title         = "D Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
-        default_value = "#FFFF00"
+        default_value = DEFAULT_CUBE_COLORS["D"]
     ),
 
     SettingCode.CUSTOM_CUBE_COLOR_B : SettingInfo(
-        title         = "Color for B",
+        title         = "B Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
-        default_value = "#0000FF"
+        default_value = DEFAULT_CUBE_COLORS["B"]
     ),
 
     SettingCode.CUSTOM_CUBE_COLOR_L : SettingInfo(
-        title         = "Color for L",
+        title         = "L Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
-        default_value = "#FF8800"
+        default_value = DEFAULT_CUBE_COLORS["L"]
     ),
 }
 
-SettingsEditTuple = namedtuple('SettingsEditTuple', ['code', 'title', 'value', 'type', 'affects'])
+edit_tuple_fields = ['code', 'title', 'value', 'type', 'affects', 'default']
+SettingsEditTuple = namedtuple('SettingsEditTuple', edit_tuple_fields)
 
 # -------------------------------------------------------------------------------------------------
 
@@ -241,7 +250,8 @@ def get_settings_for_user_for_edit(user_id, setting_codes):
             value    = setting.setting_value,
             title    = SETTING_INFO_MAP[setting.setting_code].title,
             affects  = SETTING_INFO_MAP[setting.setting_code].affects,
-            type     = SETTING_INFO_MAP[setting.setting_code].setting_type
+            type     = SETTING_INFO_MAP[setting.setting_code].setting_type,
+            default  = SETTING_INFO_MAP[setting.setting_code].default_value,
         )
         for setting in ordered_settings
     ]
@@ -270,3 +280,15 @@ def set_setting_for_user(user_id, setting_code, setting_value):
     DB.session.commit()
 
     return setting
+
+def get_color_defaults():
+    """ Returns a dictionary of default color names to their color codes. """
+
+    return {
+        'white':  DEFAULT_CUBE_COLORS['U'],
+        'green':  DEFAULT_CUBE_COLORS['F'],
+        'red':    DEFAULT_CUBE_COLORS['R'],
+        'blue':   DEFAULT_CUBE_COLORS['B'],
+        'orange': DEFAULT_CUBE_COLORS['L'],
+        'yellow': DEFAULT_CUBE_COLORS['D'],
+    }

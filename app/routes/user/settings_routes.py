@@ -5,7 +5,7 @@ from flask_login import current_user
 
 from app import CUBERS_APP
 from app.persistence.settings_manager import get_settings_for_user_for_edit, set_setting_for_user,\
-    SettingCode, SettingType, FALSE_STR
+    SettingCode, SettingType, FALSE_STR, get_color_defaults
 from app.persistence.user_manager import get_user_by_username
 
 # -------------------------------------------------------------------------------------------------
@@ -19,11 +19,21 @@ TIMER_SETTINGS = [
     #SettingCode.DEFAULT_TO_MANUAL_TIME
 ]
 
+CUSTOM_CUBE_COLOR_SETTINGS = [
+    SettingCode.USE_CUSTOM_CUBE_COLORS,
+    SettingCode.CUSTOM_CUBE_COLOR_U,
+    SettingCode.CUSTOM_CUBE_COLOR_F,
+    SettingCode.CUSTOM_CUBE_COLOR_R,
+    SettingCode.CUSTOM_CUBE_COLOR_D,
+    SettingCode.CUSTOM_CUBE_COLOR_B,
+    SettingCode.CUSTOM_CUBE_COLOR_L,
+]
+
 REDDIT_SETTINGS = [
     #SettingCode.REDDIT_COMP_NOTIFY,
 ]
 
-__ALL_SETTINGS = REDDIT_SETTINGS + TIMER_SETTINGS
+__ALL_SETTINGS = REDDIT_SETTINGS + CUSTOM_CUBE_COLOR_SETTINGS + TIMER_SETTINGS
 
 # -------------------------------------------------------------------------------------------------
 
@@ -43,9 +53,11 @@ def __handle_get(user):
 
     all_settings = get_settings_for_user_for_edit(user.id, __ALL_SETTINGS)
 
+    # pylint: disable=line-too-long
     settings_sections = {
-        "Timer Preferences":  [s for s in all_settings if s.code in set(TIMER_SETTINGS)],
-        "Reddit Preferences": [s for s in all_settings if s.code in set(REDDIT_SETTINGS)],
+        "Timer Preferences":       [s for s in all_settings if s.code in set(TIMER_SETTINGS)],
+        "Cube Color Preferences":  [s for s in all_settings if s.code in set(CUSTOM_CUBE_COLOR_SETTINGS)],
+        "Reddit Preferences":      [s for s in all_settings if s.code in set(REDDIT_SETTINGS)],
     }
 
     disabled_settings = list()
@@ -55,8 +67,11 @@ def __handle_get(user):
         if setting.value == FALSE_STR and bool(setting.affects):
             disabled_settings.extend(setting.affects)
 
+    default_colors = get_color_defaults()
+
     return render_template("user/settings.html", settings_sections=settings_sections,
-                           disabled_settings=disabled_settings, alternative_title="Preferences")
+                           disabled_settings=disabled_settings, default_colors=default_colors,
+                           alternative_title="Preferences")
 
 
 def __handle_post(user, form):

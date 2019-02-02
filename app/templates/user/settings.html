@@ -44,6 +44,7 @@
                     var $groupToDisable = $("div[data-setting_code='" + codeToDisable + "']");
                     $groupToDisable.addClass('disabled-group');
                     $groupToDisable.find("[data-disable_me='true']").addClass('disabled');
+                    $groupToDisable.find("[data-disable_me_as_group='true']").addClass('disabled');
                 });
             } else {
                 // If the radio value is true, enable the form groups and individual elements under them
@@ -52,6 +53,7 @@
                     var $groupToEnable = $("div[data-setting_code='" + codeToEnable + "']");
                     $groupToEnable.removeClass('disabled-group');
                     $groupToEnable.find("[data-disable_me='true']").removeClass('disabled');
+                    $groupToEnable.find("[data-disable_me_as_group='true']").removeClass('disabled');
                 });
             }
         };
@@ -59,6 +61,28 @@
         // Add a click handler to form groups to automatically disable/enable other settings
         var affectOtherSettings = function(){ handleToggleEnabledForSetting($(this)); };
         $('.form-group').click(function(){ setTimeout(affectOtherSettings.bind(this), 50); });
+
+        // Enable the color picker controls
+        $('.colorpicker-component').colorpicker({
+            format: 'hex',
+            extensions: [
+        {
+          name: 'swatches', // extension name to load
+          options: {        // extension options
+              colors: {
+                  'white' : "{{ default_colors['white'] }}",
+                  'green' : "{{ default_colors['green'] }}",
+                  'red'   : "{{ default_colors['red'] }}",
+                  'blue'  : "{{ default_colors['blue'] }}",
+                  'yellow': "{{ default_colors['yellow'] }}",
+                  'orange': "{{ default_colors['orange'] }}",
+                  'black' : '#000000',
+              },
+              namesAsValues: false,
+          }
+        }
+      ]
+        });
     })
 </script>
 {% endblock %}
