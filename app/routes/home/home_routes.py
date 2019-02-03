@@ -162,7 +162,14 @@ def get_user_settings(user):
         SettingCode.DEFAULT_TO_MANUAL_TIME,
         SettingCode.HIDE_RUNNING_TIMER,
         SettingCode.HIDE_INSPECTION_TIME,
-        SettingCode.USE_INSPECTION_TIME
+        SettingCode.USE_INSPECTION_TIME,
+        SettingCode.USE_CUSTOM_CUBE_COLORS,
+        SettingCode.CUSTOM_CUBE_COLOR_U,
+        SettingCode.CUSTOM_CUBE_COLOR_F,
+        SettingCode.CUSTOM_CUBE_COLOR_R,
+        SettingCode.CUSTOM_CUBE_COLOR_D,
+        SettingCode.CUSTOM_CUBE_COLOR_B,
+        SettingCode.CUSTOM_CUBE_COLOR_L,
     ]
 
     # If there is a logged-in user, get their settings. Otherwise just get default values
