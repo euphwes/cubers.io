@@ -103,7 +103,7 @@ def scrambler_234_relay():
 
     yield scrambler222.get_WCA_scramble()
     yield scrambler333.get_WCA_scramble()
-    yield scrambler444.get_WCA_scramble()
+    yield scrambler444.get_random_state_scramble()
 
 
 def scrambler_333_relay():
@@ -118,7 +118,7 @@ def scrambler_333_relay():
 # Weekly event definitions (current count = 19)
 EVENT_2x2       = Event("2x2", scrambler222.get_WCA_scramble, 5, True, True)
 EVENT_3x3       = Event("3x3", scrambler333.get_WCA_scramble, 5, True, True)
-EVENT_4x4       = Event("4x4", scrambler444.get_WCA_scramble, 5, True, True)
+EVENT_4x4       = Event("4x4", scrambler444.get_random_state_scramble, 5, True, True)
 EVENT_5x5       = Event("5x5", scrambler555.get_WCA_scramble, 5, True, True)
 EVENT_6x6       = Event("6x6", scrambler666.get_WCA_scramble, 3, True, True)
 EVENT_7x7       = Event("7x7", scrambler777.get_WCA_scramble, 3, True, True)
@@ -142,7 +142,7 @@ EVENT_F2L       = Event("F2L", scrambler333.get_WCA_scramble, 5, False, False)
 EVENT_Void      = Event("Void Cube", scrambler333.get_3BLD_scramble, 5, False, False)
 EVENT_Mirror    = Event("3x3 Mirror Blocks/Bump", scrambler333.get_WCA_scramble, 5, False, False)
 EVENT_Kilominx  = Event("Kilominx", megaminxScrambler.get_WCA_scramble, 5, False, False)
-EVENT_4x4OH     = Event("4x4 OH", scrambler444.get_WCA_scramble, 5, False, False)
+EVENT_4x4OH     = Event("4x4 OH", scrambler444.get_random_state_scramble, 5, False, False)
 EVENT_3x3x2     = Event("3x3x2", cuboidsScrambler.get_3x3x2_scramble, 5, False, False)
 EVENT_3x3x4     = Event("3x3x4", cuboidsScrambler.get_3x3x4_scramble, 5, False, False)
 EVENT_3x3x5     = Event("3x3x5", cuboidsScrambler.get_3x3x5_scramble, 5, False, False)
