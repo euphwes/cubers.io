@@ -83,7 +83,7 @@ def hex_color_validator(value):
 
 SETTING_INFO_MAP = {
     SettingCode.USE_INSPECTION_TIME : SettingInfo(
-        title         = "Use WCA 15s Inspection Time",
+        title         = "Use\u00A0WCA\u00A015s\u00A0Inspection\u00A0Time (except\u00A0blind\u00A0events)",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
         default_value = FALSE_STR,
