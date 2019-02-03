@@ -1,0 +1,88 @@
+{% extends "common/base.html" %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid cubers-container white-container settings-container">
+    <form method="POST">
+    {% for section_header, section_settings in settings_sections.items() %}
+        {% include 'user/settings_section.html' %}
+    {% endfor %}
+    <div class="row">
+        <div class="col-12 col-md-8 offset-md-2">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block additional_script %}
+<script>
+    $(function () {
+        // Disable or enable other settings if this one becomes disabled
+        var handleToggleEnabledForSetting = function($settingFormGroup) {
+
+            // If this setting in this form group does not have a list of setting codes in its
+            // data-affects attribute, it doesn't affect other settings, so just bail.
+            var affects = $settingFormGroup.data('affects');
+            if (affects == 'None') { return; }
+
+            // Build a list of settings that this one affects
+            var affectedSettingsList = JSON.parse(affects.replace(/'/g, '"'));
+
+            // Get the radio button value for this setting
+            var code = $settingFormGroup.data('setting_code');
+            var radioValue = $("input[name='" + code + "']:checked").val();
+
+            if (radioValue == "false") {
+                // If the radio value is false, disable the form groups and individual elements under them
+                // for each setting this one affects
+                $.each(affectedSettingsList, function(i, codeToDisable){
+                    var $groupToDisable = $("div[data-setting_code='" + codeToDisable + "']");
+                    $groupToDisable.addClass('disabled-group');
+                    $groupToDisable.find("[data-disable_me='true']").addClass('disabled');
+                    $groupToDisable.find("[data-disable_me_as_group='true']").addClass('disabled');
+                });
+            } else {
+                // If the radio value is true, enable the form groups and individual elements under them
+                // for each setting this one affects
+                $.each(affectedSettingsList, function(i, codeToEnable){
+                    var $groupToEnable = $("div[data-setting_code='" + codeToEnable + "']");
+                    $groupToEnable.removeClass('disabled-group');
+                    $groupToEnable.find("[data-disable_me='true']").removeClass('disabled');
+                    $groupToEnable.find("[data-disable_me_as_group='true']").removeClass('disabled');
+                });
+            }
+        };
+
+        // Add a click handler to form groups to automatically disable/enable other settings
+        var affectOtherSettings = function(){ handleToggleEnabledForSetting($(this)); };
+        $('.form-group').click(function(){ setTimeout(affectOtherSettings.bind(this), 50); });
+
+        // Enable the color picker controls
+        $('.colorpicker-component').colorpicker({
+            format: 'hex',
+            extensions: [
+        {
+          name: 'swatches', // extension name to load
+          options: {        // extension options
+              colors: {
+                  'white' : "{{ default_colors['white'] }}",
+                  'green' : "{{ default_colors['green'] }}",
+                  'red'   : "{{ default_colors['red'] }}",
+                  'blue'  : "{{ default_colors['blue'] }}",
+                  'yellow': "{{ default_colors['yellow'] }}",
+                  'orange': "{{ default_colors['orange'] }}",
+                  'black' : '#000000',
+              },
+              namesAsValues: false,
+          }
+        }
+      ]
+        });
+    })
+</script>
+{% endblock %}

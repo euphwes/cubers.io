@@ -290,3 +290,14 @@ class UserSolve(Model):
     def get_total_time(self):
         """ Returns the solve's time with +2s penalty counted, if applicable. """
         return (self.time + 200) if self.is_plus_two else self.time
+
+
+class UserSetting(Model):
+    """ A user's preferences. """
+
+    __tablename__ = 'user_settings'
+    id            = Column(Integer, primary_key=True)
+    user_id       = Column(Integer, ForeignKey('users.id'), index=True)
+    user          = relationship('User', primaryjoin = user_id == User.id)
+    setting_code  = Column(String(128), index=True)
+    setting_value = Column(String(128), index=True)

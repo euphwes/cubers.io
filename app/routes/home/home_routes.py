@@ -4,8 +4,9 @@ from flask import render_template, request, redirect, url_for
 from flask_login import current_user
 
 from app import CUBERS_APP
-from app.business.user_results import build_event_summary
 from app.persistence import comp_manager
+from app.persistence.settings_manager import get_default_value_for_setting, get_setting_for_user,\
+    SettingCode
 from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import get_event_results_for_user
 from app.persistence.models import EventFormat
@@ -23,6 +24,9 @@ def index():
 
     # If somebody is logged in, get that user so we can pre-fill the events data later.
     user = get_user_by_username(current_user.username) if current_user.is_authenticated else None
+
+    # Get the user's relevant user settings, otherwise get defaults
+    settings = get_user_settings(user)
 
     # This `events_for_json` dictionary is rendered into the page as a Javascript object, to be
     # pulled in by the main JS app's events data manager. Keys are competitionEvent ID and the
@@ -60,7 +64,7 @@ def index():
     # pylint: disable=C0330
     return render_template('index.html', current_competition=comp, events_data=events_for_json,
         ordered_comp_events=ordered_comp_events, complete_events=complete_events,
-        incomplete_events=incomplete_events, comp_id=comp.id)
+        incomplete_events=incomplete_events, comp_id=comp.id, settings=settings)
 
 
 @CUBERS_APP.route('/prompt_login')
@@ -140,9 +144,57 @@ def fill_user_data_for_event(user, event_data):
     # If the UserEventResults indicates the user has completed the event, then set the event status
     # to complete so we can stick the nice pleasing checkmark on the card at render time
     if results.is_complete:
-        event_data[STATUS]  = STATUS_COMPLETE
+        event_data[STATUS] = STATUS_COMPLETE
 
     # If the event is not complete but has some solves, set the status as 'incomplete' so we can
     # render the clock thing
     elif bool(list(results.solves)):
         event_data[STATUS] = STATUS_INCOMPLETE
+
+# -------------------------------------------------------------------------------------------------
+
+def get_user_settings(user):
+    """ Retrieves certain settings for use in the front-end. If there is no logged-in user, just
+    retrieve default values for these settings. """
+
+    # TODO: get these all at once, rather than single DB queries each
+
+    # These are the settings relevant to the operation of the main cubers.io application
+    settings_to_populate = [
+        SettingCode.DEFAULT_TO_MANUAL_TIME,
+        SettingCode.HIDE_RUNNING_TIMER,
+        SettingCode.HIDE_INSPECTION_TIME,
+        SettingCode.USE_INSPECTION_TIME,
+        SettingCode.USE_CUSTOM_CUBE_COLORS,
+        SettingCode.CUSTOM_CUBE_COLOR_U,
+        SettingCode.CUSTOM_CUBE_COLOR_F,
+        SettingCode.CUSTOM_CUBE_COLOR_R,
+        SettingCode.CUSTOM_CUBE_COLOR_D,
+        SettingCode.CUSTOM_CUBE_COLOR_B,
+        SettingCode.CUSTOM_CUBE_COLOR_L,
+        SettingCode.USE_CUSTOM_PYRAMINX_COLORS,
+        SettingCode.CUSTOM_PYRAMINX_COLOR_D,
+        SettingCode.CUSTOM_PYRAMINX_COLOR_L,
+        SettingCode.CUSTOM_PYRAMINX_COLOR_F,
+        SettingCode.CUSTOM_PYRAMINX_COLOR_R,
+        SettingCode.USE_CUSTOM_MEGAMINX_COLORS,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_1,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_2,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_3,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_4,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_5,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_6,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_7,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_8,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_9,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_10,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_11,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_12,
+    ]
+
+    # If there is a logged-in user, get their settings. Otherwise just get default values
+    retrieve_setting = lambda code: get_setting_for_user(user.id, code) if user \
+        else get_default_value_for_setting(code)
+
+    # Send back a dictionary of setting codes and their values
+    return { code: retrieve_setting(code) for code in settings_to_populate }

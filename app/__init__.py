@@ -37,6 +37,7 @@ ASSETS.register({
 
         'js/controller/events_data_manager.js',
         'js/controller/current_scrambles_manager.js',
+        'js/controller/user_settings_manager.js',
 
         'js/ui/solve_card_manager.js',
         'js/ui/timer_display_manager.js',
@@ -60,6 +61,7 @@ ASSETS.register({
         'less/results.less',
         'less/user.less',
         'less/event_results.less',
+        'less/settings.less',
         filters="less,cssmin",
         output='gen/app.css'),
 })

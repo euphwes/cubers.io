@@ -12,12 +12,19 @@
     /**
      * Displays the specified time on the timer display.
      */
-    TimerDisplayManager.prototype._displayTime = function(seconds, centiseconds) {     
+    TimerDisplayManager.prototype._displayTime = function(seconds, centiseconds, hideDot) {
         var $dot = $('#dot');
         var $seconds = $('#seconds');
         var $centiseconds = $('#centiseconds');
 
-        $dot.html('.');
+        hideDot = hideDot || false; // default value of false
+
+        if (!hideDot) {
+            $dot.html('.');
+        } else {
+            $dot.html('');
+        }
+
         $seconds.html(seconds);
         $centiseconds.html(centiseconds);
     };
@@ -33,8 +40,13 @@
      * Event handler for the timer's stop event - updates display time
      */
     TimerDisplayManager.prototype._handleTimerStop = function(timerStopData) {
-        this._displayTime(timerStopData.friendly_seconds, timerStopData.friendly_centiseconds);
+        if (timerStopData.isDNF) {
+            this._displayTime("DNF", "", true);
+        } else {
+            this._displayTime(timerStopData.friendly_seconds, timerStopData.friendly_centiseconds);
+        }
         $('.timer-wrapper').removeClass('fullscreen');
+        $('.timer-wrapper').removeClass('hidden');
     };
 
     /**
@@ -42,6 +54,9 @@
      */
     TimerDisplayManager.prototype._handleTimerStart = function () {
         $('.timer-wrapper').removeClass('armed');
+        if (app.userSettingsManager.get_setting(app.Settings.HIDE_RUNNING_TIMER)) {
+            $('.timer-wrapper').addClass('hidden');
+        }
     };
 
     /**
@@ -54,10 +69,39 @@
     };
 
     /**
+     * Event handler for the timer's inspection armed event
+     */
+    TimerDisplayManager.prototype._handleInspectionArmed = function () {
+        $('.timer-wrapper').addClass('armed');
+        if (app.userSettingsManager.get_setting(app.Settings.HIDE_INSPECTION_TIME)) {
+            $('.timer-wrapper').removeClass('hidden');
+        }
+    };
+
+    /**
      * Event handler for the timer's interval event - updates display time
      */
     TimerDisplayManager.prototype._handleTimerInterval = function(intervalData) {
         this._displayTime(intervalData.friendly_seconds, intervalData.friendly_centiseconds);
+    };
+
+    /**
+     * Event handler for the timer's inspection countdown event - updates time remaining
+     */
+    TimerDisplayManager.prototype._handleInspectionInterval = function(intervalData) {
+        this._displayTime(intervalData.seconds_remaining, "", true);
+    };
+
+    /**
+     * Event handler for the timer starting inspection time
+     */
+    TimerDisplayManager.prototype._handleInspectionStarted = function(inspectionStartingSeconds) {
+        $('.timer-wrapper').removeClass('armed');
+        if (app.userSettingsManager.get_setting(app.Settings.HIDE_INSPECTION_TIME)) {
+            $('.timer-wrapper').addClass('hidden');
+        } else {
+            this._displayTime(inspectionStartingSeconds, "", true);
+        }
     };
 
     /**
@@ -67,7 +111,10 @@
         app.timer.on(app.EVENT_TIMER_STOP, this._handleTimerStop.bind(this));
         app.timer.on(app.EVENT_TIMER_START, this._handleTimerStart.bind(this));
         app.timer.on(app.EVENT_TIMER_ARMED, this._handleTimerArmed.bind(this));
+        app.timer.on(app.EVENT_INSPECTION_ARMED, this._handleInspectionArmed.bind(this));
         app.timer.on(app.EVENT_TIMER_INTERVAL, this._handleTimerInterval.bind(this));
+        app.timer.on(app.EVENT_INSPECTION_INTERVAL, this._handleInspectionInterval.bind(this));
+        app.timer.on(app.EVENT_INSPECTION_STARTED, this._handleInspectionStarted.bind(this));
         app.timer.on(app.EVENT_TIMER_CANCELLED, this._showZero.bind(this));
     };
 

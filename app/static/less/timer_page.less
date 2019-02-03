@@ -221,6 +221,22 @@
         display: inline-block;
     }
 
+    &.hidden {
+        visibility: hidden;
+        @media @tablet {
+            visibility: initial;
+            #seconds, #dot, #centiseconds {
+                visibility: hidden;
+            }
+        }
+        @media @mobile {
+            visibility: initial;
+            #seconds, #dot, #centiseconds {
+                visibility: hidden;
+            }
+        }
+    }
+
     &.fullscreen {
         @media @mobile {
             position: fixed;

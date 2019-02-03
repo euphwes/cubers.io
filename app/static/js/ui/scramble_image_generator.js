@@ -1,6 +1,86 @@
 (function() {
     var app = window.app;
 
+    var cube_colors = [];
+    var skewb_colors = [];
+    var sq1_colors = {};
+
+    var pyra_colors = [];
+
+    var mega_colors = [];
+
+    var setColors = function() {
+        if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_CUBE_COLORS) == 'true') {
+            cube_colors = [
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_D),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_L),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_B),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_U),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_R),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_F)
+            ];
+            skewb_colors = [
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_U),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_B),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_R),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_D),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_F),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_L)
+            ];
+            sq1_colors = {
+                'U': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_U),
+                'R': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_R),
+                'F': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_F),
+                'D': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_D),
+                'L': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_L),
+                'B': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_B)
+            };
+        } else {
+            // Order is    D,      L,      B,      U,      R,      F
+            cube_colors = ['#ff0', '#fa0', '#00f', '#fff', '#f00', '#0d0'];
+            // Order is    U,      B,      R,      D,      F       L
+            skewb_colors = ['#fff', '#00f', '#f00', '#ff0', '#0f0', '#f80'];
+            sq1_colors = {
+                'U': '#ff0',
+                'R': '#f80',
+                'F': '#0f0',
+                'D': '#fff',
+                'L': '#f00',
+                'B': '#00f'
+            };
+        }
+
+        if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_PYRAMINX_COLORS) == 'true') {
+            pyra_colors = [
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_PYRAMINX_COLOR_F),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_PYRAMINX_COLOR_L),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_PYRAMINX_COLOR_R),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_PYRAMINX_COLOR_D)
+            ];
+        } else {
+            pyra_colors = ['#0f0', '#f00', '#00f', '#ff0'];
+        }
+
+        if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_MEGAMINX_COLORS) == 'true') {
+            mega_colors = [
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_1),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_2),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_3),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_4),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_5),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_6),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_7),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_8),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_9),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_10),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_11),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_12),
+            ];
+        } else {
+            mega_colors = ['#fff', '#d00', '#060', '#81f', '#fc0', '#00b', '#ffb', '#8df', '#f83', '#7e0', '#f9f', '#999'];
+        }
+    };
+
     var mathlib = (function() {
         var DEBUG = false;
 
@@ -840,9 +920,15 @@
             var edgeY = [-Math.sin(PI * 0.1) + (cfrac - 1) / 2, -(1 + cfrac) / 2, -cfrac, -Math.cos(PI * 0.4) * cfrac];
             var centX = [Math.sin(PI * 0.0) * cfrac, Math.sin(PI * 0.4) * cfrac, Math.sin(PI * 0.8) * cfrac, Math.sin(PI * 1.2) * cfrac, Math.sin(PI * 1.6) * cfrac];
             var centY = [-Math.cos(PI * 0.0) * cfrac, -Math.cos(PI * 0.4) * cfrac, -Math.cos(PI * 0.8) * cfrac, -Math.cos(PI * 1.2) * cfrac, -Math.cos(PI * 1.6) * cfrac];
-            var colors = ['#fff', '#d00', '#060', '#81f', '#fc0', '#00b', '#ffb', '#8df', '#f83', '#7e0', '#f9f', '#999'];
+            var colors = null;
 
             function drawFace(state, baseIdx, trans, rot) {
+
+                if (!colors) {
+                    setColors();
+                    colors = mega_colors;
+                }
+
                 for (var i = 0; i < 5; i++) {
                     drawPolygon(ctx, colors[state[baseIdx + i]], Rotate([cornX, cornY], PI * 2 / 5 * i + rot), trans);
                     drawPolygon(ctx, colors[state[baseIdx + i + 5]], Rotate([edgeX, edgeY], PI * 2 / 5 * i + rot), trans);
@@ -1061,20 +1147,19 @@
             var udcol = 'UD';
             var ecol = '-B-R-F-L-B-R-F-L';
             var ccol = 'LBBRRFFLBLRBFRLF';
-            var colors = {
-                'U': '#ff0',
-                'R': '#f80',
-                'F': '#0f0',
-                'D': '#fff',
-                'L': '#f00',
-                'B': '#00f'
-            };
+            var colors = null;
 
             var width = 45;
 
             var movere = /^\s*\(\s*(-?\d+),\s*(-?\d+)\s*\)\s*$/
 
             return function(moveseq) {
+
+                if (!colors) {
+                    setColors();
+                    colors = sq1_colors;
+                }
+
                 posit = [0, 0, 1, 2, 2, 3, 4, 4, 5, 6, 6, 7, 8, 8, 9, 10, 10, 11, 12, 12, 13, 14, 14, 15];
                 mid = 0;
                 var moves = moveseq.split('/');
@@ -1153,7 +1238,8 @@
             var width = 45;
             var gap = width / 10;
             var posit = [];
-            var colors = ['#fff', '#00f', '#f00', '#ff0', '#0f0', '#f80'];
+
+            var colors = null;
 
             var ftrans = [
                 [width * hsq3, width * hsq3, (width * 4 + gap * 1.5) * hsq3, -width / 2, width / 2, width],
@@ -1200,6 +1286,12 @@
             }
 
             function face(f) {
+
+                if (!colors) {
+                    setColors();
+                    colors = skewb_colors;
+                }
+
                 var transform = ftrans[f];
                 drawPolygon(ctx, colors[posit[f * 5 + 0]], [
                     [-1, 0, 1, 0],
@@ -1267,7 +1359,7 @@
         var pyraImage = (function() {
             var width = 45;
             var posit = [];
-            var colors = ['#0f0', '#f00', '#00f', '#ff0'];
+            var colors = null;
             var faceoffx = [3.5, 1.5, 5.5, 3.5];
             var faceoffy = [0, 3 * hsq3, 3 * hsq3, 6.5 * hsq3];
             var g1 = [0, 6, 5, 4];
@@ -1294,6 +1386,12 @@
             }
 
             function face(f) {
+
+                if (!colors) {
+                    setColors();
+                    colors = pyra_colors;
+                }
+
                 var inv = f != 0;
                 var arroffx = [0, -1, 1, 0, 0.5, -0.5, 0, -0.5, 0.5];
                 var arroffy = [0, 2, 2, 2, 1, 1, 2, 3, 3];
@@ -1335,9 +1433,16 @@
             var width = 30;
 
             var posit = [];
-            var colors = ['#ff0', '#fa0', '#00f', '#fff', '#f00', '#0d0'];
+
+            var colors = null;
 
             function face(f, size) {
+
+                if (!colors) {
+                    setColors();
+                    colors = cube_colors;
+                }
+
                 var offx = 10 / 9,
                     offy = 10 / 9;
                 if (f == 0) { //D
@@ -1480,6 +1585,7 @@
         var types_nnn = ['', '', '2x2', '3x3', '4x4', '5x5', '6x6', '7x7'];
 
         function genImage(scramble) {
+
             var type = scramble[0];
             var size;
             for (size = 0; size < 8; size++) {
@@ -1569,6 +1675,8 @@
 
         this.largeCanvasId = '#big_scramble_image';
         this.normalCanvasId = '#normal_scramble_image';
+
+        setColors();
 
         this._registerCurrentScramblesManagerHandlers();
         this.reset();

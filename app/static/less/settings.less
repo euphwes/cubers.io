@@ -1,0 +1,48 @@
+.btn-setting-toggle {
+    color: #000000;
+    background-color: #f8f9fa;
+    border-color: darken(#f8f9fa, 15%);
+    font-size: 14px;
+
+    &.active {
+        color: #ffffff;
+        background-color: #28a745;
+        border-color: darken(#28a745, 15%);
+        font-weight: normal !important;
+    }
+
+    &.focus {
+        border-color: darken(#28a745, 15%) !important;
+        box-shadow: none !important;
+        font-weight: normal !important;
+    }
+
+    &.hover {
+        border: none !important;
+        box-shadow: none !important;
+    }
+}
+
+.settings-container {
+    min-height: 100%;
+    margin-top: 15px;
+    padding-bottom: 15px;
+
+    font-size: 14px;
+
+    h4 {
+        font-size: 18px;
+    }
+}
+
+.disabled-group {
+    pointer-events: none;
+    .btn.disabled {
+        opacity: 0.35;
+    }
+    [data-disable_me_as_group='true'] {
+        input, span {
+            opacity: 0.35;
+        }
+    }
+}

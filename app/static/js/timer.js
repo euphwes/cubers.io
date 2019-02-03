@@ -1,23 +1,23 @@
 (function() {
     var app = window.app;
 
-    // NOTE: to whoever is looking at this file - it's freaking ugly
-    // Will be reworking this in the near future to move to a state-based timer,
-    // and away from this callback-ridden monstrosity.
-
     // These are the events that the timer can emit
-    var EVENT_TIMER_START     = 'event_timer_start';
-    var EVENT_TIMER_INTERVAL  = 'event_timer_interval';
-    var EVENT_TIMER_STOP      = 'event_timer_stop';
-    var EVENT_TIMER_ARMED     = 'event_timer_armed';
-    var EVENT_TIMER_CANCELLED = 'event_timer_cancelled';
+    var EVENT_TIMER_START          = 'event_timer_start';
+    var EVENT_TIMER_INTERVAL       = 'event_timer_interval';
+    var EVENT_INSPECTION_INTERVAL  = 'event_inspection_interval';
+    var EVENT_INSPECTION_STARTED   = 'event_inspection_started';
+    var EVENT_INSPECTION_ARMED     = 'event_inspection_armed';
+    var EVENT_TIMER_STOP           = 'event_timer_stop';
+    var EVENT_TIMER_ARMED          = 'event_timer_armed';
+    var EVENT_TIMER_CANCELLED      = 'event_timer_cancelled';
 
     // These are the states the the timer can be in
-    var STATE_INACTIVE   = 0;
-    var STATE_ARMED      = 1;
-    var STATE_INSPECTION = 2;  // not using this yet, but putting it in for a placeholder
-    var STATE_RUNNING    = 3;
-    var STATE_DONE       = 4;
+    var STATE_INACTIVE         = 0;
+    var STATE_ARMED            = 1;
+    var STATE_INSPECTION       = 2;
+    var STATE_INSPECTION_ARMED = 3;
+    var STATE_RUNNING          = 4;
+    var STATE_DONE             = 5;
 
     // Dev flag for debugging timer state
     var debug_timer_state = false;
@@ -25,8 +25,9 @@
         0: 'inactive',
         1: 'armed',
         2: 'inspection',
-        3: 'running',
-        4: 'done',
+        3: 'inspection armed',
+        4: 'running',
+        5: 'done',
     };
 
     /**
@@ -40,8 +41,19 @@
         this.timer_interval = null;
         this.scramble_id = 0;
         this.comp_event_id = 0;
+        this.inspection_start_time = 0;
+        this.inspection_end_time = 0;
+        this.auto_dnf = false;
+        this.auto_plus_two = false;
 
         this.isTouchDown = false;
+
+        // values related to inspection time starting point and automatic penalty thresholds
+        this.INSPECTION_TIME_AMOUNT = 15;
+        this.AUTO_DNF_THRESHOLD = -2;
+        this.AUTO_PLUS_TWO_THRESHOLD = 0;
+        this.apply_auto_dnf = false;
+        this.apply_auto_plus_two = false;
 
         // keydrown.js's keyboard state manager is tick-based
         // this is boilerplate to make sure the kd namespace has a recurring tick
@@ -56,6 +68,18 @@
      */
     Timer.prototype.setCompEventId = function(comp_event_id) {
         this.comp_event_id = comp_event_id;
+    };
+
+    /**
+     * If the event is a blind event, there is no inspection time. Otherwise check the setting
+     * to determine whether or not to use inspection time.
+     */
+    Timer.prototype.determineIfUsingInspectionBasedOnEvent = function(event_name) {
+        if (["2BLD", "3BLD", "4BLD", "5BLD"].includes(event_name)) {
+            this.useInspectionTime = false;
+        } else {
+            this.useInspectionTime = app.userSettingsManager.get_setting(app.Settings.USE_INSPECTION_TIME);
+        }
     };
 
     /**
@@ -117,6 +141,7 @@
     Timer.prototype._disable = function() {
         // no more ticking
         clearInterval(this.timer_interval);
+        clearInterval(this.inspection_interval);
 
         // unbind the keyboard events
         $(document).off('keydown');
@@ -140,8 +165,14 @@
         if (this.state == STATE_INACTIVE) {
             // If the comment box has focus, don't start the timer
             if ($(".comment-upload textarea").is(":focus")) { return; }
-
             this._arm();
+            e.preventDefault();
+            return;
+        }
+
+        // If inspection is in progress, set "inspection armed" so releasing will start the timer
+        if (this.state == STATE_INSPECTION) {
+            this._armInspection();
             e.preventDefault();
             return;
         }
@@ -166,12 +197,27 @@
             e.preventDefault();
             return;
         }
-        // If the timer is armed, start the timer
+
+        // If the timer is armed...
         if (this.state == STATE_ARMED) {
+            if (this.useInspectionTime) {
+                // ... start inspection
+                this._startInspection();
+            } else {
+                // ... start the timer
+                this._start();
+            }
+            e.preventDefault();
+            return;
+        }
+
+        // The the timer's inspection has been armed, then start the timer
+        if (this.state == STATE_INSPECTION_ARMED) {
             this._start();
             e.preventDefault();
             return;
         }
+
         e.preventDefault();
     };
 
@@ -206,13 +252,37 @@
     }
 
     /**
+     * Arms the timer from within inspection by putting it a state indicating it's ready to start running.
+     */
+    Timer.prototype._armInspection = function () {
+        this._setState(STATE_INSPECTION_ARMED);
+        this.emit(EVENT_INSPECTION_ARMED);
+    }
+
+    /**
      * Starts the timer. Captures the start time so we can determine elapsed time on subsequent ticks.
      */
     Timer.prototype._start = function() {
+
+        // If inspection was previously running, stop the inspection
+        if (this.inspection_interval) {
+            clearInterval(this.inspection_interval);
+        }
+
         this._setState(STATE_RUNNING);
         this.start_time = new Date();
         this.timer_interval = setInterval(this._timer_intervalFunction.bind(this), 42);
         this.emit(EVENT_TIMER_START);
+    };
+
+    /**
+     * Starts the inspection countdown.
+     */
+    Timer.prototype._startInspection = function() {
+        this.emit(EVENT_INSPECTION_STARTED, this.INSPECTION_TIME_AMOUNT);
+        this._setState(STATE_INSPECTION);
+        this.inspection_start_time = new Date();
+        this.inspection_interval = setInterval(this._inspection_intervalFunction.bind(this), 42);
     };
 
     /**
@@ -230,6 +300,13 @@
         // If the timer was cancelled, don't record the time. Emit an event so the visible timer
         // gets updated back to zeros. Re-enable the timer.
         if (timerCancelled) {
+            // reset the flags to auto-apply penalties if inspection is too long
+            // reset stuff related to inspection time, to start the next solve on a clean slate
+            this.inspection_start_time = 0;
+            this.inspection_end_time = 0;
+            this.apply_auto_dnf = false;
+            this.apply_auto_plus_two = false;
+
             this.emit(EVENT_TIMER_CANCELLED);
             this._enable();
             return;
@@ -242,22 +319,49 @@
         // as seconds converted to minutes + decimal + centiseconds
         var s = this.elapsed_time.getSecondsFromMs();
         var cs = this.elapsed_time.getTwoDigitCentisecondsFromMs();
-        var friendly_seconds = app.convertSecondsToMinutes(s);
-        var full_time = friendly_seconds + "." + cs;
 
         var data = {};
-        data.elapsed_time          = this.elapsed_time;
-        data.scramble_id           = this.scramble_id;
-        data.comp_event_id         = this.comp_event_id;
-        data.friendly_seconds      = friendly_seconds;
+        data.elapsed_time  = this.elapsed_time;
+        data.scramble_id   = this.scramble_id;
+        data.comp_event_id = this.comp_event_id;
+        data.isDNF         = false;
+        data.isPlusTwo     = false;
+
+        // Check auto-penalty flags if we did inspection time
+        if (this.useInspectionTime) {
+            data.isDNF = this.apply_auto_dnf;
+            data.isPlusTwo = this.apply_auto_plus_two;
+            if (data.isDNF) {
+                s  = '0';
+                cs = '1';
+                // HACK ALERT!! If cs and s = 0, the total raw centiseconds is 0, which throws off
+                // a lot of Boolean(time) checks which expect a "falsy" time to indicate the solve isn't done.
+                // It's easier to just set this to something non-zero, since the value shouldn't surface anyway.
+                // TODO: fix logic to not do Boolean(time), and instead check some isSolveComplete flag
+            }
+        }
+
+        data.friendly_seconds = app.convertSecondsToMinutes(s);
         data.friendly_centiseconds = cs;
-        data.friendly_time_full    = full_time;
-        data.rawTimeCs             = parseInt(s*100) + parseInt(cs);
-        data.isDNF                 = false;
-        data.isPlusTwo             = false;
+        data.rawTimeCs = parseInt(s*100) + parseInt(cs);
+
+        if (data.isDNF) {
+            data.friendly_time_full = "DNF";
+        } else if (data.isPlusTwo) {
+            data.friendly_time_full = (parseInt(data.friendly_seconds) + 2) + "." + cs + "+";
+        } else {
+            data.friendly_time_full = data.friendly_seconds + "." + cs;
+        }
 
         // emit the event which notifies everybody else that the timer has stopped
         this.emit(EVENT_TIMER_STOP, data);
+
+        // reset the flags to auto-apply penalties if inspection is too long
+        // reset stuff related to inspection time, to start the next solve on a clean slate
+        this.inspection_start_time = 0;
+        this.inspection_end_time = 0;
+        this.apply_auto_dnf = false;
+        this.apply_auto_plus_two = false;
     };
 
     /**
@@ -277,6 +381,27 @@
     };
 
     /**
+     * Checks the current time against the start time to determine elapsed time.
+     */
+    Timer.prototype._inspection_intervalFunction = function() {
+        var inspection_elapsed_seconds = ((new Date()) - this.inspection_start_time).getSecondsFromMs();
+        var seconds_remaining = this.INSPECTION_TIME_AMOUNT - inspection_elapsed_seconds;
+
+        if (seconds_remaining < this.AUTO_DNF_THRESHOLD) {
+            this.apply_auto_dnf = true;
+            this.apply_auto_plus_two = false;
+            console.log('auto dnf');
+            this._stop();
+            return;
+        } else if (seconds_remaining < this.AUTO_PLUS_TWO_THRESHOLD) {
+            console.log('auto plus 2');
+            this.apply_auto_plus_two = true;
+        }
+
+        this.emit(EVENT_INSPECTION_INTERVAL, {seconds_remaining});
+    };
+
+    /**
      * Register handlers for AppModeManager events.
      */
     Timer.prototype._registerAppModeManagerListeners = function() {
@@ -286,11 +411,14 @@
 
     // Make timer and event names visible at app scope
     app.Timer = Timer;
-    app.EVENT_TIMER_STOP      = EVENT_TIMER_STOP;
-    app.EVENT_TIMER_START     = EVENT_TIMER_START;
-    app.EVENT_TIMER_INTERVAL  = EVENT_TIMER_INTERVAL;
-    app.EVENT_TIMER_ARMED     = EVENT_TIMER_ARMED;
-    app.EVENT_TIMER_CANCELLED = EVENT_TIMER_CANCELLED;
+    app.EVENT_TIMER_STOP           = EVENT_TIMER_STOP;
+    app.EVENT_TIMER_START          = EVENT_TIMER_START;
+    app.EVENT_TIMER_INTERVAL       = EVENT_TIMER_INTERVAL;
+    app.EVENT_INSPECTION_INTERVAL  = EVENT_INSPECTION_INTERVAL;
+    app.EVENT_INSPECTION_STARTED   = EVENT_INSPECTION_STARTED;
+    app.EVENT_INSPECTION_ARMED     = EVENT_INSPECTION_ARMED;
+    app.EVENT_TIMER_ARMED          = EVENT_TIMER_ARMED;
+    app.EVENT_TIMER_CANCELLED      = EVENT_TIMER_CANCELLED;
 
     app.debug_timer_state = debug_timer_state;
 })();

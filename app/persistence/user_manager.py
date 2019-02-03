@@ -1,4 +1,4 @@
-""" Utility module for providing access to business logic for users. """
+""" Utility module for persisting and retrieving users. """
 
 from app import DB
 from app.persistence.models import User

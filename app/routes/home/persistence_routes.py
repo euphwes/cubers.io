@@ -106,6 +106,7 @@ def do_reddit_submit(comp_id, user):
     """ Handle submitting a new, or updating an existing, Reddit comment. """
 
     # TODO: probably should put this in the Reddit util
+    # TODO: comment this better
 
     comp = get_competition(comp_id)
     reddit_thread_id = comp.reddit_thread_id

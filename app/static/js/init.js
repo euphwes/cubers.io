@@ -13,6 +13,8 @@
 
         app.appModeManager = new app.AppModeManager();
 
+        app.userSettingsManager = new app.UserSettingsManager();
+
         app.timer = new app.Timer();
 
         app.eventsDataManager = new app.EventsDataManager();
