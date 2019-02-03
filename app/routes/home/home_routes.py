@@ -157,6 +157,8 @@ def get_user_settings(user):
     """ Retrieves certain settings for use in the front-end. If there is no logged-in user, just
     retrieve default values for these settings. """
 
+    # TODO: get these all at once, rather than single DB queries each
+
     # These are the settings relevant to the operation of the main cubers.io application
     settings_to_populate = [
         SettingCode.DEFAULT_TO_MANUAL_TIME,
@@ -175,6 +177,19 @@ def get_user_settings(user):
         SettingCode.CUSTOM_PYRAMINX_COLOR_L,
         SettingCode.CUSTOM_PYRAMINX_COLOR_F,
         SettingCode.CUSTOM_PYRAMINX_COLOR_R,
+        SettingCode.USE_CUSTOM_MEGAMINX_COLORS,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_1,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_2,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_3,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_4,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_5,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_6,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_7,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_8,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_9,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_10,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_11,
+        SettingCode.CUSTOM_MEGAMINX_COLOR_12,
     ]
 
     # If there is a logged-in user, get their settings. Otherwise just get default values

@@ -32,6 +32,21 @@ class SettingCode():
     CUSTOM_PYRAMINX_COLOR_R    = 'custom_pyra_color_R'
     CUSTOM_PYRAMINX_COLOR_D    = 'custom_pyra_color_D'
 
+    # Custom megaminx colors
+    USE_CUSTOM_MEGAMINX_COLORS = 'use_custom_megaminx_colors'
+    CUSTOM_MEGAMINX_COLOR_1    = 'custom_mega_color_1'
+    CUSTOM_MEGAMINX_COLOR_2    = 'custom_mega_color_2'
+    CUSTOM_MEGAMINX_COLOR_3    = 'custom_mega_color_3'
+    CUSTOM_MEGAMINX_COLOR_4    = 'custom_mega_color_4'
+    CUSTOM_MEGAMINX_COLOR_5    = 'custom_mega_color_5'
+    CUSTOM_MEGAMINX_COLOR_6    = 'custom_mega_color_6'
+    CUSTOM_MEGAMINX_COLOR_7    = 'custom_mega_color_7'
+    CUSTOM_MEGAMINX_COLOR_8    = 'custom_mega_color_8'
+    CUSTOM_MEGAMINX_COLOR_9    = 'custom_mega_color_9'
+    CUSTOM_MEGAMINX_COLOR_10   = 'custom_mega_color_10'
+    CUSTOM_MEGAMINX_COLOR_11   = 'custom_mega_color_11'
+    CUSTOM_MEGAMINX_COLOR_12   = 'custom_mega_color_12'
+
 # Denotes the type of setting, aka boolean, free-form text, etc
 class SettingType():
     BOOLEAN   = 'boolean'
@@ -65,6 +80,21 @@ DEFAULT_PYRA_COLORS = {
     'L': '#FF0000',
     'R': '#0000FF',
     'D': '#FFFF00',
+}
+
+DEFAULT_MEGA_COLORS = {
+    '1': '#FFFFFF',
+    '2': '#DD0000',
+    '3': '#006600',
+    '4': '#8811FF',
+    '5': '#FFCC00',
+    '6': '#0000BB',
+    '7': '#FFFFBB',
+    '8': '#88DDFF',
+    '9': '#FF8833',
+    '10': '#77EE00',
+    '11': '#FF99FF',
+    '12': '#999999',
 }
 
 def boolean_validator(value):
@@ -219,6 +249,103 @@ SETTING_INFO_MAP = {
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_PYRA_COLORS["D"]
+    ),
+
+    SettingCode.USE_CUSTOM_MEGAMINX_COLORS : SettingInfo(
+        title         = "Use Custom Megaminx Colors",
+        validator     = boolean_validator,
+        setting_type  = SettingType.BOOLEAN,
+        default_value = FALSE_STR,
+        affects       = [SettingCode.CUSTOM_MEGAMINX_COLOR_1, SettingCode.CUSTOM_MEGAMINX_COLOR_2,
+                         SettingCode.CUSTOM_MEGAMINX_COLOR_3, SettingCode.CUSTOM_MEGAMINX_COLOR_4,
+                         SettingCode.CUSTOM_MEGAMINX_COLOR_5, SettingCode.CUSTOM_MEGAMINX_COLOR_6,
+                         SettingCode.CUSTOM_MEGAMINX_COLOR_7, SettingCode.CUSTOM_MEGAMINX_COLOR_8,
+                         SettingCode.CUSTOM_MEGAMINX_COLOR_9, SettingCode.CUSTOM_MEGAMINX_COLOR_10,
+                         SettingCode.CUSTOM_MEGAMINX_COLOR_11, SettingCode.CUSTOM_MEGAMINX_COLOR_12]
+    ),
+
+    SettingCode.CUSTOM_MEGAMINX_COLOR_1 : SettingInfo(
+        title         = "Face 1",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_MEGA_COLORS["1"]
+    ),
+
+    SettingCode.CUSTOM_MEGAMINX_COLOR_2 : SettingInfo(
+        title         = "Face 2",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_MEGA_COLORS["2"]
+    ),
+
+    SettingCode.CUSTOM_MEGAMINX_COLOR_3 : SettingInfo(
+        title         = "Face 3",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_MEGA_COLORS["3"]
+    ),
+
+    SettingCode.CUSTOM_MEGAMINX_COLOR_4 : SettingInfo(
+        title         = "Face 4",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_MEGA_COLORS["4"]
+    ),
+
+    SettingCode.CUSTOM_MEGAMINX_COLOR_5 : SettingInfo(
+        title         = "Face 5",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_MEGA_COLORS["5"]
+    ),
+
+    SettingCode.CUSTOM_MEGAMINX_COLOR_6 : SettingInfo(
+        title         = "Face 6",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_MEGA_COLORS["6"]
+    ),
+
+    SettingCode.CUSTOM_MEGAMINX_COLOR_7 : SettingInfo(
+        title         = "Face 7",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_MEGA_COLORS["7"]
+    ),
+
+    SettingCode.CUSTOM_MEGAMINX_COLOR_8 : SettingInfo(
+        title         = "Face 8",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_MEGA_COLORS["8"]
+    ),
+
+    SettingCode.CUSTOM_MEGAMINX_COLOR_9 : SettingInfo(
+        title         = "Face 9",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_MEGA_COLORS["9"]
+    ),
+
+    SettingCode.CUSTOM_MEGAMINX_COLOR_10 : SettingInfo(
+        title         = "Face 10",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_MEGA_COLORS["10"]
+    ),
+
+    SettingCode.CUSTOM_MEGAMINX_COLOR_11 : SettingInfo(
+        title         = "Face 11",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_MEGA_COLORS["11"]
+    ),
+
+    SettingCode.CUSTOM_MEGAMINX_COLOR_12 : SettingInfo(
+        title         = "Face 12",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_MEGA_COLORS["12"]
     ),
 }
 

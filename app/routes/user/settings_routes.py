@@ -39,12 +39,29 @@ CUSTOM_PYRAMINX_COLOR_SETTINGS = [
     SettingCode.CUSTOM_PYRAMINX_COLOR_D,
 ]
 
+CUSTOM_MEGAMINX_COLOR_SETTINGS = [
+    SettingCode.USE_CUSTOM_MEGAMINX_COLORS,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_1,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_2,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_3,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_4,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_5,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_6,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_7,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_8,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_9,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_10,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_11,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_12,
+]
+
 REDDIT_SETTINGS = [
     #SettingCode.REDDIT_COMP_NOTIFY,
 ]
 
 # pylint: disable=line-too-long
-__ALL_SETTINGS = REDDIT_SETTINGS + CUSTOM_CUBE_COLOR_SETTINGS + CUSTOM_PYRAMINX_COLOR_SETTINGS + TIMER_SETTINGS
+__ALL_SETTINGS = REDDIT_SETTINGS + CUSTOM_CUBE_COLOR_SETTINGS + CUSTOM_PYRAMINX_COLOR_SETTINGS
+__ALL_SETTINGS += CUSTOM_MEGAMINX_COLOR_SETTINGS + TIMER_SETTINGS
 
 # -------------------------------------------------------------------------------------------------
 
@@ -69,6 +86,7 @@ def __handle_get(user):
         ("Timer Preferences",           [s for s in all_settings if s.code in set(TIMER_SETTINGS)]),
         ("Cube Color Preferences",      [s for s in all_settings if s.code in set(CUSTOM_CUBE_COLOR_SETTINGS)]),
         ("Pyraminx Color Preferences",  [s for s in all_settings if s.code in set(CUSTOM_PYRAMINX_COLOR_SETTINGS)]),
+        ("Megaminx Color Preferences",  [s for s in all_settings if s.code in set(CUSTOM_MEGAMINX_COLOR_SETTINGS)]),
         ("Reddit Preferences",          [s for s in all_settings if s.code in set(REDDIT_SETTINGS)]),
     ])
 

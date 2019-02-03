@@ -25,6 +25,21 @@
     Settings.CUSTOM_PYRAMINX_COLOR_R    = 'custom_pyra_color_R';
     Settings.CUSTOM_PYRAMINX_COLOR_D    = 'custom_pyra_color_D';
 
+    // Stuff related to custom megaminx colors
+    Settings.USE_CUSTOM_MEGAMINX_COLORS = 'use_custom_megaminx_colors'
+    Settings.CUSTOM_MEGAMINX_COLOR_1    = 'custom_mega_color_1'
+    Settings.CUSTOM_MEGAMINX_COLOR_2    = 'custom_mega_color_2'
+    Settings.CUSTOM_MEGAMINX_COLOR_3    = 'custom_mega_color_3'
+    Settings.CUSTOM_MEGAMINX_COLOR_4    = 'custom_mega_color_4'
+    Settings.CUSTOM_MEGAMINX_COLOR_5    = 'custom_mega_color_5'
+    Settings.CUSTOM_MEGAMINX_COLOR_6    = 'custom_mega_color_6'
+    Settings.CUSTOM_MEGAMINX_COLOR_7    = 'custom_mega_color_7'
+    Settings.CUSTOM_MEGAMINX_COLOR_8    = 'custom_mega_color_8'
+    Settings.CUSTOM_MEGAMINX_COLOR_9    = 'custom_mega_color_9'
+    Settings.CUSTOM_MEGAMINX_COLOR_10   = 'custom_mega_color_10'
+    Settings.CUSTOM_MEGAMINX_COLOR_11   = 'custom_mega_color_11'
+    Settings.CUSTOM_MEGAMINX_COLOR_12   = 'custom_mega_color_12'
+
     /**
      * Manages user settings
      */

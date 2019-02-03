@@ -7,6 +7,8 @@
 
     var pyra_colors = [];
 
+    var mega_colors = [];
+
     var setColors = function() {
         if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_CUBE_COLORS) == 'true') {
             cube_colors = [
@@ -57,6 +59,25 @@
             ];
         } else {
             pyra_colors = ['#0f0', '#f00', '#00f', '#ff0'];
+        }
+
+        if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_MEGAMINX_COLORS) == 'true') {
+            mega_colors = [
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_1),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_2),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_3),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_4),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_5),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_6),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_7),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_8),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_9),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_10),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_11),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_12),
+            ];
+        } else {
+            mega_colors = ['#fff', '#d00', '#060', '#81f', '#fc0', '#00b', '#ffb', '#8df', '#f83', '#7e0', '#f9f', '#999'];
         }
     };
 
@@ -899,9 +920,15 @@
             var edgeY = [-Math.sin(PI * 0.1) + (cfrac - 1) / 2, -(1 + cfrac) / 2, -cfrac, -Math.cos(PI * 0.4) * cfrac];
             var centX = [Math.sin(PI * 0.0) * cfrac, Math.sin(PI * 0.4) * cfrac, Math.sin(PI * 0.8) * cfrac, Math.sin(PI * 1.2) * cfrac, Math.sin(PI * 1.6) * cfrac];
             var centY = [-Math.cos(PI * 0.0) * cfrac, -Math.cos(PI * 0.4) * cfrac, -Math.cos(PI * 0.8) * cfrac, -Math.cos(PI * 1.2) * cfrac, -Math.cos(PI * 1.6) * cfrac];
-            var colors = ['#fff', '#d00', '#060', '#81f', '#fc0', '#00b', '#ffb', '#8df', '#f83', '#7e0', '#f9f', '#999'];
+            var colors = null;
 
             function drawFace(state, baseIdx, trans, rot) {
+
+                if (!colors) {
+                    setColors();
+                    colors = mega_colors;
+                }
+
                 for (var i = 0; i < 5; i++) {
                     drawPolygon(ctx, colors[state[baseIdx + i]], Rotate([cornX, cornY], PI * 2 / 5 * i + rot), trans);
                     drawPolygon(ctx, colors[state[baseIdx + i + 5]], Rotate([edgeX, edgeY], PI * 2 / 5 * i + rot), trans);
