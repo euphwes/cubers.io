@@ -25,6 +25,13 @@ class SettingCode():
     CUSTOM_CUBE_COLOR_B    = 'custom_cube_color_B'
     CUSTOM_CUBE_COLOR_L    = 'custom_cube_color_L'
 
+    # Custom pyraminx colors
+    USE_CUSTOM_PYRAMINX_COLORS = 'use_custom_pyraminx_colors'
+    CUSTOM_PYRAMINX_COLOR_F    = 'custom_pyra_color_F'
+    CUSTOM_PYRAMINX_COLOR_L    = 'custom_pyra_color_L'
+    CUSTOM_PYRAMINX_COLOR_R    = 'custom_pyra_color_R'
+    CUSTOM_PYRAMINX_COLOR_D    = 'custom_pyra_color_D'
+
 # Denotes the type of setting, aka boolean, free-form text, etc
 class SettingType():
     BOOLEAN   = 'boolean'
@@ -51,6 +58,13 @@ DEFAULT_CUBE_COLORS = {
     'D': '#FFFF00',
     'B': '#0000FF',
     'L': '#FF8800',
+}
+
+DEFAULT_PYRA_COLORS = {
+    'F': '#00FF00',
+    'L': '#FF0000',
+    'R': '#0000FF',
+    'D': '#FFFF00',
 }
 
 def boolean_validator(value):
@@ -169,10 +183,47 @@ SETTING_INFO_MAP = {
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_CUBE_COLORS["L"]
     ),
+
+    SettingCode.USE_CUSTOM_PYRAMINX_COLORS : SettingInfo(
+        title         = "Use Custom Pyraminx Colors",
+        validator     = boolean_validator,
+        setting_type  = SettingType.BOOLEAN,
+        default_value = FALSE_STR,
+        affects       = [SettingCode.CUSTOM_PYRAMINX_COLOR_F, SettingCode.CUSTOM_PYRAMINX_COLOR_L,
+                         SettingCode.CUSTOM_PYRAMINX_COLOR_R, SettingCode.CUSTOM_PYRAMINX_COLOR_D]
+    ),
+
+    SettingCode.CUSTOM_PYRAMINX_COLOR_F : SettingInfo(
+        title         = "F Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_PYRA_COLORS["F"]
+    ),
+
+    SettingCode.CUSTOM_PYRAMINX_COLOR_L : SettingInfo(
+        title         = "L Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_PYRA_COLORS["L"]
+    ),
+
+    SettingCode.CUSTOM_PYRAMINX_COLOR_R : SettingInfo(
+        title         = "R Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_PYRA_COLORS["R"]
+    ),
+
+    SettingCode.CUSTOM_PYRAMINX_COLOR_D : SettingInfo(
+        title         = "D Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_PYRA_COLORS["D"]
+    ),
 }
 
-edit_tuple_fields = ['code', 'title', 'value', 'type', 'affects', 'default']
-SettingsEditTuple = namedtuple('SettingsEditTuple', edit_tuple_fields)
+EDIT_TUPLE_FIELDS = ['code', 'title', 'value', 'type', 'affects', 'default']
+SettingsEditTuple = namedtuple('SettingsEditTuple', EDIT_TUPLE_FIELDS)
 
 # -------------------------------------------------------------------------------------------------
 

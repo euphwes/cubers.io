@@ -1,5 +1,7 @@
 """ Routes related to a user's profile. """
 
+from collections import OrderedDict
+
 from flask import render_template, redirect, url_for, request
 from flask_login import current_user
 
@@ -29,11 +31,20 @@ CUSTOM_CUBE_COLOR_SETTINGS = [
     SettingCode.CUSTOM_CUBE_COLOR_L,
 ]
 
+CUSTOM_PYRAMINX_COLOR_SETTINGS = [
+    SettingCode.USE_CUSTOM_PYRAMINX_COLORS,
+    SettingCode.CUSTOM_PYRAMINX_COLOR_F,
+    SettingCode.CUSTOM_PYRAMINX_COLOR_L,
+    SettingCode.CUSTOM_PYRAMINX_COLOR_R,
+    SettingCode.CUSTOM_PYRAMINX_COLOR_D,
+]
+
 REDDIT_SETTINGS = [
     #SettingCode.REDDIT_COMP_NOTIFY,
 ]
 
-__ALL_SETTINGS = REDDIT_SETTINGS + CUSTOM_CUBE_COLOR_SETTINGS + TIMER_SETTINGS
+# pylint: disable=line-too-long
+__ALL_SETTINGS = REDDIT_SETTINGS + CUSTOM_CUBE_COLOR_SETTINGS + CUSTOM_PYRAMINX_COLOR_SETTINGS + TIMER_SETTINGS
 
 # -------------------------------------------------------------------------------------------------
 
@@ -54,11 +65,12 @@ def __handle_get(user):
     all_settings = get_settings_for_user_for_edit(user.id, __ALL_SETTINGS)
 
     # pylint: disable=line-too-long
-    settings_sections = {
-        "Timer Preferences":       [s for s in all_settings if s.code in set(TIMER_SETTINGS)],
-        "Cube Color Preferences":  [s for s in all_settings if s.code in set(CUSTOM_CUBE_COLOR_SETTINGS)],
-        "Reddit Preferences":      [s for s in all_settings if s.code in set(REDDIT_SETTINGS)],
-    }
+    settings_sections = OrderedDict([
+        ("Timer Preferences",           [s for s in all_settings if s.code in set(TIMER_SETTINGS)]),
+        ("Cube Color Preferences",      [s for s in all_settings if s.code in set(CUSTOM_CUBE_COLOR_SETTINGS)]),
+        ("Pyraminx Color Preferences",  [s for s in all_settings if s.code in set(CUSTOM_PYRAMINX_COLOR_SETTINGS)]),
+        ("Reddit Preferences",          [s for s in all_settings if s.code in set(REDDIT_SETTINGS)]),
+    ])
 
     disabled_settings = list()
     for setting in all_settings:

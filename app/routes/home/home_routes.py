@@ -170,6 +170,11 @@ def get_user_settings(user):
         SettingCode.CUSTOM_CUBE_COLOR_D,
         SettingCode.CUSTOM_CUBE_COLOR_B,
         SettingCode.CUSTOM_CUBE_COLOR_L,
+        SettingCode.USE_CUSTOM_PYRAMINX_COLORS,
+        SettingCode.CUSTOM_PYRAMINX_COLOR_D,
+        SettingCode.CUSTOM_PYRAMINX_COLOR_L,
+        SettingCode.CUSTOM_PYRAMINX_COLOR_F,
+        SettingCode.CUSTOM_PYRAMINX_COLOR_R,
     ]
 
     # If there is a logged-in user, get their settings. Otherwise just get default values

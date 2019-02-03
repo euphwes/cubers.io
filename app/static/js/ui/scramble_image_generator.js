@@ -5,6 +5,8 @@
     var skewb_colors = [];
     var sq1_colors = {};
 
+    var pyra_colors = [];
+
     var setColors = function() {
         if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_CUBE_COLORS) == 'true') {
             cube_colors = [
@@ -44,6 +46,17 @@
                 'L': '#f00',
                 'B': '#00f'
             };
+        }
+
+        if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_PYRAMINX_COLORS) == 'true') {
+            pyra_colors = [
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_PYRAMINX_COLOR_F),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_PYRAMINX_COLOR_L),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_PYRAMINX_COLOR_R),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_PYRAMINX_COLOR_D)
+            ];
+        } else {
+            pyra_colors = ['#0f0', '#f00', '#00f', '#ff0'];
         }
     };
 
@@ -1319,7 +1332,7 @@
         var pyraImage = (function() {
             var width = 45;
             var posit = [];
-            var colors = ['#0f0', '#f00', '#00f', '#ff0'];
+            var colors = null;
             var faceoffx = [3.5, 1.5, 5.5, 3.5];
             var faceoffy = [0, 3 * hsq3, 3 * hsq3, 6.5 * hsq3];
             var g1 = [0, 6, 5, 4];
@@ -1346,6 +1359,12 @@
             }
 
             function face(f) {
+
+                if (!colors) {
+                    setColors();
+                    colors = pyra_colors;
+                }
+
                 var inv = f != 0;
                 var arroffx = [0, -1, 1, 0, 0.5, -0.5, 0, -0.5, 0.5];
                 var arroffy = [0, 2, 2, 2, 1, 1, 2, 3, 3];

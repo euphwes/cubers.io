@@ -18,6 +18,13 @@
     Settings.CUSTOM_CUBE_COLOR_B    = 'custom_cube_color_B';
     Settings.CUSTOM_CUBE_COLOR_L    = 'custom_cube_color_L';
 
+    // Stuff related to custom pyraminx colors
+    Settings.USE_CUSTOM_PYRAMINX_COLORS = 'use_custom_pyraminx_colors';
+    Settings.CUSTOM_PYRAMINX_COLOR_F    = 'custom_pyra_color_F';
+    Settings.CUSTOM_PYRAMINX_COLOR_L    = 'custom_pyra_color_L';
+    Settings.CUSTOM_PYRAMINX_COLOR_R    = 'custom_pyra_color_R';
+    Settings.CUSTOM_PYRAMINX_COLOR_D    = 'custom_pyra_color_D';
+
     /**
      * Manages user settings
      */
