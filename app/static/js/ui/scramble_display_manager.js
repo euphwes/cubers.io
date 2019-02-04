@@ -24,8 +24,15 @@
      * Event handler for when a scramble is attached to the timer. Show the scramble in the display.
      */
     ScrambleDisplayManager.prototype._showScramble = function(eventData) {
-        var rendered = eventData.scramble.scramble.split('\n').join('<br/>');
-        $('.scramble-wrapper .scram').html(rendered);
+        $('.scramble-wrapper .scram').removeClass('text-left').removeClass('code');
+        var renderedScrambleText = eventData.scramble.scramble.split('\n').join('<br/>')
+        if (eventData.eventName == 'Megaminx') {
+            $('.scramble-wrapper .scram').addClass('text-left').addClass('code');
+            console.log(renderedScrambleText);
+            renderedScrambleText = this.__cleanupMegaminxScramble(renderedScrambleText);
+            console.log(renderedScrambleText);
+        }
+        $('.scramble-wrapper .scram').html(renderedScrambleText);
         textFit($('.scramble-wrapper .scram'), {multiLine: true, maxFontSize: 50});
     };
 
@@ -73,6 +80,67 @@
 
         $('.scramble-wrapper .scram').html(text);
         textFit($('.scramble-wrapper .scram'));
+    };
+
+    ScrambleDisplayManager.prototype.__cleanupMegaminxScramble = function(scramble) {
+
+        // Build up a list of indices of spaces following a U move
+        var indicies_following_u = [];
+        var i = -1;
+        while ((i = scramble.indexOf("U ", i + 1)) >= 0) {
+            indicies_following_u.push(i + 1); // +1 because indexOf will find the U, but we want 1 char later
+        }
+
+        // Build up a list of indices of spaces following a U' move
+        var indicies_following_uprime = [];
+        i = -1;
+        while ((i = scramble.indexOf("U' ", i + 1)) >= 0) {
+            indicies_following_uprime.push(i + 2); // +2 because indexOf will find the U', but we want 2 chars later
+        }
+
+        // Concatenate and sort the indicies of whitespace following a U or U'
+        var indicies_after_u_moves = indicies_following_u.concat(indicies_following_uprime);
+        indicies_after_u_moves.sort(function(a, b){return a-b});
+
+        // We want insert a <br/> after every **other** U or U', starting on the 2nd one
+        // After the others, we either want to insert a <br/> on mobile, or 2x or 3x non-breaking spaces,
+        // depending on whether it's a U or U' we're following.
+        //
+        // The final effect is that we'll have 2 "chunks" of megaminx scramble on each line,
+        // and the non-breaking spaces in combination with the monospace font we apply for megaminx scrambles
+        // means everything will line up nicely. On mobile, we'll have 1 scramble chunk per line
+        var break_here = false;
+        var chars_added = 0;
+        $.each(indicies_after_u_moves, function(_, ix) {
+            if (break_here) {
+                // adjust the index we're inserting into based on how many extra characters we've added
+                ix += chars_added;
+                scramble = scramble.slice(0, ix) + '<br/>' + scramble.slice(ix);
+                chars_added += 5;
+            } else {
+                if (app.is_mobile) {
+                    ix += chars_added;
+                    scramble = scramble.slice(0, ix) + '<br/>' + scramble.slice(ix);
+                    chars_added += 5;
+                } else {
+                    var is_follow_u = indicies_following_u.includes(ix);
+
+                    // adjust the index we're inserting into based on how many extra characters we've added
+                    ix += chars_added;
+                    if (is_follow_u) {
+                        scramble = scramble.slice(0, ix) + '&nbsp;&nbsp;&nbsp;' + scramble.slice(ix);
+                        chars_added += 18;
+                    } else {
+                        scramble = scramble.slice(0, ix) + '&nbsp;&nbsp;' + scramble.slice(ix);
+                        chars_added += 12;
+                    }
+
+                }
+            }
+            break_here = !break_here;
+        });
+
+        return scramble;
     };
 
     /**
