@@ -5,8 +5,8 @@ from flask_login import current_user
 
 from app import CUBERS_APP
 from app.persistence import comp_manager
-from app.persistence.settings_manager import get_default_value_for_setting, get_setting_for_user,\
-    SettingCode
+from app.persistence.settings_manager import SettingCode, get_default_values_for_settings,\
+    get_bulk_settings_for_user_as_dict
 from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import get_event_results_for_user
 from app.persistence.models import EventFormat
@@ -153,48 +153,44 @@ def fill_user_data_for_event(user, event_data):
 
 # -------------------------------------------------------------------------------------------------
 
+# These are the settings relevant to the operation of the main cubers.io application
+SETTINGS_TO_POPULATE = [
+    SettingCode.DEFAULT_TO_MANUAL_TIME,
+    SettingCode.HIDE_RUNNING_TIMER,
+    SettingCode.HIDE_INSPECTION_TIME,
+    SettingCode.USE_INSPECTION_TIME,
+    SettingCode.USE_CUSTOM_CUBE_COLORS,
+    SettingCode.CUSTOM_CUBE_COLOR_U,
+    SettingCode.CUSTOM_CUBE_COLOR_F,
+    SettingCode.CUSTOM_CUBE_COLOR_R,
+    SettingCode.CUSTOM_CUBE_COLOR_D,
+    SettingCode.CUSTOM_CUBE_COLOR_B,
+    SettingCode.CUSTOM_CUBE_COLOR_L,
+    SettingCode.USE_CUSTOM_PYRAMINX_COLORS,
+    SettingCode.CUSTOM_PYRAMINX_COLOR_D,
+    SettingCode.CUSTOM_PYRAMINX_COLOR_L,
+    SettingCode.CUSTOM_PYRAMINX_COLOR_F,
+    SettingCode.CUSTOM_PYRAMINX_COLOR_R,
+    SettingCode.USE_CUSTOM_MEGAMINX_COLORS,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_1,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_2,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_3,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_4,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_5,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_6,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_7,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_8,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_9,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_10,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_11,
+    SettingCode.CUSTOM_MEGAMINX_COLOR_12,
+]
+
 def get_user_settings(user):
     """ Retrieves certain settings for use in the front-end. If there is no logged-in user, just
     retrieve default values for these settings. """
 
-    # TODO: get these all at once, rather than single DB queries each
+    if user:
+        return get_bulk_settings_for_user_as_dict(user.id, SETTINGS_TO_POPULATE)
 
-    # These are the settings relevant to the operation of the main cubers.io application
-    settings_to_populate = [
-        SettingCode.DEFAULT_TO_MANUAL_TIME,
-        SettingCode.HIDE_RUNNING_TIMER,
-        SettingCode.HIDE_INSPECTION_TIME,
-        SettingCode.USE_INSPECTION_TIME,
-        SettingCode.USE_CUSTOM_CUBE_COLORS,
-        SettingCode.CUSTOM_CUBE_COLOR_U,
-        SettingCode.CUSTOM_CUBE_COLOR_F,
-        SettingCode.CUSTOM_CUBE_COLOR_R,
-        SettingCode.CUSTOM_CUBE_COLOR_D,
-        SettingCode.CUSTOM_CUBE_COLOR_B,
-        SettingCode.CUSTOM_CUBE_COLOR_L,
-        SettingCode.USE_CUSTOM_PYRAMINX_COLORS,
-        SettingCode.CUSTOM_PYRAMINX_COLOR_D,
-        SettingCode.CUSTOM_PYRAMINX_COLOR_L,
-        SettingCode.CUSTOM_PYRAMINX_COLOR_F,
-        SettingCode.CUSTOM_PYRAMINX_COLOR_R,
-        SettingCode.USE_CUSTOM_MEGAMINX_COLORS,
-        SettingCode.CUSTOM_MEGAMINX_COLOR_1,
-        SettingCode.CUSTOM_MEGAMINX_COLOR_2,
-        SettingCode.CUSTOM_MEGAMINX_COLOR_3,
-        SettingCode.CUSTOM_MEGAMINX_COLOR_4,
-        SettingCode.CUSTOM_MEGAMINX_COLOR_5,
-        SettingCode.CUSTOM_MEGAMINX_COLOR_6,
-        SettingCode.CUSTOM_MEGAMINX_COLOR_7,
-        SettingCode.CUSTOM_MEGAMINX_COLOR_8,
-        SettingCode.CUSTOM_MEGAMINX_COLOR_9,
-        SettingCode.CUSTOM_MEGAMINX_COLOR_10,
-        SettingCode.CUSTOM_MEGAMINX_COLOR_11,
-        SettingCode.CUSTOM_MEGAMINX_COLOR_12,
-    ]
-
-    # If there is a logged-in user, get their settings. Otherwise just get default values
-    retrieve_setting = lambda code: get_setting_for_user(user.id, code) if user \
-        else get_default_value_for_setting(code)
-
-    # Send back a dictionary of setting codes and their values
-    return { code: retrieve_setting(code) for code in settings_to_populate }
+    return get_default_values_for_settings(SETTINGS_TO_POPULATE)

@@ -370,13 +370,11 @@ def __create_unset_setting(user_id, setting_code):
     return user_setting
 
 
-def get_default_value_for_setting(setting_code):
-    """ Retrieves a default value for a particular setting code. """
+def get_default_values_for_settings(setting_codes):
+    """ Retrieves the default values for specified setting codes. """
 
-    if setting_code not in SETTING_INFO_MAP.keys():
-        raise ValueError("That setting doesn't exist!")
-
-    return SETTING_INFO_MAP[setting_code].default_value
+    return { setting_code : SETTING_INFO_MAP[setting_code].default_value \
+        for setting_code in setting_codes }
 
 
 def get_setting_for_user(user_id, setting_code):
@@ -392,6 +390,25 @@ def get_setting_for_user(user_id, setting_code):
         else __create_unset_setting(user_id, setting_code).setting_value
 
 
+def get_bulk_settings_for_user_as_dict(user_id, setting_codes):
+    """ Retrieves a dict of code to value for all settings provided. """
+
+    # Retrieve the settings for the specified user and all setting codes provided
+    settings = DB.session.\
+        query(UserSetting).\
+        filter(UserSetting.user_id == user_id).\
+        filter(UserSetting.setting_code.in_(setting_codes)).\
+        all()
+
+    # If the number of retrieved settings != the number of codes provided, one or more settings
+    # haven't been initialized for this user. Create all the missing ones and then retrieve them
+    if len(settings) < len(setting_codes):
+        __ensure_all_settings_desired_exist(user_id, setting_codes)
+        return get_bulk_settings_for_user_as_dict(user_id, setting_codes)
+
+    return { setting.setting_code : setting.setting_value for setting in settings }
+
+
 def get_settings_for_user_for_edit(user_id, setting_codes):
     """ Retrieves the settings specified in a data format suitable to passing to the front-end
     for editing and viewing. """
@@ -404,14 +421,10 @@ def get_settings_for_user_for_edit(user_id, setting_codes):
         all()
 
     # If the number of retrieved settings != the number of codes provided, one or more settings
-    # haven't been initialized for this user. Do a dummy retrieval of all the codes provided to
-    # to ensure all settings have been initialized, then call this function again and return
-    # all the settings
+    # haven't been initialized for this user. Create all the missing ones and then retrieve them
     if len(settings) < len(setting_codes):
-        for code in setting_codes:
-            get_setting_for_user(user_id, code)
+        __ensure_all_settings_desired_exist(user_id, setting_codes)
         return get_settings_for_user_for_edit(user_id, setting_codes)
-
 
     # I know this is terrible in general (O(n^2)), but it's fine for small numbers of settings,
     # and I don't want to implement a real sort key lambda for this right now
@@ -435,29 +448,27 @@ def get_settings_for_user_for_edit(user_id, setting_codes):
     ]
 
 
-def set_setting_for_user(user_id, setting_code, setting_value):
-    """ Sets a user's setting for a given setting code. """
+def set_new_settings_for_user(user_id, settings_dict):
+    """ Sets a user's settings for the specified setting codes. """
 
-    if setting_code not in SETTING_INFO_MAP.keys():
-        raise ValueError("That setting doesn't exist!")
+    for setting_code, setting_value in settings_dict.items():
+        setting_info = SETTING_INFO_MAP[setting_code]
+        setting_value = setting_info.validator(setting_value)
 
-    setting_info = SETTING_INFO_MAP[setting_code]
-    setting_value = setting_info.validator(setting_value)
+        setting = DB.session.\
+            query(UserSetting).\
+            filter(UserSetting.user_id == user_id).\
+            filter(UserSetting.setting_code == setting_code).\
+            first()
 
-    setting = DB.session.\
-        query(UserSetting).\
-        filter(UserSetting.user_id == user_id).\
-        filter(UserSetting.setting_code == setting_code).\
-        first()
+        if not setting:
+            setting = __create_unset_setting(user_id, setting_code)
 
-    if not setting:
-        setting = __create_unset_setting(user_id, setting_code)
+        setting.setting_value = setting_value
+        DB.session.add(setting)
 
-    setting.setting_value = setting_value
-    DB.session.add(setting)
     DB.session.commit()
 
-    return setting
 
 def get_color_defaults():
     """ Returns a dictionary of default color names to their color codes. """
@@ -470,3 +481,11 @@ def get_color_defaults():
         'orange': DEFAULT_CUBE_COLORS['L'],
         'yellow': DEFAULT_CUBE_COLORS['D'],
     }
+
+
+def __ensure_all_settings_desired_exist(user_id, setting_codes):
+    """ Iterate through all setting codes and do a dummy retrieval, to make sure the settings
+    exist for the user. """
+
+    for code in setting_codes:
+        get_setting_for_user(user_id, code)

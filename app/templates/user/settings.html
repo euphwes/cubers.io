@@ -66,22 +66,22 @@
         $('.colorpicker-component').colorpicker({
             format: 'hex',
             extensions: [
-        {
-          name: 'swatches', // extension name to load
-          options: {        // extension options
-              colors: {
-                  'white' : "{{ default_colors['white'] }}",
-                  'green' : "{{ default_colors['green'] }}",
-                  'red'   : "{{ default_colors['red'] }}",
-                  'blue'  : "{{ default_colors['blue'] }}",
-                  'yellow': "{{ default_colors['yellow'] }}",
-                  'orange': "{{ default_colors['orange'] }}",
-                  'black' : '#000000',
-              },
-              namesAsValues: false,
-          }
-        }
-      ]
+                {
+                    name: 'swatches', // extension name to load
+                    options: {        // extension options
+                        colors: {
+                            'white' : "{{ default_colors['white'] }}",
+                            'green' : "{{ default_colors['green'] }}",
+                            'red'   : "{{ default_colors['red'] }}",
+                            'blue'  : "{{ default_colors['blue'] }}",
+                            'yellow': "{{ default_colors['yellow'] }}",
+                            'orange': "{{ default_colors['orange'] }}",
+                            'black' : '#000000',
+                        },
+                        namesAsValues: false,
+                    }
+                }
+            ]
         });
     })
 </script>

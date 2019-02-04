@@ -6,8 +6,8 @@ from flask import render_template, redirect, url_for, request
 from flask_login import current_user
 
 from app import CUBERS_APP
-from app.persistence.settings_manager import get_settings_for_user_for_edit, set_setting_for_user,\
-    SettingCode, SettingType, FALSE_STR, get_color_defaults
+from app.persistence.settings_manager import get_settings_for_user_for_edit,\
+    set_new_settings_for_user, SettingCode, SettingType, FALSE_STR, get_color_defaults
 from app.persistence.user_manager import get_user_by_username
 
 # -------------------------------------------------------------------------------------------------
@@ -107,11 +107,9 @@ def __handle_get(user):
 def __handle_post(user, form):
     """ Handles editing a user's settings. """
 
-    # NOTE: will need to handle validation errors on non-boolean settings in the future
+    # TODO: will need to handle validation errors on non-boolean settings in the future
 
-    # TODO: set all settings at once, so we don't have so many round-trips to the database
-    for setting_code in __ALL_SETTINGS:
-        setting_value = form.get(setting_code)
-        set_setting_for_user(user.id, setting_code, setting_value)
+    new_settings = { code: form.get(code) for code in __ALL_SETTINGS }
+    set_new_settings_for_user(user.id, new_settings)
 
     return redirect(url_for('index'))
