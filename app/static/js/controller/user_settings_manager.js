@@ -76,7 +76,11 @@
         boolean_settings = [
             Settings.USE_INSPECTION_TIME,
             Settings.HIDE_RUNNING_TIMER,
-            Settings.DEFAULT_TO_MANUAL_TIME
+            Settings.HIDE_INSPECTION_TIME,
+            Settings.DEFAULT_TO_MANUAL_TIME,
+            Settings.USE_CUSTOM_MEGAMINX_COLORS,
+            Settings.USE_CUSTOM_PYRAMINX_COLORS,
+            Settings.USE_CUSTOM_CUBE_COLORS,
         ];
 
         $.each(boolean_settings, function(i, code) {
