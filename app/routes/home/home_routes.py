@@ -5,8 +5,8 @@ from flask_login import current_user
 
 from app import CUBERS_APP
 from app.persistence import comp_manager
-from app.persistence.settings_manager import SettingCode, get_default_values_for_settings,\
-    get_bulk_settings_for_user_as_dict
+from app.persistence.settings_manager import SettingCode, SettingType, TRUE_STR,\
+    get_default_values_for_settings, get_bulk_settings_for_user_as_dict, get_setting_type
 from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import get_event_results_for_user
 from app.persistence.models import EventFormat
@@ -191,6 +191,13 @@ def get_user_settings(user):
     retrieve default values for these settings. """
 
     if user:
-        return get_bulk_settings_for_user_as_dict(user.id, SETTINGS_TO_POPULATE)
+        settings = get_bulk_settings_for_user_as_dict(user.id, SETTINGS_TO_POPULATE)
+    else:
+        settings = get_default_values_for_settings(SETTINGS_TO_POPULATE)
 
-    return get_default_values_for_settings(SETTINGS_TO_POPULATE)
+    # Convert boolean settings back to actual booleans
+    for code, value in settings.items():
+        if get_setting_type(code) == SettingType.BOOLEAN:
+            settings[code] = value == TRUE_STR
+
+    return settings

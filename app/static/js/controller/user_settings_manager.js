@@ -45,7 +45,6 @@
      */
     function UserSettingsManager() {
         this.settings_data = app.settings_data;
-        this._parse_boolean_settings();
     }
 
     /**
@@ -65,27 +64,6 @@
      */
     UserSettingsManager.prototype._set_setting = function(code, value) {
         this.settings_data[code] = value;
-    };
-
-    /**
-     * On page load, parse through all the boolean settings and ensure their values are bools
-     * and not strings.
-     */
-    UserSettingsManager.prototype._parse_boolean_settings = function() {
-        // Settings which are known to contain boolean values
-        boolean_settings = [
-            Settings.USE_INSPECTION_TIME,
-            Settings.HIDE_RUNNING_TIMER,
-            Settings.HIDE_INSPECTION_TIME,
-            Settings.DEFAULT_TO_MANUAL_TIME,
-            Settings.USE_CUSTOM_MEGAMINX_COLORS,
-            Settings.USE_CUSTOM_PYRAMINX_COLORS,
-            Settings.USE_CUSTOM_CUBE_COLORS,
-        ];
-
-        $.each(boolean_settings, function(i, code) {
-            this.settings_data[code] = this.settings_data[code] == "true" ? true : false;
-        }.bind(this));
     };
 
     // Make UserSettingsManager and setting code constants visible at app scope

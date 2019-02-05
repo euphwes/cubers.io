@@ -470,6 +470,12 @@ def set_new_settings_for_user(user_id, settings_dict):
     DB.session.commit()
 
 
+def get_setting_type(setting_code):
+    """ Gets the setting type for the specified setting code. """
+
+    return SETTING_INFO_MAP[setting_code].setting_type
+
+
 def get_color_defaults():
     """ Returns a dictionary of default color names to their color codes. """
 
