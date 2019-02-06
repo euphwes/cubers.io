@@ -26,11 +26,9 @@
     ScrambleDisplayManager.prototype._showScramble = function(eventData) {
         $('.scramble-wrapper .scram').removeClass('text-left').removeClass('code');
         var renderedScrambleText = eventData.scramble.scramble.split('\n').join('<br/>')
-        if (eventData.eventName == 'Megaminx') {
+        if (['Megaminx', 'Kilominx'].includes(eventData.eventName)) {
             $('.scramble-wrapper .scram').addClass('text-left').addClass('code');
-            console.log(renderedScrambleText);
             renderedScrambleText = this.__cleanupMegaminxScramble(renderedScrambleText);
-            console.log(renderedScrambleText);
         }
         $('.scramble-wrapper .scram').html(renderedScrambleText);
         textFit($('.scramble-wrapper .scram'), {multiLine: true, maxFontSize: 50});
