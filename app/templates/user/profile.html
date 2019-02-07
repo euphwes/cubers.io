@@ -27,7 +27,7 @@
                             <span style="font-weight: normal; padding-left: 5px;" class="fas fa-question-circle spacer" data-toggle="tooltip" data-placement="bottom" title="{{ sor_explanation }}"></span>
                         </th>
                         {% if show_medals %}
-                        <th colspan="3">Medal Collection</th>
+                        <th class="d-none d-md-table-cell" colspan="3">Medal Collection</th>
                         {% endif %}
                     </tr>
                     <tr>
@@ -35,9 +35,9 @@
                         <th>WCA Events</th>
                         <th>Non-WCA Events</th>
                         {% if show_medals %}
-                        <th><span class="fas fa-medal gold"></span></th>
-                        <th><span class="fas fa-medal silver"></span></th>
-                        <th><span class="fas fa-medal bronze"></span></th>
+                        <th class="d-none d-md-table-cell"><span class="fas fa-medal gold"></span></th>
+                        <th class="d-none d-md-table-cell"><span class="fas fa-medal silver"></span></th>
+                        <th class="d-none d-md-table-cell"><span class="fas fa-medal bronze"></span></th>
                         {% endif %}
                     </tr>
                 </thead>
@@ -55,9 +55,9 @@
                         {% endif %}
 
                         {% if show_medals %}
-                        <td>{{ gold_count }}</td>
-                        <td>{{ silver_count }}</td>
-                        <td>{{ bronze_count }}</td>
+                        <td class="d-none d-md-table-cell">{{ gold_count }}</td>
+                        <td class="d-none d-md-table-cell">{{ silver_count }}</td>
+                        <td class="d-none d-md-table-cell">{{ bronze_count }}</td>
                         {% endif %}
                     </tr>
                 </tbody>
