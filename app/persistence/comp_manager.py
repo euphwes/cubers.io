@@ -51,7 +51,8 @@ def get_all_comp_events_for_comp(comp_id):
         query(CompetitionEvent).\
         join(Event).\
         filter(CompetitionEvent.competition_id == comp_id).\
-        order_by(Event.id)
+        order_by(Event.id).\
+        all()
 
 
 def get_comp_event_by_id(comp_event_id):
@@ -113,8 +114,8 @@ def get_all_competitions():
     return DB.session.\
         query(Competition).\
         options(joinedload(Competition.events)).\
-        order_by(Competition.id)\
-        .all()
+        order_by(Competition.id).\
+        all()
 
 
 def bulk_update_comps(comps):

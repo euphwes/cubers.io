@@ -14,13 +14,14 @@ from app.business.user_results import recalculate_user_pbs_for_event, determine_
 from app.business.rankings import precalculate_user_site_rankings
 from app.persistence.models import EventFormat
 from app.persistence.comp_manager import save_new_competition, get_active_competition,\
-    get_all_competitions, bulk_update_comps
+    get_all_competitions, get_complete_competitions, bulk_update_comps, get_all_comp_events_for_comp
 from app.persistence.events_manager import get_event_by_name, get_all_events
 from app.persistence.user_manager import get_all_users, get_user_by_username, get_all_admins,\
     set_user_as_admin, unset_user_as_admin, UserDoesNotExistException
 from app.persistence.user_results_manager import get_all_null_is_complete_event_results,\
     get_all_na_average_event_results, save_event_results_for_user, get_all_complete_event_results,\
     bulk_save_event_results
+from app.business.user_results import set_medals_on_best_event_results
 from app.util.generate_comp import generate_new_competition
 from app.util.score_comp import score_previous_competition
 from app.routes.home import do_reddit_submit
@@ -138,7 +139,19 @@ def recalculate_pbs():
 
 # -------------------------------------------------------------------------------------------------
 # Below are utility commands intended to just be one-offs, to backfill or fix broken data
-# # -------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
+
+@CUBERS_APP.cli.command()
+def backfill_results_medals():
+    """ Utility command to backfill all UserEventResults for past competitions with
+    gold, silver, bronze medal flags. """
+
+    all_comps = get_complete_competitions()
+    total_num = len(all_comps)
+    for i, comp in enumerate(all_comps):
+        print('Backfilling for comp {} ({}/{})'.format(comp.id, i+1, total_num))
+        set_medals_on_best_event_results(get_all_comp_events_for_comp(comp.id))
+
 
 @CUBERS_APP.cli.command()
 @click.option('--username', '-u', type=str)
@@ -186,9 +199,7 @@ def backfill_user_results_time_strings():
         event_format = results.CompetitionEvent.Event.eventFormat
         event_name = results.CompetitionEvent.Event.name
 
-        is_fmc = event_name == 'FMC'
-        is_blind = event_name in ('2BLD', '3BLD', '4BLD', '5BLD')
-        results.times_string = build_times_string(results.solves, event_format, is_fmc, is_blind)
+        results.times_string = build_times_string(results, event_format)
 
         results_to_save.append(results)
         total_fixed += 1

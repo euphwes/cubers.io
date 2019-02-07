@@ -4,6 +4,7 @@ scoring users, and posting the results. """
 import re
 from time import sleep
 
+from app.business.user_results import set_medals_on_best_event_results
 from app.persistence.comp_manager import get_active_competition, get_competition, save_competition,\
     get_all_comp_events_for_comp
 from app.persistence.user_manager import get_username_id_map
@@ -63,7 +64,8 @@ def filter_blacklisted_competitor_events(competitors, comp_id):
         indices_to_remove = list()
         for i, event in enumerate(competitor.events):
 
-            # if the script parses something wrong and the event key isn't in here, just skip to the next event
+            # if the script parses something wrong and the event key isn't in here,
+            # just skip to the next event
             try:
                 event_id = eventname_id_map[event]
             except KeyError:
@@ -98,12 +100,16 @@ def score_previous_competition(is_rerun=False, comp_id=None):
     else:
         competition_being_scored = get_active_competition()
 
-    submission_id = competition_being_scored.reddit_thread_id
+    comp_events_in_comp = get_all_comp_events_for_comp(competition_being_scored.id)
+
+    # Assign medals to top results in all events
+    set_medals_on_best_event_results(comp_events_in_comp)
 
     # Build a list of event names that were in this competition
-    event_names = [comp_event.Event.name for comp_event in get_all_comp_events_for_comp(competition_being_scored.id)]
+    event_names = [comp_event.Event.name for comp_event in comp_events_in_comp]
 
     # Get the PRAW Submission object and make sure we have all the top-level comments
+    submission_id = competition_being_scored.reddit_thread_id
     submission = get_submission_with_id(submission_id)
     try_count = 0
     while try_count < 10:

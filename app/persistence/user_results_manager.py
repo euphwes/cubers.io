@@ -112,6 +112,19 @@ def get_all_complete_event_results():
         all()
 
 
+def get_results_for_comp_event(comp_event_id):
+    """ Retrieves the top 3 best non-blacklisted UserEventResults for the specified comp event. """
+
+    # Get all complete, unblacklisted results for the specified comp_event_id
+    return DB.session.\
+        query(UserEventResults).\
+        join(CompetitionEvent).\
+        filter(CompetitionEvent.id == comp_event_id).\
+        filter(UserEventResults.is_blacklisted.isnot(True)).\
+        filter(UserEventResults.is_complete).\
+        all()
+
+
 def get_pb_single_event_results_except_current_comp(user_id, event_id):
     """ Returns the UserEventResults which were a PB single for the specified user and event. """
 
@@ -262,16 +275,19 @@ def save_event_results_for_user(comp_event_results, user):
 def __save_existing_event_results(existing_results, new_results):
     """ Update the existing UserEventResults and UserSolves with the new data. """
 
-    existing_results.single         = new_results.single
-    existing_results.average        = new_results.average
-    existing_results.result         = new_results.result
-    existing_results.comment        = new_results.comment
-    existing_results.is_complete    = new_results.is_complete
-    existing_results.times_string   = new_results.times_string
-    existing_results.was_pb_average = new_results.was_pb_average
-    existing_results.was_pb_single  = new_results.was_pb_single
-    existing_results.is_blacklisted = new_results.is_blacklisted
-    existing_results.blacklist_note = new_results.blacklist_note
+    existing_results.single           = new_results.single
+    existing_results.average          = new_results.average
+    existing_results.result           = new_results.result
+    existing_results.comment          = new_results.comment
+    existing_results.is_complete      = new_results.is_complete
+    existing_results.times_string     = new_results.times_string
+    existing_results.was_pb_average   = new_results.was_pb_average
+    existing_results.was_pb_single    = new_results.was_pb_single
+    existing_results.is_blacklisted   = new_results.is_blacklisted
+    existing_results.blacklist_note   = new_results.blacklist_note
+    existing_results.was_gold_medal   = new_results.was_gold_medal
+    existing_results.was_silver_medal = new_results.was_silver_medal
+    existing_results.was_bronze_medal = new_results.was_bronze_medal
 
     # Update any existing solves with the data coming in from the new solves
     for old_solve in existing_results.solves:
@@ -292,6 +308,14 @@ def __save_existing_event_results(existing_results, new_results):
 
     DB.session.commit()
     return existing_results
+
+
+def bulk_save_event_results(results_list):
+    """ Save a bunch of results at once. """
+
+    for result in results_list:
+        DB.session.add(result)
+    DB.session.commit()
 
 
 # -------------------------------------------------------------------------------------------------
@@ -316,9 +340,3 @@ def get_all_na_average_event_results():
         all()
 
 
-def bulk_save_event_results(results_list):
-    """ Save a bunch of results at once. """
-
-    for result in results_list:
-        DB.session.add(result)
-    DB.session.commit()

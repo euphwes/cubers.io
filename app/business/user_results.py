@@ -9,8 +9,9 @@ from app.persistence.comp_manager import get_comp_event_by_id
 from app.persistence.events_manager import get_event_by_name, get_event_format_for_event
 from app.persistence.user_results_manager import get_pb_single_event_results_except_current_comp,\
     bulk_save_event_results, get_pb_average_event_results_except_current_comp,\
-    get_all_complete_user_results_for_user_and_event
+    get_all_complete_user_results_for_user_and_event, get_results_for_comp_event
 from app.persistence.models import UserEventResults, UserSolve, EventFormat
+from app.util.sorting_utils import sort_user_event_results
 from app.util.times_util import convert_centiseconds_to_friendly_time
 
 # -------------------------------------------------------------------------------------------------
@@ -325,6 +326,29 @@ def determine_if_should_be_autoblacklisted(results):
         pass # int() failed, probably because the average is a DNF
 
     return results
+
+# -------------------------------------------------------------------------------------------------
+#              Stuff related to processing medals for top results in events
+# -------------------------------------------------------------------------------------------------
+
+def set_medals_on_best_event_results(comp_events):
+    """ Iterates over a list of CompetitionEvents, gets the fastest 3 results for that event and
+    sets the gold, silver, or bronze medal flags as appropriate. """
+
+    for comp_event in comp_events:
+        results = get_results_for_comp_event(comp_event.id)
+
+        # Sort them by their result value
+        results.sort(key=sort_user_event_results)
+
+        # 1st is gold medal, 2nd is silver, 3rd is bronze, everything else has no medal
+        for i, result in enumerate(results):
+            result.was_gold_medal   = (i == 0)
+            result.was_silver_medal = (i == 1)
+            result.was_bronze_medal = (i == 2)
+
+        # Save all event results with their updated medal flags
+        bulk_save_event_results(results)
 
 # -------------------------------------------------------------------------------------------------
 #                  Stuff related to processing PBs (personal bests) below
