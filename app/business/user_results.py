@@ -343,9 +343,9 @@ def set_medals_on_best_event_results(comp_events):
 
         # 1st is gold medal, 2nd is silver, 3rd is bronze, everything else has no medal
         for i, result in enumerate(results):
-            result.was_gold_medal   = (i == 0)
-            result.was_silver_medal = (i == 1)
-            result.was_bronze_medal = (i == 2)
+            result.was_gold_medal   = (i == 0) and result.result != 'DNF'
+            result.was_silver_medal = (i == 1) and result.result != 'DNF'
+            result.was_bronze_medal = (i == 2) and result.result != 'DNF'
 
         # Save all event results with their updated medal flags
         bulk_save_event_results(results)
