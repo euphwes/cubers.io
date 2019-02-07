@@ -75,8 +75,25 @@
                                     {% set blacklist_class = '' %}
                                 {% endif %}
 
+                                {% set medal_class = 'medal_none' %}
+                                {% if result.was_gold_medal %}
+                                    {% set medal_class = 'gold' %}
+                                {% endif %}
+                                {% if result.was_silver_medal %}
+                                    {% set medal_class = 'silver' %}
+                                {% endif %}
+                                {% if result.was_bronze_medal %}
+                                    {% set medal_class = 'bronze' %}
+                                {% endif %}
+
                                 <tr class="{{ its_me }} {{ blacklist_class }}">
-                                    <td scope="row">{{ loop.index }}</td>
+                                    <td scope="row">
+                                        {% if medal_class == 'medal_none' %}
+                                            {{ loop.index }}
+                                        {% else %}
+                                            <span class="fas fa-medal {{medal_class}} spacer"></span>
+                                        {% endif %}
+                                    </td>
                                     <td scope="col" class="d-none d-md-table-cell">
                                         {% if result.comment|trim() %}
                                         {% set the_comment = result.comment if result.comment|length < 350 else result.comment[:350] + "..." %}
