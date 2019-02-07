@@ -107,6 +107,9 @@ class UserEventResults(Model):
     was_pb_average    = Column(Boolean)
     is_blacklisted    = Column(Boolean)
     blacklist_note    = Column(String(256))
+    was_gold_medal    = Column(Boolean)
+    was_silver_medal  = Column(Boolean)
+    was_bronze_medal  = Column(Boolean)
 
     # To determine how to format friendly representations of results, single, average
     is_fmc   = False
