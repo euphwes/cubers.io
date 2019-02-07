@@ -139,7 +139,9 @@
                         <thead class="thead-dark">
                             <tr>
                                 <th scope="col" class="d-none d-md-table-cell"></th>
+                                {% if show_medals %}
                                 <th scope="col" class="d-none d-md-table-cell"></th>
+                                {% endif %}
                                 <th scope="col">Competition</th>
                                 <th scope="col">Single</th>
                                 <th scope="col">Average</th>
@@ -147,7 +149,11 @@
                                 <th scope="col"></th>
                             </tr>
                             <tr class="event_name_row">
+                                {% if show_medals %}
+                                <th scope="col" colspan="11">
+                                {% else %}
                                 <th scope="col" colspan="10">
+                                {% endif %}
                                     <img class="event-image" src="/static/images/cube-{{event_item.id}}.png">
                                     {{ event_item.name }}
                                 </th>
@@ -162,15 +168,17 @@
                                     {% set blacklist_class = '' %}
                                 {% endif %}
 
-                                {% set medal_class = 'medal_none' %}
-                                {% if results.was_gold_medal %}
-                                    {% set medal_class = 'gold' %}
-                                {% endif %}
-                                {% if results.was_silver_medal %}
-                                    {% set medal_class = 'silver' %}
-                                {% endif %}
-                                {% if results.was_bronze_medal %}
-                                    {% set medal_class = 'bronze' %}
+                                {% if show_medals %}
+                                    {% set medal_class = 'medal_none' %}
+                                    {% if results.was_gold_medal %}
+                                        {% set medal_class = 'gold' %}
+                                    {% endif %}
+                                    {% if results.was_silver_medal %}
+                                        {% set medal_class = 'silver' %}
+                                    {% endif %}
+                                    {% if results.was_bronze_medal %}
+                                        {% set medal_class = 'bronze' %}
+                                    {% endif %}
                                 {% endif %}
 
                                 {% if event_item.name == "FMC" %}
@@ -187,9 +195,11 @@
                                     {% set average_class = "pb-indicator" %}
                                 {% endif %}
                                 <tr class="{{blacklist_class}}">
+                                    {% if show_medals %}
                                     <td scope="col" class="d-none d-md-table-cell text-center">
                                         <span class="fas fa-medal {{medal_class}} spacer"></span>
                                     </td>
+                                    {% endif %}
                                     <td scope="col" class="d-none d-md-table-cell text-center">
                                         {% if results.comment|trim() %}
                                         {% set the_comment = results.comment if results.comment|length < 350 else results.comment[:350] + "..." %}
