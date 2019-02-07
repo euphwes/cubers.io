@@ -32,7 +32,8 @@ def profile(username):
     # Get the user's competition history
     history = get_user_competition_history(user, include_blacklisted=include_blacklisted)
 
-    gold_count = 0
+    # Accumulate a count of medals this user has for podiuming
+    gold_count   = 0
     silver_count = 0
     bronze_count = 0
     for _, comp_event_results_dict in history.items():
@@ -40,11 +41,6 @@ def profile(username):
             gold_count   += 1 if results.was_gold_medal   else 0
             silver_count += 1 if results.was_silver_medal else 0
             bronze_count += 1 if results.was_bronze_medal else 0
-
-    import sys
-    print(gold_count, file=sys.stderr)
-    print(silver_count, file=sys.stderr)
-    print(bronze_count, file=sys.stderr)
 
     # Get some other interesting stats
     solve_count = get_user_completed_solves_count(user.id)
@@ -84,7 +80,8 @@ def profile(username):
     return render_template("user/profile.html", user=user, solve_count=solve_count,\
         comp_count=comps_count, history=history, rankings=site_rankings,\
         event_id_name_map=event_id_name_map, rankings_ts=rankings_ts,\
-        is_admin_viewing=show_admin, sor_all=sor_all, sor_wca=sor_wca, sor_non_wca=sor_non_wca)
+        is_admin_viewing=show_admin, sor_all=sor_all, sor_wca=sor_wca, sor_non_wca=sor_non_wca,
+        gold_count=gold_count, silver_count=silver_count, bronze_count=bronze_count)
 
 # -------------------------------------------------------------------------------------------------
 
