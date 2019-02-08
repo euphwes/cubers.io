@@ -39,6 +39,10 @@
      */
     ScrambleDisplayManager.prototype._showDone = function(comp_event_id) {
 
+        // Remove the mega/kilominx-specific classes so we don't render the done message text in
+        // monospace, left-aligned, etc
+        $('.scramble-wrapper .scram').removeClass('text-left').removeClass('code');
+
         comp_event_id = parseInt(comp_event_id);
 
         // If the event isn't complete, leave early and don't show the done message
