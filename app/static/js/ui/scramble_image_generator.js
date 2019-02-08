@@ -812,7 +812,7 @@
         }
 
         // trans: [size, offx, offy] == [size, 0, offx * size, 0, size, offy * size] or [a11 a12 a13 a21 a22 a23]
-        function drawPolygon(ctx, color, arr, trans) {
+        function drawPolygon(ctx, color, arr, trans, text) {
             if (!ctx) {
                 return;
             }
@@ -834,6 +834,12 @@
             ctx.closePath();
             ctx.fill();
             ctx.stroke();
+
+            if (text) {
+                ctx.fillStyle = '#000';
+                ctx.strokeStyle = '#000';
+                ctx.fillText(text, arr[0][0], arr[1][0]);
+            }
         }
 
         var mgmImage = (function() {
@@ -1383,6 +1389,7 @@
             var width = 30;
             var posit = [];
             var colors = null;
+            var REDI_EDGE_INDICES = [1,3,5,7,10,12,14,16,19,21,23,25,28,30,32,34,37,39,41,43,46,48,50,52];
 
             function doMove(move) {
                 if (move == 'R') {
@@ -1456,19 +1463,44 @@
                     var x = (f == 1 || f == 2) ? size - 1 - i : i;
                     for (var j = 0; j < size; j++) {
                         var y = (f == 0) ? size - 1 - j : j;
+                        if ((i == 1) && (j == 1)) { continue; }
 
-                        var color = colors[posit[(f * size + y) * size + x]];
+                        var posit_index = (f * size + y) * size + x;
+                        var color = colors[posit[posit_index]];
 
-                        drawPolygon(ctx, color, [
-                            [i, i, i + 1, i + 1],
-                            [j, j + 1, j + 1, j]
-                        ], [width, offx, offy]);
+                        if (REDI_EDGE_INDICES.includes(posit_index)) {
+                            if (i == 0 && j == 1) {
+                                drawPolygon(ctx, color, [
+                                    [i, i,     i + 1, i + 1.5, i + 1],
+                                    [j, j + 1, j + 1, j + 0.5, j]
+                                ], [width, offx, offy]);
+                            } else if (i == 1 && j == 0) {
+                                drawPolygon(ctx, color, [
+                                    [i, i,     i + 0.5, i + 1, i + 1],
+                                    [j, j + 1, j + 1.5, j + 1, j]
+                                ], [width, offx, offy]);
+                            } else if (i == 2 && j == 1) {
+                                drawPolygon(ctx, color, [
+                                    [i, i - 0.5, i,     i + 1, i + 1],
+                                    [j, j + 0.5, j + 1, j + 1, j]
+                                ], [width, offx, offy]);
+                            } else {
+                                drawPolygon(ctx, color, [
+                                    [i, i,     i + 1, i + 1, i + 0.5],
+                                    [j, j + 1, j + 1, j    , j - 0.5]
+                                ], [width, offx, offy]);
+                            }
+                        } else {
+                            drawPolygon(ctx, color, [
+                                [i, i, i + 1, i + 1],
+                                [j, j + 1, j + 1, j]
+                            ], [width, offx, offy]);
+                        }
                     }
                 }
             }
 
             return function(moveseq) {
-                moveseq = "R";
                 var cnt = 0;
                 for (var i = 0; i < 6; i++) {
                     for (var f = 0; f < 9; f++) {
