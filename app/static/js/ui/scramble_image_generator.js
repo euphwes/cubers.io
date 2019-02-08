@@ -1533,7 +1533,7 @@
 
             var colors = null;
 
-            function face(f, size, isVoidCube) {
+            function face(f, size, isVoidCube, is332) {
 
                 if (!colors) {
                     setColors();
@@ -1562,6 +1562,9 @@
                     offy *= size;
                 }
 
+                var adjustedOffy = 0;
+                var initialOffy = offy;
+
                 for (var i = 0; i < size; i++) {
                     var x = (f == 1 || f == 2) ? size - 1 - i : i;
                     for (var j = 0; j < size; j++) {
@@ -1572,6 +1575,22 @@
                         var color = colors[posit[(f * size + y) * size + x]];
                         if (isVoidCube && (![0,size-1].includes(i)) && (![0,size-1].includes(j))) {
                             color = TRANSPARENT;
+                        }
+
+                        if (is332 && (j == 1) && [1,5,4,2].includes(f)) { continue; }
+                        if (is332) {
+                            if (f == 0) {
+                                adjustedOffy = initialOffy - 0.5;
+                            } else if (f == 3) {
+                                adjustedOffy = initialOffy + 0.5;
+                            } else {
+                                if (j == 0) {
+                                    adjustedOffy = initialOffy + 0.5;
+                                } else {
+                                    adjustedOffy = initialOffy - 0.5;
+                                }
+                            }
+                            offy = adjustedOffy;
                         }
 
                         drawPolygon(ctx, color, [
@@ -1654,9 +1673,10 @@
                 }
             }
 
-            return function(size, moveseq, isVoidCube) {
+            return function(size, moveseq, isVoidCube, is332) {
 
                 isVoidCube = isVoidCube || false; // default value of false
+                is332 = is332 || false; // default value of false
 
                 var cnt = 0;
                 for (var i = 0; i < 6; i++) {
@@ -1685,7 +1705,7 @@
                 canvas.attr('height', 29 * size / 9 * width + 1);
 
                 for (var i = 0; i < 6; i++) {
-                    face(i, size, isVoidCube);
+                    face(i, size, isVoidCube, is332);
                 }
             }
         })();
@@ -1708,6 +1728,10 @@
             }
             if (type == "Void Cube") {
                 nnnImage(3, scramble[1], true);
+                return true;
+            }
+            if (type == "3x3x2") {
+                nnnImage(3, scramble[1], false, true);
                 return true;
             }
             if (type == "Redi Cube") {
