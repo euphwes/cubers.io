@@ -9,6 +9,8 @@
 
     var mega_colors = [];
 
+    var TRANSPARENT = "rgba(255, 255, 255, 0)";
+
     var setColors = function() {
         if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_CUBE_COLORS)) {
             cube_colors = [
@@ -890,7 +892,16 @@
             trans = trans || [1, 0, 0, 0, 1, 0];
             arr = Transform(arr, trans);
             ctx.beginPath();
+
+
             ctx.fillStyle = color;
+            if(color == TRANSPARENT) {
+                ctx.strokeStyle = TRANSPARENT;
+            } else {
+                ctx.strokeStyle = "#000";
+            }
+
+
             ctx.moveTo(arr[0][0], arr[1][0]);
             for (var i = 1; i < arr[0].length; i++) {
                 ctx.lineTo(arr[0][i], arr[1][i]);
@@ -1436,7 +1447,7 @@
 
             var colors = null;
 
-            function face(f, size) {
+            function face(f, size, isVoidCube) {
 
                 if (!colors) {
                     setColors();
@@ -1469,7 +1480,15 @@
                     var x = (f == 1 || f == 2) ? size - 1 - i : i;
                     for (var j = 0; j < size; j++) {
                         var y = (f == 0) ? size - 1 - j : j;
-                        drawPolygon(ctx, colors[posit[(f * size + y) * size + x]], [
+
+                        // set color as normal, unless the void cube flag is set and the piece we're coloring
+                        // is not an edge or corner
+                        var color = colors[posit[(f * size + y) * size + x]];
+                        if (isVoidCube && (![0,size-1].includes(i)) && (![0,size-1].includes(j))) {
+                            color = TRANSPARENT;
+                        }
+
+                        drawPolygon(ctx, color, [
                             [i, i, i + 1, i + 1],
                             [j, j + 1, j + 1, j]
                         ], [width, offx, offy]);
@@ -1549,7 +1568,10 @@
                 }
             }
 
-            return function(size, moveseq) {
+            return function(size, moveseq, isVoidCube) {
+
+                isVoidCube = isVoidCube || false; // default value of false
+
                 var cnt = 0;
                 for (var i = 0; i < 6; i++) {
                     for (var f = 0; f < size * size; f++) {
@@ -1577,7 +1599,7 @@
                 canvas.attr('height', 29 * size / 9 * width + 1);
 
                 for (var i = 0; i < 6; i++) {
-                    face(i, size);
+                    face(i, size, isVoidCube);
                 }
             }
         })();
@@ -1596,6 +1618,10 @@
             }
             if (type == "3x3OH" || type == "2GEN" || type == "LSE" || type == "F2L" || type == "3x3 With Feet" || type == "FMC") {
                 nnnImage(3, scramble[1]);
+                return true;
+            }
+            if (type == "Void Cube") {
+                nnnImage(3, scramble[1], true);
                 return true;
             }
             if (type == "4x4 OH") {
@@ -1668,11 +1694,6 @@
      * Utility class for generating puzzle scrambles.
      */
     function ScrambleImageGenerator() {
-        // TODO: consolidate this list with the one in timer_screen_manager.js
-        this.unsupportedEvents = ["2BLD", "3BLD", "4BLD", "5BLD", "COLL",
-        "Kilominx", "3x3 Mirror Blocks/Bump", "3x3x4", "3x3x2", "3x3x5", "Void Cube",
-        "2-3-4 Relay", "3x3 Relay of 3", "PLL Time Attack", "Redi Cube"];
-
         this.largeCanvasId = '#big_scramble_image';
         this.normalCanvasId = '#normal_scramble_image';
 
@@ -1694,7 +1715,7 @@
         $('#show-scramble-btn>.btn-return').removeClass('btn-disabled').removeAttr('disabled');
 
         // If this isn't a supported event, clear the image, reset scaling factors.
-        if (this.unsupportedEvents.includes(scrambleEventData.eventName)) {
+        if (window.app.scramblePreviewUnsupportedEvents.includes(scrambleEventData.eventName)) {
             this._clearImage(); this.reset();
             $('.scramble_preview_buffer').removeClass('clickable');
             return false

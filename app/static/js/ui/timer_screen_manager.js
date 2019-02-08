@@ -33,21 +33,15 @@
         var events = app.eventsDataManager.getEventsData();
         var comp_event_id = $selected_event.attr('data-comp_event_id');
 
-        var scramblePreviewUnsupportedEvents = ["2BLD", "3BLD", "4BLD", "5BLD", "COLL",
-        "Kilominx", "3x3 Mirror Blocks/Bump", "3x3x4", "3x3x2", "3x3x5", "Void Cube",
-        "2-3-4 Relay", "3x3 Relay of 3", "PLL Time Attack", "Redi Cube"];
-
-        var scramblePreviewIsSupported = !scramblePreviewUnsupportedEvents.includes($selected_event.data('event_name'));
-
         var data = {
             comp_event_id              : comp_event_id,
             event_id                   : $selected_event.data('event_id'),
             event_name                 : $selected_event.data('event_name'),
-            scrambles                  : events[comp_event_id]['scrambles'],
-            total_solves               : events[comp_event_id]['scrambles'].length,
+            scrambles                  : events[comp_event_id].scrambles,
+            total_solves               : events[comp_event_id].scrambles.length,
             comment                    : events[comp_event_id].comment,
             isMobile                   : app.is_mobile,
-            scramblePreviewIsSupported : scramblePreviewIsSupported,
+            scramblePreviewIsSupported : !app.scramblePreviewUnsupportedEvents.includes($selected_event.data.event_name),
         };
 
         // Change the navbar title to indicate the event

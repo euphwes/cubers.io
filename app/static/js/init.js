@@ -11,6 +11,10 @@
     function init() {
         app.is_mobile = Boolean(new MobileDetect(window.navigator.userAgent).mobile());
 
+        app.scramblePreviewUnsupportedEvents = ["2BLD", "3BLD", "4BLD", "5BLD", "COLL",
+        "Kilominx", "3x3 Mirror Blocks/Bump", "3x3x4", "3x3x2", "3x3x5",
+        "2-3-4 Relay", "3x3 Relay of 3", "PLL Time Attack", "Redi Cube"];
+
         app.appModeManager = new app.AppModeManager();
 
         app.userSettingsManager = new app.UserSettingsManager();
