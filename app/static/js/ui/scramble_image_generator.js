@@ -124,74 +124,6 @@
             return table[index >> 3] >> ((index & 7) << 2) & 15;
         }
 
-        function setNPerm(arr, idx, n) {
-            var i, j;
-            arr[n - 1] = 0;
-            for (i = n - 2; i >= 0; --i) {
-                arr[i] = idx % (n - i);
-                idx = ~~(idx / (n - i));
-                for (j = i + 1; j < n; ++j) {
-                    arr[j] >= arr[i] && ++arr[j];
-                }
-            }
-        }
-
-        function getNPerm(arr, n) {
-            var i, idx, j;
-            idx = 0;
-            for (i = 0; i < n; ++i) {
-                idx *= n - i;
-                for (j = i + 1; j < n; ++j) {
-                    arr[j] < arr[i] && ++idx;
-                }
-            }
-            return idx;
-        }
-
-        function getNParity(idx, n) {
-            var i, p;
-            p = 0;
-            for (i = n - 2; i >= 0; --i) {
-                p ^= idx % (n - i);
-                idx = ~~(idx / (n - i));
-            }
-            return p & 1;
-        }
-
-        function get8Perm(arr, n) {
-            if (n === undefined) {
-                n = 8;
-            }
-            var i, idx, v, val;
-            idx = 0;
-            val = 1985229328;
-            for (i = 0; i < n - 1; ++i) {
-                v = arr[i] << 2;
-                idx = (n - i) * idx + (val >> v & 7);
-                val -= 286331152 << v;
-            }
-            return idx;
-        }
-
-        function set8Perm(arr, idx, n) {
-            if (n === undefined) {
-                n = 8;
-            }
-            n--;
-            var i, m, p, v, val;
-            val = 1985229328;
-            for (i = 0; i < n; ++i) {
-                p = fact[n - i];
-                v = ~~(idx / p);
-                idx %= p;
-                v <<= 2;
-                arr[i] = val >> v & 7;
-                m = (1 << v) - 1;
-                val = (val & m) + (val >> 4 & ~m);
-            }
-            arr[n] = val & 7;
-        }
-
         function createMove(moveTable, size, doMove, N_MOVES) {
             N_MOVES = N_MOVES || 6;
             for (var j = 0; j < N_MOVES; j++) {
@@ -608,11 +540,6 @@
             Cnk: Cnk,
             fact: fact,
             getPruning: getPruning,
-            setNPerm: setNPerm,
-            getNPerm: getNPerm,
-            getNParity: getNParity,
-            get8Perm: get8Perm,
-            set8Perm: set8Perm,
             createMove: createMove,
             edgeMove: edgeMove,
             circle: circle,
