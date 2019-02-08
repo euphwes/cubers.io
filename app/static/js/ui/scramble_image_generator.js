@@ -1722,7 +1722,7 @@
                     return true;
                 }
             }
-            if (type == "3x3OH" || type == "2GEN" || type == "LSE" || type == "F2L" || type == "3x3 With Feet" || type == "FMC") {
+            if (type == "3x3OH" || type == "2GEN" || type == "LSE" || type == "F2L" || type == "3x3 With Feet" || type == "FMC" || type == "COLL") {
                 nnnImage(3, scramble[1]);
                 return true;
             }
@@ -1838,6 +1838,11 @@
         // Store these for later in case in case the user takes action to show a bigger scramble image
         this.savedScramble = scrambleEventData.scramble.scramble;
         this.savedEventName = scrambleEventData.eventName;
+
+        // If the event is COLL, extract the actual scramble part, which should be the final thing after a line break
+        if (this.savedEventName == 'COLL') {
+            this.savedScramble = this.savedScramble.split('<br/>').pop();
+        }
 
         // Attempt to draw normal image. If we're on mobile, the normal canvas won't exist
         // and it'll just bail early.
