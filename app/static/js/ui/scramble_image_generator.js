@@ -1367,6 +1367,105 @@
             }
         })();
 
+                /*
+
+    face:
+      3
+    1 5 4 2
+      0
+
+    posit:
+        0 1 2
+        3 4 5
+        6 7 8
+
+         */
+
+        var rediImage = (function() {
+            var width = 30;
+            var posit = [];
+            var colors = null;
+
+            function doMove(move) {
+            }
+
+            function face(f) {
+
+                size = 3;
+
+                if (!colors) {
+                    setColors();
+                    colors = cube_colors;
+                }
+
+                var offx = 10 / 9,
+                    offy = 10 / 9;
+                if (f == 0) { //D
+                    offx *= size;
+                    offy *= size * 2;
+                } else if (f == 1) { //L
+                    offx *= 0;
+                    offy *= size;
+                } else if (f == 2) { //B
+                    offx *= size * 3;
+                    offy *= size;
+                } else if (f == 3) { //U
+                    offx *= size;
+                    offy *= 0;
+                } else if (f == 4) { //R
+                    offx *= size * 2;
+                    offy *= size;
+                } else if (f == 5) { //F
+                    offx *= size;
+                    offy *= size;
+                }
+
+                for (var i = 0; i < size; i++) {
+                    var x = (f == 1 || f == 2) ? size - 1 - i : i;
+                    for (var j = 0; j < size; j++) {
+                        var y = (f == 0) ? size - 1 - j : j;
+
+                        // set color as normal, unless the void cube flag is set and the piece we're coloring
+                        // is not an edge or corner
+                        var color = colors[posit[(f * size + y) * size + x]];
+
+                        drawPolygon(ctx, color, [
+                            [i, i, i + 1, i + 1],
+                            [j, j + 1, j + 1, j]
+                        ], [width, offx, offy]);
+                    }
+                }
+            }
+
+            return function(moveseq) {
+                moveseq = "R";
+                var cnt = 0;
+                for (var i = 0; i < 6; i++) {
+                    for (var f = 0; f < 9; f++) {
+                        posit[cnt++] = i;
+                    }
+                }
+                console.log(posit);
+
+                var scramble = moveseq.split(' ');
+                console.log(scramble);
+                for (var i = 0; i < scramble.length; i++) {
+                    doMove();
+                }
+
+                var imgSize = scalingFactor / 50;
+                canvas.width(39 * imgSize + 'em');
+                canvas.height(29 * imgSize + 'em');
+
+                canvas.attr('width', 39 * 3 / 9 * width + 1);
+                canvas.attr('height', 29 * 3 / 9 * width + 1);
+
+                for (var i = 0; i < 6; i++) {
+                    face(i);
+                }
+            }
+        })();
+
         var nnnImage = (function() {
             var width = 30;
 
@@ -1549,6 +1648,10 @@
             }
             if (type == "Void Cube") {
                 nnnImage(3, scramble[1], true);
+                return true;
+            }
+            if (type == "Redi Cube") {
+                rediImage(scramble[1]);
                 return true;
             }
             if (type == "4x4 OH") {
