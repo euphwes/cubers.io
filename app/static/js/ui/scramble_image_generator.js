@@ -820,14 +820,12 @@
             arr = Transform(arr, trans);
             ctx.beginPath();
 
-
             ctx.fillStyle = color;
             if(color == TRANSPARENT) {
                 ctx.strokeStyle = TRANSPARENT;
             } else {
                 ctx.strokeStyle = "#000";
             }
-
 
             ctx.moveTo(arr[0][0], arr[1][0]);
             for (var i = 1; i < arr[0].length; i++) {
@@ -1387,6 +1385,40 @@
             var colors = null;
 
             function doMove(move) {
+                if (move == 'R') {
+                    mathlib.circle(posit, 35, 36, 47); // corner
+                    mathlib.circle(posit, 34, 37, 50); // edges half
+                    mathlib.circle(posit, 46, 32, 39); // edges half
+                }
+                if (move == "R'") {
+                    mathlib.circle(posit, 35, 47, 36); // corner
+                    mathlib.circle(posit, 34, 50, 37); // edges half
+                    mathlib.circle(posit, 46, 39, 32); // edges half
+                }
+                if (move == 'L') {
+                    mathlib.circle(posit, 33, 45, 9);  // corner
+                    mathlib.circle(posit, 30, 46, 12); // edges half
+                    mathlib.circle(posit, 10, 34, 48); // edges half
+                }
+                if (move == "L'") {
+                    mathlib.circle(posit, 33, 9, 45);  // corner
+                    mathlib.circle(posit, 30, 12, 46); // edges half
+                    mathlib.circle(posit, 10, 48, 34); // edges half
+                }
+                if (move == 'x') {
+                    mathlib.circle(posit, 36, 38, 44, 42); // R face corner cubelets
+                    mathlib.circle(posit, 37, 41, 43, 39); // R face edge cubelets
+                    mathlib.circle(posit, 9, 11, 17, 15);  // L face corner cubelets
+                    mathlib.circle(posit, 10, 14, 16, 12); // L face edge cubelets
+                    mathlib.circle(posit, 27, 24, 6, 45); // 'A' corner vertical line around cube
+                    mathlib.circle(posit, 29, 26, 8, 47); // 'B' corner vertical line around cube
+                    mathlib.circle(posit, 35, 20, 2, 53); // 'C' corner vertical line around cube
+                    mathlib.circle(posit, 33, 18, 0, 51); // 'D' corner vertical line around cube
+                    mathlib.circle(posit, 28, 25, 7, 46); // 'A' edge vertical line around cube
+                    mathlib.circle(posit, 32, 23, 5, 50); // 'B' edge vertical line around cube
+                    mathlib.circle(posit, 34, 19, 1, 52); // 'C' edge vertical line around cube
+                    mathlib.circle(posit, 30, 21, 3, 48); // 'D' edge vertical line around cube
+                }
             }
 
             function face(f) {
@@ -1425,8 +1457,6 @@
                     for (var j = 0; j < size; j++) {
                         var y = (f == 0) ? size - 1 - j : j;
 
-                        // set color as normal, unless the void cube flag is set and the piece we're coloring
-                        // is not an edge or corner
                         var color = colors[posit[(f * size + y) * size + x]];
 
                         drawPolygon(ctx, color, [
@@ -1445,12 +1475,10 @@
                         posit[cnt++] = i;
                     }
                 }
-                console.log(posit);
 
                 var scramble = moveseq.split(' ');
-                console.log(scramble);
                 for (var i = 0; i < scramble.length; i++) {
-                    doMove();
+                    doMove(scramble[i]);
                 }
 
                 var imgSize = scalingFactor / 50;
