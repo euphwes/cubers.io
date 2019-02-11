@@ -1,6 +1,7 @@
 """ Business logic for creating a new competition. """
 
 from datetime import datetime
+from math import ceil
 
 from app import CUBERS_APP
 
@@ -110,11 +111,7 @@ def generate_new_competition(all_events=False, title=None):
 def week_of_month(datetime_timestamp):
     """ Returns the week of the month for the specified date. """
 
-    from math import ceil
-    first_day = datetime_timestamp.replace(day=1)
-    dom = datetime_timestamp.day
-    adjusted_dom = dom + first_day.weekday()
-    return int(ceil(adjusted_dom/7.0))
+    return ceil(datetime_timestamp.day/7)
 
 
 def get_comp_name_from_date():
