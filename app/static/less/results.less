@@ -72,6 +72,28 @@
     }
 }
 
+.right-tab {
+    position: absolute;
+    right: 0;
+    margin-right: 10px;
+}
+
+.right-tab-link {
+    &:before {
+        content: attr(data-long);
+    }
+    @media @mobile {
+        &:before {
+            content: attr(data-short);
+        }
+    }
+    @media @tablet {
+        &:before {
+            content: attr(data-short);
+        }
+    }
+}
+
 .results-links-area {
     display: flex;
     justify-content: center;

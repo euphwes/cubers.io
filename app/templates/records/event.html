@@ -24,6 +24,9 @@
                     <a href="#tab_average" class="nav-link" role="tab" data-toggle="tab">Average</a>
                 </li>
                 {% endif %}
+                <li class="nav-item right-tab" class="d-none d-md-table-cell">
+                    <a class="nav-link right-tab-link" data-long="Download CSV" data-short="Download" href="{{ url_for('event_results_export', event_name=event_name|replace('/','%2F')) }}"></a>
+                </li>
             </ul>
             
             <div class="tab-content justify-content-center pt-3">
