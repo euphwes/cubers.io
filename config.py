@@ -47,13 +47,6 @@ class Config(object):
         SQLALCHEMY_DATABASE_URI =  'sqlite:///' + path_join(basedir, 'cube_competitions.sqlite')
 
     # ------------------------------------------------------
-    # Pushbullet admin notification of task execution
-    # ------------------------------------------------------
-    PUSHBULLET_API_KEY         = environ.get('PUSHBULLET_API_KEY', None)
-    PUSHBULLET_TARGET_CHANNEL  = environ.get('PUSHBULLET_TARGET_CHANNEL', None)
-    ADMIN_NOTIFICATION_ENABLED = bool(PUSHBULLET_API_KEY) and bool(PUSHBULLET_TARGET_CHANNEL)
-
-    # ------------------------------------------------------
     # Other config
     # ------------------------------------------------------
     TEMPLATES_AUTO_RELOAD = True

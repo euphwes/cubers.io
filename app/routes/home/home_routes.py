@@ -19,9 +19,6 @@ from app.tasks import test_print
 def index():
     """ Main page for the app. Shows cards for every event in the current competition."""
 
-    from os import getpid
-    from sys import stderr
-    print('on pid {}'.format(getpid()), file=stderr)
     test_print("Hitting the home route")
 
     if (not current_user.is_authenticated) and (not 'nologin' in request.args):
