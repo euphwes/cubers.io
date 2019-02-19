@@ -8,9 +8,10 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 from babel.dates import format_date
-from config import Config
 
 from slugify import slugify
+
+from config import Config
 
 # -------------------------------------------------------------------------------------------------
 
