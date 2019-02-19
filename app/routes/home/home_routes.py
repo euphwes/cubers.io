@@ -11,11 +11,18 @@ from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import get_event_results_for_user
 from app.persistence.models import EventFormat
 
+from app.tasks import test_print
+
 # -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.route('/')
 def index():
     """ Main page for the app. Shows cards for every event in the current competition."""
+
+    from os import getpid
+    from sys import stderr
+    print('on pid {}'.format(getpid()), file=stderr)
+    test_print("Hitting the home route")
 
     if (not current_user.is_authenticated) and (not 'nologin' in request.args):
         return redirect(url_for(".prompt_login"))

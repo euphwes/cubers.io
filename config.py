@@ -54,17 +54,6 @@ class Config(object):
     ADMIN_NOTIFICATION_ENABLED = bool(PUSHBULLET_API_KEY) and bool(PUSHBULLET_TARGET_CHANNEL)
 
     # ------------------------------------------------------
-    # Huey task config
-    # ------------------------------------------------------
-    REDIS_URL = environ.get('REDIS_URL', None)
-    if REDIS_URL:
-        from huey import RedisHuey
-        HUEY = RedisHuey(url=REDIS_URL)
-    else:
-        from huey.contrib.simple_storage import SimpleHuey
-        HUEY = SimpleHuey()
-
-    # ------------------------------------------------------
     # Other config
     # ------------------------------------------------------
     TEMPLATES_AUTO_RELOAD = True
