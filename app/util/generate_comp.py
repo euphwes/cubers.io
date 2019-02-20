@@ -99,7 +99,7 @@ def generate_new_competition(all_events=False, title=None):
         bonus_names, upcoming_bonus_names)
 
     # Save new competition to database
-    event_data = correct_relays_scrambles_for_database(event_data)
+    #event_data = correct_relays_scrambles_for_database(event_data)
     new_db_competition = save_new_competition(comp_name, reddit_id, event_data)
 
     # Save competition gen resource to database

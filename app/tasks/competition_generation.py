@@ -9,28 +9,24 @@ from app import CUBERS_APP
 from app.persistence.comp_manager import get_active_competition
 from app.persistence.events_manager import get_all_events, retrieve_from_scramble_pool_for_event,\
     add_scrambles_to_scramble_pool, delete_from_scramble_pool
-from app.util.events_resources import get_event_resource_for_name, EVENT_COLL,\
-    correct_raw_scramble_for_app
+from app.util.events_resources import get_event_resource_for_name, EVENT_COLL
 
 from . import huey
 from .admin_notification import notify_admin, AdminNotificationType
 
 # -------------------------------------------------------------------------------------------------
 
-ScramblePoolTopOffInfo = namedtuple('ScramblePoolTopOffInfo', ['event_id', 'event_name', 'n'])
-ScramblePoolRepr       = namedtuple('ScramblePoolRepr', ['scramble_reddit', 'scramble_app'])
+# pylint: disable=line-too-long
+ScramblePoolTopOffInfo = namedtuple('ScramblePoolTopOffInfo', ['event_id', 'event_name', 'num_scrambles'])
 
 # Set the schedule for competition-generation related background tasks depending on whether this
 # is running in production or in some development environment.
 
 if CUBERS_APP.config['IS_DEVO']:
-    print('setting devo schedules')
     CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(minute="*/1")  # Once every 1 minute
     WRAP_WEEKLY_COMP_SCHEDULE    = crontab(minute="*/30") # Once every 30 minutes
 
 else:
-    # pylint: disable=line-too-long
-    print('setting prod schedules')
     CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(day_of_week='6', hour='4', minute='0') # Sat 4 AM UTC == Fri 11 PM EST
     WRAP_WEEKLY_COMP_SCHEDULE    = crontab(day_of_week='6', hour='3', minute='0') # Sat 3 AM UTC == Fri 10 PM EST
 
@@ -53,11 +49,13 @@ def check_scramble_pool():
     """ A periodic task to check the pre-generated pool of scrambles for all events. If the pool
     is too low for any event, enqueue a task to generate more scrambles for those events. """
 
+    event_scramble_msgs = list()
+
     for event in get_all_events():
 
         # Don't pre-generate COLL scrambles. The fact we need a specific COLL each week, and that
         # rotates weekly, makes this more difficult than it needs to be. We'll just generate them
-        # on the fly elsewhere
+        # on the fly during competition generation, since it's fast anyway
         if event.name == EVENT_COLL.name:
             continue
 
@@ -67,6 +65,15 @@ def check_scramble_pool():
         num_missing = (2 * event.totalSolves) - len(event.scramble_pool)
         if num_missing > 0:
             top_off_scramble_pool(ScramblePoolTopOffInfo(event.id, event.name, num_missing))
+            event_scramble_msgs.append('{} for {}'.format(num_missing, event.name))
+
+    # If no scrambles were generated
+    if not event_scramble_msgs:
+        return
+
+    title = 'Queued scramble generation'
+    body  = '\n'.join(event_scramble_msgs)
+    notify_admin(title, body, AdminNotificationType.PUSHBULLET_NOTE)
 
 
 @huey.task()
@@ -74,18 +81,7 @@ def top_off_scramble_pool(top_off_info):
     """ A task to generate additional scrambles to add to the pool of pre-generated scrambles for
     various events. """
 
-    scramble_representations = list()
-
     event_resource = get_event_resource_for_name(top_off_info.event_name)
+    scrambles = [event_resource.get_scramble() for _ in range(top_off_info.num_scrambles)]
 
-    for _ in range(top_off_info.n):
-        raw_scramble  = event_resource.get_one_scramble()
-        app_scramble  = correct_raw_scramble_for_app(top_off_info.event_name, raw_scramble)
-        scramble_repr = ScramblePoolRepr(scramble_app=raw_scramble, scramble_reddit=raw_scramble)
-        scramble_representations.append(scramble_repr)
-
-    add_scrambles_to_scramble_pool(scramble_representations, top_off_info.event_id)
-
-    title = 'Scrambles Generated'
-    body  = 'Pre-generated {} scrambles for {}'.format(top_off_info.n, top_off_info.event_name)
-    notify_admin(title, body, AdminNotificationType.PUSHBULLET_NOTE)
+    add_scrambles_to_scramble_pool(scrambles, top_off_info.event_id)

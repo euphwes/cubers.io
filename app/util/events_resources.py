@@ -16,29 +16,15 @@ class EventResource:
     """ Encapsulates everything we need to know about an event. """
 
     # pylint: disable=C0301
-    def __init__(self, name, scramble_func, num_scrambles, is_weekly, is_wca, has_explanation=False, scramble_generator=False):
+    def __init__(self, name, scramble_func, num_scrambles, is_weekly, is_wca):
         self.name = name
         self.scramble_func = scramble_func
         self.num_scrambles = num_scrambles
         self.is_weekly = is_weekly
-        self.has_explanation = has_explanation
-        self.scramble_generator = scramble_generator
         self.is_wca = is_wca
 
-    def get_scrambles(self, *args):
-        """ Gets the scrambles for this event. """
-
-        if self.scramble_generator:
-            return [s for s in self.scramble_func(*args)]
-
-        return [self.scramble_func(*args) for _ in range(self.num_scrambles)]
-
-
-    def get_one_scramble(self, *args):
-        """ Gets just one scramble for this event. """
-
-        if self.scramble_generator:
-            return [s for s in self.scramble_func(*args)]
+    def get_scramble(self, *args):
+        """ Returns a scramble for this event. """
 
         return self.scramble_func(*args)
 
@@ -110,31 +96,21 @@ def does_FMC_scramble_have_cancellations(scramble):
 def scrambler_234_relay():
     """ Get a scramble for the 2-3-4 relay event. """
 
-    yield scrambler222.get_WCA_scramble()
-    yield scrambler333.get_WCA_scramble()
-    yield scrambler444.get_random_state_scramble()
+    s222 = scrambler222.get_WCA_scramble()
+    s333 = scrambler333.get_WCA_scramble()
+    s444 = scrambler444.get_random_state_scramble()
+
+    return f'2x2: {s222}\n3x3: {s333}\n4x4: {s444}'
 
 
 def scrambler_333_relay():
     """ Get a scramble for the 3x3 relay of 3 event. """
 
-    yield scrambler333.get_WCA_scramble()
-    yield scrambler333.get_WCA_scramble()
-    yield scrambler333.get_WCA_scramble()
+    s1 = scrambler333.get_WCA_scramble()
+    s2 = scrambler333.get_WCA_scramble()
+    s3 = scrambler333.get_WCA_scramble()
 
-# -------------------------------------------------------------------------------------------------
-
-def correct_raw_scramble_for_app(event_name, scramble):
-    """ The relay events should display the scrambles as 3 individual scrambles for the
-    Reddit competition post, but just one 'triple scramble' for the database. Fix that here. """
-
-    if event_name == EVENT_234Relay:
-        return ['2x2: {}\n3x3: {}\n4x4: {}'.format(*scramble)]
-
-    if event_name == EVENT_333Relay.name:
-        return ['1: {}\n2: {}\n3: {}'.format(*scramble)]
-
-    return scramble
+    return f'1: {s1}\n2: {s2}\n3: {s3}'
 
 # -------------------------------------------------------------------------------------------------
 
@@ -169,8 +145,8 @@ EVENT_4x4OH     = EventResource("4x4 OH", scrambler444.get_random_state_scramble
 EVENT_3x3x2     = EventResource("3x3x2", cuboidsScrambler.get_3x3x2_scramble, 5, False, False)
 EVENT_3x3x4     = EventResource("3x3x4", cuboidsScrambler.get_3x3x4_scramble, 5, False, False)
 EVENT_3x3x5     = EventResource("3x3x5", cuboidsScrambler.get_3x3x5_scramble, 5, False, False)
-EVENT_234Relay  = EventResource("2-3-4 Relay", scrambler_234_relay, 3, False, False, scramble_generator=True)
-EVENT_333Relay  = EventResource("3x3 Relay of 3", scrambler_333_relay, 3, False, False, scramble_generator=True)
+EVENT_234Relay  = EventResource("2-3-4 Relay", scrambler_234_relay, 1, False, False)
+EVENT_333Relay  = EventResource("3x3 Relay of 3", scrambler_333_relay, 1, False, False)
 EVENT_PLLAttack = EventResource("PLL Time Attack", lambda: 'Do all the PLLs!', 1, False, False)
 EVENT_2BLD      = EventResource("2BLD", scrambler222.get_WCA_scramble, 3, False, False)
 EVENT_REDI      = EventResource("Redi Cube", redi_scrambler, 5, False, False)

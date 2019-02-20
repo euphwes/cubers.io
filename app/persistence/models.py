@@ -65,15 +65,12 @@ class Event(Model):
 
 
 class ScramblePool(Model):
-    """ A record that encapsulates a pre-generated scramble for a given event. Contains a
-    representation of the scramble for viewing in the app, and for viewing directly in the
-    Reddit thread for a given comp. """
-    __tablename__   = 'scramble_pool'
-    id              = Column(Integer, primary_key=True)
-    event_id        = Column(Integer, ForeignKey('events.id'))
-    scramble_app    = Column(Text())
-    scramble_reddit = Column(Text())
-    event           = relationship("Event", backref="scramble_pool")
+    """ A record that encapsulates a pre-generated scramble for a given event. """
+    __tablename__ = 'scramble_pool'
+    id            = Column(Integer, primary_key=True)
+    event_id      = Column(Integer, ForeignKey('events.id'))
+    scramble      = Column(Text())
+    event         = relationship("Event", backref="scramble_pool")
 
 
 class Scramble(Model):

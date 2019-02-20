@@ -107,9 +107,6 @@ def add_scrambles_to_scramble_pool(scrambles, event_id):
     """ Adds scrambles to the scramble pool for the specified event. """
 
     for scramble in scrambles:
-        new_scramble = ScramblePool(scramble_app = scrambles.scramble_app,
-                                    scramble_reddit = scramble.scramble_reddit,
-                                    event_id = event_id)
-        DB.session.add(new_scramble)
+        DB.session.add(ScramblePool(scramble = scramble, event_id = event_id))
 
     DB.session.commit()
