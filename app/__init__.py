@@ -69,10 +69,8 @@ ASSETS.register({
 
 # -------------------------------------------------------------------------------------------------
 
-# pylint: disable=W0401
-# I don't want to specifically name every route I want to import here
 from queue_config import huey
-from app.tasks import test_print
+from app.tasks import *
 from app.persistence import models
 from .routes import *
 from .commands import *

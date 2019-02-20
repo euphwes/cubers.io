@@ -3,7 +3,7 @@
 from collections import OrderedDict
 
 from app import DB
-from app.persistence.models import Event, CompetitionEvent, UserEventResults
+from app.persistence.models import Event, CompetitionEvent, UserEventResults, ScramblePool
 from app.util.events_resources import get_WCA_event_names, get_non_WCA_event_names
 
 # -------------------------------------------------------------------------------------------------
@@ -81,3 +81,35 @@ def get_all_events_user_has_participated_in(user_id):
         filter(UserEventResults.is_complete).\
         distinct(Event.id).\
         all()
+
+
+def retrieve_from_scramble_pool_for_event(event_id, num_scrambles):
+    """ Retrieves the desired number of scrambles from the scramble pool for the
+    specified event. """
+
+    return DB.session.\
+        query(ScramblePool).\
+        filter(ScramblePool.event_id == event_id).\
+        limit(num_scrambles).\
+        all()
+
+
+def delete_from_scramble_pool(scrambles):
+    """ Deletes the specified scrambles from the scramble pool. """
+
+    for scramble in scrambles:
+        DB.session.delete(scramble)
+
+    DB.session.commit()
+
+
+def add_scrambles_to_scramble_pool(scrambles, event_id):
+    """ Adds scrambles to the scramble pool for the specified event. """
+
+    for scramble in scrambles:
+        new_scramble = ScramblePool(scramble_app = scrambles.scramble_app,
+                                    scramble_reddit = scramble.scramble_reddit,
+                                    event_id = event_id)
+        DB.session.add(new_scramble)
+
+    DB.session.commit()

@@ -62,7 +62,18 @@ class Event(Model):
     totalSolves    = Column(Integer)
     eventFormat    = Column(Enum("Ao5", "Mo3", "Bo3", "Bo1", name="eventFormat"), default="Ao5")
     description    = Column(String(128))
-    CompEvents     = relationship("CompetitionEvent", backref="Event")
+
+
+class ScramblePool(Model):
+    """ A record that encapsulates a pre-generated scramble for a given event. Contains a
+    representation of the scramble for viewing in the app, and for viewing directly in the
+    Reddit thread for a given comp. """
+    __tablename__   = 'scramble_pool'
+    id              = Column(Integer, primary_key=True)
+    event_id        = Column(Integer, ForeignKey('events.id'))
+    scramble_app    = Column(Text())
+    scramble_reddit = Column(Text())
+    event           = relationship("Event", backref="scramble_pool")
 
 
 class Scramble(Model):

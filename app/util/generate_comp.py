@@ -123,15 +123,3 @@ def get_comp_name_from_date():
         year  = today.year,
         week  = week_of_month(today)
     )
-
-def correct_relays_scrambles_for_database(event_data):
-    """ The relay events should display the scrambles as 3 individual scrambles for the
-    Reddit competition post, but just one 'triple scramble' for the database. Fix that here. """
-
-    for event in event_data:
-        if event['name'] == EVENT_333Relay.name:
-            event['scrambles'] = ['1: {}\n2: {}\n3: {}'.format(*event['scrambles'])]
-        if event['name'] == EVENT_234Relay.name:
-            event['scrambles'] = ['2x2: {}\n3x3: {}\n4x4: {}'.format(*event['scrambles'])]
-
-    return event_data
