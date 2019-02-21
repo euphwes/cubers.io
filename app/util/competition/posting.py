@@ -2,8 +2,8 @@
 
 from arrow import utcnow
 
-from app.util.reddit_util import submit_competition_post
-from app.util.events_resources import EVENT_COLL
+from app.util.reddit import submit_competition_post
+from app.util.events.resources import EVENT_COLL
 
 # -------------------------------------------------------------------------------------------------
 

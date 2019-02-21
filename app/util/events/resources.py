@@ -8,7 +8,7 @@ from pyTwistyScrambler import scrambler333, scrambler222, scrambler444, scramble
     scrambler666, scrambler777, squareOneScrambler, megaminxScrambler, pyraminxScrambler,\
     cuboidsScrambler, skewbScrambler, clockScrambler
 
-from app.util.coll_util import get_coll_scramble
+from .coll import get_coll_scramble
 
 # -------------------------------------------------------------------------------------------------
 

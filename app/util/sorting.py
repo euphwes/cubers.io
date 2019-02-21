@@ -33,7 +33,6 @@ def cmp_to_key_wrapped(func):
 
     return cmp_to_key(func)
 
-
 # -------------------------------------------------------------------------------------------------
 
 @cmp_to_key_wrapped

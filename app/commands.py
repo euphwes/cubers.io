@@ -3,8 +3,6 @@
 
 import uuid
 import random
-import json
-import base64
 
 import click
 
@@ -14,7 +12,8 @@ from app.business.user_results import recalculate_user_pbs_for_event, determine_
 from app.business.rankings import precalculate_user_site_rankings
 from app.persistence.models import EventFormat
 from app.persistence.comp_manager import save_new_competition, get_active_competition,\
-    get_all_competitions, get_complete_competitions, bulk_update_comps, get_all_comp_events_for_comp
+    get_all_competitions, get_complete_competitions, bulk_update_comps,\
+    get_all_comp_events_for_comp, get_competition
 from app.persistence.events_manager import get_event_by_name, get_all_events
 from app.persistence.user_manager import get_all_users, get_user_by_username, get_all_admins,\
     set_user_as_admin, unset_user_as_admin, UserDoesNotExistException
@@ -22,9 +21,9 @@ from app.persistence.user_results_manager import get_all_null_is_complete_event_
     get_all_na_average_event_results, save_event_results_for_user, get_all_complete_event_results,\
     bulk_save_event_results
 from app.business.user_results import set_medals_on_best_event_results
-from app.util.generate_comp import generate_new_competition
-from app.util.score_comp import score_previous_competition
 from app.routes.home import do_reddit_submit
+from app.util.competition.generation import generate_new_competition
+from app.util.competition.scoring import score_reddit_thread
 
 # -------------------------------------------------------------------------------------------------
 # Below are admin commands for creating new competitions, and scoring previous ones
@@ -36,7 +35,7 @@ from app.routes.home import do_reddit_submit
 def score_and_generate_new_comp(all_events, title):
     """ Scores the previous competition, and generates a new competition. """
 
-    score_previous_competition()
+    score_reddit_thread(get_active_competition())
     generate_new_competition(all_events=all_events, title=title)
     precalculate_user_site_rankings()
 
@@ -47,7 +46,7 @@ def score_and_generate_new_comp(all_events, title):
 def score_comp_only(comp_id, rerun):
     """ Score only the specified competition, optionally as a re-run. """
 
-    score_previous_competition(is_rerun=rerun, comp_id=comp_id)
+    score_reddit_thread(get_competition(comp_id), is_rerun=rerun)
 
 
 @CUBERS_APP.cli.command()
@@ -315,7 +314,6 @@ EVENTS_HELPER = {
     "3x3 Mirror Blocks/Bump": scrambler333.get_WCA_scramble,
 }
 
-
 # -------------------------------------------------------------------------------------------------
 # Below are test comp generation commands, not intended to be used in production
 # -------------------------------------------------------------------------------------------------
@@ -336,20 +334,5 @@ def create_new_test_comp(title, reddit_id):
 
     if not reddit_id:
         reddit_id = str(uuid.uuid4()).replace('-','')[:10]
-
-    save_new_competition(title, reddit_id, event_data)
-
-
-@CUBERS_APP.cli.command()
-@click.option('--data', '-d', type=str)
-def create_new_test_comp_from_b64_data(data):
-    """ Creates a test competition based on the data provided. """
-
-    json_data = base64.b64decode(data).decode()
-    data = json.loads(json_data)
-
-    title     = data['title']
-    reddit_id = data['reddit_id']
-    event_data = [event_info for event_info in data['events']]
 
     save_new_competition(title, reddit_id, event_data)

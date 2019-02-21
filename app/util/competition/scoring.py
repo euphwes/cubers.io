@@ -5,7 +5,7 @@ import re
 from time import sleep
 
 from app.business.user_results import set_medals_on_best_event_results
-from app.persistence.comp_manager import get_active_competition, get_competition, save_competition,\
+from app.persistence.comp_manager import get_competition, save_competition,\
     get_all_comp_events_for_comp
 from app.persistence.user_manager import get_username_id_map
 from app.persistence.events_manager import get_events_name_id_mapping
@@ -91,14 +91,11 @@ def filter_blacklisted_competitor_events(competitors, comp_id):
 
 # -------------------------------------------------------------------------------------------------
 
-def score_previous_competition(is_rerun=False, comp_id=None):
+def score_reddit_thread(competition_id, is_rerun=False):
     """ Score the previous competition and post the results. """
 
-    # Get the reddit thread ID and the competition model for the competition to be scored
-    if comp_id:
-        competition_being_scored = get_competition(comp_id)
-    else:
-        competition_being_scored = get_active_competition()
+    # Retrieve the comp being scored
+    competition_being_scored = get_competition(competition_id)
 
     comp_events_in_comp = get_all_comp_events_for_comp(competition_being_scored.id)
 

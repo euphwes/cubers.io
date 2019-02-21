@@ -8,11 +8,14 @@ from app import CUBERS_APP
 from app.persistence.comp_manager import get_competition_gen_resources,\
 save_competition_gen_resources, save_new_competition
 
-from app.util.events_resources import get_weekly_events, get_bonus_events,\
-get_bonus_events_rotation_starting_at, get_COLL_at_index, get_bonus_events_without_current,\
-get_num_COLLs, get_num_bonus_events, EVENT_COLL, EVENT_234Relay, EVENT_333Relay
+from app.persistence.events_manager import get_event_by_name,\
+    retrieve_from_scramble_pool_for_event
 
-from app.util.post_comp import post_competition
+from app.util.events.resources import get_weekly_events, get_bonus_events,\
+get_bonus_events_rotation_starting_at, get_COLL_at_index, get_bonus_events_without_current,\
+get_num_COLLs, get_num_bonus_events, EVENT_COLL
+
+from app.util.competition.posting import post_competition
 
 # -------------------------------------------------------------------------------------------------
 
@@ -30,7 +33,7 @@ if IS_DEVO:
 
 # -------------------------------------------------------------------------------------------------
 
-def generate_new_competition(all_events=False, title=None):
+def generate_new_competition():
     """ Generate a new competition and post to Reddit. """
 
     # Get the info required to know what events and COLL to do next
@@ -41,10 +44,10 @@ def generate_new_competition(all_events=False, title=None):
     comp_number = comp_gen_data.current_comp_num
 
     # Determine the competition name
-    comp_name = title if title else get_comp_name_from_date()
+    comp_name = get_comp_name_from_date()
 
-    # Generate scrambles for every WCA event
-    event_data = []
+    # Generate scrambles for every weekly event
+    event_data = list()
     for weekly_event in get_weekly_events():
         event_data.append(dict({
             'name':      weekly_event.name,
@@ -52,7 +55,8 @@ def generate_new_competition(all_events=False, title=None):
         }))
 
     # If we're doing all events, just get all of theme
-    if all_events:
+    # if all_events:
+    if False:
         bonus_events = get_bonus_events()
 
     # Update start index for bonus events by moving the start index up by BONUS_EVENT_COUNT
@@ -76,18 +80,19 @@ def generate_new_competition(all_events=False, title=None):
         comp_gen_data.current_OLL_index = (comp_gen_data.current_OLL_index + 1) % get_num_COLLs()
         coll_index  = comp_gen_data.current_OLL_index
         coll_number = get_COLL_at_index(coll_index)
+        coll_scrambles = [EVENT_COLL.get_scramble(coll_number) for _ in range(EVENT_COLL.num_scrambles)]
+        event_data.append(dict({
+            'name':      EVENT_COLL.name,
+            'scrambles': [s[0] for s in coll_scrambles],
+            'scrambles_for_post': [s[1] for s in coll_scrambles]
+        }))
 
     # Generate scrambles for the bonus events in this comp
     for bonus_event in bonus_events:
         if bonus_event == EVENT_COLL:
-            scrambles = bonus_event.get_scrambles(coll_number)
-            bonus_event_dict = dict({
-                'name':      bonus_event.name,
-                'scrambles': [s[0] for s in scrambles],
-                'scrambles_for_post':  [s[1] for s in scrambles]
-            })
+            continue
         else:
-            scrambles = bonus_event.get_scrambles()
+            scrambles = list()
             bonus_event_dict = dict({
                 'name':      bonus_event.name,
                 'scrambles': scrambles
@@ -99,13 +104,15 @@ def generate_new_competition(all_events=False, title=None):
         bonus_names, upcoming_bonus_names)
 
     # Save new competition to database
-    #event_data = correct_relays_scrambles_for_database(event_data)
+    # TODO: fix relay scrambles for representation in reddit thread
     new_db_competition = save_new_competition(comp_name, reddit_id, event_data)
 
     # Save competition gen resource to database
     comp_gen_data.previous_comp_id = comp_gen_data.current_comp_id
     comp_gen_data.current_comp_id = new_db_competition.id
     save_competition_gen_resources(comp_gen_data)
+
+    return new_db_competition
 
 
 def week_of_month(datetime_timestamp):
@@ -123,3 +130,11 @@ def get_comp_name_from_date():
         year  = today.year,
         week  = week_of_month(today)
     )
+
+
+def __get_scrambles_for_event(event, coll=False):
+    """ Returns a list of scrambles for the specified event. Source from the scramble pool for
+    all events for COLL, which is generated on the fly. """
+
+    if event == EVENT_COLL:
+        pass

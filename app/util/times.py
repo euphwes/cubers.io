@@ -1,5 +1,7 @@
 """ Utility functions for working with times. """
 
+# -------------------------------------------------------------------------------------------------
+
 def convert_centiseconds_to_friendly_time(centiseconds):
     """ Converts centiseconds to a human-readable friendly time.
     Ex: 2345 --> 23.45
