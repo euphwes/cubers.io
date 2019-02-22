@@ -212,6 +212,16 @@ class Competition(Model):
                                     primaryjoin=id == CompetitionEvent.competition_id)
 
 
+class WeeklyMetrics(Model):
+    """ A record for maintaining usage metrics for each weekly competition. """
+    __tablename__   = 'weekly_metrics'
+    id              = Column(Integer, primary_key=True)
+    comp_id         = Column(Integer, ForeignKey('competitions.id'), index=True)
+    desktop_hits    = Column(Integer)
+    mobile_hits     = Column(Integer)
+    new_users_count = Column(Integer)
+
+
 class CompetitionGenResources(Model):
     """ A record for maintaining the current state of the competition generation. """
     __tablename__       = 'comp_gen_resources'

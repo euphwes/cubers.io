@@ -9,9 +9,12 @@ from app.persistence.user_manager import update_or_create_user
 
 from app.util.reddit import get_username_refresh_token_from_code, get_user_auth_url
 
+from app.routes import record_usage_metrics
+
 # -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.route("/logout")
+@record_usage_metrics
 def logout():
     """ Log out the current user. """
     if current_user.is_authenticated:
@@ -20,6 +23,7 @@ def logout():
 
 
 @CUBERS_APP.route('/login')
+@record_usage_metrics
 def login():
     """ Log in a user. """
 
@@ -29,6 +33,7 @@ def login():
 
 
 @CUBERS_APP.route('/authorize')
+@record_usage_metrics
 def authorize():
     """ Handle the callback from Reddit's OAuth. Create a user if necessary, update their refresh
     token, and log the user in. """
@@ -48,6 +53,7 @@ def authorize():
 
 
 @CUBERS_APP.route('/denied')
+@record_usage_metrics
 def denied():
     """ For when the user declines Reddit OAuth. """
 

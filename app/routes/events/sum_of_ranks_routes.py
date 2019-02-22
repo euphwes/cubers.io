@@ -8,6 +8,8 @@ from app.persistence.user_site_rankings_manager import get_user_site_rankings_al
     get_user_site_rankings_wca_sorted_single, get_user_site_rankings_non_wca_sorted_average,\
     get_user_site_rankings_non_wca_sorted_single
 
+from app.routes import record_usage_metrics
+
 # -------------------------------------------------------------------------------------------------
 
 SOR_TYPE_ALL     = 'all'
@@ -17,6 +19,7 @@ SOR_TYPE_NON_WCA = 'non_wca'
 # -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.route('/sum_of_ranks/<sor_type>/')
+@record_usage_metrics
 def sum_of_ranks(sor_type):
     """ A route for showing sum of ranks. """
 

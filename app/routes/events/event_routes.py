@@ -11,6 +11,8 @@ from app.business.rankings import get_ordered_pb_averages_for_event,\
     get_ordered_pb_singles_for_event
 from app.persistence.comp_manager import get_event_by_name
 
+from app.routes import record_usage_metrics
+
 # -------------------------------------------------------------------------------------------------
 
 # Container for sum of ranks data
@@ -23,6 +25,7 @@ CSV_EMPTY             = ''
 # -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.route('/event/<event_name>/')
+@record_usage_metrics
 def event_results(event_name):
     """ A route for showing the global top results for a specific event. """
 
@@ -40,6 +43,7 @@ def event_results(event_name):
 
 
 @CUBERS_APP.route('/event/<event_name>/export/')
+@record_usage_metrics
 def event_results_export(event_name):
     """ A route for exporting events records in CSV format. """
 
