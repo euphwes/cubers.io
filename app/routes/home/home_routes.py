@@ -11,9 +11,12 @@ from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import get_event_results_for_user
 from app.persistence.models import EventFormat
 
+from app.routes import record_usage_metrics
+
 # -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.route('/')
+@record_usage_metrics
 def index():
     """ Main page for the app. Shows cards for every event in the current competition."""
 
@@ -68,6 +71,7 @@ def index():
 
 
 @CUBERS_APP.route('/prompt_login')
+@record_usage_metrics
 def prompt_login():
     """ Prompts the user to login for the best experience. """
 

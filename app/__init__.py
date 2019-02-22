@@ -6,6 +6,7 @@ from flask import Flask
 from flask_assets import Bundle, Environment
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from flask_mobility import Mobility
 
 from babel.dates import format_date
 
@@ -17,6 +18,8 @@ from config import Config
 
 CUBERS_APP = Flask(__name__)
 CUBERS_APP.config.from_object(Config)
+
+Mobility(CUBERS_APP)
 
 CUBERS_APP.secret_key = CUBERS_APP.config['FLASK_SECRET_KEY']
 

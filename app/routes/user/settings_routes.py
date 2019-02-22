@@ -10,6 +10,8 @@ from app.persistence.settings_manager import get_settings_for_user_for_edit,\
     set_new_settings_for_user, SettingCode, SettingType, FALSE_STR, get_color_defaults
 from app.persistence.user_manager import get_user_by_username
 
+from app.routes import record_usage_metrics
+
 # -------------------------------------------------------------------------------------------------
 
 # These are the settings we want the user to be able to see on the settings edit page
@@ -66,6 +68,7 @@ __ALL_SETTINGS += CUSTOM_MEGAMINX_COLOR_SETTINGS + TIMER_SETTINGS
 # -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.route('/settings', methods=['GET','POST'])
+@record_usage_metrics
 def edit_settings():
     """ A route for showing a editing a user's personal settings. """
 

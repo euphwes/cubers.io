@@ -14,6 +14,8 @@ from app.persistence.user_results_manager import get_all_complete_user_results_f
 from app.util.sorting import sort_user_event_results
 from app.routes.util import is_admin_viewing
 
+from app.routes import record_usage_metrics
+
 # -------------------------------------------------------------------------------------------------
 
 DEFAULT_BLACKLIST_NOTE = """Results manually hidden by {username} on {date}."""
@@ -87,6 +89,7 @@ def prev_leaders():
 
 
 @CUBERS_APP.route('/leaderboards/')
+@record_usage_metrics
 def results_list():
     """ A route for showing which competitions results can be viewed for. """
 
@@ -96,6 +99,7 @@ def results_list():
 
 
 @CUBERS_APP.route('/leaderboards/<int:comp_id>/')
+@record_usage_metrics
 def comp_results(comp_id):
     """ A route for showing results for a specific competition. """
 

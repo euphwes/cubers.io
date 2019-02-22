@@ -23,7 +23,7 @@ from app.persistence.user_results_manager import get_all_null_is_complete_event_
     bulk_save_event_results
 from app.business.user_results import set_medals_on_best_event_results
 from app.routes.home import do_reddit_submit
-from app.tasks.competition_generation import score_reddit_thread_task,\
+from app.tasks.competition_management import score_reddit_thread_task,\
     generate_new_competition_task, wrap_weekly_competition, run_user_site_rankings
 
 # -------------------------------------------------------------------------------------------------

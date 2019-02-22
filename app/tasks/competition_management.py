@@ -1,4 +1,4 @@
-""" Tasks related to admin notifications via Pushbullet channels. """
+""" Tasks related to creating and scoring competitions. """
 
 # pylint: disable=line-too-long
 

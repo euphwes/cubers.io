@@ -13,9 +13,12 @@ from app.persistence.events_manager import get_events_id_name_mapping, get_all_W
 from app.persistence.user_site_rankings_manager import get_site_rankings_for_user
 from app.routes.util import is_admin_viewing
 
+from app.routes import record_usage_metrics
+
 # -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.route('/u/<username>/')
+@record_usage_metrics
 def profile(username):
     """ A route for showing a user's profile. """
 
