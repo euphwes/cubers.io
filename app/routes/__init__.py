@@ -11,7 +11,7 @@ def record_usage_metrics(route_func):
 
     @wraps(route_func)
     def wrapped_route(*args, **kwargs):
-        record_browser_metrics(request.MOBILE)
+        record_browser_metrics(request.MOBILE, request.user_agent)
         return route_func(*args, **kwargs)
 
     return wrapped_route

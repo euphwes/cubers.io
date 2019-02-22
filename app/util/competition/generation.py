@@ -12,6 +12,8 @@ save_competition_gen_resources, save_new_competition
 from app.persistence.events_manager import retrieve_from_scramble_pool_for_event,\
     get_events_name_id_mapping, delete_from_scramble_pool
 
+from app.persistence.weekly_metrics_manager import create_new_weekly_metrics_for_comp
+
 from app.util.events.resources import get_all_weekly_events, get_all_bonus_events,\
 get_bonus_events_rotation_starting_at, get_COLL_at_index, get_bonus_events_without_current,\
 get_num_COLLs, get_num_bonus_events, EVENT_COLL
@@ -73,6 +75,9 @@ def generate_new_competition():
     # Save new competition to database
     # TODO: fix relay scrambles for representation in reddit thread
     new_db_competition = save_new_competition(comp_name, reddit_id, event_data)
+
+    # Create a weekly metrics record for the competition
+    create_new_weekly_metrics_for_comp(new_db_competition.id)
 
     # Save competition gen resource to database
     comp_gen_data.previous_comp_id = comp_gen_data.current_comp_id

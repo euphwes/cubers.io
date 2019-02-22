@@ -219,6 +219,7 @@ class WeeklyMetrics(Model):
     comp_id         = Column(Integer, ForeignKey('competitions.id'), index=True)
     desktop_hits    = Column(Integer)
     mobile_hits     = Column(Integer)
+    bot_hits        = Column(Integer)
     new_users_count = Column(Integer)
 
 

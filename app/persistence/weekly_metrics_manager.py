@@ -58,6 +58,23 @@ def update_browser_usage(was_mobile, comp_id=None):
     save_metrics(metrics)
 
 
+def update_bot_hits(comp_id=None):
+    """ Increments bot hit count. If comp_id is specified, uses that competition's metrics,
+    otherwise uses the metrics for the current week's competition. """
+
+    if not comp_id:
+        comp_id = get_active_competition().id
+
+    metrics = get_weekly_metrics(comp_id)
+
+    if not metrics.bot_hits:
+        metrics.bot_hits = 1
+    else:
+        metrics.bot_hits += 1
+
+    save_metrics(metrics)
+
+
 def increment_new_user_count(comp_id=None):
     """ Increments new user count. If comp_id is specified, uses that competition's metrics,
     otherwise uses the metrics for the current week's competition.  """
