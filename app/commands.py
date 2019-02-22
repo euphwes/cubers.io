@@ -13,7 +13,8 @@ from app.business.rankings import precalculate_user_site_rankings
 from app.persistence.models import EventFormat
 from app.persistence.comp_manager import save_new_competition, get_active_competition,\
     get_all_competitions, get_complete_competitions, bulk_update_comps,\
-    get_all_comp_events_for_comp, get_competition
+    get_all_comp_events_for_comp, get_competition, override_title_for_next_comp,\
+    set_all_events_flag_for_next_comp
 from app.persistence.events_manager import get_event_by_name, get_all_events
 from app.persistence.user_manager import get_all_users, get_user_by_username, get_all_admins,\
     set_user_as_admin, unset_user_as_admin, UserDoesNotExistException
@@ -22,8 +23,8 @@ from app.persistence.user_results_manager import get_all_null_is_complete_event_
     bulk_save_event_results
 from app.business.user_results import set_medals_on_best_event_results
 from app.routes.home import do_reddit_submit
-from app.util.competition.generation import generate_new_competition
-from app.util.competition.scoring import score_reddit_thread
+from app.tasks.competition_generation import score_reddit_thread_task,\
+    generate_new_competition_task, wrap_weekly_competition, run_user_site_rankings
 
 # -------------------------------------------------------------------------------------------------
 # Below are admin commands for creating new competitions, and scoring previous ones
@@ -31,13 +32,32 @@ from app.util.competition.scoring import score_reddit_thread
 
 @CUBERS_APP.cli.command()
 @click.option('--all_events', is_flag=True, default=False)
+def set_all_events_flags(all_events):
+    """ Sets the all-events flag next competition. """
+
+    set_all_events_flag_for_next_comp(all_events)
+
+
+@CUBERS_APP.cli.command()
+@click.option('--title', '-t', type=str)
+def set_title_override(title):
+    """ Sets an override title for the next competition. """
+
+    title = title if title else None
+    override_title_for_next_comp(title)
+
+
+@CUBERS_APP.cli.command()
+@click.option('--all_events', is_flag=True, default=False)
 @click.option('--title', '-t', type=str)
 def score_and_generate_new_comp(all_events, title):
     """ Scores the previous competition, and generates a new competition. """
 
-    score_reddit_thread(get_active_competition())
-    generate_new_competition(all_events=all_events, title=title)
-    precalculate_user_site_rankings()
+    title = title if title else None
+    override_title_for_next_comp(title)
+    set_all_events_flag_for_next_comp(all_events)
+
+    wrap_weekly_competition()
 
 
 @CUBERS_APP.cli.command()
@@ -46,7 +66,7 @@ def score_and_generate_new_comp(all_events, title):
 def score_comp_only(comp_id, rerun):
     """ Score only the specified competition, optionally as a re-run. """
 
-    score_reddit_thread(get_competition(comp_id), is_rerun=rerun)
+    score_reddit_thread_task(get_competition(comp_id), is_rerun=rerun)
 
 
 @CUBERS_APP.cli.command()
@@ -55,8 +75,19 @@ def score_comp_only(comp_id, rerun):
 def generate_new_comp_only(all_events, title):
     """ Only generate a new competition, don't score the previous one. """
 
-    generate_new_competition(all_events=all_events, title=title)
-    precalculate_user_site_rankings()
+    title = title if title else None
+    override_title_for_next_comp(title)
+    set_all_events_flag_for_next_comp(all_events)
+
+    generate_new_competition_task()
+    run_user_site_rankings()
+
+
+@CUBERS_APP.cli.command()
+def calculate_all_user_site_rankings():
+    """ Calculates UserSiteRankings for all users as of the current comp. """
+
+    run_user_site_rankings()
 
 # -------------------------------------------------------------------------------------------------
 # Below are admin commands for one-off app administration needs
@@ -95,13 +126,6 @@ def list_admins():
         print('\nThe following users are admins:')
         for user in get_all_admins():
             print(user.username)
-
-
-@CUBERS_APP.cli.command()
-def calculate_all_user_site_rankings():
-    """ Calculates UserSiteRankings for all users as of the current comp. """
-
-    precalculate_user_site_rankings()
 
 
 @CUBERS_APP.cli.command()

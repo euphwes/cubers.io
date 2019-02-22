@@ -7,7 +7,7 @@ from app import CUBERS_APP
 from app.persistence import comp_manager
 from app.persistence.user_manager import update_or_create_user
 
-from app.util.reddit_util import get_username_refresh_token_from_code, get_user_auth_url
+from app.util.reddit import get_username_refresh_token_from_code, get_user_auth_url
 
 # -------------------------------------------------------------------------------------------------
 

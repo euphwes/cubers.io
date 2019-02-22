@@ -11,7 +11,7 @@ from app.persistence.comp_manager import get_active_competition, get_complete_co
     get_previous_competition, get_competition, get_all_comp_events_for_comp
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp,\
     blacklist_results, unblacklist_results, UserEventResultsDoesNotExistException
-from app.util.sorting_utils import sort_user_event_results
+from app.util.sorting import sort_user_event_results
 from app.routes.util import is_admin_viewing
 
 # -------------------------------------------------------------------------------------------------

@@ -18,11 +18,11 @@ from .admin_notification import notify_admin, AdminNotificationType
 ScramblePoolTopOffInfo = namedtuple('ScramblePoolTopOffInfo', ['event_id', 'event_name', 'num_scrambles'])
 
 # In dev environments, run the task to check the scramble pool every 5 minutes.
-# In prod, run it an hour after the new competition is posted (Sat 4 AM UTC == Fri 11 PM EST)
+# In prod, run it every 6 hours
 if CUBERS_APP.config['IS_DEVO']:
-    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(minute="*/5")  # Once every 5 minutes
+    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(minute="*/5") # Once every 5 minutes
 else:
-    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(day_of_week='6', hour='4', minute='0') # Sat 4 AM UTC == Fri 11 PM EST
+    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(hour="*/6")   # Once every 6 hours
 
 # -------------------------------------------------------------------------------------------------
 
@@ -53,7 +53,7 @@ def check_scramble_pool():
     if not event_scramble_msgs:
         return
 
-    title = 'Queued scramble generation'
+    title = 'Generating scrambles'
     body  = '\n'.join(event_scramble_msgs)
     notify_admin(title, body, AdminNotificationType.PUSHBULLET_NOTE)
 

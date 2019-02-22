@@ -194,3 +194,21 @@ def save_competition_gen_resources(comp_gen_resource):
 
     DB.session.add(comp_gen_resource)
     DB.session.commit()
+
+
+def override_title_for_next_comp(title):
+    """ Sets an override title for the upcoming competition. """
+
+    resources = get_competition_gen_resources()
+    resources.title_override = title
+
+    save_competition_gen_resources(resources)
+
+
+def set_all_events_flag_for_next_comp(all_events):
+    """ Sets the all_events flag for the upcoming competition """
+
+    resources = get_competition_gen_resources()
+    resources.all_events = all_events
+
+    save_competition_gen_resources(resources)

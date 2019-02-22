@@ -6,7 +6,9 @@ from arrow import utcnow
 from huey import crontab
 
 from app import CUBERS_APP
+from app.business.rankings import precalculate_user_site_rankings
 from app.persistence.comp_manager import get_active_competition
+from app.persistence.user_manager import get_user_count
 from app.util.competition.generation import generate_new_competition
 from app.util.competition.scoring import score_reddit_thread
 
@@ -15,12 +17,10 @@ from .admin_notification import notify_admin, AdminNotificationType
 
 # -------------------------------------------------------------------------------------------------
 
-# In dev environments, run the task to check the scramble pool every 5 minutes.
-# In prod, run it Sat 3 AM UTC, which is Fri 10 PM EST
 if CUBERS_APP.config['IS_DEVO']:
-    WRAP_WEEKLY_COMP_SCHEDULE = crontab(minute="*/30") # Once every 30 minutes
+    WRAP_WEEKLY_COMP_SCHEDULE = lambda dt: False # don't run as periodic in devo
 else:
-    WRAP_WEEKLY_COMP_SCHEDULE = crontab(day_of_week='6', hour='3', minute='0') # Sat 3 AM UTC == Fri 10 PM EST
+    WRAP_WEEKLY_COMP_SCHEDULE = crontab(day_of_week='1', hour='3', minute='0') # Mon 3 AM UTC == Sun 10 PM EST
 
 # -------------------------------------------------------------------------------------------------
 
@@ -36,23 +36,32 @@ def wrap_weekly_competition():
 def score_reddit_thread_task(competition, is_rerun=False):
     """ A task to score the specified competition's Reddit thread. """
 
-    start = utcnow()
     score_reddit_thread(competition.id, is_rerun=is_rerun)
-    end   = utcnow()
 
-    title = 'Scored Competition'
-    body  = 'Scored Reddit thread for {} in {}s'.format(competition.title, (end-start).seconds)
-    notify_admin(title, body, AdminNotificationType.PUSHBULLET_NOTE)
+    body = 'Scored Reddit thread for {}'.format(competition.title)
+    notify_admin(None, body, AdminNotificationType.PUSHBULLET_NOTE)
 
 
 @huey.task()
 def generate_new_competition_task():
     """ A task to generate a new competition. """
 
-    start = utcnow()
     competition = generate_new_competition()
+
+    body  = "Created '{}' competition".format(competition.title)
+    notify_admin(None, body, AdminNotificationType.PUSHBULLET_NOTE)
+
+    run_user_site_rankings()
+
+
+@huey.task()
+def run_user_site_rankings():
+    """ A task to run the calculations to update user site rankings based on the latest data. """
+
+    start = utcnow()
+    user_count = get_user_count()
+    precalculate_user_site_rankings()
     end   = utcnow()
 
-    title = 'New Competition'
-    body  = 'Created {} in {}s'.format(competition.title, (end-start).seconds)
-    notify_admin(title, body, AdminNotificationType.PUSHBULLET_NOTE)
+    body = 'Updated site rankings for {} users in {}s'.format(user_count, (end-start).seconds)
+    notify_admin(None, body, AdminNotificationType.PUSHBULLET_NOTE)

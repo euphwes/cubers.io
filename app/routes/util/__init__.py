@@ -7,7 +7,7 @@ from flask_login import current_user, login_user, logout_user
 from app import CUBERS_APP
 from app.persistence.comp_manager import get_active_competition, get_previous_competition
 from app.persistence.user_manager import get_user_by_username
-from app.util.reddit_util import get_permalink_for_comp_thread
+from app.util.reddit import get_permalink_for_comp_thread
 
 # -------------------------------------------------------------------------------------------------
 

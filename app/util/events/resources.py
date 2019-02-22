@@ -222,13 +222,13 @@ def get_num_bonus_events():
     return len(__BONUS_EVENTS)
 
 
-def get_weekly_events():
+def get_all_weekly_events():
     """ Return all the weekly events. """
 
     return __WEEKLY_EVENTS
 
 
-def get_bonus_events():
+def get_all_bonus_events():
     """ Return all the bonus events. """
 
     return __BONUS_EVENTS

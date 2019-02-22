@@ -23,6 +23,12 @@ def get_all_users():
     return User.query.all()
 
 
+def get_user_count():
+    """ Returns the total number of users. """
+
+    return User.query.count()
+
+
 def update_or_create_user(username, refresh_token):
     """ Creates or updates a user with the provided refresh token. Returns the user. """
 

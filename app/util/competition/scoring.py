@@ -10,9 +10,9 @@ from app.persistence.comp_manager import get_competition, save_competition,\
 from app.persistence.user_manager import get_username_id_map
 from app.persistence.events_manager import get_events_name_id_mapping
 from app.persistence.user_results_manager import get_blacklisted_entries_for_comp
-from app.util.reddit_util import get_submission_with_id, submit_competition_post,\
+from app.util.reddit import get_submission_with_id, submit_competition_post,\
 get_permalink_for_comp_thread, update_results_thread
-from app.util.times_util import convert_seconds_to_friendly_time
+from app.util.times import convert_seconds_to_friendly_time
 
 # -------------------------------------------------------------------------------------------------
 

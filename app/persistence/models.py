@@ -7,7 +7,7 @@ from flask_login import LoginManager, UserMixin
 from sqlalchemy.orm import relationship
 
 from app import DB, CUBERS_APP
-from app.util.times_util import convert_centiseconds_to_friendly_time
+from app.util.times import convert_centiseconds_to_friendly_time
 
 #pylint: disable=C0103
 Text       = DB.Text
@@ -62,6 +62,7 @@ class Event(Model):
     totalSolves    = Column(Integer)
     eventFormat    = Column(Enum("Ao5", "Mo3", "Bo3", "Bo1", name="eventFormat"), default="Ao5")
     description    = Column(String(128))
+    CompEvents     = relationship("CompetitionEvent", backref="Event")
 
 
 class ScramblePool(Model):
@@ -220,6 +221,8 @@ class CompetitionGenResources(Model):
     current_comp_num    = Column(Integer)
     current_bonus_index = Column(Integer)
     current_OLL_index   = Column(Integer)
+    all_events          = Column(Boolean)
+    title_override      = Column(String(128))
 
 
 class UserSiteRankings(Model):

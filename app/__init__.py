@@ -72,9 +72,9 @@ ASSETS.register({
 from queue_config import huey
 from app.tasks import *
 from app.persistence import models
-from .routes import *
-from .commands import *
-from .util.times_util import convert_centiseconds_to_friendly_time
+from app.routes import *
+from app.commands import *
+from app.util.times import convert_centiseconds_to_friendly_time
 
 # -------------------------------------------------------------------------------------------------
 

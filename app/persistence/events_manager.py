@@ -4,7 +4,7 @@ from collections import OrderedDict
 
 from app import DB
 from app.persistence.models import Event, CompetitionEvent, UserEventResults, ScramblePool
-from app.util.events_resources import get_WCA_event_names, get_non_WCA_event_names
+from app.util.events.resources import get_WCA_event_names, get_non_WCA_event_names
 
 # -------------------------------------------------------------------------------------------------
 

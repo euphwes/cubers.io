@@ -13,7 +13,7 @@ from app.persistence.user_results_manager import save_event_results_for_user,\
     are_results_different_than_existing, get_comment_id_by_comp_id_and_user,\
     get_event_results_for_user, get_all_complete_user_results_for_comp_and_user
 from app.persistence.comp_manager import get_competition
-from app.util.reddit_util import build_comment_source_from_events_results, submit_comment_for_user,\
+from app.util.reddit import build_comment_source_from_events_results, submit_comment_for_user,\
     update_comment_for_user, get_permalink_for_user_and_comment
 
 # -------------------------------------------------------------------------------------------------

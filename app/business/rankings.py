@@ -12,7 +12,7 @@ from app.persistence.models import Competition, CompetitionEvent, Event, UserEve
 from app.persistence.events_manager import get_all_events, get_all_WCA_events
 from app.persistence.user_manager import get_all_users
 from app.persistence.user_site_rankings_manager import save_or_update_site_rankings_for_user
-from app.util.sorting_utils import sort_personal_best_records
+from app.util.sorting import sort_personal_best_records
 
 # -------------------------------------------------------------------------------------------------
 #                   Stuff for pre-calculating user PB records with site rankings

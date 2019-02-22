@@ -11,8 +11,8 @@ from app.persistence.user_results_manager import get_pb_single_event_results_exc
     bulk_save_event_results, get_pb_average_event_results_except_current_comp,\
     get_all_complete_user_results_for_user_and_event, get_results_for_comp_event
 from app.persistence.models import UserEventResults, UserSolve, EventFormat
-from app.util.sorting_utils import sort_user_event_results
-from app.util.times_util import convert_centiseconds_to_friendly_time
+from app.util.sorting import sort_user_event_results
+from app.util.times import convert_centiseconds_to_friendly_time
 
 # -------------------------------------------------------------------------------------------------
 

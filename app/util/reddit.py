@@ -7,8 +7,8 @@ from praw import Reddit
 
 from app import CUBERS_APP
 from app.persistence.comp_manager import get_comp_event_by_id
-from app.util.times_util import convert_centiseconds_to_friendly_time
 from app.persistence.user_manager import get_user_by_username
+from app.util.times import convert_centiseconds_to_friendly_time
 
 # -------------------------------------------------------------------------------------------------
 
