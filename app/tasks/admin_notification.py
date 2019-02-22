@@ -6,6 +6,9 @@ from arrow import utcnow
 
 from . import huey
 
+from app.persistence.comp_manager import get_participants_in_competition, get_competition
+from app.persistence.weekly_metrics_manager import get_weekly_metrics
+
 # -------------------------------------------------------------------------------------------------
 
 # pylint: disable=too-few-public-methods
@@ -59,6 +62,18 @@ if PUSHBULLET_ADMIN_NOTIFICATION_ENABLED:
 
 # -------------------------------------------------------------------------------------------------
 
+WEEKLY_REPORT_TITLE_TEMPLATE = 'Weekly report for "{comp_name}"'
+
+WEEKLY_REPORT_BODY_TEMPLATE =\
+"""{total_participants} users participated.
+{new_users_count} new users registered.
+
+Desktop traffic: ({desktop_hits} hits = {desktop_percentage}%)
+Mobile traffic: ({mobile_hits} hits = {mobile_percentage}%)
+"""
+
+# -------------------------------------------------------------------------------------------------
+
 @huey.task()
 def notify_admin(title, content, notification_type):
     """ Sends an admin notification (note, link, etc) with the content supplied,
@@ -71,3 +86,32 @@ def notify_admin(title, content, notification_type):
     content = "{}\n{}".format(timestamp, content)
 
     NOTIFICATION_TYPE_ACTIONS[notification_type](title, content)
+
+
+@huey.task()
+def send_weekly_report(comp_id):
+    """ Builds and sends an end-of-week report with stats from the specified competition. """
+
+    total_participants = len(get_participants_in_competition(comp_id))
+
+    metrics = get_weekly_metrics(comp_id)
+
+    mobile_hits        = metrics.mobile_hits if metrics.mobile_hits else 0
+    desktop_hits       = metrics.desktop_hits if metrics.desktop_hits else 0
+    total_hits         = mobile_hits + desktop_hits
+    mobile_percentage  = '{:.1f}'.format((mobile_hits/total_hits) * 100)
+    desktop_percentage = '{:.1f}'.format((desktop_hits/total_hits) * 100)
+
+    new_users_count = metrics.new_users_count if metrics.new_users_count else 0
+
+    title = WEEKLY_REPORT_TITLE_TEMPLATE.format(comp_name = get_competition(comp_id).title)
+    content = WEEKLY_REPORT_BODY_TEMPLATE.format(
+        total_participants = total_participants,
+        new_users_count    = new_users_count,
+        desktop_hits       = desktop_hits,
+        mobile_hits        = mobile_hits,
+        desktop_percentage = desktop_percentage,
+        mobile_percentage  = mobile_percentage
+    )
+
+    notify_admin(title, content, AdminNotificationType.PUSHBULLET_NOTE)

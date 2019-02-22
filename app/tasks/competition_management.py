@@ -13,7 +13,7 @@ from app.util.competition.generation import generate_new_competition
 from app.util.competition.scoring import score_reddit_thread
 
 from . import huey
-from .admin_notification import notify_admin, AdminNotificationType
+from .admin_notification import notify_admin, send_weekly_report, AdminNotificationType
 
 # -------------------------------------------------------------------------------------------------
 
@@ -28,8 +28,11 @@ else:
 def wrap_weekly_competition():
     """ A periodic task to schedule sub-tasks related to wrapping up the weekly competitions. """
 
-    score_reddit_thread_task(get_active_competition())
+    current_comp = get_active_competition()
+
+    score_reddit_thread_task(current_comp)
     generate_new_competition_task()
+    send_weekly_report(current_comp.id)
 
 
 @huey.task()
