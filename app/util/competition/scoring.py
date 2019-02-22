@@ -176,7 +176,7 @@ def score_reddit_thread(competition_id, is_rerun=False):
         event_chunks.append([event_name, event_chunk_txt])
 
     overall_txt = ''
-    overall_txt += '---\n\n**Total points this week**'
+    overall_txt += '\n\n**Total points this week**'
     overall_txt += '\n\nEach event gives `# of participants - place + 1` points\n\n'
     competitors.sort(key=lambda c: c.points, reverse=True)
     for competitor in competitors:

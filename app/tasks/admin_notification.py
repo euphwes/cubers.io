@@ -1,6 +1,9 @@
 """ Tasks related to admin notifications via Pushbullet channels. """
 
 from os import environ
+
+from arrow import utcnow
+
 from . import huey
 
 # -------------------------------------------------------------------------------------------------
@@ -63,5 +66,8 @@ def notify_admin(title, content, notification_type):
 
     if not PUSHBULLET_ADMIN_NOTIFICATION_ENABLED:
         return
+
+    timestamp = utcnow().to('US/Mountain').format('[YYYY/MM/DD hh:mm:ss A]')
+    content = "{}\n{}".format(timestamp, content)
 
     NOTIFICATION_TYPE_ACTIONS[notification_type](title, content)
