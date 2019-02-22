@@ -22,7 +22,7 @@ ScramblePoolTopOffInfo = namedtuple('ScramblePoolTopOffInfo', ['event_id', 'even
 if CUBERS_APP.config['IS_DEVO']:
     CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(minute="*/5") # Once every 5 minutes
 else:
-    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(hour="*/6")   # Once every 6 hours
+    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(hour="*/6", minute="0")   # Once every 6 hours
 
 # -------------------------------------------------------------------------------------------------
 
