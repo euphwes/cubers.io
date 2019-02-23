@@ -18,6 +18,82 @@ from app.routes import record_usage_metrics
 
 # -------------------------------------------------------------------------------------------------
 
+@CUBERS_APP.route('/leaderboards/<int:comp_id>/')
+@record_usage_metrics
+def comp_results(comp_id):
+    """ A route for showing results for a specific competition. """
+
+    competition = get_competition(comp_id)
+    if not competition:
+        return "Oops, that's not a real competition. Try again, ya clown."
+
+    comp_events = get_all_comp_events_for_comp(comp_id)
+
+    # If the page is being viewed by an admin, render the controls for toggling blacklist status
+    # and also apply additional styling on blacklisted results to make them easier to see
+    show_admin = is_admin_viewing()
+
+    # Get all results including blacklisted ones
+    results = get_all_complete_user_results_for_comp(comp_id, omit_blacklisted=False)
+
+    # Filter out the appropriate blacklisted results, depending on who's viewing
+    results = filter_blacklisted_results(results, show_admin, current_user)
+
+    # Some utility mappings keyed on event name to make rendering stuff easier in the template
+    event_names   = [event.Event.name for event in comp_events]
+    event_results = {event.Event.name : list() for event in comp_events}
+    event_formats = {event.Event.name : event.Event.eventFormat for event in comp_events}
+    event_ids     = {event.Event.name : event.Event.id for event in comp_events}
+
+    # Split the times string into components, add to a list called `"solves_helper` which
+    # is used in the UI to show individual solves, and make sure the length == 5, filled
+    # with empty strings if necessary
+    for result in results:
+        event_name = result.CompetitionEvent.Event.name
+        solves_helper = result.times_string.split(', ')
+        while len(solves_helper) < 5:
+            solves_helper.append('')
+        setattr(result, 'solves_helper', solves_helper)
+        event_results[event_name].append(result)
+
+    # Sort the results
+    for event_name, results in event_results.items():
+        results.sort(key=sort_user_event_results)
+
+    alternative_title = "{} leaderboards".format(competition.title)
+
+    return render_template("results/results_comp.html", alternative_title=alternative_title,\
+        event_results=event_results, event_names=event_names, event_formats=event_formats,\
+        event_ids=event_ids, show_admin=show_admin)
+
+
+@CUBERS_APP.route('/redirect_curr/')
+def curr_leaders():
+    """ Redirects to the current competition's leaderboards. """
+
+    comp = get_active_competition()
+    return redirect("leaderboards/{}".format(comp.id))
+
+
+@CUBERS_APP.route('/redirect_prev/')
+def prev_leaders():
+    """ Redirects to the current competition's leaderboards. """
+
+    comp = get_previous_competition()
+    return redirect("leaderboards/{}".format(comp.id))
+
+
+@CUBERS_APP.route('/leaderboards/')
+@record_usage_metrics
+def results_list():
+    """ A route for showing which competitions results can be viewed for. """
+
+    comps = get_complete_competitions()
+    comp = get_active_competition()
+    return render_template("results/results_list.html", comps=comps, active=comp)
+
+# -------------------------------------------------------------------------------------------------
+
 DEFAULT_BLACKLIST_NOTE = """Results manually hidden by {username} on {date}."""
 
 # -------------------------------------------------------------------------------------------------
@@ -69,82 +145,6 @@ def unblacklist(results_id):
 
     except Exception as ex:
         return (str(ex), 500)
-
-# -------------------------------------------------------------------------------------------------
-
-@CUBERS_APP.route('/redirect_curr/')
-def curr_leaders():
-    """ Redirects to the current competition's leaderboards. """
-
-    comp = get_active_competition()
-    return redirect("leaderboards/{}".format(comp.id))
-
-
-@CUBERS_APP.route('/redirect_prev/')
-def prev_leaders():
-    """ Redirects to the current competition's leaderboards. """
-
-    comp = get_previous_competition()
-    return redirect("leaderboards/{}".format(comp.id))
-
-
-@CUBERS_APP.route('/leaderboards/')
-@record_usage_metrics
-def results_list():
-    """ A route for showing which competitions results can be viewed for. """
-
-    comps = get_complete_competitions()
-    comp = get_active_competition()
-    return render_template("results/results_list.html", comps=comps, active=comp)
-
-
-@CUBERS_APP.route('/leaderboards/<int:comp_id>/')
-@record_usage_metrics
-def comp_results(comp_id):
-    """ A route for showing results for a specific competition. """
-
-    competition = get_competition(comp_id)
-    if not competition:
-        return "Oops, that's not a real competition. Try again, ya clown."
-
-    comp_events = get_all_comp_events_for_comp(comp_id)
-
-    # If the page is being viewed by an admin, render the controls for toggling blacklist status
-    # and also apply additional styling on blacklisted results to make them easier to see
-    show_admin = is_admin_viewing()
-
-    # Get all results including blacklisted ones
-    results = get_all_complete_user_results_for_comp(comp_id, omit_blacklisted=False)
-
-    # Filter out the appropriate blacklisted results, depending on who's viewing
-    results = filter_blacklisted_results(results, show_admin, current_user)
-
-    # Some utility mappings keyed on event name to make rendering stuff easier in the template
-    event_names   = [event.Event.name for event in comp_events]
-    event_results = {event.Event.name : list() for event in comp_events}
-    event_formats = {event.Event.name : event.Event.eventFormat for event in comp_events}
-    event_ids     = {event.Event.name : event.Event.id for event in comp_events}
-
-    # Split the times string into components, add to a list called `"solves_helper` which
-    # is used in the UI to show individual solves, and make sure the length == 5, filled
-    # with empty strings if necessary
-    for result in results:
-        event_name = result.CompetitionEvent.Event.name
-        solves_helper = result.times_string.split(', ')
-        while len(solves_helper) < 5:
-            solves_helper.append('')
-        setattr(result, 'solves_helper', solves_helper)
-        event_results[event_name].append(result)
-
-    # Sort the results
-    for event_name, results in event_results.items():
-        results.sort(key=sort_user_event_results)
-
-    alternative_title = "{} leaderboards".format(competition.title)
-
-    return render_template("results/results_comp.html", alternative_title=alternative_title,\
-        event_results=event_results, event_names=event_names, event_formats=event_formats,\
-        event_ids=event_ids, show_admin=show_admin)
 
 # -------------------------------------------------------------------------------------------------
 

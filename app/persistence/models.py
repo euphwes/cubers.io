@@ -210,6 +210,7 @@ class Competition(Model):
     active           = Column(Boolean)
     events           = relationship('CompetitionEvent', backref='Competition',
                                     primaryjoin=id == CompetitionEvent.competition_id)
+    #user_points      = Column(Text())
 
 
 class WeeklyMetrics(Model):
