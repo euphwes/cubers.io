@@ -72,10 +72,10 @@ def get_user_completed_solves_count(user_id):
         count()
 
 
-def get_comment_id_by_comp_id_and_user(comp_id, user):
+def get_comment_id_by_comp_id_and_user(comp_id, user_id):
     """ Returns a Reddit comment ID for the specified user and competition id. """
 
-    for result in get_all_user_results_for_comp_and_user(comp_id, user.id):
+    for result in get_all_user_results_for_comp_and_user(comp_id, user_id):
         if result.reddit_comment:
             return result.reddit_comment
     return None

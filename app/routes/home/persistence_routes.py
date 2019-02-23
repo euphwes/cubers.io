@@ -2,7 +2,7 @@
 
 import json
 
-from flask import request, abort
+from flask import request, abort, url_for
 from flask_login import current_user
 
 from app import CUBERS_APP
@@ -11,10 +11,9 @@ from app.business.user_results import build_user_event_results, build_event_summ
 from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import save_event_results_for_user,\
     are_results_different_than_existing, get_comment_id_by_comp_id_and_user,\
-    get_event_results_for_user, get_all_complete_user_results_for_comp_and_user
-from app.persistence.comp_manager import get_competition
-from app.util.reddit import build_comment_source_from_events_results, submit_comment_for_user,\
-    update_comment_for_user, get_permalink_for_user_and_comment
+    get_event_results_for_user
+from app.util.reddit import get_permalink_for_user_and_comment
+from app.tasks.reddit import submit_reddit_comment
 
 # -------------------------------------------------------------------------------------------------
 
@@ -38,7 +37,7 @@ def save_event():
 
         # Figure out if we need to repost the results to Reddit or not
         if event_result.is_complete:
-            # Ff these results are complete, but different than what's already there, we should
+            # If these results are complete, but different than what's already there, we should
             # submit again because it means the user altered a time (add/remove penalty,
             # manual time entry, etc)
             should_do_reddit_submit = are_results_different_than_existing(event_result, user)
@@ -52,7 +51,10 @@ def save_event():
         saved_results = save_event_results_for_user(event_result, user)
 
         if should_do_reddit_submit:
-            do_reddit_submit(saved_results.CompetitionEvent.Competition.id, user)
+            # Need to build the profile url here so the app context is available.
+            # Can't do it inside the task, which runs separately without the app context
+            profile_url = url_for('profile', username=user.username)
+            submit_reddit_comment(saved_results.CompetitionEvent.Competition.id, user.id, profile_url)
 
         # Build up a dictionary of relevant information about the event results so far, to include
         # the summary (aka times string), PB flags, single and average, and complete status
@@ -95,37 +97,8 @@ def comment_url(comp_id):
         return ""
 
     user = get_user_by_username(current_user.username)
-    comment_id = get_comment_id_by_comp_id_and_user(comp_id, user)
+    comment_id = get_comment_id_by_comp_id_and_user(comp_id, user.id)
     if not comment_id:
         return ""
 
     return get_permalink_for_user_and_comment(user, comment_id)
-
-
-def do_reddit_submit(comp_id, user):
-    """ Handle submitting a new, or updating an existing, Reddit comment. """
-
-    # TODO: probably should put this in the Reddit util
-    # TODO: comment this better
-
-    comp = get_competition(comp_id)
-    reddit_thread_id = comp.reddit_thread_id
-    results = get_all_complete_user_results_for_comp_and_user(comp.id, user.id)
-    comment_source = build_comment_source_from_events_results(results, user.username)
-
-    previous_comment_id = get_comment_id_by_comp_id_and_user(comp.id, user)
-
-    # this is a resubmission
-    if previous_comment_id:
-        _, comment_id = update_comment_for_user(user, previous_comment_id, comment_source)
-
-    # new submission
-    else:
-        _, comment_id = submit_comment_for_user(user, reddit_thread_id, comment_source)
-
-    if not comment_id:
-        return
-
-    for result in results:
-        result.reddit_comment = comment_id
-        save_event_results_for_user(result, user)

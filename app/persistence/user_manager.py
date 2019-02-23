@@ -52,6 +52,12 @@ def get_user_by_username(username):
     return User.query.filter_by(username=username).first()
 
 
+def get_user_by_id(user_id):
+    """ Returns the user with this user_id, or else `None` if no such user exists. """
+
+    return User.query.filter_by(id=user_id).first()
+
+
 def set_user_as_admin(username):
     """ Sets admin status for a user. Raises UserDoesNotExistException if no such user exists. """
 

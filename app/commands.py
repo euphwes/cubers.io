@@ -22,7 +22,6 @@ from app.persistence.user_results_manager import get_all_null_is_complete_event_
     get_all_na_average_event_results, save_event_results_for_user, get_all_complete_event_results,\
     bulk_save_event_results
 from app.business.user_results import set_medals_on_best_event_results
-from app.routes.home import do_reddit_submit
 from app.tasks.competition_management import score_reddit_thread_task,\
     generate_new_competition_task, wrap_weekly_competition, run_user_site_rankings
 
@@ -174,23 +173,6 @@ def backfill_results_medals():
     for i, comp in enumerate(all_comps):
         print('Backfilling for comp {} ({}/{})'.format(comp.id, i+1, total_num))
         set_medals_on_best_event_results(get_all_comp_events_for_comp(comp.id))
-
-
-@CUBERS_APP.cli.command()
-@click.option('--username', '-u', type=str)
-def submit_reddit_for_user(username):
-    """ Submits to Reddit for the specified user, for the current competition. """
-
-    user = get_user_by_username(username)
-    if not user:
-        print("{} is not a valid user".format(username))
-        return
-
-    comp = get_active_competition()
-
-    print("Submitting to Reddit for {}".format(username))
-    do_reddit_submit(comp.id, user)
-    print("Done")
 
 
 @CUBERS_APP.cli.command()

@@ -2,7 +2,6 @@
 
 from urllib.parse import urljoin
 
-from flask import url_for
 from praw import Reddit
 
 from app import CUBERS_APP
@@ -33,7 +32,7 @@ REDDIT_URL_ROOT = 'http://www.reddit.com'
 
 # -------------------------------------------------------------------------------------------------
 
-def build_comment_source_from_events_results(events_results, username):
+def build_comment_source_from_events_results(events_results, user_profile_url):
     """ Builds the source of a Reddit comment that meets the formatting requirements of the
     /r/cubers weekly competition scoring script. """
 
@@ -60,8 +59,8 @@ def build_comment_source_from_events_results(events_results, username):
     if not events_results:
         comment_source += "*Nothing complete at the moment...*\n"
 
-    profile_url = urljoin(APP_URL, url_for('profile', username=username))
-    footer = COMMENT_FOOTER_TEMPLATE.format(profile_url, APP_URL)
+    full_profile_url = urljoin(APP_URL, user_profile_url)
+    footer = COMMENT_FOOTER_TEMPLATE.format(full_profile_url, APP_URL)
     comment_source += footer
 
     return comment_source
