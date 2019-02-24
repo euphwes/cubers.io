@@ -8,7 +8,7 @@ from flask_login import current_user
 from app import CUBERS_APP
 from app.business.user_results import recalculate_user_pbs_for_event
 from app.persistence.comp_manager import get_active_competition, get_complete_competitions,\
-    get_previous_competition, get_competition, get_all_comp_events_for_comp
+    get_previous_competition, get_competition, get_all_comp_events_for_comp, get_comp_event_by_id
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp_event,\
     blacklist_results, unblacklist_results, UserEventResultsDoesNotExistException
 from app.util.sorting import sort_user_event_results
@@ -32,11 +32,8 @@ def comp_results(comp_id):
         return "Oops, that's not a real competition. Try again, ya clown."
 
     comp_events = get_all_comp_events_for_comp(comp_id)
-    id_for_3x3 = None
     events_names_ids = list()
     for comp_event in comp_events:
-        if comp_event.Event.name == '3x3':
-            id_for_3x3 = comp_event.id
         events_names_ids.append({
             'name'         : comp_event.Event.name,
             'comp_event_id': comp_event.id,
@@ -50,7 +47,30 @@ def comp_results(comp_id):
     alternative_title = "{} leaderboards".format(competition.title)
 
     return render_template("results/results_comp.html", alternative_title=alternative_title,\
-        id_for_3x3=id_for_3x3, events_names_ids=events_names_ids, show_admin=show_admin)
+        events_names_ids=events_names_ids, show_admin=show_admin)
+
+
+@CUBERS_APP.route('/compevent/<comp_event_id>/')
+def comp_event_results(comp_event_id):
+    """ A route for obtaining results for a specific competition event and rendering them
+    for the leaderboards pages. """
+
+    if comp_event_id == 'overall':
+        return "soon"
+
+    comp_event_id = int(comp_event_id)
+
+    # If the page is being viewed by an admin, render the controls for toggling blacklist status
+    # and also apply additional styling on blacklisted results to make them easier to see
+    show_admin = is_admin_viewing()
+
+    comp_event = get_comp_event_by_id(comp_event_id)
+
+    results = get_all_complete_user_results_for_comp_event(comp_event_id, omit_blacklisted=False)
+    results = filter_blacklisted_results(results, show_admin, current_user)
+
+    return render_template("results/comp_event_table.html", results=results,\
+        comp_event=comp_event, show_admin=show_admin)
 
 
 def temp_results_cleanup(show_admin):

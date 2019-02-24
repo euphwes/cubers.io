@@ -5,16 +5,16 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid cubers-container white-container" style="margin-top: 15px;">
+<div class="container-fluid cubers-container white-container leaderboards-container" style="margin-top: 15px;">
     {% if show_admin %}
     <div id="loading-spinner" class="loading hidden_icon"></div>
     {% endif %}
     <div class="row">
-        <div class="col-12">
+        <div class="col-10 offset-1">
             <ul class="nav nav-tabs justify-content-center pt-1" role="tablist">
                 {% for event_info_dict in events_names_ids %}
-                    {% if name == '3x3' %}
-                        <li class="active nav-item">
+                    {% if loop.index0 == 0 %}
+                        <li class="active nav-item show">
                             <a href="#tab_{{event_info_dict['name']  | slugify}}" data-comp_event_id="{{event_info_dict['comp_event_id']}}" class="nav-link active show" role="tab" data-toggle="tab">
                                 <img class="tab-event-image" src="/static/images/cube-{{event_info_dict['event_id']}}.png">
                             </a>
@@ -27,7 +27,23 @@
                         </li>
                     {% endif %}
                 {% endfor %}
+                    <li class="nav-item">
+                        <a href="#tab_overall" data-comp_event_id="overall" class="nav-link" role="tab" data-toggle="tab">
+                            <i class="fas fa-globe-americas" style="font-size: 26px; color: rgb(180,180,180);"></i>
+                        </a>
+                    </li>
             </ul>
+            <div class="tab-content justify-content-center pt-3">
+                {% for event_info_dict in events_names_ids %}
+                    {% if loop.index0 == 0 %}
+                    <div class="tab-pane active show" id="tab_{{event_info_dict['name']  | slugify}}">
+                    {% else %}
+                    <div class="tab-pane" id="tab_{{event_info_dict['name']  | slugify}}">
+                    {% endif %}
+                    </div>
+                {% endfor %}
+                    <div class="tab-pane" id="tab_overall"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -42,6 +58,7 @@
 
         events_names_ids = {{ events_names_ids|tojson }};
 
+        /**
         var perform_admin_action = function(action, className, url, $event_btn) {
             var username   = $event_btn.data("result-username");
             var result_id  = $event_btn.data("result-id");
@@ -83,6 +100,7 @@
         $('.btn-blacklist').click(function() {
             perform_admin_action("Blacklist", "btn-danger", "/results/blacklist/", $(this));
         });
+        **/
 
     })
 </script>

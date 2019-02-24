@@ -1,109 +1,105 @@
-<div class="event-results-container">
-    {% for event_name in event_names %}
-    {% if event_results[event_name] %}
-        {% if event_formats[event_name] in ('Bo3', 'Bo1') %}
-            {% set avg_class = '' %}
-            {% set single_class = 'font-weight-bold' %}
-        {% else %}
-            {% set avg_class = 'font-weight-bold' %}
-            {% set single_class = '' %}
-        {% endif %}
-        <div class="event-results-area">
-            <div id="{{event_name}}" class="event-results-header">
-                <img class="event-image" src="/static/images/cube-{{ event_ids[event_name] }}.png">
-                <h3 class="event-name">
-                    <a href="{{ url_for('event_results', event_name=event_name|replace('/','%2F')) }}">
-                        {{ event_name }}
-                    </a>
-                </h3>
-            </div>
-            <table class="table table-sm table-striped table-cubersio">
-                <thead class="thead-dark">
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col" class="d-none d-md-table-cell"></th>
-                        <th scope="col">User</th>
-                        <th scope="col">Average</th>
-                        <th scope="col">Best</th>
-                        <th scope="col" colspan="5" class="d-none d-md-table-cell">Solves</th>
-                        {% if show_admin %}
-                        <th scope="col">Action</th>
-                        {% endif %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for result in event_results[event_name] %}
-
-                    {% if current_user.is_authenticated and current_user.username == result.User.username %}
-                        {% set its_me = 'hey-its-me' %}
-                    {% else %}
-                        {% set its_me = '' %}
-                    {% endif %}
-
-                    {% if result.is_blacklisted and show_admin %}
-                        {% set blacklist_class = 'blacklisted-result' %}
-                        {% set its_me = '' %}
-                    {% else %}
-                        {% set blacklist_class = '' %}
-                    {% endif %}
-
-                    {% set medal_class = 'medal_none' %}
-                    {% if result.was_gold_medal %}
-                        {% set medal_class = 'gold' %}
-                    {% endif %}
-                    {% if result.was_silver_medal %}
-                        {% set medal_class = 'silver' %}
-                    {% endif %}
-                    {% if result.was_bronze_medal %}
-                        {% set medal_class = 'bronze' %}
-                    {% endif %}
-
-                    <tr class="{{ its_me }} {{ blacklist_class }}">
-                        <td scope="row">
-                            {% if medal_class == 'medal_none' %}
-                                {{ loop.index }}
-                            {% else %}
-                                <span class="fas fa-medal {{medal_class}} spacer"></span>
-                            {% endif %}
-                        </td>
-                        <td scope="col" class="d-none d-md-table-cell">
-                            {% if result.comment|trim() %}
-                            {% set the_comment = result.comment if result.comment|length < 350 else result.comment[:350] + "..." %}
-                            <span class="far fa-comment spacer" data-toggle="tooltip" data-placement="bottom" title="{{the_comment}}"></span>
-                            {% endif %}
-                        </td>
-                        <td scope="col">
-                            <a href="{{ url_for('profile', username=result.User.username) }}">/u/{{ result.User.username }}</a>
-                        </td>
-                        {% if event_name == "FMC" %}
-                            <td scope="col" class="font-weight-bold">{{ result.average | format_fmc_result }}</td>
-                            <td scope="col">{{ result.single | format_fmc_result }}</td>
-                            {% for solve in result.solves_helper %}
-                            <td scope="col" class="d-none d-md-table-cell">{{ solve }}</td>
-                            {% endfor %}
-                        {% else %}
-                            <td scope="col" class="{{ avg_class }}">{{ result.average | friendly_time }}</td>
-                            <td scope="col" class="{{ single_class }}">{{ result.single | friendly_time }}</td>
-                            {% for solve in result.solves_helper %}
-                            <td scope="col" class="d-none d-md-table-cell">{{ solve }}</td>
-                            {% endfor %}
-                        {% endif %}
-                        {% if show_admin %}
-                            {% if result.is_blacklisted %}
-                                <td scope="col">
-                                    <button class="btn btn-success btn-xs btn-unblacklist" data-result-id="{{result.id}}" data-result-event="{{event_name}}" data-result-username="{{result.User.username}}">unblacklist</button>
-                                </th>
-                            {% else %}
-                                <td scope="col">
-                                    <button class="btn btn-danger btn-xs btn-blacklist" data-result-id="{{result.id}}" data-result-event="{{event_name}}" data-result-username="{{result.User.username}}">blacklist</button>
-                                </th>
-                            {% endif %}
-                        {% endif %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+{% if results %}
+    {% if comp_event.Event.eventFormat in ('Bo3', 'Bo1') %}
+        {% set avg_class = '' %}
+        {% set single_class = 'font-weight-bold' %}
+    {% else %}
+        {% set avg_class = 'font-weight-bold' %}
+        {% set single_class = '' %}
     {% endif %}
-    {% endfor %}
-</div>
+    <div class="event-results-area">
+        <div id="{{comp_event.Event.name}}" class="event-results-header">
+            <img class="event-image" src="/static/images/cube-{{ comp_event.Event.id }}.png">
+            <h3 class="event-name">
+                <a href="{{ url_for('event_results', event_name=comp_event.Event.name|replace('/','%2F')) }}">
+                    {{ comp_event.Event.name }}
+                </a>
+            </h3>
+        </div>
+        <table class="table table-sm table-striped table-cubersio">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col" class="d-none d-md-table-cell"></th>
+                    <th scope="col">User</th>
+                    <th scope="col">Average</th>
+                    <th scope="col">Best</th>
+                    <th scope="col" colspan="5" class="d-none d-md-table-cell">Solves</th>
+                    {% if show_admin %}
+                    <th scope="col">Action</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+
+                {% if current_user.is_authenticated and current_user.username == result.User.username %}
+                    {% set its_me = 'hey-its-me' %}
+                {% else %}
+                    {% set its_me = '' %}
+                {% endif %}
+
+                {% if result.is_blacklisted and show_admin %}
+                    {% set blacklist_class = 'blacklisted-result' %}
+                    {% set its_me = '' %}
+                {% else %}
+                    {% set blacklist_class = '' %}
+                {% endif %}
+
+                {% set medal_class = 'medal_none' %}
+                {% if result.was_gold_medal %}
+                    {% set medal_class = 'gold' %}
+                {% endif %}
+                {% if result.was_silver_medal %}
+                    {% set medal_class = 'silver' %}
+                {% endif %}
+                {% if result.was_bronze_medal %}
+                    {% set medal_class = 'bronze' %}
+                {% endif %}
+
+                <tr class="{{ its_me }} {{ blacklist_class }}">
+                    <td scope="row">
+                        {% if medal_class == 'medal_none' %}
+                            {{ loop.index }}
+                        {% else %}
+                            <span class="fas fa-medal {{medal_class}} spacer"></span>
+                        {% endif %}
+                    </td>
+                    <td scope="col" class="d-none d-md-table-cell">
+                        {% if result.comment|trim() %}
+                        {% set the_comment = result.comment if result.comment|length < 350 else result.comment[:350] + "..." %}
+                        <span class="far fa-comment spacer" data-toggle="tooltip" data-placement="bottom" title="{{the_comment}}"></span>
+                        {% endif %}
+                    </td>
+                    <td scope="col">
+                        <a href="{{ url_for('profile', username=result.User.username) }}">/u/{{ result.User.username }}</a>
+                    </td>
+                    {% if comp_event.Event.name == "FMC" %}
+                        <td scope="col" class="font-weight-bold">{{ result.average | format_fmc_result }}</td>
+                        <td scope="col">{{ result.single | format_fmc_result }}</td>
+                        {% for solve in result.solves_helper %}
+                        <td scope="col" class="d-none d-md-table-cell">{{ solve }}</td>
+                        {% endfor %}
+                    {% else %}
+                        <td scope="col" class="{{ avg_class }}">{{ result.average | friendly_time }}</td>
+                        <td scope="col" class="{{ single_class }}">{{ result.single | friendly_time }}</td>
+                        {% for solve in result.solves_helper %}
+                        <td scope="col" class="d-none d-md-table-cell">{{ solve }}</td>
+                        {% endfor %}
+                    {% endif %}
+                    {% if show_admin %}
+                        {% if result.is_blacklisted %}
+                            <td scope="col">
+                                <button class="btn btn-success btn-xs btn-unblacklist" data-result-id="{{result.id}}" data-result-event="{{comp_event.Event.name}}" data-result-username="{{result.User.username}}">unblacklist</button>
+                            </th>
+                        {% else %}
+                            <td scope="col">
+                                <button class="btn btn-danger btn-xs btn-blacklist" data-result-id="{{result.id}}" data-result-event="{{comp_event.Event.name}}" data-result-username="{{result.User.username}}">blacklist</button>
+                            </th>
+                        {% endif %}
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
