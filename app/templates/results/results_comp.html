@@ -55,28 +55,41 @@
 {% block additional_script %}
 <script>
     $(function () {
-        if (!Boolean(new MobileDetect(window.navigator.userAgent).mobile())) {
-            $('[data-toggle="tooltip"]').tooltip();
-        }
-
-        events_names_ids = {{ events_names_ids|tojson }};
-
         var comp_event_ids_loaded = [];
-
         $(document).on('shown.bs.tab', 'a[data-toggle="tab"]', function (e) {
+            // Get the target tab and associated comp event id
             var $target_tab = $(e.target);
             var comp_event_id = $target_tab.data('comp_event_id');
-            $($target_tab.attr('href')).find('.loading_event').removeClass('hidden_icon');
+
+            // If we've already loaded this event, we don't need to load it again.
+            if (comp_event_ids_loaded.includes(comp_event_id)) {
+                return;
+            }
+
+            load_event(comp_event_id, $target_tab.attr('href'));
+        });
+
+        var load_event = function(comp_event_id, target_tab_id) {
+            // Show the loading icon in this tab
+            $(target_tab_id).find('.loading_event').removeClass('hidden_icon');
+
+            // Ajax in the content for this competition event. After it loads, hide all the
+            // loading icons and then set the already-rendered content from the server as the
+            // html for this tab
             $.ajax({
                 url: "/compevent/" + comp_event_id,
                 success: function(response) {
                     $('.loading_event').addClass('hidden_icon');
-                    $($target_tab.attr('href')).html(response);
+                    $(target_tab_id).html(response);
+                    if (!Boolean(new MobileDetect(window.navigator.userAgent).mobile())) {
+                        $('[data-toggle="tooltip"]').tooltip();
+                    }
+                    wire_admin_buttons();
+                    comp_event_ids_loaded.push(comp_event_id);
                 },
             });
-        });
+        };
 
-        /**
         var perform_admin_action = function(action, className, url, $event_btn) {
             var username   = $event_btn.data("result-username");
             var result_id  = $event_btn.data("result-id");
@@ -111,15 +124,17 @@
             });
         };
 
-        $('.btn-unblacklist').click(function() {
-            perform_admin_action("Unblacklist", "btn-success", "/results/unblacklist/", $(this));
-        });
+        var wire_admin_buttons = function() {
+            $('.btn-unblacklist').click(function() {
+                perform_admin_action("Unblacklist", "btn-success", "/results/unblacklist/", $(this));
+            });
 
-        $('.btn-blacklist').click(function() {
-            perform_admin_action("Blacklist", "btn-danger", "/results/blacklist/", $(this));
-        });
-        **/
+            $('.btn-blacklist').click(function() {
+                perform_admin_action("Blacklist", "btn-danger", "/results/blacklist/", $(this));
+            });
+        };
 
+        load_event({{ id_3x3 }}, '#tab_3x3');
     })
 </script>
 {% endblock %}

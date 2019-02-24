@@ -33,7 +33,10 @@ def comp_results(comp_id):
 
     comp_events = get_all_comp_events_for_comp(comp_id)
     events_names_ids = list()
+    id_3x3 = None
     for comp_event in comp_events:
+        if comp_event.Event.name == '3x3':
+            id_3x3 = comp_event.id
         events_names_ids.append({
             'name'         : comp_event.Event.name,
             'comp_event_id': comp_event.id,
@@ -47,7 +50,7 @@ def comp_results(comp_id):
     alternative_title = "{} leaderboards".format(competition.title)
 
     return render_template("results/results_comp.html", alternative_title=alternative_title,\
-        events_names_ids=events_names_ids, show_admin=show_admin)
+        events_names_ids=events_names_ids, show_admin=show_admin, id_3x3=id_3x3)
 
 
 @CUBERS_APP.route('/compevent/<comp_event_id>/')
@@ -68,33 +71,30 @@ def comp_event_results(comp_event_id):
 
     results = get_all_complete_user_results_for_comp_event(comp_event_id, omit_blacklisted=False)
     results = filter_blacklisted_results(results, show_admin, current_user)
+    results = results_cleanup(results)
 
     return render_template("results/comp_event_table.html", results=results,\
         comp_event=comp_event, show_admin=show_admin)
 
 
-def temp_results_cleanup(show_admin):
+def results_cleanup(results):
     """ TODO: comment """
 
-    id_for_3x3 = 3
-
-    # Get all results including blacklisted ones
-    results_3x3 = get_all_complete_user_results_for_comp_event(id_for_3x3, omit_blacklisted=False)
-
-    # Filter out the appropriate blacklisted results, depending on who's viewing
-    results_3x3 = filter_blacklisted_results(results_3x3, show_admin, current_user)
+    results = list(results)
 
     # Split the times string into components, add to a list called `"solves_helper` which
     # is used in the UI to show individual solves, and make sure the length == 5, filled
     # with empty strings if necessary
-    for result in results_3x3:
+    for result in results:
         solves_helper = result.times_string.split(', ')
         while len(solves_helper) < 5:
             solves_helper.append('')
         setattr(result, 'solves_helper', solves_helper)
 
     # Sort the results
-    results_3x3.sort(key=sort_user_event_results)
+    results.sort(key=sort_user_event_results)
+
+    return results
 
 # -------------------------------------------------------------------------------------------------
 
