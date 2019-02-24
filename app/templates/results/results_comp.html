@@ -6,9 +6,6 @@
 
 {% block content %}
 <div class="container-fluid cubers-container white-container leaderboards-container" style="margin-top: 15px;">
-    {% if show_admin %}
-    <div id="admin-loading-spinner" class="loading hidden_icon"></div>
-    {% endif %}
     <div class="row">
         <div class="col-10 offset-1">
             <ul class="nav nav-tabs justify-content-center pt-1" role="tablist">
@@ -111,12 +108,12 @@
                 },
                 callback: function (confirmed) {
                     if (confirmed) {
-                        $('#loading-spinner').removeClass('hidden_icon');
                         $.get(url + result_id, function(){
-                            location.reload();
+                            var tab_id = $event_btn.parents('.tab-pane').attr('id');
+                            var comp_event_id = $event_btn.parents('.event-results-area').data('comp_event_id');
+                            load_event(comp_event_id, '#'+tab_id);
                         })
                         .fail(function(request, status, error) {
-                            $('#loading-spinner').addClass('hidden_icon');
                             bootbox.alert(request.responseText);
                         });
                     }

@@ -6,7 +6,7 @@
         {% set avg_class = 'font-weight-bold' %}
         {% set single_class = '' %}
     {% endif %}
-    <div class="event-results-area">
+    <div class="event-results-area" data-comp_event_id="{{ comp_event.id }}">
         <div id="{{comp_event.Event.name}}" class="event-results-header">
             <img class="event-image" src="/static/images/cube-{{ comp_event.Event.id }}.png">
             <h3 class="event-name">
