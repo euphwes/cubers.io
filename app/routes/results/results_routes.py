@@ -9,12 +9,16 @@ from app import CUBERS_APP
 from app.business.user_results import recalculate_user_pbs_for_event
 from app.persistence.comp_manager import get_active_competition, get_complete_competitions,\
     get_previous_competition, get_competition, get_all_comp_events_for_comp
-from app.persistence.user_results_manager import get_all_complete_user_results_for_comp,\
+from app.persistence.user_results_manager import get_all_complete_user_results_for_comp_event,\
     blacklist_results, unblacklist_results, UserEventResultsDoesNotExistException
 from app.util.sorting import sort_user_event_results
 from app.routes.util import is_admin_viewing
 
 from app.routes import record_usage_metrics
+
+# -------------------------------------------------------------------------------------------------
+
+DEFAULT_BLACKLIST_NOTE = """Results manually hidden by {username} on {date}."""
 
 # -------------------------------------------------------------------------------------------------
 
@@ -28,44 +32,51 @@ def comp_results(comp_id):
         return "Oops, that's not a real competition. Try again, ya clown."
 
     comp_events = get_all_comp_events_for_comp(comp_id)
+    id_for_3x3 = None
+    events_names_ids = list()
+    for comp_event in comp_events:
+        if comp_event.Event.name == '3x3':
+            id_for_3x3 = comp_event.id
+        events_names_ids.append({
+            'name'         : comp_event.Event.name,
+            'comp_event_id': comp_event.id,
+            'event_id'     : comp_event.Event.id,
+        })
 
     # If the page is being viewed by an admin, render the controls for toggling blacklist status
     # and also apply additional styling on blacklisted results to make them easier to see
     show_admin = is_admin_viewing()
 
+    alternative_title = "{} leaderboards".format(competition.title)
+
+    return render_template("results/results_comp.html", alternative_title=alternative_title,\
+        id_for_3x3=id_for_3x3, events_names_ids=events_names_ids, show_admin=show_admin)
+
+
+def temp_results_cleanup(show_admin):
+    """ TODO: comment """
+
+    id_for_3x3 = 3
+
     # Get all results including blacklisted ones
-    results = get_all_complete_user_results_for_comp(comp_id, omit_blacklisted=False)
+    results_3x3 = get_all_complete_user_results_for_comp_event(id_for_3x3, omit_blacklisted=False)
 
     # Filter out the appropriate blacklisted results, depending on who's viewing
-    results = filter_blacklisted_results(results, show_admin, current_user)
-
-    # Some utility mappings keyed on event name to make rendering stuff easier in the template
-    event_names   = [event.Event.name for event in comp_events]
-    event_results = {event.Event.name : list() for event in comp_events}
-    event_formats = {event.Event.name : event.Event.eventFormat for event in comp_events}
-    event_ids     = {event.Event.name : event.Event.id for event in comp_events}
+    results_3x3 = filter_blacklisted_results(results_3x3, show_admin, current_user)
 
     # Split the times string into components, add to a list called `"solves_helper` which
     # is used in the UI to show individual solves, and make sure the length == 5, filled
     # with empty strings if necessary
-    for result in results:
-        event_name = result.CompetitionEvent.Event.name
+    for result in results_3x3:
         solves_helper = result.times_string.split(', ')
         while len(solves_helper) < 5:
             solves_helper.append('')
         setattr(result, 'solves_helper', solves_helper)
-        event_results[event_name].append(result)
 
     # Sort the results
-    for event_name, results in event_results.items():
-        results.sort(key=sort_user_event_results)
+    results_3x3.sort(key=sort_user_event_results)
 
-    alternative_title = "{} leaderboards".format(competition.title)
-
-    return render_template("results/results_comp.html", alternative_title=alternative_title,\
-        event_results=event_results, event_names=event_names, event_formats=event_formats,\
-        event_ids=event_ids, show_admin=show_admin)
-
+# -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.route('/redirect_curr/')
 def curr_leaders():
@@ -91,10 +102,6 @@ def results_list():
     comps = get_complete_competitions()
     comp = get_active_competition()
     return render_template("results/results_list.html", comps=comps, active=comp)
-
-# -------------------------------------------------------------------------------------------------
-
-DEFAULT_BLACKLIST_NOTE = """Results manually hidden by {username} on {date}."""
 
 # -------------------------------------------------------------------------------------------------
 
