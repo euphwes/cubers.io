@@ -7,14 +7,14 @@
 {% block content %}
 <div class="container-fluid cubers-container white-container leaderboards-container" style="margin-top: 15px;">
     {% if show_admin %}
-    <div id="loading-spinner" class="loading hidden_icon"></div>
+    <div id="admin-loading-spinner" class="loading hidden_icon"></div>
     {% endif %}
     <div class="row">
         <div class="col-10 offset-1">
             <ul class="nav nav-tabs justify-content-center pt-1" role="tablist">
                 {% for event_info_dict in events_names_ids %}
                     {% if loop.index0 == 0 %}
-                        <li class="active nav-item show">
+                        <li class="active nav-item">
                             <a href="#tab_{{event_info_dict['name']  | slugify}}" data-comp_event_id="{{event_info_dict['comp_event_id']}}" class="nav-link active show" role="tab" data-toggle="tab">
                                 <img class="tab-event-image" src="/static/images/cube-{{event_info_dict['event_id']}}.png">
                             </a>
@@ -29,20 +29,23 @@
                 {% endfor %}
                     <li class="nav-item">
                         <a href="#tab_overall" data-comp_event_id="overall" class="nav-link" role="tab" data-toggle="tab">
-                            <i class="fas fa-globe-americas" style="font-size: 26px; color: rgb(180,180,180);"></i>
+                            <i class="fas fa-globe-americas" style="font-size: 25px; color: rgb(180,180,180);"></i>
                         </a>
                     </li>
             </ul>
             <div class="tab-content justify-content-center pt-3">
                 {% for event_info_dict in events_names_ids %}
                     {% if loop.index0 == 0 %}
-                    <div class="tab-pane active show" id="tab_{{event_info_dict['name']  | slugify}}">
+                    <div class="tab-pane active" id="tab_{{event_info_dict['name']  | slugify}}">
                     {% else %}
                     <div class="tab-pane" id="tab_{{event_info_dict['name']  | slugify}}">
                     {% endif %}
+                        <div class="loading_event loading hidden_icon"></div>
                     </div>
                 {% endfor %}
-                    <div class="tab-pane" id="tab_overall"></div>
+                    <div class="tab-pane" id="tab_overall">
+                        <div class="loading_event loading hidden_icon"></div>
+                    </div>
             </div>
         </div>
     </div>
@@ -57,6 +60,21 @@
         }
 
         events_names_ids = {{ events_names_ids|tojson }};
+
+        var comp_event_ids_loaded = [];
+
+        $(document).on('shown.bs.tab', 'a[data-toggle="tab"]', function (e) {
+            var $target_tab = $(e.target);
+            var comp_event_id = $target_tab.data('comp_event_id');
+            $($target_tab.attr('href')).find('.loading_event').removeClass('hidden_icon');
+            $.ajax({
+                url: "/compevent/" + comp_event_id,
+                success: function(response) {
+                    $('.loading_event').addClass('hidden_icon');
+                    $($target_tab.attr('href')).html(response);
+                },
+            });
+        });
 
         /**
         var perform_admin_action = function(action, className, url, $event_btn) {
