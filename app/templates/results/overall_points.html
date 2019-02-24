@@ -1,0 +1,39 @@
+<div class="row">
+    <div class="col-12 col-md-8 offset-md-2">
+        <div class="event-results-area">
+            <div class="event-results-header">
+                <h3 class="event-name">Weekly Points</h3>
+                <h4 class="event-subtitle d-none d-md-table-cell">(each event gives # of participants - place + 1 points)</h4>
+            </div>
+            <table class="table table-sm table-striped table-cubersio">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">User</th>
+                        <th scope="col">Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for username, points in user_points %}
+        
+                    {% if current_user.is_authenticated and current_user.username == username %}
+                        {% set its_me = 'hey-its-me' %}
+                    {% else %}
+                        {% set its_me = '' %}
+                    {% endif %}
+        
+                    <tr class="{{ its_me }}">
+                        <td scope="row">
+                            {{ loop.index }}
+                        </td>
+                        <td scope="col">
+                            <a href="{{ url_for('profile', username=username) }}">/u/{{username}}</a>
+                        </td>
+                        <td scope="col">{{points}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -119,7 +119,6 @@ class UserEventResults(Model):
     was_gold_medal    = Column(Boolean)
     was_silver_medal  = Column(Boolean)
     was_bronze_medal  = Column(Boolean)
-
     # To determine how to format friendly representations of results, single, average
     is_fmc   = False
     is_blind = False
@@ -210,7 +209,6 @@ class Competition(Model):
     active           = Column(Boolean)
     events           = relationship('CompetitionEvent', backref='Competition',
                                     primaryjoin=id == CompetitionEvent.competition_id)
-    #user_points      = Column(Text())
 
 
 class WeeklyMetrics(Model):

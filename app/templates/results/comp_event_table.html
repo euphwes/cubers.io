@@ -25,7 +25,7 @@
                     <th scope="col">Best</th>
                     <th scope="col" colspan="5" class="d-none d-md-table-cell">Solves</th>
                     {% if show_admin %}
-                    <th scope="col">Action</th>
+                    <th scope="col" class="d-none d-md-table-cell">Action</th>
                     {% endif %}
                 </tr>
             </thead>
@@ -88,11 +88,11 @@
                     {% endif %}
                     {% if show_admin %}
                         {% if result.is_blacklisted %}
-                            <td scope="col">
+                            <td scope="col" class="d-none d-md-table-cell">
                                 <button class="btn btn-success btn-xs btn-unblacklist" data-result-id="{{result.id}}" data-result-event="{{comp_event.Event.name}}" data-result-username="{{result.User.username}}">unblacklist</button>
                             </th>
                         {% else %}
-                            <td scope="col">
+                            <td scope="col" class="d-none d-md-table-cell">
                                 <button class="btn btn-danger btn-xs btn-blacklist" data-result-id="{{result.id}}" data-result-event="{{comp_event.Event.name}}" data-result-username="{{result.User.username}}">blacklist</button>
                             </th>
                         {% endif %}

@@ -10,7 +10,8 @@ from app.business.user_results import recalculate_user_pbs_for_event
 from app.persistence.comp_manager import get_active_competition, get_complete_competitions,\
     get_previous_competition, get_competition, get_all_comp_events_for_comp, get_comp_event_by_id
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp_event,\
-    blacklist_results, unblacklist_results, UserEventResultsDoesNotExistException
+    blacklist_results, unblacklist_results, UserEventResultsDoesNotExistException,\
+    get_all_complete_user_results_for_comp
 from app.util.sorting import sort_user_event_results
 from app.routes.util import is_admin_viewing
 
@@ -50,7 +51,7 @@ def comp_results(comp_id):
     alternative_title = "{} leaderboards".format(competition.title)
 
     return render_template("results/results_comp.html", alternative_title=alternative_title,\
-        events_names_ids=events_names_ids, show_admin=show_admin, id_3x3=id_3x3)
+        events_names_ids=events_names_ids, show_admin=show_admin, id_3x3=id_3x3, comp_id=comp_id)
 
 
 @CUBERS_APP.route('/compevent/<comp_event_id>/')
@@ -58,8 +59,8 @@ def comp_event_results(comp_event_id):
     """ A route for obtaining results for a specific competition event and rendering them
     for the leaderboards pages. """
 
-    if comp_event_id == 'overall':
-        return "soon"
+    if 'overall' in comp_event_id:
+        return get_overall_performance_data(int(comp_event_id.replace('overall_', '')))
 
     comp_event_id = int(comp_event_id)
 
@@ -70,17 +71,12 @@ def comp_event_results(comp_event_id):
     comp_event = get_comp_event_by_id(comp_event_id)
 
     results = get_all_complete_user_results_for_comp_event(comp_event_id, omit_blacklisted=False)
+    results = list(results) # take out of the SQLAlchemy BaseQuery and put into a simple list
+
+    if not results:
+        return "Nobody has participated in this event yet. Maybe you'll be the first!"
+
     results = filter_blacklisted_results(results, show_admin, current_user)
-    results = results_cleanup(results)
-
-    return render_template("results/comp_event_table.html", results=results,\
-        comp_event=comp_event, show_admin=show_admin)
-
-
-def results_cleanup(results):
-    """ TODO: comment """
-
-    results = list(results)
 
     # Split the times string into components, add to a list called `"solves_helper` which
     # is used in the UI to show individual solves, and make sure the length == 5, filled
@@ -94,7 +90,34 @@ def results_cleanup(results):
     # Sort the results
     results.sort(key=sort_user_event_results)
 
-    return results
+    return render_template("results/comp_event_table.html", results=results,\
+        comp_event=comp_event, show_admin=show_admin)
+
+
+def get_overall_performance_data(comp_id):
+    """ TODO: comment """
+
+    user_points = dict()
+
+    for comp_event in get_all_comp_events_for_comp(comp_id):
+        results = get_all_complete_user_results_for_comp_event(comp_event.id)
+        results = list(results)
+        results.sort(key=sort_user_event_results)
+
+        total_participants = len(results)
+        for i, result in enumerate(results):
+            username = result.User.username
+            if username not in user_points.keys():
+                user_points[username] = 0
+            user_points[username] += (total_participants - i)
+
+    user_points = [(username, points) for username, points in user_points.items()]
+    user_points.sort(key=lambda x: x[1], reverse=True)
+
+    if not user_points:
+        return "Nobody has participated in anything yet this week?"
+
+    return render_template("results/overall_points.html", user_points=user_points)
 
 # -------------------------------------------------------------------------------------------------
 
