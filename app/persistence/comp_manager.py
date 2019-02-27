@@ -78,7 +78,8 @@ def get_user_participated_competitions_count(user_id):
 
 def get_participants_in_competition(comp_id):
     """ Returns a list of all participants in the specified competition. Participant is defined
-    as somebody who has any complete UserEventResults in the specified competition. """
+    as somebody who has any complete UserEventResults in the specified competition. Omit people
+    who only have blacklisted results. """
 
     results = DB.session.\
         query(UserEventResults).\
@@ -89,6 +90,7 @@ def get_participants_in_competition(comp_id):
         filter(UserEventResults.single != "PENDING").\
         filter(UserEventResults.reddit_comment != '').\
         filter(UserEventResults.reddit_comment != None).\
+        filter(UserEventResults.is_blacklisted.isnot(True)).\
         with_entities(User.username).\
         order_by(User.username).\
         distinct()
