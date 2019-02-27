@@ -254,7 +254,7 @@
                 buttons: {
                     confirm: {
                         label: 'Ok',
-                        className: 'btn-success'
+                        className: 'btn-success btn-primary'
                     },
                 },
                 callback: function(result) {
