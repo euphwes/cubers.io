@@ -246,6 +246,16 @@
             app.eventsDataManager.deleteSolveTime(compEventId, scramble_id);
         };
 
+        // Copy the selected solve's scramble to the clipboard
+        var copyScramble = function($solve_clicked) {
+            var scramble = $solve_clicked.attr('data-scramble');
+            var $temp = $("<input>");
+            $("body").append($temp);
+            $temp.val(scramble).select();
+            document.execCommand("copy");
+            $temp.remove();
+        };
+
         // Allow manual entry
         var manualEntry = function($solve_clicked) {
             var scramble_id = $solve_clicked.attr('data-id');
@@ -299,6 +309,12 @@
                     callback: function(itemKey, opt, e) { manualEntry($(opt.$trigger)); }
                 },
                 "sep2": "---------",
+                "copy_scramble" : {
+                    name: "Copy scramble",
+                    icon: "fas fa-clipboard",
+                    callback: function(itemKey, opt, e) { copyScramble($(opt.$trigger)); }
+                },
+                "sep3": "---------",
                 "delete": {
                     name: "Delete time",
                     icon: "fas fa-trash",
