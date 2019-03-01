@@ -13,6 +13,7 @@ from app.persistence.user_results_manager import get_pb_single_event_results_exc
 from app.persistence.models import UserEventResults, UserSolve, EventFormat
 from app.util.sorting import sort_user_event_results
 from app.util.times import convert_centiseconds_to_friendly_time
+from app.util.events.resources import get_non_WCA_event_names
 
 # -------------------------------------------------------------------------------------------------
 
@@ -32,8 +33,12 @@ DNF          = 'DNF'
 BLIND_EVENTS = ('2BLD', '3BLD', '4BLD', '5BLD')
 
 # Auto-blacklist notes
-_AUTO_NOTE_TEMPLATE = "Results automatically hidden on {date} because the {type} is less than the "
-_AUTO_NOTE_TEMPLATE += "'{factor} * WR {type}' threshold for this event."
+_AUTO_BLACKLIST_NOTE_TEMPLATE = "Results automatically hidden on {date} because the {type} is less than the "
+_AUTO_BLACKLIST_NOTE_TEMPLATE += "'{factor} * WR {type}' threshold for this event."
+
+# Bonus event blacklist notes
+_AUTO_BONUS_BL_NOTE_TEMPLATE = "Results automatically hidden on {date} because the {type} is less than the "
+_AUTO_BONUS_BL_NOTE_TEMPLATE += "{type} 'reasonable' threshold for this event."
 
 SINGLE  = 'single'
 AVERAGE = 'average'
@@ -273,14 +278,32 @@ def determine_if_should_be_autoblacklisted(results):
         '3BLD':          (1655, 2029),
         '4BLD':          (8641, 1),  # very low dummy average because WCA doesn't track 4BLD WR average
         '5BLD':          (18101, 1), # very low dummy average because WCA doesn't track 5BLD WR average
-        'Square-1':      (00, 00),
+        'Square-1':      (500, 673),
         'Clock':         (340, 456),
         '3x3OH':         (688, 942),
         'Pyraminx':      (91, 187),
         'Megaminx':      (2781, 3203),
         'Skewb':         (110, 203),
         'FMC':           (1800, 2400),  # in "centi-moves"
-        '3x3 With Feet': (1696, 2222)
+        '3x3 With Feet': (1696, 2222),
+
+        # Below are thresholds for "reasonable" times for bonus events, based on times that have been
+        # submitted for bonus events over the last few months. Mostly gave a few seconds of buffer underneath
+        # what the current site records are for these events.
+        'Kilominx':        (1400, 1600),
+        '2BLD':            (350, 240),
+        'Redi Cube':       (400, 600),
+        'Void Cube':       (500, 700),
+        '4x4 OH':          (4500, 5000),
+        '3x3x2':           (250, 400),
+        '3x3x4':           (2500, 3000),
+        '3x3x4':           (3500, 4000),
+        '2GEN':            (150, 250),
+        'F2L':             (175, 275),
+        '2-3-4 Relay':     (3200, 1),
+        '3x3 Relay of 3':  (2000, 1),
+        'PLL Time Attack': (2200, 1),
+        '3x3 Mirror Blocks/Bump': (2000, 2500),
     }
 
     # Retrieve the WR thresholds tuple by event name
@@ -300,7 +323,10 @@ def determine_if_should_be_autoblacklisted(results):
         # build the UserEventResults
         if int(results.single) <= (threshold_factor * wr_single):
             timestamp = now().format('YYYY-MM-DD')
-            note = _AUTO_NOTE_TEMPLATE.format(type=SINGLE, date=timestamp, factor=threshold_factor)
+            if comp_event.Event.name in get_non_WCA_event_names():
+                note = _AUTO_BONUS_BL_NOTE_TEMPLATE.format(type=SINGLE, date=timestamp)
+            else:
+                note = _AUTO_BLACKLIST_NOTE_TEMPLATE.format(type=SINGLE, date=timestamp, factor=threshold_factor)
             results.blacklist_note = note
             results.is_blacklisted = True
             results.was_pb_average = False
@@ -316,7 +342,10 @@ def determine_if_should_be_autoblacklisted(results):
         # build the UserEventResults
         if int(results.average) <= (threshold_factor * wr_average):
             timestamp = now().format('YYYY-MM-DD')
-            note = _AUTO_NOTE_TEMPLATE.format(type=AVERAGE, date=timestamp, factor=threshold_factor)
+            if comp_event.Event.name in get_non_WCA_event_names():
+                note = _AUTO_BONUS_BL_NOTE_TEMPLATE.format(type=SINGLE, date=timestamp)
+            else:
+                note = _AUTO_BLACKLIST_NOTE_TEMPLATE.format(type=SINGLE, date=timestamp, factor=threshold_factor)
             results.blacklist_note = note
             results.is_blacklisted = True
             results.was_pb_average = False
