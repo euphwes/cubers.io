@@ -36,9 +36,9 @@ def event_results(event_name):
     singles  = get_ordered_pb_singles_for_event(event.id)
     averages = get_ordered_pb_averages_for_event(event.id)
 
-    title = "{} Records".format(event_name)
+    title = "{} Records".format(event.name)
 
-    return render_template("records/event.html", event_id=event.id, event_name=event_name,\
+    return render_template("records/event.html", event_id=event.id, event_name=event.name,\
         singles=singles, averages=averages, alternative_title=title)
 
 
