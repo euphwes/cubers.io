@@ -403,6 +403,8 @@ def __pb_representation(time):
         return int(time)
 
 
+DNF_AS_PB = __pb_representation("DNF")
+
 def set_pb_flags(user, event_result, event_id):
     """ Sets the appropriate flag if either the single or average for this event is a PB. """
 
@@ -411,11 +413,17 @@ def set_pb_flags(user, event_result, event_id):
 
     # If the current single or average are tied with, or faster than, the user's current PB,
     # then flag this result as a PB. Tied PBs count as PBs in WCA rules
-    event_result.was_pb_single = __pb_representation(event_result.single) <= pb_single
+    if pb_single == DNF_AS_PB and __pb_representation(event_result.single) == pb_single:
+        event_result.was_pb_single = False # Don't count DNFs beyond the first one as PBs
+    else:
+        event_result.was_pb_single = __pb_representation(event_result.single) <= pb_single
 
     # PB average flag for Bo1 isn't valid, so don't bother checking
     if event_format != EventFormat.Bo1:
-        event_result.was_pb_average = __pb_representation(event_result.average) <= pb_average
+        if pb_average == DNF_AS_PB and __pb_representation(event_result.average) == pb_average:
+            event_result.was_pb_average = False # Don't count DNFs beyond the first one as PBs
+        else:
+            event_result.was_pb_average = __pb_representation(event_result.average) <= pb_average
     else:
         event_result.was_pb_average = False
 
@@ -474,7 +482,9 @@ def recalculate_user_pbs_for_event(user_id, event_id):
 
         # If the current single or average are tied with, or faster than, the user's current PB,
         # then flag this result as a PB. Tied PBs count as PBs in WCA rules
-        if current_single <= pb_single_so_far:
+        if DNF_AS_PB == pb_single_so_far and DNF_AS_PB == current_single:
+            result.was_pb_single = False
+        elif current_single <= pb_single_so_far:
             pb_single_so_far = current_single
             result.was_pb_single = True
         else:
@@ -482,14 +492,15 @@ def recalculate_user_pbs_for_event(user_id, event_id):
 
         # PB average flag for Bo1 isn't valid, so don't bother checking
         if event_format != EventFormat.Bo1:
-            if current_average <= pb_average_so_far:
+            if DNF_AS_PB == pb_average_so_far and DNF_AS_PB == current_average:
+                result.was_pb_average = False
+            elif current_average <= pb_average_so_far:
                 pb_average_so_far = current_average
                 result.was_pb_average = True
             else:
                 result.was_pb_average = False
         else:
             result.was_pb_average = False
-
 
     # Save all the UserEventResults with the modified PB flags
     bulk_save_event_results(event_results_to_save_at_end)
