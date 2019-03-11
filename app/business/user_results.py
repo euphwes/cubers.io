@@ -291,7 +291,7 @@ def determine_if_should_be_autoblacklisted(results):
         # submitted for bonus events over the last few months. Mostly gave a few seconds of buffer underneath
         # what the current site records are for these events.
         'Kilominx':        (1400, 1600),
-        '2BLD':            (350, 240),
+        '2BLD':            (350, 450),
         'Redi Cube':       (400, 600),
         'Void Cube':       (500, 700),
         '4x4 OH':          (4500, 5000),

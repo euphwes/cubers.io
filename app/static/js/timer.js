@@ -87,6 +87,11 @@
      * appropriate data when it emits events.
      */
     Timer.prototype.attachToScramble = function(scramble_id) {
+        // if the timer is being attached to a new scramble while it's in any sort of active state,
+        // cancel the timer so the re-attach doesn't cause stuff to misbehave
+        if ([STATE_RUNNING, STATE_ARMED, STATE_INSPECTION, STATE_INSPECTION_ARMED].includes(this.state)) {
+            this._stop(true);
+        }
         this.scramble_id = scramble_id;
         this._enable();
     };
