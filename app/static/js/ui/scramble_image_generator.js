@@ -1710,13 +1710,13 @@
             }
         })();
 
-        var types_nnn = ['', '', '2x2', '3x3', '4x4', '5x5', '6x6', '7x7'];
+        var types_nnn = ['', '', '2x2', '3x3', '4x4', '5x5', '6x6', '7x7', '8x8', '9x9'];
 
         function genImage(scramble) {
 
             var type = scramble[0];
             var size;
-            for (size = 0; size < 8; size++) {
+            for (size = 0; size <= 9; size++) {
                 if (type == types_nnn[size]) {
                     nnnImage(size, scramble[1]);
                     return true;
