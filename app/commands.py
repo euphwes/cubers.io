@@ -63,7 +63,8 @@ def score_and_generate_new_comp(all_events, title):
 def score_comp_only(comp_id, rerun):
     """ Score only the specified competition, optionally as a re-run. """
 
-    score_reddit_thread_task(get_competition(comp_id), is_rerun=rerun)
+    comp = get_competition(comp_id)
+    score_reddit_thread_task(comp.id, comp.title, is_rerun=rerun)
 
 
 @CUBERS_APP.cli.command()

@@ -7,11 +7,13 @@ from huey import crontab
 
 from app import CUBERS_APP
 from app.business.rankings import precalculate_user_site_rankings
-from app.persistence.comp_manager import get_active_competition
+from app.business.user_results import set_medals_on_best_event_results
+from app.persistence.comp_manager import get_active_competition, get_all_comp_events_for_comp
 from app.persistence.user_manager import get_user_count
 from app.util.competition.generation import generate_new_competition
 from app.util.competition.scoring import score_reddit_thread
-from app.tasks.reddit import prepare_new_competition_notification
+from app.tasks.reddit import prepare_new_competition_notification,\
+    prepare_end_of_competition_info_notifications
 
 from . import huey
 from .admin_notification import notify_admin, send_weekly_report, AdminNotificationType
@@ -30,19 +32,22 @@ def wrap_weekly_competition():
     """ A periodic task to schedule sub-tasks related to wrapping up the weekly competitions. """
 
     current_comp = get_active_competition()
+    comp_events_in_comp = get_all_comp_events_for_comp(current_comp.id)
+    set_medals_on_best_event_results(comp_events_in_comp)
 
-    score_reddit_thread_task(current_comp)
+    score_reddit_thread_task(current_comp.id, current_comp.title)
     generate_new_competition_task()
     send_weekly_report(current_comp.id)
+    prepare_end_of_competition_info_notifications(current_comp.id)
 
 
 @huey.task()
-def score_reddit_thread_task(competition, is_rerun=False):
+def score_reddit_thread_task(comp_id, comp_title, is_rerun=False):
     """ A task to score the specified competition's Reddit thread. """
 
-    score_reddit_thread(competition.id, is_rerun=is_rerun)
+    score_reddit_thread(comp_id, is_rerun=is_rerun)
 
-    body = 'Scored Reddit thread for {}'.format(competition.title)
+    body = 'Scored Reddit thread for {}'.format(comp_title)
     notify_admin(None, body, AdminNotificationType.PUSHBULLET_NOTE)
 
 

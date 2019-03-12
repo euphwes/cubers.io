@@ -87,15 +87,33 @@ def get_participants_in_competition(comp_id):
         join(Competition).\
         join(User).\
         filter(Competition.id == comp_id).\
-        filter(UserEventResults.single != "PENDING").\
-        filter(UserEventResults.reddit_comment != '').\
-        filter(UserEventResults.reddit_comment != None).\
         filter(UserEventResults.is_blacklisted.isnot(True)).\
+        filter(UserEventResults.is_complete).\
         with_entities(User.username).\
         order_by(User.username).\
         distinct()
 
     # return just a list of names in the competition, not the list of 1-tuples from the query
+    return [r[0] for r in results]
+
+
+def get_participants_in_competition_as_user_ids(comp_id):
+    """ Returns a list of user IDs for all participants in the specified competition.
+    Participant is defined as somebody who has any complete UserEventResults in the specified
+    competition. Omit people who only have blacklisted results. """
+
+    results = DB.session.\
+        query(UserEventResults).\
+        join(CompetitionEvent).\
+        join(Competition).\
+        join(User).\
+        filter(Competition.id == comp_id).\
+        filter(UserEventResults.is_blacklisted.isnot(True)).\
+        filter(UserEventResults.is_complete).\
+        with_entities(User.id).\
+        distinct()
+
+    # return just a list of user ids, not the list of 1-tuples from the query
     return [r[0] for r in results]
 
 

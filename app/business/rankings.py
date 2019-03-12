@@ -49,9 +49,7 @@ def precalculate_user_site_rankings():
         events_pb_averages[event] = ordered_pb_averages
 
     # Iterate through all users to determine their site rankings and PBs
-    all_users = get_all_users()
-    user_count = len(all_users)
-    for i, user in enumerate(all_users):
+    for user in get_all_users():
         # Calculate site rankings for the user
         # pylint: disable=C0301
         rankings = _calculate_site_rankings_for_user(user.id, events_pb_singles, events_pb_averages, wca_events, events_list=all_events)
