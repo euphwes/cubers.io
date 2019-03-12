@@ -11,6 +11,7 @@ from app.persistence.comp_manager import get_active_competition
 from app.persistence.user_manager import get_user_count
 from app.util.competition.generation import generate_new_competition
 from app.util.competition.scoring import score_reddit_thread
+from app.tasks.reddit import prepare_new_competition_notification
 
 from . import huey
 from .admin_notification import notify_admin, send_weekly_report, AdminNotificationType
@@ -49,12 +50,13 @@ def score_reddit_thread_task(competition, is_rerun=False):
 def generate_new_competition_task():
     """ A task to generate a new competition. """
 
-    competition = generate_new_competition()
+    competition, was_all_events = generate_new_competition()
 
     body  = "Created '{}' competition".format(competition.title)
     notify_admin(None, body, AdminNotificationType.PUSHBULLET_NOTE)
 
     run_user_site_rankings()
+    prepare_new_competition_notification(competition.id, was_all_events)
 
 
 @huey.task()

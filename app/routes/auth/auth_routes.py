@@ -7,7 +7,8 @@ from app import CUBERS_APP
 from app.persistence import comp_manager
 from app.persistence.user_manager import update_or_create_user
 
-from app.util.reddit import get_username_refresh_token_from_code, get_user_auth_url
+from app.util.reddit import get_username_refresh_token_from_code, get_user_auth_url,\
+    get_app_account_auth_url
 
 from app.routes import record_usage_metrics
 
@@ -30,6 +31,21 @@ def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     return redirect(get_user_auth_url())
+
+
+@CUBERS_APP.route('/admin_login')
+@record_usage_metrics
+def admin_login():
+    """ Log in a an admin user account.
+    HACK alert: this is a workaround to get the app Reddit accounts the privileges required to send
+    PMs. It's safe that this is exposed, because if a regular user logs in from here, nothing
+    changes from their POV except it asks for one more permission. It doesn't otherwise give the
+    regular user account any special powers or anything. TODO: figure out the right way to do
+    this. """
+
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    return redirect(get_app_account_auth_url())
 
 
 @CUBERS_APP.route('/authorize')

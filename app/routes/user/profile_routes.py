@@ -8,8 +8,7 @@ from app.business.user_history import get_user_competition_history
 from app.persistence.comp_manager import get_user_participated_competitions_count
 from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import get_user_completed_solves_count
-from app.persistence.events_manager import get_events_id_name_mapping, get_all_WCA_events,\
-    get_all_non_WCA_events
+from app.persistence.events_manager import get_events_id_name_mapping
 from app.persistence.user_site_rankings_manager import get_site_rankings_for_user
 from app.routes.util import is_admin_viewing
 

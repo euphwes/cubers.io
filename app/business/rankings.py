@@ -52,9 +52,6 @@ def precalculate_user_site_rankings():
     all_users = get_all_users()
     user_count = len(all_users)
     for i, user in enumerate(all_users):
-
-        print("Calculating site rankings for {} ({}/{})".format(user.username, i+1, user_count))
-
         # Calculate site rankings for the user
         # pylint: disable=C0301
         rankings = _calculate_site_rankings_for_user(user.id, events_pb_singles, events_pb_averages, wca_events, events_list=all_events)

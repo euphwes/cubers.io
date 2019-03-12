@@ -41,6 +41,7 @@ def generate_new_competition():
 
     # Get the info required to know what events and COLL to do next
     comp_gen_data = get_competition_gen_resources()
+    was_all_events = comp_gen_data.all_events
 
     # Figure out next competition number
     comp_gen_data.current_comp_num += 1
@@ -84,7 +85,7 @@ def generate_new_competition():
     comp_gen_data.current_comp_id = new_db_competition.id
     save_competition_gen_resources(comp_gen_data)
 
-    return new_db_competition
+    return new_db_competition, was_all_events
 
 
 def week_of_month(datetime_timestamp):

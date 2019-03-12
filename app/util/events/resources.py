@@ -243,6 +243,13 @@ def get_all_bonus_events():
     return __BONUS_EVENTS + __SPECIAL_EVENTS
 
 
+def get_all_bonus_events_names():
+    """ Return all the bonus events (rotating and non-rotating ones). """
+
+    combined_events = __BONUS_EVENTS + __SPECIAL_EVENTS
+    return [e.name for e in combined_events]
+
+
 def get_WCA_event_names():
     """ Returns the names of all WCA events. """
 
