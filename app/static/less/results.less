@@ -29,35 +29,18 @@
 }
 
 .event-results-area {
-    padding-top: 15px;
-
     .event-results-header {
-
         margin-bottom: 10px;
         display: flex;
         align-items: center;
+        justify-content: space-between;
 
         width: 100%;
 
-        .event-image {
-            float: left;
-            width: 35px;
-            height: 35px;
-            margin-right: 10px;
-            -webkit-filter: saturate(0%) brightness(1.40);
-            filter: saturate(0%) brightness(1.40);
-
-            @media @mobile {
-                display: none;
-            }
-            @media @tablet {
-                display: none;
-            }
-        }
-
         .event-name {
-            margin-bottom: 0;
+            float: left;
             font-size: 20px;
+            margin-bottom: 0;
 
             @media @mobile {
                 font-size: 18px;
@@ -67,19 +50,25 @@
             }
         }
 
-        .event-subtitle {
-            margin-bottom: 0;
-            margin-left: 10px;
-            font-size: 14px;
+        .scrambles {
+            float: right;
+            font-size: 24px;
+            color: #999999;
+            margin-right: 10px;
+            cursor: pointer;
 
             @media @mobile {
-                font-size: 12px;
+                font-size: 20px;
             }
             @media @tablet {
-                font-size: 12px;
+                font-size: 20px;
             }
         }
     }
+}
+
+.scrambles_display {
+    color: black;
 }
 
 .right-tab {

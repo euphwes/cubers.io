@@ -1,5 +1,7 @@
 """ Routes related to displaying competition results. """
 
+import json
+
 from arrow import now
 
 from flask import render_template, redirect
@@ -10,8 +12,7 @@ from app.business.user_results import recalculate_user_pbs_for_event
 from app.persistence.comp_manager import get_active_competition, get_complete_competitions,\
     get_previous_competition, get_competition, get_all_comp_events_for_comp, get_comp_event_by_id
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp_event,\
-    blacklist_results, unblacklist_results, UserEventResultsDoesNotExistException,\
-    get_all_complete_user_results_for_comp
+    blacklist_results, unblacklist_results, UserEventResultsDoesNotExistException
 from app.util.sorting import sort_user_event_results
 from app.routes.util import is_admin_viewing
 
@@ -70,6 +71,9 @@ def comp_event_results(comp_event_id):
 
     comp_event = get_comp_event_by_id(comp_event_id)
 
+    # Store the scrambles so we can show those too
+    scrambles = [s.scramble for s in comp_event.scrambles]
+
     results = get_all_complete_user_results_for_comp_event(comp_event_id, omit_blacklisted=False)
     results = list(results) # take out of the SQLAlchemy BaseQuery and put into a simple list
 
@@ -91,7 +95,7 @@ def comp_event_results(comp_event_id):
     results.sort(key=sort_user_event_results)
 
     return render_template("results/comp_event_table.html", results=results,\
-        comp_event=comp_event, show_admin=show_admin)
+        comp_event=comp_event, show_admin=show_admin, scrambles=scrambles)
 
 
 def get_overall_performance_data(comp_id):

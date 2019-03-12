@@ -8,12 +8,14 @@
     {% endif %}
     <div class="event-results-area" data-comp_event_id="{{ comp_event.id }}">
         <div id="{{comp_event.Event.name}}" class="event-results-header">
-            <img class="event-image" src="/static/images/cube-{{ comp_event.Event.id }}.png">
             <h3 class="event-name">
                 <a href="{{ url_for('event_results', event_name=comp_event.Event.name|replace('/','%2F')) }}">
                     {{ comp_event.Event.name }}
                 </a>
             </h3>
+            <div class="scrambles">
+                <span class="fas fa-dice-five" data-scrambles="{{scrambles}}"></span>
+            </div>
         </div>
         <table class="table table-sm table-striped table-cubersio">
             <thead class="thead-dark">
