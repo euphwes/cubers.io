@@ -40,7 +40,7 @@ and a full participation history over each competition, for each event, indicati
 
 ### Competition leaderboards
 
-For every competition hosted in cubers.io (including the active one), you can view an overall list of user results and rankings, broken down by event:
+For every competition hosted on cubers.io (including the active one), you can view an overall list of user results and rankings, broken down by event:
 
 ![competition leaderboard](https://i.imgur.com/DgtOO2B.png)
 
