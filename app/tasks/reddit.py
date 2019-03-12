@@ -38,3 +38,18 @@ def submit_reddit_comment(comp_id, user_id, profile_url):
     for result in results:
         result.reddit_comment = comment_id
         save_event_results_for_user(result, user)
+
+
+@huey.task(comp_id, is_all_events)
+def prepare_new_competition_notification():
+    """ Builds a new competition notification message, looks up all users who want to receive
+    this sort of message, and queues up tasks to send those users PMs. """
+
+    pass
+
+
+@huey.task()
+def send_competition_notification_pm(user_id, message_body):
+    """ Sends a new competition notification PM to the specified user. """
+
+    pass

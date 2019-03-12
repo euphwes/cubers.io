@@ -13,8 +13,11 @@ class SettingCode():
     USE_INSPECTION_TIME    = 'use_inspection_time'
     HIDE_INSPECTION_TIME   = 'hide_inspection_time'
     HIDE_RUNNING_TIMER     = 'hide_running_timer'
-    REDDIT_COMP_NOTIFY     = 'reddit_comp_notify'
     DEFAULT_TO_MANUAL_TIME = 'manual_time_entry_by_default'
+
+    # Reddit related settings
+    REDDIT_COMP_NOTIFY     = 'reddit_comp_notify'
+    REDDIT_RESULTS_NOTIFY  = 'reddit_results_notify'
 
     # Custom cube colors
     USE_CUSTOM_CUBE_COLORS = 'use_custom_cube_colors'
@@ -148,8 +151,22 @@ SETTING_INFO_MAP = {
         default_value = FALSE_STR
     ),
 
+    SettingCode.REDDIT_RESULTS_NOTIFY : SettingInfo(
+        title         = "Receive Reddit PM with Competition Stats",
+        validator     = boolean_validator,
+        setting_type  = SettingType.BOOLEAN,
+        default_value = FALSE_STR
+    ),
+
     SettingCode.REDDIT_COMP_NOTIFY : SettingInfo(
-        title         = "Receive New Competition Reddit Notification",
+        title         = "Receive Reddit PM for New Competitions",
+        validator     = boolean_validator,
+        setting_type  = SettingType.BOOLEAN,
+        default_value = FALSE_STR
+    ),
+
+    SettingCode.REDDIT_RESULTS_NOTIFY : SettingInfo(
+        title         = "Receive Reddit PM with Weekly Competition Stats",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
         default_value = FALSE_STR
@@ -388,6 +405,18 @@ def get_setting_for_user(user_id, setting_code):
 
     return setting.setting_value if setting \
         else __create_unset_setting(user_id, setting_code).setting_value
+
+
+def get_all_user_ids_with_setting_value(setting_code, setting_value):
+    """ Returns a list of all Users'd IDs that have the specified setting. """
+
+    matching_settings = DB.session.\
+        query(UserSetting).\
+        filter(UserSetting.setting_code == setting_code).\
+        filter(UserSetting.setting_value == setting_value).\
+        all()
+
+    return [s.user_id for s in matching_settings]
 
 
 def get_bulk_settings_for_user_as_dict(user_id, setting_codes):
