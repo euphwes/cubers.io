@@ -131,6 +131,21 @@
             });
         };
 
+        $('body').on('click', 'div.scrambles', function() {
+            var formatted_scrambles = [];
+
+            var scrambles = $(this).children().data('scrambles');
+            $.each(scrambles, function(i, scramble){
+                var wrapped = '<div class="text-center"><code class="scrambles_display">' + scramble + '</code></div>';
+                formatted_scrambles.push(wrapped);
+            });
+
+            bootbox.alert({
+                closeButton: false,
+                message: formatted_scrambles.join("<hr>")
+            });
+        });
+
         load_event({{ id_3x3 }}, '#tab_3x3');
     })
 </script>
