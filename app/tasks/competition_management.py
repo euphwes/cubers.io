@@ -2,6 +2,9 @@
 
 # pylint: disable=line-too-long
 
+from datetime import datetime
+from pytz import timezone
+
 from arrow import utcnow
 from huey import crontab
 
@@ -17,10 +20,24 @@ from .admin_notification import notify_admin, send_weekly_report, AdminNotificat
 
 # -------------------------------------------------------------------------------------------------
 
+# Returns whether it's currently DST in the specified timezone.
+# Shamelessly taken from an answer here:
+# https://stackoverflow.com/questions/19774709/use-python-to-find-out-if-a-timezone-currently-in-daylight-savings-time
+# pylint:disable=invalid-name
+is_daylight_savings_in = lambda zonename: bool(datetime.now(timezone(zonename)).dst())
+
 if CUBERS_APP.config['IS_DEVO']:
     WRAP_WEEKLY_COMP_SCHEDULE = lambda dt: False # don't run as periodic in devo
 else:
-    WRAP_WEEKLY_COMP_SCHEDULE = crontab(day_of_week='1', hour='3', minute='0') # Mon 3 AM UTC == Sun 10 PM EST
+    # We want the comps to be posted on at 10 PM US Eastern on Sundays, but we need to specify the
+    # crontab time in UTC. Since the relationship between UTC and US/Eastern changes depending on
+    # daylight savings time, we need to account for that
+    if is_daylight_savings_in('US/Eastern'):
+        # Mon 2 AM UTC == Sun 10 PM US/Eastern
+        WRAP_WEEKLY_COMP_SCHEDULE = crontab(day_of_week='1', hour='2', minute='0')
+    else:
+        # Mon 3 AM UTC == Sun 10 PM US/Eastern
+        WRAP_WEEKLY_COMP_SCHEDULE = crontab(day_of_week='1', hour='3', minute='0')
 
 # -------------------------------------------------------------------------------------------------
 
