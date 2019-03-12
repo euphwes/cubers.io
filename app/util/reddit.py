@@ -95,6 +95,13 @@ def get_authed_reddit_for_cubersio_acct():
                   refresh_token=token, user_agent=USER_AGENT)
 
 
+def send_PM_to_user_with_title_and_body(username, title, body):
+    """ Sends a Reddit PM with the specified message title and body to this user. """
+
+    reddit = get_authed_reddit_for_cubersio_acct()
+    reddit.redditor(username).message(title, body)
+
+
 def get_authed_reddit_for_user(user):
     """ Returns a PRAW instance for this user using their refresh token. """
     return Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET,
@@ -171,3 +178,11 @@ def get_username_refresh_token_from_code(code):
 def get_user_auth_url(state='...'):
     """ Returns a url for authenticating with Reddit. """
     return get_new_reddit().auth.url(['identity', 'read', 'submit', 'edit'], state, 'permanent')
+
+
+def get_app_account_auth_url(state='...'):
+    """ Returns a url for authentication with Reddit.
+    HACK ALERT: this is a special endpoint intended to be used just for cubers_io/cubers_io_test,
+    to gain sufficient privileges to submit PMs from that account. TODO: figure out the right way
+    of doing this. """
+    return get_new_reddit().auth.url(['identity', 'read', 'submit', 'edit', 'privatemessages'], state, 'permanent')

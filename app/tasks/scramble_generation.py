@@ -20,7 +20,7 @@ ScramblePoolTopOffInfo = namedtuple('ScramblePoolTopOffInfo', ['event_id', 'even
 # In dev environments, run the task to check the scramble pool every 5 minutes.
 # In prod, run it every 6 hours
 if CUBERS_APP.config['IS_DEVO']:
-    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(minute="*/1") # Once every minute
+    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(minute="*/5") # Once every 5 minutes
 else:
     CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(hour="*/6", minute="0")   # Once every 6 hours
 

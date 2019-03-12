@@ -58,7 +58,8 @@ CUSTOM_MEGAMINX_COLOR_SETTINGS = [
 ]
 
 REDDIT_SETTINGS = [
-    #SettingCode.REDDIT_COMP_NOTIFY,
+    SettingCode.REDDIT_COMP_NOTIFY,
+    SettingCode.REDDIT_RESULTS_NOTIFY,
 ]
 
 # pylint: disable=line-too-long
@@ -87,10 +88,10 @@ def __handle_get(user):
     # pylint: disable=line-too-long
     settings_sections = OrderedDict([
         ("Timer Preferences",           [s for s in all_settings if s.code in set(TIMER_SETTINGS)]),
+        ("Reddit Preferences",          [s for s in all_settings if s.code in set(REDDIT_SETTINGS)]),
         ("Cube Color Preferences",      [s for s in all_settings if s.code in set(CUSTOM_CUBE_COLOR_SETTINGS)]),
         ("Pyraminx Color Preferences",  [s for s in all_settings if s.code in set(CUSTOM_PYRAMINX_COLOR_SETTINGS)]),
         ("Megaminx Color Preferences",  [s for s in all_settings if s.code in set(CUSTOM_MEGAMINX_COLOR_SETTINGS)]),
-        ("Reddit Preferences",          [s for s in all_settings if s.code in set(REDDIT_SETTINGS)]),
     ])
 
     disabled_settings = list()

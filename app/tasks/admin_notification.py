@@ -99,8 +99,14 @@ def send_weekly_report(comp_id):
     mobile_hits        = metrics.mobile_hits if metrics.mobile_hits else 0
     desktop_hits       = metrics.desktop_hits if metrics.desktop_hits else 0
     total_hits         = mobile_hits + desktop_hits
-    mobile_percentage  = '{:.1f}'.format((mobile_hits/total_hits) * 100)
-    desktop_percentage = '{:.1f}'.format((desktop_hits/total_hits) * 100)
+
+    if total_hits:
+        mobile_percentage  = '{:.1f}'.format((mobile_hits/total_hits) * 100)
+        desktop_percentage = '{:.1f}'.format((desktop_hits/total_hits) * 100)
+    else:
+        # avoid divide by zero
+        mobile_percentage  = "0.0"
+        desktop_percentage = "0.0"
 
     new_users_count = metrics.new_users_count if metrics.new_users_count else 0
 

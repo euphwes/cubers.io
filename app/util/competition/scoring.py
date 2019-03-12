@@ -4,7 +4,6 @@ scoring users, and posting the results. """
 import re
 from time import sleep
 
-from app.business.user_results import set_medals_on_best_event_results
 from app.persistence.comp_manager import get_competition, save_competition,\
     get_all_comp_events_for_comp
 from app.persistence.user_manager import get_username_id_map
@@ -98,9 +97,6 @@ def score_reddit_thread(competition_id, is_rerun=False):
     competition_being_scored = get_competition(competition_id)
 
     comp_events_in_comp = get_all_comp_events_for_comp(competition_being_scored.id)
-
-    # Assign medals to top results in all events
-    set_medals_on_best_event_results(comp_events_in_comp)
 
     # Build a list of event names that were in this competition
     event_names = [comp_event.Event.name for comp_event in comp_events_in_comp]
