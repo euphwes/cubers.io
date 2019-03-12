@@ -266,7 +266,7 @@ def determine_if_should_be_autoblacklisted(results):
     threshold_factor = CUBERS_APP.config['AUTO_BL_FACTOR']
 
     # Dictionary of event name to tuple of (WR single, WR average) in centiseconds
-    # WCA WRs as of 09 Jan 2019
+    # WCA WRs as of 12 Apr 2019
     # pylint: disable=C0301
     blacklist_thresholds = {
         '2x2':           (49, 121),
@@ -277,7 +277,7 @@ def determine_if_should_be_autoblacklisted(results):
         '7x7':           (10789, 11163),
         '3BLD':          (1655, 2029),
         '4BLD':          (8641, 1),  # very low dummy average because WCA doesn't track 4BLD WR average
-        '5BLD':          (18101, 1), # very low dummy average because WCA doesn't track 5BLD WR average
+        '5BLD':          (16942, 1), # very low dummy average because WCA doesn't track 5BLD WR average
         'Square-1':      (500, 673),
         'Clock':         (340, 456),
         '3x3OH':         (688, 942),
@@ -304,6 +304,12 @@ def determine_if_should_be_autoblacklisted(results):
         '3x3 Relay of 3':  (2000, 1),
         'PLL Time Attack': (2200, 1),
         '3x3 Mirror Blocks/Bump': (2000, 2500),
+
+        # "Reasonable values" sourced from
+        # https://www.speedsolving.com/wiki/index.php/List_of_Unofficial_World_Records
+        # and then rounded down another 15s or so just in case
+        '8x8': (21000, 1),
+        '9x9': (31500, 1),
     }
 
     # Retrieve the WR thresholds tuple by event name
