@@ -74,7 +74,7 @@
             // loading icons and then set the already-rendered content from the server as the
             // html for this tab
             $.ajax({
-                url: "/compevent/" + comp_event_id,
+                url: "/compevent/" + comp_event_id + "/",
                 success: function(response) {
                     $('.loading_event').addClass('hidden_icon');
                     $(target_tab_id).html(response);
