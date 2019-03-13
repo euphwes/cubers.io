@@ -10,7 +10,7 @@
         <div class="col-12 col-md-10 offset-md-1">
             <ul class="nav nav-tabs justify-content-center pt-1" role="tablist">
                 {% for event_info_dict in events_names_ids %}
-                    {% if loop.index0 == 0 %}
+                    {% if event_info_dict['name'] == '3x3' %}
                         <li class="active nav-item">
                             <a href="#tab_{{event_info_dict['name']  | slugify}}" data-comp_event_id="{{event_info_dict['comp_event_id']}}" class="nav-link active show" role="tab" data-toggle="tab">
                                 <img class="tab-event-image" src="/static/images/cube-{{event_info_dict['event_id']}}.png">
@@ -32,7 +32,7 @@
             </ul>
             <div class="tab-content justify-content-center pt-3">
                 {% for event_info_dict in events_names_ids %}
-                    {% if loop.index0 == 0 %}
+                    {% if event_info_dict['name'] == '3x3' %}
                     <div class="tab-pane active" id="tab_{{event_info_dict['name']  | slugify}}">
                     {% else %}
                     <div class="tab-pane" id="tab_{{event_info_dict['name']  | slugify}}">
