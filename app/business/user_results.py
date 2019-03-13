@@ -275,7 +275,7 @@ def determine_if_should_be_autoblacklisted(results):
         '5x5':           (3728, 4236),
         '6x6':           (7382, 7710),
         '7x7':           (10789, 11163),
-        '3BLD':          (1655, 2029),
+        '3BLD':          (1655, 2012),
         '4BLD':          (8641, 1),  # very low dummy average because WCA doesn't track 4BLD WR average
         '5BLD':          (16942, 1), # very low dummy average because WCA doesn't track 5BLD WR average
         'Square-1':      (500, 673),
@@ -284,7 +284,7 @@ def determine_if_should_be_autoblacklisted(results):
         'Pyraminx':      (91, 187),
         'Megaminx':      (2781, 3203),
         'Skewb':         (110, 203),
-        'FMC':           (1800, 2400),  # in "centi-moves"
+        'FMC':           (1700, 2400),  # in "centi-moves"
         '3x3 With Feet': (1696, 2222),
 
         # Below are thresholds for "reasonable" times for bonus events, based on times that have been
