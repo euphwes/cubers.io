@@ -46,4 +46,9 @@
     {% else %}
         <span class="event-summary"></span>
     {% endif %}
+    {% if competition_event.id in bonus_events_ids %}
+    <div class="bonus-event-indicator">
+        <i class="fas fa-gift"></i>
+    </div>
+    {% endif %}
 </div>

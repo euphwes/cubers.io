@@ -3,9 +3,9 @@
 @navbar-color: #0a2446;
 
 @overlay-icon-reduction-factor: 0.75;
-@event-card-image-size-desktop: 135px;
+@event-card-image-size-desktop: 110px;
 @event-card-image-size-tablet: 150px;
-@event-card-image-size-mobile: 120px;
+@event-card-image-size-mobile: 100px;
 
 @overlay-icon-size-desktop: @overlay-icon-reduction-factor * @event-card-image-size-desktop;
 @overlay-icon-size-tablet: @overlay-icon-reduction-factor * @event-card-image-size-tablet;
@@ -174,6 +174,14 @@ span {
     @media @mobile {
         border-top: 1px solid lightgray;
     }
+}
+
+.bonus-event-indicator {
+    position: absolute;
+    left: 5px;
+    bottom: 5px;
+    color: #9bd0db;
+    font-size: 14px;
 }
 
 #times-summary {

@@ -4,7 +4,8 @@ from collections import OrderedDict
 
 from app import DB
 from app.persistence.models import Event, CompetitionEvent, UserEventResults, ScramblePool
-from app.util.events.resources import get_WCA_event_names, get_non_WCA_event_names
+from app.util.events.resources import get_WCA_event_names, get_non_WCA_event_names,\
+    get_all_bonus_events_names
 
 # -------------------------------------------------------------------------------------------------
 
@@ -48,6 +49,13 @@ def get_all_non_WCA_events():
 
     non_wca_names = set(get_non_WCA_event_names())
     return [e for e in get_all_events() if e.name in non_wca_names]
+
+
+def get_all_bonus_events():
+    """ Returns a list of all bonus events. """
+
+    bonus_event_names = set(get_all_bonus_events_names())
+    return [e for e in get_all_events() if e.name in bonus_event_names]
 
 
 def get_events_id_name_mapping():

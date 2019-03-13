@@ -7,9 +7,11 @@ from app import CUBERS_APP
 from app.persistence import comp_manager
 from app.persistence.settings_manager import SettingCode, SettingType, TRUE_STR,\
     get_default_values_for_settings, get_bulk_settings_for_user_as_dict, get_setting_type
+from app.persistence.events_manager import get_all_bonus_events_names
 from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import get_event_results_for_user
 from app.persistence.models import EventFormat
+from app.util.events.resources import sort_comp_events_by_global_sort_order
 
 from app.routes import record_usage_metrics
 
@@ -46,10 +48,15 @@ def index():
         fill_user_data_for_event(user, event_dict)
         events_for_json[str(comp_event.id)] = event_dict
 
-    # Build a list of competition events in this comp, ordered by their event ID
-    # This ordering ensures events are ordered relative to each other in the same way each comp
-    ordered_comp_events = list([comp_event for comp_event in comp.events])
-    ordered_comp_events.sort(key=lambda c: c.event_id)
+    # Build a list of competition events in this comp. Initially order them by event ID,
+    # but then sort and group them by WCA events first, non-WCA weekly events next, and then
+    # bonus events last. This ordering ensures events are ordered relative to each other in
+    # the same way each comp
+    ordered_comp_events = sort_comp_events_by_global_sort_order(comp.events)
+
+    # Build a set of comp event IDs that are bonus events so we can mark them on the main page
+    bonus_event_names = set(get_all_bonus_events_names())
+    bonus_events_ids = set(c.id for c in ordered_comp_events if c.Event.name in bonus_event_names)
 
     # Record which events are complete and which are incomplete, so we can render the event cards
     # on the front end directly with the correct completion status (checkmark for complete, clock
@@ -67,7 +74,8 @@ def index():
     # pylint: disable=C0330
     return render_template('index.html', current_competition=comp, events_data=events_for_json,
         ordered_comp_events=ordered_comp_events, complete_events=complete_events,
-        incomplete_events=incomplete_events, comp_id=comp.id, settings=settings)
+        incomplete_events=incomplete_events, comp_id=comp.id, settings=settings,
+        bonus_events_ids=bonus_events_ids)
 
 
 @CUBERS_APP.route('/prompt_login')

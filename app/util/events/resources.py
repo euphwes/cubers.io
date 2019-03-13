@@ -219,6 +219,72 @@ __COLL_LIST = [
 
 # -------------------------------------------------------------------------------------------------
 
+__GLOBAL_SORT_ORDER = [
+    # Weekly NxN
+    EVENT_2x2,
+    EVENT_3x3,
+    EVENT_4x4,
+    EVENT_5x5,
+    EVENT_6x6,
+    EVENT_7x7,
+
+    # Weekly blind events
+    EVENT_3BLD,
+    EVENT_4BLD,
+    EVENT_5BLD,
+
+    # Weekly 3x3 variations
+    EVENT_3x3OH,
+    EVENT_3x3_Feet,
+
+    # Weekly other
+    EVENT_Square1,
+    EVENT_Pyraminx,
+    EVENT_Megaminx,
+    EVENT_Skewb,
+    EVENT_Clock,
+    EVENT_FMC,
+
+    # Weekly non-WCA
+    EVENT_2GEN,
+    EVENT_LSE,
+
+    # Bonus
+    EVENT_2BLD,
+    EVENT_Kilominx,
+    EVENT_Mirror,
+    EVENT_Void,
+    EVENT_4x4OH,
+    EVENT_3x3x2,
+    EVENT_3x3x4,
+    EVENT_3x3x5,
+    EVENT_234Relay,
+    EVENT_333Relay,
+    EVENT_PLLAttack,
+    EVENT_COLL,
+    EVENT_F2L,
+    EVENT_8x8,
+    EVENT_9x9,
+    EVENT_REDI
+]
+
+def sort_comp_events_by_global_sort_order(comp_events):
+    """ Sorts a list of competition events by the global event order defined above. """
+
+    ordered_comp_events = list()
+
+    event_name_comp_event_map = {c.Event.name : c for c in comp_events}
+    comp_event_names = set(event_name_comp_event_map.keys())
+
+    for event in __GLOBAL_SORT_ORDER:
+        if event.name in comp_event_names:
+            ordered_comp_events.append(event_name_comp_event_map[event.name])
+
+    assert len(ordered_comp_events) == len(comp_events)
+    return ordered_comp_events
+
+# -------------------------------------------------------------------------------------------------
+
 def get_num_COLLs():
     """ Returns the length of the COLLs list. """
 
