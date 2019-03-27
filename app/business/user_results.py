@@ -582,7 +582,7 @@ def determine_bests_mo3(solves):
     if dnf_count > 0:
         average = DNF
     else:
-        average = int(sum(solve.get_total_time() for solve in solves) / 3.0)
+        average = round(sum(solve.get_total_time() for solve in solves) / 3.0)
 
     if dnf_count == 3:
         single = DNF
@@ -602,12 +602,12 @@ def determine_bests_ao5(solves):
         times   = [solve.get_total_time() for solve in solves]
         best    = min(times)
         worst   = max(times)
-        average = int((sum(times) - best - worst) / 3.0)
+        average = round((sum(times) - best - worst) / 3.0)
 
     elif dnf_count == 1:
         times   = [solve.get_total_time() for solve in solves if not solve.is_dnf]
         best    = min(times)
-        average = int((sum(times) - best) / 3.0)
+        average = round((sum(times) - best) / 3.0)
 
     elif dnf_count == 5:
         average = DNF
