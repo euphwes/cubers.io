@@ -52,6 +52,9 @@
 {% block additional_script %}
 <script>
     $(function () {
+
+        var currentResultsRequest = null;
+
         var comp_event_ids_loaded = [];
         $(document).on('shown.bs.tab', 'a[data-toggle="tab"]', function (e) {
             // Get the target tab and associated comp event id
@@ -73,8 +76,14 @@
             // Ajax in the content for this competition event. After it loads, hide all the
             // loading icons and then set the already-rendered content from the server as the
             // html for this tab
-            $.ajax({
+            currentResultsRequest = $.ajax({
                 url: "/compevent/" + comp_event_id + "/",
+                beforeSend : function() {
+                    if(currentResultsRequest != null) {
+                        $('.loading_event').removeClass('hidden_icon');
+                        currentResultsRequest.abort();
+                    }
+                },
                 success: function(response) {
                     $('.loading_event').addClass('hidden_icon');
                     $(target_tab_id).html(response);
@@ -133,7 +142,7 @@
 
         $('body').on('click', 'div.scrambles', function() {
             var formatted_scrambles = [];
-            
+
             $.each($(this).find(".scramble-holder"), function(i, holder){
                 var wrapped = '<div class="text-center"><code class="scrambles_display">' + $(holder).text() + '</code></div>';
                 formatted_scrambles.push(wrapped);
