@@ -1828,6 +1828,9 @@
         // If on mobile, ensure scramble preview button is not disabled
         $('#show-scramble-btn>.btn-return').removeClass('btn-disabled').removeAttr('disabled');
 
+        // If on desktop, ensure the scramble area is visible, even if previously hidden
+        $('.scramble_preview_buffer').removeClass('d-none');
+
         // If this isn't a supported event, clear the image, reset scaling factors.
         if (window.app.scramblePreviewUnsupportedEvents.includes(scrambleEventData.eventName)) {
             this._clearImage(); this.reset();
@@ -1937,6 +1940,9 @@
 
         // If on mobile, ensure scramble preview button is disabled since there's nothing to show
         $('#show-scramble-btn>.btn-return').addClass('btn-disabled').attr('disabled', 'disabled');
+
+        // If on desktop, make it so the scramble area is entirely hidden if there's nothing to show
+        $('.scramble_preview_buffer').addClass('d-none');
     };
 
     /**
