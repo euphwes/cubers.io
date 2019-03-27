@@ -14,7 +14,11 @@
                 </a>
             </h3>
             <div class="scrambles">
-                <span class="fas fa-dice-five" data-scrambles="{{scrambles}}"></span>
+                <span class="fas fa-dice-five"">
+                    {% for scramble in scrambles %}
+                    <div class="d-none scramble-holder">{{scramble}}</div>
+                    {% endfor %}
+                </span>
             </div>
         </div>
         <table class="table table-sm table-striped table-cubersio">
