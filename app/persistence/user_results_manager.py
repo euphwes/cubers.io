@@ -113,14 +113,13 @@ def get_all_complete_event_results():
 
 
 def get_results_for_comp_event(comp_event_id):
-    """ Retrieves the top 3 best non-blacklisted UserEventResults for the specified comp event. """
+    """ Retrieves all UserEventResults for the specified comp event. """
 
     # Get all complete, unblacklisted results for the specified comp_event_id
     return DB.session.\
         query(UserEventResults).\
         join(CompetitionEvent).\
         filter(CompetitionEvent.id == comp_event_id).\
-        filter(UserEventResults.is_blacklisted.isnot(True)).\
         filter(UserEventResults.is_complete).\
         all()
 
