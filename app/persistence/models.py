@@ -6,10 +6,9 @@ import json
 from flask_login import LoginManager, UserMixin
 from sqlalchemy.orm import relationship
 
-from app import DB, CUBERS_APP
+from app import DB, app
 from app.util.times import convert_centiseconds_to_friendly_time
 
-#pylint: disable=C0103
 Text       = DB.Text
 Enum       = DB.Enum
 Model      = DB.Model
@@ -20,7 +19,6 @@ Integer    = DB.Integer
 DateTime   = DB.DateTime
 ForeignKey = DB.ForeignKey
 
-#pylint: disable=R0903
 class EventFormat():
     """ Competition event formats: Average of 5, Mean of 3, Best of 3, Best of 1. """
     Ao5 = "Ao5"
@@ -45,7 +43,8 @@ class User(UserMixin, Model):
     is_admin       = Column(Boolean)
     results        = relationship("UserEventResults", backref="User")
 
-LOGIN_MANAGER = LoginManager(CUBERS_APP)
+
+LOGIN_MANAGER = LoginManager(app)
 @LOGIN_MANAGER.user_loader
 def load_user(user_id):
     """ Required by Flask-Login for loading a user by PK. """
@@ -56,6 +55,7 @@ def load_user(user_id):
 class Event(Model):
     """ A record for a specific cubing event -- the name of the puzzle, the total number of solves
     to be completed by a competitor, and an optional description of the event. """
+
     __tablename__  = 'events'
     id             = Column(Integer, primary_key=True)
     name           = Column(String(64), index=True, unique=True)
@@ -67,6 +67,7 @@ class Event(Model):
 
 class ScramblePool(Model):
     """ A record that encapsulates a pre-generated scramble for a given event. """
+
     __tablename__ = 'scramble_pool'
     id            = Column(Integer, primary_key=True)
     event_id      = Column(Integer, ForeignKey('events.id'))
@@ -76,6 +77,7 @@ class ScramblePool(Model):
 
 class Scramble(Model):
     """ A scramble for a specific event at a specific competition. """
+
     __tablename__        = 'scrambles'
     id                   = Column(Integer, primary_key=True)
     scramble             = Column(Text())
@@ -100,6 +102,7 @@ class UserEventResults(Model):
     """ A model detailing a user's results for a single event at competition. References the user,
     the competitionEvent, the single and average result for the event. These values are either in
     centiseconds (ex: "1234" = 12.34s), 10x units for FMC (ex: "2833" = 28.33 moves) or "DNF". """
+
     __tablename__     = 'user_event_results'
     id                = Column(Integer, primary_key=True)
     user_id           = Column(Integer, ForeignKey('users.id'))
@@ -161,7 +164,7 @@ class UserEventResults(Model):
         if self.is_fmc:
             # TODO consolidate this with the jinja filter format for fmc function, and move into
             # the time utils module
-            converted_value = int(value)/100
+            converted_value = int(value) / 100
             if converted_value == int(converted_value):
                 converted_value = int(converted_value)
             return converted_value
@@ -169,17 +172,33 @@ class UserEventResults(Model):
         return convert_centiseconds_to_friendly_time(value)
 
 
+    def to_log_dict(self):
+        """ Converts this UserEventsResults to a dictionary representation useful in logging. """
+
+        return {
+            'solves': [s.to_log_dict() for s in self.solves],
+            'is_complete': self.is_complete,
+            'comment': self.comment,
+            'is_blacklisted': self.is_blacklisted,
+            'pb_flags': {
+                'single': self.was_pb_single,
+                'average': self.was_pb_average
+            }
+        }
+
+
 class CompetitionEvent(Model):
     """ Associative model for an event held at a competition - FKs to the competition and event,
     and a JSON array of scrambles. """
+
     __tablename__  = 'competition_event'
     id             = Column(Integer, primary_key=True)
     competition_id = Column(Integer, ForeignKey('competitions.id'), index=True)
     event_id       = Column(Integer, ForeignKey('events.id'), index=True)
     scrambles      = relationship('Scramble', backref='CompetitionEvent',
-                                  primaryjoin = id == Scramble.competition_event_id)
+                                  primaryjoin=id == Scramble.competition_event_id)
     user_results   = relationship('UserEventResults', backref='CompetitionEvent',
-                                  primaryjoin = id == UserEventResults.comp_event_id)
+                                  primaryjoin=id == UserEventResults.comp_event_id)
 
     def to_front_end_consolidated_dict(self):
         """ Returns a dictionary representation of this object for use in the front-end.
@@ -199,6 +218,7 @@ class CompetitionEvent(Model):
 class Competition(Model):
     """ A record for a competition -- the title of the competition, the start and end datetime,
     the list of events held, and a JSON field containing total user points results."""
+
     __tablename__    = 'competitions'
     id               = Column(Integer, primary_key=True)
     title            = Column(String(128))
@@ -213,6 +233,7 @@ class Competition(Model):
 
 class WeeklyMetrics(Model):
     """ A record for maintaining usage metrics for each weekly competition. """
+
     __tablename__   = 'weekly_metrics'
     id              = Column(Integer, primary_key=True)
     comp_id         = Column(Integer, ForeignKey('competitions.id'), index=True)
@@ -224,6 +245,7 @@ class WeeklyMetrics(Model):
 
 class CompetitionGenResources(Model):
     """ A record for maintaining the current state of the competition generation. """
+
     __tablename__       = 'comp_gen_resources'
     id                  = Column(Integer, primary_key=True)
     current_comp_id     = Column(Integer)
@@ -238,10 +260,11 @@ class CompetitionGenResources(Model):
 class UserSiteRankings(Model):
     """ A record for holding pre-calculated user PB single and averages, and site rankings,
     for each event they have participated in."""
+
     __tablename__  = 'user_site_rankings'
     id                  = Column(Integer, primary_key=True)
     user_id             = Column(Integer, ForeignKey('users.id'), index=True)
-    user                = relationship('User', primaryjoin = user_id == User.id)
+    user                = relationship('User', primaryjoin=user_id == User.id)
     data                = Column(String(2048))
     timestamp           = Column(DateTime)
     sum_all_single      = Column(Integer)
@@ -281,21 +304,21 @@ class UserSiteRankings(Model):
     def get_combined_sum_of_ranks(self):
         """ Returns SumOfRanks data structure for combined sum of ranks. """
 
-        return SumOfRanks(single=self.sum_all_single, average=self.sum_all_average,\
+        return SumOfRanks(single=self.sum_all_single, average=self.sum_all_average,
             username=self.user.username)
 
 
     def get_WCA_sum_of_ranks(self):
         """ Returns SumOfRanks data structure for combined sum of ranks. """
 
-        return SumOfRanks(single=self.sum_wca_single, average=self.sum_wca_average,\
+        return SumOfRanks(single=self.sum_wca_single, average=self.sum_wca_average,
             username=self.user.username)
 
 
     def get_non_WCA_sum_of_ranks(self):
         """ Returns SumOfRanks data structure for combined sum of ranks. """
 
-        return SumOfRanks(single=self.sum_non_wca_single, average=self.sum_non_wca_average,\
+        return SumOfRanks(single=self.sum_non_wca_single, average=self.sum_non_wca_average,
             username=self.user.username)
 
 
@@ -311,9 +334,20 @@ class UserSolve(Model):
     scramble_id   = Column(Integer, ForeignKey('scrambles.id'))
     user_event_results_id = Column(Integer, ForeignKey('user_event_results.id'))
 
+
     def get_total_time(self):
         """ Returns the solve's time with +2s penalty counted, if applicable. """
         return (self.time + 200) if self.is_plus_two else self.time
+
+
+    def to_log_dict(self):
+        """ Converts this Solve to a dictionary representation useful in logging. """
+
+        return {
+            'time': convert_centiseconds_to_friendly_time(self.get_total_time()),
+            'is_dnf': self.is_dnf,
+            'is_plus_two': self.is_plus_two
+        }
 
 
 class UserSetting(Model):
@@ -322,6 +356,6 @@ class UserSetting(Model):
     __tablename__ = 'user_settings'
     id            = Column(Integer, primary_key=True)
     user_id       = Column(Integer, ForeignKey('users.id'), index=True)
-    user          = relationship('User', primaryjoin = user_id == User.id)
+    user          = relationship('User', primaryjoin=user_id == User.id)
     setting_code  = Column(String(128), index=True)
     setting_value = Column(String(128), index=True)

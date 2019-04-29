@@ -5,7 +5,7 @@ from arrow import now
 from flask import render_template, redirect
 from flask_login import current_user
 
-from app import CUBERS_APP
+from app import app
 from app.business.user_results import recalculate_user_pbs_for_event
 from app.persistence.comp_manager import get_active_competition, get_complete_competitions,\
     get_previous_competition, get_competition, get_all_comp_events_for_comp, get_comp_event_by_id
@@ -22,7 +22,7 @@ DEFAULT_BLACKLIST_NOTE = """Results manually hidden by {username} on {date}."""
 
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.route('/leaderboards/<int:comp_id>/')
+@app.route('/leaderboards/<int:comp_id>/')
 @record_usage_metrics
 def comp_results(comp_id):
     """ A route for showing results for a specific competition. """
@@ -55,7 +55,7 @@ def comp_results(comp_id):
         events_names_ids=events_names_ids, show_admin=show_admin, id_3x3=id_3x3, comp_id=comp_id)
 
 
-@CUBERS_APP.route('/compevent/<comp_event_id>/')
+@app.route('/compevent/<comp_event_id>/')
 def comp_event_results(comp_event_id):
     """ A route for obtaining results for a specific competition event and rendering them
     for the leaderboards pages. """
@@ -125,7 +125,7 @@ def get_overall_performance_data(comp_id):
 
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.route('/redirect_curr/')
+@app.route('/redirect_curr/')
 def curr_leaders():
     """ Redirects to the current competition's leaderboards. """
 
@@ -133,7 +133,7 @@ def curr_leaders():
     return redirect("leaderboards/{}".format(comp.id))
 
 
-@CUBERS_APP.route('/redirect_prev/')
+@app.route('/redirect_prev/')
 def prev_leaders():
     """ Redirects to the current competition's leaderboards. """
 
@@ -141,7 +141,7 @@ def prev_leaders():
     return redirect("leaderboards/{}".format(comp.id))
 
 
-@CUBERS_APP.route('/leaderboards/')
+@app.route('/leaderboards/')
 @record_usage_metrics
 def results_list():
     """ A route for showing which competitions results can be viewed for. """
@@ -152,7 +152,7 @@ def results_list():
 
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.route('/results/blacklist/<int:results_id>/')
+@app.route('/results/blacklist/<int:results_id>/')
 def blacklist(results_id):
     """ Blacklists the specified UserEventResults. """
 
@@ -178,7 +178,7 @@ def blacklist(results_id):
         return (str(ex), 500)
 
 
-@CUBERS_APP.route('/results/unblacklist/<int:results_id>/')
+@app.route('/results/unblacklist/<int:results_id>/')
 def unblacklist(results_id):
     """ Unblacklists the specified UserEventResults. """
 

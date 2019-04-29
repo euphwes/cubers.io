@@ -3,7 +3,7 @@
 from flask import request, redirect, url_for, render_template
 from flask_login import current_user, login_user, logout_user
 
-from app import CUBERS_APP
+from app import app
 from app.persistence import comp_manager
 from app.persistence.user_manager import update_or_create_user
 
@@ -14,7 +14,7 @@ from app.routes import record_usage_metrics
 
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.route("/logout")
+@app.route("/logout")
 @record_usage_metrics
 def logout():
     """ Log out the current user. """
@@ -23,7 +23,7 @@ def logout():
     return redirect(url_for('index'))
 
 
-@CUBERS_APP.route('/login')
+@app.route('/login')
 @record_usage_metrics
 def login():
     """ Log in a user. """
@@ -33,7 +33,7 @@ def login():
     return redirect(get_user_auth_url())
 
 
-@CUBERS_APP.route('/admin_login')
+@app.route('/admin_login')
 @record_usage_metrics
 def admin_login():
     """ Log in a an admin user account.
@@ -48,7 +48,7 @@ def admin_login():
     return redirect(get_app_account_auth_url())
 
 
-@CUBERS_APP.route('/authorize')
+@app.route('/authorize')
 @record_usage_metrics
 def authorize():
     """ Handle the callback from Reddit's OAuth. Create a user if necessary, update their refresh
@@ -68,7 +68,7 @@ def authorize():
     return redirect(url_for('index'))
 
 
-@CUBERS_APP.route('/denied')
+@app.route('/denied')
 @record_usage_metrics
 def denied():
     """ For when the user declines Reddit OAuth. """

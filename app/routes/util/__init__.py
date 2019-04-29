@@ -4,14 +4,14 @@ previous results. """
 from flask import request, redirect, url_for, render_template
 from flask_login import current_user, login_user, logout_user
 
-from app import CUBERS_APP
+from app import app
 from app.persistence.comp_manager import get_active_competition, get_previous_competition
 from app.persistence.user_manager import get_user_by_username
 from app.util.reddit import get_permalink_for_comp_thread
 
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.route("/current")
+@app.route("/current")
 def current_comp():
     """ Redirects to the Reddit URL for the current competition. """
 
@@ -21,7 +21,7 @@ def current_comp():
     return redirect(comp_url)
 
 
-@CUBERS_APP.route("/results")
+@app.route("/results")
 def prev_results():
     """ Redirects to the Reddit URL for the previous competition's results. """
 
