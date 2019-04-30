@@ -4,10 +4,14 @@ from functools import wraps
 
 from flask import request
 
+from app import CUBERS_APP
 from app.tasks.metrics import record_browser_metrics
 
 def record_usage_metrics(route_func):
     """ A route decorator which records various metrics related to usage.  """
+
+    if not CUBERS_APP.config['SHOULD_RECORD_BROWSER_METRICS']:
+        return route_func
 
     @wraps(route_func)
     def wrapped_route(*args, **kwargs):

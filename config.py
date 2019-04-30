@@ -50,6 +50,7 @@ class Config(object):
     # Other config
     # ------------------------------------------------------
     TEMPLATES_AUTO_RELOAD = True
+    SHOULD_RECORD_BROWSER_METRICS = environ.get('SHOULD_RECORD_BROWSER_METRICS', False)
 
     # The factor by which we multiply current WRs to determine whether or not to automatically
     # blacklist results we are assuming to be fake
