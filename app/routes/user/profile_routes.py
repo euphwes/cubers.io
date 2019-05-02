@@ -12,12 +12,9 @@ from app.persistence.events_manager import get_events_id_name_mapping
 from app.persistence.user_site_rankings_manager import get_site_rankings_for_user
 from app.routes.util import is_admin_viewing
 
-from app.routes import record_usage_metrics
-
 # -------------------------------------------------------------------------------------------------
 
 @CUBERS_APP.route('/u/<username>/')
-@record_usage_metrics
 def profile(username):
     """ A route for showing a user's profile. """
 
@@ -40,7 +37,7 @@ def profile(username):
     bronze_count = 0
     for _, comp_event_results_dict in history.items():
         for _, results in comp_event_results_dict.items():
-            gold_count   += 1 if results.was_gold_medal   else 0
+            gold_count   += 1 if results.was_gold_medal else 0
             silver_count += 1 if results.was_silver_medal else 0
             bronze_count += 1 if results.was_bronze_medal else 0
 
