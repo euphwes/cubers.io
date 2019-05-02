@@ -1,23 +1,5 @@
 """ Root of routes package. """
 
-from functools import wraps
-
-from flask import request
-
-from app.tasks.metrics import record_browser_metrics
-
-def record_usage_metrics(route_func):
-    """ A route decorator which records various metrics related to usage.  """
-
-    @wraps(route_func)
-    def wrapped_route(*args, **kwargs):
-        record_browser_metrics(request.MOBILE, request.user_agent)
-        return route_func(*args, **kwargs)
-
-    return wrapped_route
-
-# -------------------------------------------------------------------------------------------------
-
 from .auth import login, logout, authorize
 from .home import index
 from .admin import gc_select, gc_select_user

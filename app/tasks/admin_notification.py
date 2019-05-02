@@ -68,7 +68,11 @@ WEEKLY_REPORT_BODY_TEMPLATE =\
 """{total_participants} users participated.
 {new_users_count} new users registered.
 
-Desktop traffic: ({desktop_hits} hits = {desktop_percentage}%)
+{traffic}
+"""
+
+TRAFFIC_TEMPLATE =\
+"""Desktop traffic: ({desktop_hits} hits = {desktop_percentage}%)
 Mobile traffic: ({mobile_hits} hits = {mobile_percentage}%)
 """
 
@@ -92,32 +96,30 @@ def notify_admin(title, content, notification_type):
 def send_weekly_report(comp_id):
     """ Builds and sends an end-of-week report with stats from the specified competition. """
 
-    total_participants = len(get_participants_in_competition(comp_id))
-
-    metrics = get_weekly_metrics(comp_id)
-
-    mobile_hits        = metrics.mobile_hits if metrics.mobile_hits else 0
-    desktop_hits       = metrics.desktop_hits if metrics.desktop_hits else 0
-    total_hits         = mobile_hits + desktop_hits
+    metrics      = get_weekly_metrics(comp_id)
+    mobile_hits  = metrics.mobile_hits if metrics.mobile_hits else 0
+    desktop_hits = metrics.desktop_hits if metrics.desktop_hits else 0
+    total_hits   = mobile_hits + desktop_hits
 
     if total_hits:
         mobile_percentage  = '{:.1f}'.format((mobile_hits/total_hits) * 100)
         desktop_percentage = '{:.1f}'.format((desktop_hits/total_hits) * 100)
+        traffic_report = TRAFFIC_TEMPLATE.format(
+            desktop_hits       = desktop_hits,
+            mobile_hits        = mobile_hits,
+            desktop_percentage = desktop_percentage,
+            mobile_percentage  = mobile_percentage
+        )
     else:
-        # avoid divide by zero
-        mobile_percentage  = "0.0"
-        desktop_percentage = "0.0"
+        traffic_report = 'Desktop/Mobile traffic not recorded this week'
 
     new_users_count = metrics.new_users_count if metrics.new_users_count else 0
 
     title = WEEKLY_REPORT_TITLE_TEMPLATE.format(comp_name = get_competition(comp_id).title)
     content = WEEKLY_REPORT_BODY_TEMPLATE.format(
-        total_participants = total_participants,
+        total_participants = len(get_participants_in_competition(comp_id)),
         new_users_count    = new_users_count,
-        desktop_hits       = desktop_hits,
-        mobile_hits        = mobile_hits,
-        desktop_percentage = desktop_percentage,
-        mobile_percentage  = mobile_percentage
+        traffic            = traffic_report
     )
 
     notify_admin(title, content, AdminNotificationType.PUSHBULLET_NOTE)

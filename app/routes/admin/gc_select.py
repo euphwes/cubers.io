@@ -8,12 +8,9 @@ from app import app
 from app.persistence.comp_manager import get_complete_competitions, get_competition,\
     get_participants_in_competition
 
-from app.routes import record_usage_metrics
-
 # -------------------------------------------------------------------------------------------------
 
 @app.route("/admin/gc_select/")
-@record_usage_metrics
 def gc_select():
     """ Display a list of complete competitions. """
 
@@ -21,7 +18,6 @@ def gc_select():
 
 
 @app.route("/admin/gc_select/<int:comp_id>/")
-@record_usage_metrics
 def gc_select_user(comp_id):
     """ Grab a list of participating users for the specified competition, and choose one at
     random. """

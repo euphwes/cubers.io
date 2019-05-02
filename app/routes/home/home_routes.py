@@ -13,8 +13,6 @@ from app.persistence.user_results_manager import get_event_results_for_user
 from app.persistence.models import EventFormat
 from app.util.events.resources import sort_comp_events_by_global_sort_order
 
-from app.routes import record_usage_metrics
-
 # -------------------------------------------------------------------------------------------------
 
 LOG_MAIN_PAGE_LOAD_TEMPLATE = "{}: loaded main page"
@@ -22,7 +20,6 @@ LOG_MAIN_PAGE_LOAD_TEMPLATE = "{}: loaded main page"
 # -------------------------------------------------------------------------------------------------
 
 @app.route('/')
-@record_usage_metrics
 def index():
     """ Main page for the app. Shows cards for every event in the current competition."""
 
@@ -86,7 +83,6 @@ def index():
 
 
 @app.route('/prompt_login')
-@record_usage_metrics
 def prompt_login():
     """ Prompts the user to login for the best experience. """
 

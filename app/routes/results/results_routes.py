@@ -11,7 +11,6 @@ from app.persistence.comp_manager import get_active_competition, get_complete_co
     get_previous_competition, get_competition, get_all_comp_events_for_comp, get_comp_event_by_id
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp_event,\
     blacklist_results, unblacklist_results, UserEventResultsDoesNotExistException
-from app.routes import record_usage_metrics
 from app.routes.util import is_admin_viewing
 from app.util.sorting import sort_user_event_results
 from app.util.events.resources import sort_comp_events_by_global_sort_order
@@ -23,7 +22,6 @@ DEFAULT_BLACKLIST_NOTE = """Results manually hidden by {username} on {date}."""
 # -------------------------------------------------------------------------------------------------
 
 @app.route('/leaderboards/<int:comp_id>/')
-@record_usage_metrics
 def comp_results(comp_id):
     """ A route for showing results for a specific competition. """
 
@@ -142,7 +140,6 @@ def prev_leaders():
 
 
 @app.route('/leaderboards/')
-@record_usage_metrics
 def results_list():
     """ A route for showing which competitions results can be viewed for. """
 
