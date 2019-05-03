@@ -15,6 +15,7 @@ from app.util.reddit import get_username_refresh_token_from_code, get_user_auth_
 @app.route("/logout")
 def logout():
     """ Log out the current user. """
+
     if current_user.is_authenticated:
         logout_user()
     return redirect(url_for('index'))
@@ -32,11 +33,10 @@ def login():
 @app.route('/admin_login')
 def admin_login():
     """ Log in a an admin user account.
-    HACK alert: this is a workaround to get the app Reddit accounts the privileges required to send
-    PMs. It's safe that this is exposed, because if a regular user logs in from here, nothing
-    changes from their POV except it asks for one more permission. It doesn't otherwise give the
-    regular user account any special powers or anything. TODO: figure out the right way to do
-    this. """
+    HACK alert: this is a workaround to get the app Reddit accounts the privileges required to send PMs.
+    It's safe that this is exposed, because if a regular user logs in from here, nothing changes from
+    their POV except it asks for one more permission. It doesn't otherwise give the regular user account
+    any special powers or anything. TODO: figure out the right way to do this. """
 
     if current_user.is_authenticated:
         return redirect(url_for('index'))
