@@ -13,14 +13,15 @@ from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import save_event_results_for_user,\
     are_results_different_than_existing, get_comment_id_by_comp_id_and_user,\
     get_event_results_for_user
+from app.persistence.models import UserEventResults
 from app.util.reddit import get_permalink_for_user_and_comment
 from app.tasks.reddit import submit_reddit_comment
 
 # -------------------------------------------------------------------------------------------------
 
-LOG_EVENT_RESULTS_TEMPLATE = "{}: created/updated event results"
-LOG_RESULTS_ERROR_TEMPLATE = "{}: error creating/saving event results"
-LOG_SAVED_RESULTS_TEMPLATE = "{}: saved event results"
+LOG_EVENT_RESULTS_TEMPLATE = "{}: submitted {} results"
+LOG_RESULTS_ERROR_TEMPLATE = "{}: error creating or saving {} results"
+LOG_SAVED_RESULTS_TEMPLATE = "{}: saved {} results"
 
 # -------------------------------------------------------------------------------------------------
 
@@ -43,7 +44,7 @@ def save_event():
         # saving results
         event_result = determine_if_should_be_autoblacklisted(event_result)
 
-        app.logger.info(LOG_EVENT_RESULTS_TEMPLATE.format(user.username),
+        app.logger.info(LOG_EVENT_RESULTS_TEMPLATE.format(user.username, event_name),
                         extra=__create_results_log_context(user, event_name, event_result))
 
         # Figure out if we need to repost the results to Reddit or not
@@ -60,7 +61,7 @@ def save_event():
             should_do_reddit_submit = previous_results and previous_results.is_complete
 
         saved_results = save_event_results_for_user(event_result, user)
-        app.logger.info(LOG_SAVED_RESULTS_TEMPLATE.format(user.username))
+        app.logger.info(LOG_SAVED_RESULTS_TEMPLATE.format(user.username, event_name))
 
         if should_do_reddit_submit:
             # Need to build the profile url here so the app context is available.
@@ -83,7 +84,7 @@ def save_event():
 
     # TODO: Figure out specific exceptions that can happen here, probably mostly Reddit ones
     except Exception as ex:
-        app.logger.info(LOG_RESULTS_ERROR_TEMPLATE.format(user.username),
+        app.logger.info(LOG_RESULTS_ERROR_TEMPLATE.format(user.username, event_name),
                         extra=__create_results_error_log_context(user, ex))
         return abort(500, str(ex))
 
@@ -119,7 +120,7 @@ def comment_url(comp_id):
 
 # -------------------------------------------------------------------------------------------------
 
-def __create_results_log_context(user, event_name, event_result):
+def __create_results_log_context(user, event_name, event_result: UserEventResults):
     """ Builds some logging context related to creating/updating user events results. """
 
     results_info = event_result.to_log_dict()
