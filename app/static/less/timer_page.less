@@ -19,21 +19,21 @@
 .scramble-wrapper {
     font-family: 'Roboto', sans-serif;
 
-    height: ~"calc(25% - 43px)";
-    font-size: 24px;
+    height: ~"calc(35% - 43px)";
+    font-size: 28px;
     &.big {
         font-size: 32px;
     }
     @media @mobile {
-        font-size: 12px;
-        height: ~"calc(25% - 43px)";
+        font-size: 14px;
+        height: 150px;
         &.big {
             font-size: 24px;
         }
     }
     @media @tablet {
-        font-size: 24px;
-        height: ~"calc(35% - 43px)";
+        font-size: 28px;
+        max-height: 150px;
         &.big {
             font-size: 32px;
         }
@@ -217,16 +217,17 @@
 
     width: 100%;
 
-    height: 70%;
-    @media @tablet {
-        height: 30%;
-    }
-    @media @mobile {
-        height: 30%;
-    }
-
     .timer-element {
         display: inline-block;
+    }
+
+    @media @mobile {
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+    @media @tablet {
+        padding-top: 60px;
+        padding-bottom: 60px;
     }
 
     &.hidden {
