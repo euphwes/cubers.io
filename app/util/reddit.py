@@ -4,23 +4,23 @@ from urllib.parse import urljoin
 
 from praw import Reddit
 
-from app import CUBERS_APP
+from app import app
 from app.persistence.comp_manager import get_comp_event_by_id
 from app.persistence.user_manager import get_user_by_username
 from app.util.times import convert_centiseconds_to_friendly_time
 
 # -------------------------------------------------------------------------------------------------
 
-REDIRECT         = CUBERS_APP.config['REDDIT_REDIRECT_URI']
-CLIENT_ID        = CUBERS_APP.config['REDDIT_CLIENT_ID']
-CLIENT_SECRET    = CUBERS_APP.config['REDDIT_CLIENT_SECRET']
-APP_URL          = CUBERS_APP.config['APP_URL']
-TARGET_SUBREDDIT = CUBERS_APP.config['TARGET_SUBREDDIT']
-IS_DEVO          = CUBERS_APP.config['IS_DEVO']
+REDIRECT         = app.config['REDDIT_REDIRECT_URI']
+CLIENT_ID        = app.config['REDDIT_CLIENT_ID']
+CLIENT_SECRET    = app.config['REDDIT_CLIENT_SECRET']
+APP_URL          = app.config['APP_URL']
+TARGET_SUBREDDIT = app.config['TARGET_SUBREDDIT']
+IS_DEVO          = app.config['IS_DEVO']
 USER_AGENT       = 'web:rcubersComps:v0.01 by /u/euphwes'
 
-PROD_CUBERSIO_ACCT = CUBERS_APP.config['PROD_CUBERSIO_ACCT']
-DEVO_CUBERSIO_ACCT = CUBERS_APP.config['DEVO_CUBERSIO_ACCT']
+PROD_CUBERSIO_ACCT = app.config['PROD_CUBERSIO_ACCT']
+DEVO_CUBERSIO_ACCT = app.config['DEVO_CUBERSIO_ACCT']
 
 COMMENT_FOOTER_TEMPLATE = '\n'.join([
     '',

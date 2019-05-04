@@ -5,7 +5,7 @@ from collections import OrderedDict
 from flask import render_template, redirect, url_for, request
 from flask_login import current_user
 
-from app import CUBERS_APP
+from app import app
 from app.persistence.settings_manager import get_settings_for_user_for_edit,\
     set_new_settings_for_user, SettingCode, SettingType, FALSE_STR, get_color_defaults
 from app.persistence.user_manager import get_user_by_username
@@ -66,7 +66,7 @@ __ALL_SETTINGS += CUSTOM_MEGAMINX_COLOR_SETTINGS + TIMER_SETTINGS
 
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.route('/settings', methods=['GET','POST'])
+@app.route('/settings', methods=['GET','POST'])
 def edit_settings():
     """ A route for showing a editing a user's personal settings. """
 

@@ -3,7 +3,7 @@
 from flask import render_template
 from flask_login import current_user
 
-from app import CUBERS_APP
+from app import app
 from app.business.user_history import get_user_competition_history
 from app.persistence.comp_manager import get_user_participated_competitions_count
 from app.persistence.user_manager import get_user_by_username
@@ -14,7 +14,7 @@ from app.routes.util import is_admin_viewing
 
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.route('/u/<username>/')
+@app.route('/u/<username>/')
 def profile(username):
     """ A route for showing a user's profile. """
 

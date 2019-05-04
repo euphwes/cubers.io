@@ -6,7 +6,7 @@ import random
 
 import click
 
-from app import CUBERS_APP
+from app import app
 from app.business.user_results import recalculate_user_pbs_for_event, determine_best_single,\
     determine_bests, determine_event_result, build_times_string
 from app.persistence.models import EventFormat
@@ -27,7 +27,7 @@ from app.tasks.competition_management import score_reddit_thread_task,\
 # Below are admin commands for creating new competitions, and scoring previous ones
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.cli.command()
+@app.cli.command()
 @click.option('--all_events', is_flag=True, default=False)
 def set_all_events_flags(all_events):
     """ Sets the all-events flag next competition. """
@@ -35,7 +35,7 @@ def set_all_events_flags(all_events):
     set_all_events_flag_for_next_comp(all_events)
 
 
-@CUBERS_APP.cli.command()
+@app.cli.command()
 @click.option('--title', '-t', type=str)
 def set_title_override(title):
     """ Sets an override title for the next competition. """
@@ -44,7 +44,7 @@ def set_title_override(title):
     override_title_for_next_comp(title)
 
 
-@CUBERS_APP.cli.command()
+@app.cli.command()
 @click.option('--all_events', is_flag=True, default=False)
 @click.option('--title', '-t', type=str)
 def score_and_generate_new_comp(all_events, title):
@@ -57,7 +57,7 @@ def score_and_generate_new_comp(all_events, title):
     wrap_weekly_competition()
 
 
-@CUBERS_APP.cli.command()
+@app.cli.command()
 @click.option('--comp_id', '-i', type=int)
 @click.option('--rerun', '-r', is_flag=True, default=False)
 def score_comp_only(comp_id, rerun):
@@ -67,7 +67,7 @@ def score_comp_only(comp_id, rerun):
     score_reddit_thread_task(comp.id, comp.title, is_rerun=rerun)
 
 
-@CUBERS_APP.cli.command()
+@app.cli.command()
 @click.option('--all_events', is_flag=True, default=False)
 @click.option('--title', '-t', type=str, default=None)
 def generate_new_comp_only(all_events, title):
@@ -81,7 +81,7 @@ def generate_new_comp_only(all_events, title):
     run_user_site_rankings()
 
 
-@CUBERS_APP.cli.command()
+@app.cli.command()
 def calculate_all_user_site_rankings():
     """ Calculates UserSiteRankings for all users as of the current comp. """
 
@@ -91,7 +91,7 @@ def calculate_all_user_site_rankings():
 # Below are admin commands for one-off app administration needs
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.cli.command()
+@app.cli.command()
 @click.option('--username', '-u', type=str)
 def set_admin(username):
     """ Sets the specified user as an admin. """
@@ -102,7 +102,7 @@ def set_admin(username):
         print(ex)
 
 
-@CUBERS_APP.cli.command()
+@app.cli.command()
 @click.option('--username', '-u', type=str)
 def remove_admin(username):
     """ Removes admin status for the specified user. """
@@ -113,7 +113,7 @@ def remove_admin(username):
         print(ex)
 
 
-@CUBERS_APP.cli.command()
+@app.cli.command()
 def list_admins():
     """ Lists all the admin users. """
 
@@ -126,7 +126,7 @@ def list_admins():
             print(user.username)
 
 
-@CUBERS_APP.cli.command()
+@app.cli.command()
 def fix_goofy_comp_names():
     """ Updates competition titles from "Cubing Competition 299!" format to "Competition 299" """
 
@@ -143,7 +143,7 @@ def fix_goofy_comp_names():
     bulk_update_comps(comps_to_be_updated)
 
 
-@CUBERS_APP.cli.command()
+@app.cli.command()
 def recalculate_pbs():
     """ Works through every user, every event type, and re-calculates PB averages and singles
     and sets appropriate flags on UserEventResults. """
@@ -162,7 +162,7 @@ def recalculate_pbs():
 # Below are utility commands intended to just be one-offs, to backfill or fix broken data
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.cli.command()
+@app.cli.command()
 def backfill_results_medals():
     """ Utility command to backfill all UserEventResults for past competitions with
     gold, silver, bronze medal flags. """
@@ -174,7 +174,7 @@ def backfill_results_medals():
         set_medals_on_best_event_results(get_all_comp_events_for_comp(comp.id))
 
 
-@CUBERS_APP.cli.command()
+@app.cli.command()
 def fix_user_results_add_result_complete():
     """ Utility command to backfill all UserEventResults with null is_complete value. """
 
@@ -182,7 +182,7 @@ def fix_user_results_add_result_complete():
     fix_user_event_results(null_is_complete_results)
 
 
-@CUBERS_APP.cli.command()
+@app.cli.command()
 def fix_user_results_with_na_average():
     """ Utility command to backfill all UserEventResults with N/A average value. """
 
@@ -190,7 +190,7 @@ def fix_user_results_with_na_average():
     fix_user_event_results(na_average_results)
 
 
-@CUBERS_APP.cli.command()
+@app.cli.command()
 def backfill_user_results_time_strings():
     """ Utility command to backfill all UserEventResults with no times_string value. """
 
@@ -323,7 +323,7 @@ EVENTS_HELPER = {
 # Below are test comp generation commands, not intended to be used in production
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.cli.command()
+@app.cli.command()
 @click.option('--title', '-t', type=str)
 @click.option('--reddit_id', '-r', type=str, default='')
 def create_new_test_comp(title, reddit_id):

@@ -3,7 +3,7 @@
 from flask import request, redirect, url_for, render_template
 from flask_login import current_user, login_user, logout_user
 
-from app import CUBERS_APP
+from app import app
 from app.persistence import comp_manager
 from app.persistence.user_manager import update_or_create_user
 
@@ -12,15 +12,16 @@ from app.util.reddit import get_username_refresh_token_from_code, get_user_auth_
 
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.route("/logout")
+@app.route("/logout")
 def logout():
     """ Log out the current user. """
+
     if current_user.is_authenticated:
         logout_user()
     return redirect(url_for('index'))
 
 
-@CUBERS_APP.route('/login')
+@app.route('/login')
 def login():
     """ Log in a user. """
 
@@ -29,21 +30,20 @@ def login():
     return redirect(get_user_auth_url())
 
 
-@CUBERS_APP.route('/admin_login')
+@app.route('/admin_login')
 def admin_login():
     """ Log in a an admin user account.
-    HACK alert: this is a workaround to get the app Reddit accounts the privileges required to send
-    PMs. It's safe that this is exposed, because if a regular user logs in from here, nothing
-    changes from their POV except it asks for one more permission. It doesn't otherwise give the
-    regular user account any special powers or anything. TODO: figure out the right way to do
-    this. """
+    HACK alert: this is a workaround to get the app Reddit accounts the privileges required to send PMs.
+    It's safe that this is exposed, because if a regular user logs in from here, nothing changes from
+    their POV except it asks for one more permission. It doesn't otherwise give the regular user account
+    any special powers or anything. TODO: figure out the right way to do this. """
 
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     return redirect(get_app_account_auth_url())
 
 
-@CUBERS_APP.route('/authorize')
+@app.route('/authorize')
 def authorize():
     """ Handle the callback from Reddit's OAuth. Create a user if necessary, update their refresh
     token, and log the user in. """
@@ -62,7 +62,7 @@ def authorize():
     return redirect(url_for('index'))
 
 
-@CUBERS_APP.route('/denied')
+@app.route('/denied')
 def denied():
     """ For when the user declines Reddit OAuth. """
 

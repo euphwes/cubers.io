@@ -4,7 +4,7 @@ from collections import namedtuple
 from datetime import datetime
 from math import ceil
 
-from app import CUBERS_APP
+from app import app
 
 from app.persistence.comp_manager import get_competition_gen_resources,\
 save_competition_gen_resources, save_new_competition
@@ -30,7 +30,7 @@ BONUS_EVENT_COUNT = 5
 COMPETITION_NAME_TEMPLATE = '{month} {year} Week {week}'
 
 # Make sure we can quickly tell by looking at the title if the competition is just a test one.
-IS_DEVO = CUBERS_APP.config['IS_DEVO']
+IS_DEVO = app.config['IS_DEVO']
 if IS_DEVO:
     COMPETITION_NAME_TEMPLATE = '[TEST] ' + COMPETITION_NAME_TEMPLATE
 

@@ -8,7 +8,7 @@ from pytz import timezone
 from arrow import utcnow
 from huey import crontab
 
-from app import CUBERS_APP
+from app import app
 from app.business.rankings import precalculate_user_site_rankings
 from app.business.user_results import set_medals_on_best_event_results
 from app.persistence.comp_manager import get_active_competition, get_all_comp_events_for_comp
@@ -29,7 +29,7 @@ from .admin_notification import notify_admin, send_weekly_report, AdminNotificat
 # pylint:disable=invalid-name
 is_daylight_savings_in = lambda zonename: bool(datetime.now(timezone(zonename)).dst())
 
-if CUBERS_APP.config['IS_DEVO']:
+if app.config['IS_DEVO']:
     WRAP_WEEKLY_COMP_SCHEDULE = lambda dt: False # don't run as periodic in devo
 else:
     # We want the comps to be posted on at 10 PM US Eastern on Sundays, but we need to specify the

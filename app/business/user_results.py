@@ -4,7 +4,7 @@ from sys import maxsize as MAX
 
 from arrow import now
 
-from app import CUBERS_APP
+from app import app
 from app.persistence.comp_manager import get_comp_event_by_id
 from app.persistence.events_manager import get_event_by_name, get_event_format_for_event
 from app.persistence.user_results_manager import get_pb_single_event_results_except_current_comp,\
@@ -19,7 +19,7 @@ from app.util.events.resources import get_non_WCA_event_names
 
 # The front-end dictionary keys
 COMMENT       = 'comment'
-SOLVES        = 'scrambles' # Because the solve times are paired with the scrambles in the front end
+SOLVES        = 'scrambles'  # Because the solve times are paired with the scrambles up front
 TIME          = 'time'
 SCRAMBLE_ID   = 'id'
 IS_DNF        = 'isDNF'
@@ -93,7 +93,7 @@ def build_user_event_results(user_events_dict, user):
         if user:
             set_pb_flags(user, results, event_id)
 
-    return results
+    return results, event_name
 
 
 def build_user_solves(solves_data):
@@ -160,7 +160,7 @@ def build_event_summary(event, user):
     event_data_dict[event[COMP_EVENT_ID]] = event
 
     # Build up the UserEventResults
-    results = build_user_event_results(event_data_dict, user)
+    results, _ = build_user_event_results(event_data_dict, user)
 
     # If the format is Bo1 (best of 1) just return human-friendly representation of the time
     if event_format == EventFormat.Bo1:
@@ -263,7 +263,7 @@ def determine_if_should_be_autoblacklisted(results):
         return results
 
     # A multiplicative factor to adjust autoblacklist thresholds up or down, relative to WR
-    threshold_factor = CUBERS_APP.config['AUTO_BL_FACTOR']
+    threshold_factor = app.config['AUTO_BL_FACTOR']
 
     # Dictionary of event name to tuple of (WR single, WR average) in centiseconds
     # WCA WRs as of 12 Apr 2019

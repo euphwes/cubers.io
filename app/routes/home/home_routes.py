@@ -3,7 +3,7 @@
 from flask import render_template, request, redirect, url_for
 from flask_login import current_user
 
-from app import CUBERS_APP
+from app import app, NOBODY
 from app.persistence import comp_manager
 from app.persistence.settings_manager import SettingCode, SettingType, TRUE_STR,\
     get_default_values_for_settings, get_bulk_settings_for_user_as_dict, get_setting_type
@@ -15,17 +15,21 @@ from app.util.events.resources import sort_comp_events_by_global_sort_order
 
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.route('/')
+LOG_MAIN_PAGE_LOAD_TEMPLATE = "{}: loaded main page"
+
+# -------------------------------------------------------------------------------------------------
+
+@app.route('/')
 def index():
     """ Main page for the app. Shows cards for every event in the current competition."""
 
-    if (not current_user.is_authenticated) and (not 'nologin' in request.args):
+    if (not current_user.is_authenticated) and ('nologin' not in request.args):
         return redirect(url_for(".prompt_login"))
 
     comp = comp_manager.get_active_competition()
 
     # If somebody is logged in, get that user so we can pre-fill the events data later.
-    user = get_user_by_username(current_user.username) if current_user.is_authenticated else None
+    user = get_user_by_username(current_user.username) if current_user.is_authenticated else NOBODY
 
     # Get the user's relevant user settings, otherwise get defaults
     settings = get_user_settings(user)
@@ -67,6 +71,9 @@ def index():
         elif event.get(STATUS, '') == STATUS_INCOMPLETE:
             incomplete_events[int(comp_event_id)] = event
 
+    app.logger.info(LOG_MAIN_PAGE_LOAD_TEMPLATE.format(user.username),
+                    extra=__build_main_page_load_log_context(user, complete_events, incomplete_events))
+
     # Phew finally we can just render the page
     # pylint: disable=C0330
     return render_template('index.html', current_competition=comp, events_data=events_for_json,
@@ -75,7 +82,7 @@ def index():
         bonus_events_ids=bonus_events_ids)
 
 
-@CUBERS_APP.route('/prompt_login')
+@app.route('/prompt_login')
 def prompt_login():
     """ Prompts the user to login for the best experience. """
 
@@ -86,7 +93,7 @@ def prompt_login():
 
 # The front-end dictionary keys
 COMMENT        = 'comment'
-SOLVES         = 'scrambles' # Because the times are paired with the scrambles in the front end
+SOLVES         = 'scrambles'  # Because the times are paired with the scrambles in the front end
 TIME           = 'time'
 SCRAMBLE_ID    = 'id'
 IS_DNF         = 'isDNF'
@@ -209,3 +216,16 @@ def get_user_settings(user):
             settings[code] = value == TRUE_STR
 
     return settings
+
+# -------------------------------------------------------------------------------------------------
+
+def __build_main_page_load_log_context(user, complete_events, incomplete_events):
+    """ Builds some logging context related to creating/updating user events results. """
+
+    return {
+        'username': user.username,
+        'events': {
+            'complete': [event['name'] for _, event in complete_events.items()],
+            'incomplete': [event['name'] for _, event in incomplete_events.items()],
+        }
+    }

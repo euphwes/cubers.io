@@ -6,7 +6,7 @@ from collections import namedtuple
 
 from huey import crontab
 
-from app import CUBERS_APP
+from app import app
 from app.persistence.events_manager import get_all_events, add_scrambles_to_scramble_pool
 from app.util.events.resources import get_event_resource_for_name, EVENT_COLL
 
@@ -19,7 +19,7 @@ ScramblePoolTopOffInfo = namedtuple('ScramblePoolTopOffInfo', ['event_id', 'even
 
 # In dev environments, run the task to check the scramble pool every 5 minutes.
 # In prod, run it every 6 hours
-if CUBERS_APP.config['IS_DEVO']:
+if app.config['IS_DEVO']:
     CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(minute="*/5") # Once every 5 minutes
 else:
     CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(hour="*/6", minute="0")   # Once every 6 hours

@@ -6,7 +6,7 @@ from io import StringIO
 
 from flask import render_template, make_response
 
-from app import CUBERS_APP
+from app import app
 from app.business.rankings import get_ordered_pb_averages_for_event,\
     get_ordered_pb_singles_for_event
 from app.persistence.comp_manager import get_event_by_name
@@ -22,7 +22,7 @@ CSV_EMPTY             = ''
 
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.route('/event/<event_name>/')
+@app.route('/event/<event_name>/')
 def event_results(event_name):
     """ A route for showing the global top results for a specific event. """
 
@@ -35,11 +35,11 @@ def event_results(event_name):
 
     title = "{} Records".format(event.name)
 
-    return render_template("records/event.html", event_id=event.id, event_name=event.name,\
+    return render_template("records/event.html", event_id=event.id, event_name=event.name,
         singles=singles, averages=averages, alternative_title=title)
 
 
-@CUBERS_APP.route('/event/<event_name>/export/')
+@app.route('/event/<event_name>/export/')
 def event_results_export(event_name):
     """ A route for exporting events records in CSV format. """
 

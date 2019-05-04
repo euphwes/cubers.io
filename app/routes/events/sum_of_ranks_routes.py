@@ -2,7 +2,7 @@
 
 from flask import render_template
 
-from app import CUBERS_APP
+from app import app
 from app.persistence.user_site_rankings_manager import get_user_site_rankings_all_sorted_single,\
     get_user_site_rankings_all_sorted_average, get_user_site_rankings_wca_sorted_average,\
     get_user_site_rankings_wca_sorted_single, get_user_site_rankings_non_wca_sorted_average,\
@@ -16,11 +16,11 @@ SOR_TYPE_NON_WCA = 'non_wca'
 
 # -------------------------------------------------------------------------------------------------
 
-@CUBERS_APP.route('/sum_of_ranks/<sor_type>/')
+@app.route('/sum_of_ranks/<sor_type>/')
 def sum_of_ranks(sor_type):
     """ A route for showing sum of ranks. """
 
-    if not sor_type in (SOR_TYPE_ALL, SOR_TYPE_WCA, SOR_TYPE_NON_WCA):
+    if sor_type not in (SOR_TYPE_ALL, SOR_TYPE_WCA, SOR_TYPE_NON_WCA):
         return ("I don't know what kind of Sum of Ranks this is.", 404)
 
     singles  = get_user_site_rankings_all_sorted_single()
