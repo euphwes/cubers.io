@@ -179,7 +179,7 @@ def build_event_summary(event, user):
     # If the number of moves is an integer, represent it without the trailing ".00"
     # 2800 --> 28 moves, not 28.00 moves
     else:
-        best = (best/100)
+        best = best / 100
         if best == int(best):
             best = int(best)
 

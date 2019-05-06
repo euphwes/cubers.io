@@ -3,12 +3,11 @@
 from flask import render_template, request, redirect, url_for
 from flask_login import current_user
 
-from app import app, NOBODY
+from app import app
 from app.persistence import comp_manager
 from app.persistence.settings_manager import SettingCode, SettingType, TRUE_STR,\
     get_default_values_for_settings, get_bulk_settings_for_user_as_dict, get_setting_type
 from app.persistence.events_manager import get_all_bonus_events_names
-from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import get_event_results_for_user
 from app.persistence.models import EventFormat
 from app.util.events.resources import sort_comp_events_by_global_sort_order
@@ -28,11 +27,8 @@ def index():
 
     comp = comp_manager.get_active_competition()
 
-    # If somebody is logged in, get that user so we can pre-fill the events data later.
-    user = get_user_by_username(current_user.username) if current_user.is_authenticated else NOBODY
-
     # Get the user's relevant user settings, otherwise get defaults
-    settings = get_user_settings(user)
+    settings = get_user_settings(current_user)
 
     # This `events_for_json` dictionary is rendered into the page as a Javascript object, to be
     # pulled in by the main JS app's events data manager. Keys are competitionEvent ID and the
@@ -46,7 +42,7 @@ def index():
     # fill that event dict with info about that user's completed solves, comments, etc
     for comp_event in comp.events:
         event_dict = comp_event.to_front_end_consolidated_dict()
-        fill_user_data_for_event(user, event_dict)
+        fill_user_data_for_event(current_user, event_dict)
         events_for_json[str(comp_event.id)] = event_dict
 
     # Build a list of competition events in this comp. Initially order them by event ID,
@@ -71,8 +67,8 @@ def index():
         elif event.get(STATUS, '') == STATUS_INCOMPLETE:
             incomplete_events[int(comp_event_id)] = event
 
-    app.logger.info(LOG_MAIN_PAGE_LOAD_TEMPLATE.format(user.username),
-                    extra=__build_main_page_load_log_context(user, complete_events, incomplete_events))
+    app.logger.info(LOG_MAIN_PAGE_LOAD_TEMPLATE.format(current_user.username),
+                    extra=__build_main_page_load_log_context(current_user, complete_events, incomplete_events))
 
     # Phew finally we can just render the page
     # pylint: disable=C0330

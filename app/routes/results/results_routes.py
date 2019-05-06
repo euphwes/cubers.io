@@ -17,7 +17,11 @@ from app.util.events.resources import sort_comp_events_by_global_sort_order
 
 # -------------------------------------------------------------------------------------------------
 
-DEFAULT_BLACKLIST_NOTE = """Results manually hidden by {username} on {date}."""
+DEFAULT_BLACKLIST_NOTE = 'Results manually hidden by {username} on {date}.'
+
+LOG_ADMIN_BLACKLISTED = '{} blacklisted results {}'
+LOG_ADMIN_UNBLACKLISTED = '{} unlacklisted results {}'
+LOG_USER_VIEWING_RESULTS = '{} viewing results for {} in {}'
 
 # -------------------------------------------------------------------------------------------------
 
@@ -38,19 +42,15 @@ def comp_results(comp_id):
         if comp_event.Event.name == '3x3':
             id_3x3 = comp_event.id
         events_names_ids.append({
-            'name'         : comp_event.Event.name,
+            'name':          comp_event.Event.name,
             'comp_event_id': comp_event.id,
-            'event_id'     : comp_event.Event.id,
+            'event_id':      comp_event.Event.id,
         })
-
-    # If the page is being viewed by an admin, render the controls for toggling blacklist status
-    # and also apply additional styling on blacklisted results to make them easier to see
-    show_admin = is_admin_viewing()
 
     alternative_title = "{} leaderboards".format(competition.title)
 
-    return render_template("results/results_comp.html", alternative_title=alternative_title,\
-        events_names_ids=events_names_ids, show_admin=show_admin, id_3x3=id_3x3, comp_id=comp_id)
+    return render_template("results/results_comp.html", alternative_title=alternative_title,
+        events_names_ids=events_names_ids, id_3x3=id_3x3, comp_id=comp_id)
 
 
 @app.route('/compevent/<comp_event_id>/')
@@ -63,17 +63,21 @@ def comp_event_results(comp_event_id):
 
     comp_event_id = int(comp_event_id)
 
+    comp_event = get_comp_event_by_id(comp_event_id)
+
     # If the page is being viewed by an admin, render the controls for toggling blacklist status
     # and also apply additional styling on blacklisted results to make them easier to see
     show_admin = is_admin_viewing()
 
-    comp_event = get_comp_event_by_id(comp_event_id)
+    log_msg = LOG_USER_VIEWING_RESULTS.format(current_user.username, comp_event.Event.name,
+                                              comp_event.Competition.title)
+    app.logger.info(log_msg, extra={'is_admin': show_admin})
 
     # Store the scrambles so we can show those too
     scrambles = [s.scramble for s in comp_event.scrambles]
 
     results = get_all_complete_user_results_for_comp_event(comp_event_id, omit_blacklisted=False)
-    results = list(results) # take out of the SQLAlchemy BaseQuery and put into a simple list
+    results = list(results)  # take out of the SQLAlchemy BaseQuery and put into a simple list
 
     if not results:
         return "Nobody has participated in this event yet. Maybe you'll be the first!"
@@ -83,6 +87,7 @@ def comp_event_results(comp_event_id):
     # Split the times string into components, add to a list called `"solves_helper` which
     # is used in the UI to show individual solves, and make sure the length == 5, filled
     # with empty strings if necessary
+    # TODO put this in business logic somewhere
     for result in results:
         solves_helper = result.times_string.split(', ')
         while len(solves_helper) < 5:
@@ -92,7 +97,7 @@ def comp_event_results(comp_event_id):
     # Sort the results
     results.sort(key=sort_user_event_results)
 
-    return render_template("results/comp_event_table.html", results=results,\
+    return render_template("results/comp_event_table.html", results=results,
         comp_event=comp_event, show_admin=show_admin, scrambles=scrambles)
 
 
@@ -163,15 +168,19 @@ def blacklist(results_id):
         note = DEFAULT_BLACKLIST_NOTE.format(username=actor, date=timestamp)
         results = blacklist_results(results_id, note)
 
+        app.logger.info(LOG_ADMIN_BLACKLISTED.format(current_user.username, results.id))
+
         # Recalculate PBs just for the affected user and event
         recalculate_user_pbs_for_event(results.user_id, results.CompetitionEvent.event_id)
 
         return ('', 204)
 
     except UserEventResultsDoesNotExistException as ex:
+        app.logger.error(str(ex))
         return (str(ex), 500)
 
     except Exception as ex:
+        app.logger.error(str(ex))
         return (str(ex), 500)
 
 
@@ -185,6 +194,7 @@ def unblacklist(results_id):
     # pylint: disable=W0703
     try:
         results = unblacklist_results(results_id)
+        app.logger.info(LOG_ADMIN_UNBLACKLISTED.format(current_user.username, results.id))
 
         # Recalculate PBs just for the affected user and event
         recalculate_user_pbs_for_event(results.user_id, results.CompetitionEvent.event_id)
@@ -192,9 +202,11 @@ def unblacklist(results_id):
         return ('', 204)
 
     except UserEventResultsDoesNotExistException as ex:
+        app.logger.error(str(ex))
         return (str(ex), 500)
 
     except Exception as ex:
+        app.logger.error(str(ex))
         return (str(ex), 500)
 
 # -------------------------------------------------------------------------------------------------

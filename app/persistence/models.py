@@ -3,7 +3,7 @@
 from collections import namedtuple, OrderedDict
 import json
 
-from flask_login import LoginManager, UserMixin
+from flask_login import LoginManager, UserMixin, AnonymousUserMixin
 from sqlalchemy.orm import relationship
 
 from app import DB, app
@@ -44,11 +44,30 @@ class User(UserMixin, Model):
     results        = relationship("UserEventResults", backref="User")
 
 
+class Nobody(AnonymousUserMixin):
+    """ Utility class for an anonymous user. Subclasses Flask-Login AnonymousUserMixin to provide the
+    default behavior given to non-logged-in users, but also evaluates to false in a boolean context,
+    has a default username attribute and False `is_admin`, so that `current_user` can always be used
+    for logging and checking permissions directly. """
+
+    def __init__(self, username=None):
+        self.username = username if username else '<no_user>'
+        self.is_admin = False
+
+    def __bool__(self):
+        return False
+
+
 LOGIN_MANAGER = LoginManager(app)
 @LOGIN_MANAGER.user_loader
 def load_user(user_id):
     """ Required by Flask-Login for loading a user by PK. """
+
     return User.query.get(int(user_id))
+
+
+# Return a "Nobody" instance as the anonymous user here for Flask-Login
+LOGIN_MANAGER.anonymous_user = lambda: Nobody()
 
 # -------------------------------------------------------------------------------------------------
 
