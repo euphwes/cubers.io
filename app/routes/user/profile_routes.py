@@ -10,7 +10,11 @@ from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import get_user_completed_solves_count
 from app.persistence.events_manager import get_events_id_name_mapping
 from app.persistence.user_site_rankings_manager import get_site_rankings_for_user
-from app.routes.util import is_admin_viewing
+
+# -------------------------------------------------------------------------------------------------
+
+LOG_NO_SUCH_USER = "Oops, can't find a user with username '{}'"
+LOG_PROFILE_VIEW = "{} is viewing {}'s profile"
 
 # -------------------------------------------------------------------------------------------------
 
@@ -20,13 +24,15 @@ def profile(username):
 
     user = get_user_by_username(username)
     if not user:
-        return ("oops, can't find a user with username '{}'".format(username), 404)
-
-    # Determine whether an admin is viewing the page
-    show_admin = is_admin_viewing()
+        no_user_msg = LOG_NO_SUCH_USER.format(username)
+        app.logger.warning(no_user_msg)
+        return (no_user_msg, 404)
 
     # Determine whether we're showing blacklisted results
-    include_blacklisted = should_show_blacklisted_results(username, show_admin)
+    include_blacklisted = __should_show_blacklisted_results(username, current_user.is_admin)
+
+    app.logger.info(LOG_PROFILE_VIEW.format(current_user.username, username),
+                    extra=__create_profile_view_log_context(current_user.is_admin, include_blacklisted))
 
     # Get the user's competition history
     history = get_user_competition_history(user, include_blacklisted=include_blacklisted)
@@ -76,15 +82,16 @@ def profile(username):
         sor_wca       = None
         sor_non_wca   = None
 
-    return render_template("user/profile.html", user=user, solve_count=solve_count,\
-        comp_count=comps_count, history=history, rankings=site_rankings,\
-        event_id_name_map=event_id_name_map, rankings_ts=rankings_ts,\
-        is_admin_viewing=show_admin, sor_all=sor_all, sor_wca=sor_wca, sor_non_wca=sor_non_wca,
-        gold_count=gold_count, silver_count=silver_count, bronze_count=bronze_count)
+    return render_template("user/profile.html", user=user, solve_count=solve_count,
+        comp_count=comps_count, history=history, rankings=site_rankings,
+        event_id_name_map=event_id_name_map, rankings_ts=rankings_ts,
+        is_admin_viewing=current_user.is_admin, sor_all=sor_all, sor_wca=sor_wca,
+        sor_non_wca=sor_non_wca, gold_count=gold_count, silver_count=silver_count,
+        bronze_count=bronze_count)
 
 # -------------------------------------------------------------------------------------------------
 
-def should_show_blacklisted_results(profile_username, is_admin_here):
+def __should_show_blacklisted_results(profile_username, is_admin_here):
     """ Determine if we want to show blacklisted results in the competition history. """
 
     # If the user viewing a page is an admin, they can see blacklisted results
@@ -92,7 +99,7 @@ def should_show_blacklisted_results(profile_username, is_admin_here):
         return True
 
     # Non-logged-in users can't see blacklisted results
-    if not current_user.is_authenticated:
+    if not current_user:
         return False
 
     # Users can see their own blacklisted results
@@ -101,3 +108,12 @@ def should_show_blacklisted_results(profile_username, is_admin_here):
 
     # Everybody else can't see blacklisted results
     return False
+
+
+def __create_profile_view_log_context(show_admin, include_blacklisted):
+    """ Builds some logging context related to viewing user profiles. """
+
+    return {
+        'is_admin': show_admin,
+        'include_blacklisted_results': include_blacklisted
+    }

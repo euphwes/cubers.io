@@ -62,7 +62,7 @@ class SettingInfo():
         self.validator = validator
         self.setting_type = setting_type
         self.default_value = default_value
-        self.affects = affects # an optional list of SettingCodes that this code enables/disables
+        self.affects = affects  # an optional list of SettingCodes that this code enables/disables
 
 # -------------------------------------------------------------------------------------------------
 

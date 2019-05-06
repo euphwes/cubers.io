@@ -5,6 +5,7 @@ from flask_assets import Bundle, Environment
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_mobility import Mobility
+from flask_login import AnonymousUserMixin
 from flask.logging import default_handler
 
 from babel.dates import format_date
@@ -72,22 +73,6 @@ ASSETS.register({
         filters="less,cssmin",
         output='gen/app.css'),
 })
-
-# -------------------------------------------------------------------------------------------------
-
-class Nobody():
-    """ Utility class whose instances evaluate as False in a boolean context, but provide a username
-    attribute. Largely useful in logging stuff where a logged-in user is optional, but we want to
-    log a username if one is available. """
-
-    def __init__(self, username=None):
-        self.username = username if username else '<no_user>'
-
-    def __bool__(self):
-        return False
-
-
-NOBODY = Nobody()
 
 # -------------------------------------------------------------------------------------------------
 
