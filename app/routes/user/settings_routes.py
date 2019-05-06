@@ -12,6 +12,11 @@ from app.persistence.user_manager import get_user_by_username
 
 # -------------------------------------------------------------------------------------------------
 
+LOG_USER_VIEWED_SETTINGS = '{} viewed settings page'
+LOG_USER_UPDATED_SETTINGS = '{} updated settings'
+
+# -------------------------------------------------------------------------------------------------
+
 # These are the settings we want the user to be able to see on the settings edit page
 
 TIMER_SETTINGS = [
@@ -60,13 +65,12 @@ REDDIT_SETTINGS = [
     SettingCode.REDDIT_RESULTS_NOTIFY,
 ]
 
-# pylint: disable=line-too-long
 __ALL_SETTINGS = REDDIT_SETTINGS + CUSTOM_CUBE_COLOR_SETTINGS + CUSTOM_PYRAMINX_COLOR_SETTINGS
 __ALL_SETTINGS += CUSTOM_MEGAMINX_COLOR_SETTINGS + TIMER_SETTINGS
 
 # -------------------------------------------------------------------------------------------------
 
-@app.route('/settings', methods=['GET','POST'])
+@app.route('/settings', methods=['GET', 'POST'])
 def edit_settings():
     """ A route for showing a editing a user's personal settings. """
 
@@ -100,6 +104,8 @@ def __handle_get(user):
 
     default_colors = get_color_defaults()
 
+    app.logger.info(LOG_USER_VIEWED_SETTINGS.format(user.username))
+
     return render_template("user/settings.html", settings_sections=settings_sections,
                            disabled_settings=disabled_settings, default_colors=default_colors,
                            alternative_title="Preferences")
@@ -112,5 +118,7 @@ def __handle_post(user, form):
 
     new_settings = { code: form.get(code) for code in __ALL_SETTINGS }
     set_new_settings_for_user(user.id, new_settings)
+
+    app.logger.info(LOG_USER_UPDATED_SETTINGS.format(user.username), extra=new_settings)
 
     return redirect(url_for('index'))

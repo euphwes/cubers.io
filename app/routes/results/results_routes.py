@@ -11,7 +11,6 @@ from app.persistence.comp_manager import get_active_competition, get_complete_co
     get_previous_competition, get_competition, get_all_comp_events_for_comp, get_comp_event_by_id
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp_event,\
     blacklist_results, unblacklist_results, UserEventResultsDoesNotExistException
-from app.routes.util import is_admin_viewing
 from app.util.sorting import sort_user_event_results
 from app.util.events.resources import sort_comp_events_by_global_sort_order
 
@@ -67,7 +66,7 @@ def comp_event_results(comp_event_id):
 
     # If the page is being viewed by an admin, render the controls for toggling blacklist status
     # and also apply additional styling on blacklisted results to make them easier to see
-    show_admin = is_admin_viewing()
+    show_admin = current_user.is_admin
 
     log_msg = LOG_USER_VIEWING_RESULTS.format(current_user.username, comp_event.Event.name,
                                               comp_event.Competition.title)

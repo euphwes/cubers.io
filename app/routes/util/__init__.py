@@ -28,13 +28,3 @@ def prev_results():
     comp_url = get_permalink_for_comp_thread(comp.result_thread_id)
 
     return redirect(comp_url)
-
-# -------------------------------------------------------------------------------------------------
-
-def is_admin_viewing():
-    """ Returns whether or not it's an admin viewing the page. """
-
-    if not current_user.is_authenticated:
-        return False
-
-    return current_user.is_admin
