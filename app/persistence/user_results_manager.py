@@ -355,3 +355,13 @@ def get_all_na_average_event_results():
         all()
 
 
+def get_all_fmc_results():
+    """ Get all UserEventResults for FMC. """
+
+    return DB.session.\
+        query(UserEventResults).\
+        join(CompetitionEvent).\
+        join(Event).\
+        filter(Event.name == 'FMC').\
+        filter(UserEventResults.is_complete).\
+        all()

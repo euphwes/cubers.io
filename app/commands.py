@@ -18,7 +18,7 @@ from app.persistence.user_manager import get_all_users, get_all_admins, set_user
     unset_user_as_admin, UserDoesNotExistException
 from app.persistence.user_results_manager import get_all_null_is_complete_event_results,\
     get_all_na_average_event_results, save_event_results_for_user, get_all_complete_event_results,\
-    bulk_save_event_results
+    bulk_save_event_results, get_all_fmc_results
 from app.business.user_results import set_medals_on_best_event_results
 from app.tasks.competition_management import score_reddit_thread_task,\
     generate_new_competition_task, wrap_weekly_competition, run_user_site_rankings
@@ -188,6 +188,28 @@ def fix_user_results_with_na_average():
 
     na_average_results = get_all_na_average_event_results()
     fix_user_event_results(na_average_results)
+
+
+@app.cli.command()
+def fix_fmc_user_results_with_intended_dnf():
+    """ Utility command to fix all UserEventResults for FMC where the user had unrealistically
+    high solves, probably intended to be DNFs. """
+
+    results_to_save = list()
+    for result in get_all_fmc_results():
+        altered_result = False
+        for solve in result.solves:
+            if solve.time >= 15000 and not solve.is_dnf:
+                altered_result = True
+                solve.is_dnf = True
+        if altered_result:
+            result.average = 'DNF'
+            result.is_fmc = True
+            result.times_string = build_times_string(result, EventFormat.Mo3)
+            results_to_save.append(result)
+            print("Fixed FMC results with DNF with ID {}".format(result.id))
+
+    bulk_save_event_results(results_to_save)
 
 
 @app.cli.command()
