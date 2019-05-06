@@ -1,7 +1,7 @@
 (function() {
     var app = window.app;
 
-    var NON_FMC_SOLVE_CARD_SELECTOR = '.single-time:not(.fmc)';
+    var SOLVE_CARD_SELECTOR         = '.single-time';
     var FMC_CARD_SELECTOR           = '.single-time.fmc';
     var FMC_LENGTH_TEXT_SELECTOR    = '.time-value';
     var SOLVE_CARD_ACTIVE_SELECTOR  = '.single-time.active';
@@ -22,7 +22,7 @@
      * the new competition event ID.
      */
     TimerScreenManager.prototype._hideTimerScreen = function() {
-        $.contextMenu('destroy', NON_FMC_SOLVE_CARD_SELECTOR);
+        $.contextMenu('destroy', SOLVE_CARD_SELECTOR);
         this.$timer_div.ultraHide();
     };
 
@@ -81,9 +81,8 @@
         if (data.isFMC) {
             this._wire_fmc_card_solve_typing(comp_event_id);
             this._wire_fmc_card_click(comp_event_id);
-        } else {
-            this._wire_solve_context_menu(comp_event_id);
         }
+        this._wire_solve_context_menu(comp_event_id);
     };
 
     TimerScreenManager.prototype._wire_resize_scramble_redraw = function() {
@@ -201,7 +200,11 @@
             app.eventsDataManager.clearPenalty(compEventId, scramble_id);
 
             var solve_time = app.eventsDataManager.getSolveRecord(compEventId, scramble_id).time;
-            $solve_clicked.find(FMC_LENGTH_TEXT_SELECTOR).html(app.convertRawCsForSolveCard(solve_time));
+            if (isFMCSolve($solve_clicked)) {
+                $solve_clicked.find(FMC_LENGTH_TEXT_SELECTOR).html(parseInt(solve_time)/100);
+            } else {
+                $solve_clicked.find(FMC_LENGTH_TEXT_SELECTOR).html(app.convertRawCsForSolveCard(solve_time));
+            }
         };
 
         // Set DNF penalty, set visible time to 'DNF'
@@ -220,6 +223,11 @@
 
             var solve_time = app.eventsDataManager.getSolveRecord(compEventId, scramble_id).time;
             $solve_clicked.find(FMC_LENGTH_TEXT_SELECTOR).html(app.convertRawCsForSolveCard(solve_time + 200) + "+");
+        };
+
+        // Check if the selected solve is an FMC solve
+        var isFMCSolve = function($solve_clicked) {
+            return $solve_clicked.hasClass('fmc');
         };
 
         // Check if the selected solve is complete
@@ -280,7 +288,7 @@
         };
 
         $.contextMenu({
-            selector: NON_FMC_SOLVE_CARD_SELECTOR,
+            selector: SOLVE_CARD_SELECTOR,
             trigger: 'left',
             hideOnSecondTrigger: true,
             items: {
@@ -294,19 +302,34 @@
                     name: "DNF",
                     icon: "fas fa-ban",
                     callback: function(itemKey, opt, e) { setDNF($(opt.$trigger)); },
-                    disabled: function(key, opt) { return !(isComplete(this) && !hasDNF(this)); }
+                    disabled: function(key, opt) {
+                        if (!isFMCSolve(this)) {
+                            return !(isComplete(this) && !hasDNF(this));
+                        } else {
+                            // FMC should have DNF available if the solve isn't complete yet
+                            // Still shouldn't show DNF if it's already set
+                            return hasDNF(this);
+                        }
+                    }
                 },
                 "+2": {
                     name: "+2",
                     icon: "fas fa-plus",
                     callback: function(itemKey, opt, e) { setPlusTwo($(opt.$trigger)); },
-                    disabled: function(key, opt) { return !(isComplete(this) && !hasPlusTwo(this)); }
+                    disabled: function(key, opt) {
+                        if (!isFMCSolve(this)) {
+                            return !(isComplete(this) && !hasPlusTwo(this));
+                        } else {
+                            return true;
+                        }
+                    }
                 },
                 "sep1": "---------",
                 "manual" : {
                     name: "Manual time entry",
                     icon: "fas fa-edit",
-                    callback: function(itemKey, opt, e) { manualEntry($(opt.$trigger)); }
+                    callback: function(itemKey, opt, e) { manualEntry($(opt.$trigger)); },
+                    disabled: function(key, opt) { return isFMCSolve(this); }
                 },
                 "sep2": "---------",
                 "copy_scramble" : {

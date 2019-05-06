@@ -35,7 +35,11 @@
                                 data-isPlusTwo="{{isPlusTwo}}"
                                 data-isDNF="{{isDNF}}">
                             <div class="value-wrapper">{{ inc @index }}.</div>
+                            {{#if isDNF}}
+                            <div class="time-value" contenteditable="true">DNF</div>
+                            {{else}}
                             <div class="time-value" contenteditable="true">{{ int_str (math time '/' 100) }}</div>
+                            {{/if}}
                         </div>
                         {{else}}
                         <div class="single-time timer-pg-card complete"
@@ -57,10 +61,14 @@
                                 data-scramble="{{scramble}}"
                                 data-rawTimeCentiseconds=""
                                 data-isPlusTwo="false"
-                                data-isDNF="false">
+                                data-isDNF="{{isDNF}}">
 
                             <div class="value-wrapper">{{ inc @index }}.</div>
-                            <div class="time-value" contenteditable="true"></div>
+                            {{#if isDNF}}
+                            <div class="time-value" contenteditable="true">DNF</div>
+                            {{else}}
+                            <div class="time-value" contenteditable="true">{{ int_str (math time '/' 100) }}</div>
+                            {{/if}}
                         </div>
                         {{else}}
                         <div class="single-time timer-pg-card"
@@ -72,7 +80,7 @@
                                 data-isDNF="false">
 
                             <div class="value-wrapper">{{ inc @index }}.</div>
-                            <div class="time-value">—</div>
+                            <div class="time-value"></div>
                         </div>
                         {{/if}}
                     {{/if}}

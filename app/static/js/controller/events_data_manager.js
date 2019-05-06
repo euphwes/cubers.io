@@ -41,7 +41,7 @@
         var total_solves = event.scrambles.length;
         event.num_completed_solves = 0;
         $.each(event.scrambles, function(i, scramble){
-            if (Boolean(scramble.time)) { event.num_completed_solves += 1; }
+            if (Boolean(scramble.time) || scramble.isDNF) { event.num_completed_solves += 1; }
         });
 
         // Since we're updating this event, set the "blind status" flag to incomplete
@@ -236,6 +236,17 @@
         this._updateSingleEventStatus(this.events_data[comp_event_id]);
     };
 
+    EventsDataManager.prototype.setDNFAndComplete = function(comp_event_id, scramble_id) {
+        $.each(this.events_data[comp_event_id].scrambles, function(i, curr_solve_record) {
+            if (curr_solve_record.id != scramble_id) { return true; }
+            curr_solve_record.isDNF     = true;
+            curr_solve_record.isPlusTwo = false;
+            curr_solve_record.status    = "complete";
+            return false;
+        });
+        this._updateSingleEventStatus(this.events_data[comp_event_id]);
+    };
+
     /**
      * Deletes the solve time for the specified comp event and scramble ID
      */
@@ -250,7 +261,7 @@
 
         var data = {};
         data.scramble_id = scramble_id;
-        data.friendly_time_full = '—';
+        data.friendly_time_full = '';
         data.is_delete = true;
         data.comp_event_id = comp_event_id;
 

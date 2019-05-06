@@ -65,7 +65,7 @@ def build_user_event_results(user_events_dict, user):
     results = UserEventResults(comp_event_id=comp_event_id, comment=comment)
 
     # Build up a list of UserSolves, and set those in the as the solves for this UserEventREsults
-    solves = build_user_solves(comp_event_dict[SOLVES])
+    solves = build_user_solves(comp_event_dict[SOLVES], is_fmc=event_name == 'FMC')
     results.set_solves(solves)
 
     # Set the best single and overall average for this event
@@ -96,7 +96,7 @@ def build_user_event_results(user_events_dict, user):
     return results, event_name
 
 
-def build_user_solves(solves_data):
+def build_user_solves(solves_data, is_fmc=False):
     """ Builds and returns a list of UserSolves from the data coming from the front end. """
 
     user_solves = list()
@@ -105,7 +105,8 @@ def build_user_solves(solves_data):
         time = solve[TIME]
 
         # If the user hasn't recorded a time for this scramble, then just skip to the next
-        if not time:
+        # For FMC, no-time-but-DNF is allowed
+        if not time and not (is_fmc and solve[IS_DNF]):
             continue
 
         # Set the time (in centiseconds), DNF and +2 status, and the scramble ID for this UserSolve
