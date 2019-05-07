@@ -2,12 +2,13 @@
 to Competitions. """
 
 from datetime import datetime
+from functools import lru_cache
 
 from sqlalchemy.orm import joinedload
 
 from app import DB
 from app.persistence.models import Competition, CompetitionEvent, Event, Scramble,\
-CompetitionGenResources, UserEventResults, User
+    CompetitionGenResources, UserEventResults, User
 from app.persistence.events_manager import get_event_by_name
 
 # -------------------------------------------------------------------------------------------------
@@ -55,6 +56,7 @@ def get_all_comp_events_for_comp(comp_id):
         all()
 
 
+@lru_cache(maxsize=20)
 def get_comp_event_by_id(comp_event_id):
     """ Returns a competition_event by id. """
 
