@@ -45,6 +45,7 @@ def get_previous_competition():
         first()
 
 
+@lru_cache()
 def get_all_comp_events_for_comp(comp_id):
     """ Gets all CompetitionEvents for the specified competition. """
 
@@ -56,7 +57,7 @@ def get_all_comp_events_for_comp(comp_id):
         all()
 
 
-@lru_cache(maxsize=20)
+@lru_cache()
 def get_comp_event_by_id(comp_event_id):
     """ Returns a competition_event by id. """
 

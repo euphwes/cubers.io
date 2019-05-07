@@ -31,7 +31,7 @@ def save_event():
 
     if not current_user.is_authenticated:
         app.logger.warning('unauthenticated user attempting save_event')
-        return abort(400, "authenticated users only")
+        return abort(400)
 
     try:
         user = get_user_by_username(current_user.username)

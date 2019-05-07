@@ -1,6 +1,7 @@
 """ Utility module for persisting and retrieving Events, and information related to Events. """
 
 from collections import OrderedDict
+from functools import lru_cache
 
 from app import DB
 from app.persistence.models import Event, CompetitionEvent, UserEventResults, ScramblePool
@@ -9,6 +10,7 @@ from app.util.events.resources import get_WCA_event_names, get_non_WCA_event_nam
 
 # -------------------------------------------------------------------------------------------------
 
+@lru_cache()
 def get_event_by_name(name):
     """ Returns an event by name. """
 
@@ -17,6 +19,7 @@ def get_event_by_name(name):
         first()
 
 
+@lru_cache()
 def get_all_events():
     """ Returns a list of all events. """
 
@@ -26,6 +29,7 @@ def get_all_events():
         all()
 
 
+@lru_cache()
 def get_event_format_for_event(event_id):
     """ Gets the event format for the specified event. """
 
@@ -35,7 +39,7 @@ def get_event_format_for_event(event_id):
         eventFormat
 
 
-# pylint: disable=C0103
+@lru_cache()
 def get_all_WCA_events():
     """ Returns a list of all WCA events. """
 
@@ -43,7 +47,7 @@ def get_all_WCA_events():
     return [e for e in get_all_events() if e.name in wca_names]
 
 
-# pylint: disable=C0103
+@lru_cache()
 def get_all_non_WCA_events():
     """ Returns a list of all non-WCA events. """
 
@@ -51,6 +55,7 @@ def get_all_non_WCA_events():
     return [e for e in get_all_events() if e.name in non_wca_names]
 
 
+@lru_cache()
 def get_all_bonus_events():
     """ Returns a list of all bonus events. """
 
@@ -58,6 +63,7 @@ def get_all_bonus_events():
     return [e for e in get_all_events() if e.name in bonus_event_names]
 
 
+@lru_cache()
 def get_events_id_name_mapping():
     """ Returns a dictionary of event ID to name mappings. """
 
@@ -68,6 +74,7 @@ def get_events_id_name_mapping():
     return mapping
 
 
+@lru_cache()
 def get_events_name_id_mapping():
     """ Returns a dictionary of event name to ID mappings. """
 
@@ -92,8 +99,7 @@ def get_all_events_user_has_participated_in(user_id):
 
 
 def retrieve_from_scramble_pool_for_event(event_id, num_scrambles):
-    """ Retrieves the desired number of scrambles from the scramble pool for the
-    specified event. """
+    """ Retrieves the desired number of scrambles from the scramble pool for the specified event. """
 
     return DB.session.\
         query(ScramblePool).\
@@ -115,6 +121,6 @@ def add_scrambles_to_scramble_pool(scrambles, event_id):
     """ Adds scrambles to the scramble pool for the specified event. """
 
     for scramble in scrambles:
-        DB.session.add(ScramblePool(scramble = scramble, event_id = event_id))
+        DB.session.add(ScramblePool(scramble=scramble, event_id=event_id))
 
     DB.session.commit()
