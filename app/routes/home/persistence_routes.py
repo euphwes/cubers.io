@@ -7,14 +7,12 @@ from flask import request, abort, url_for
 from flask_login import current_user
 
 from app import app
-from app.business.user_results.creation import build_user_event_results, build_event_summary
+from app.business.user_results.creation import build_user_event_results
 from app.business.user_results.blacklisting import take_blacklist_action_if_necessary
 from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import save_event_results_for_user,\
-    are_results_different_than_existing, get_comment_id_by_comp_id_and_user,\
-    get_event_results_for_user
+    are_results_different_than_existing, get_event_results_for_user
 from app.persistence.models import UserEventResults
-from app.util.reddit import get_permalink_for_user_and_comment
 from app.tasks.reddit import submit_reddit_comment
 
 # -------------------------------------------------------------------------------------------------
@@ -87,36 +85,6 @@ def save_event():
         app.logger.info(LOG_RESULTS_ERROR_TEMPLATE.format(user.username, "whatever"),
                         extra=__create_results_error_log_context(user, ex))
         return abort(500, str(ex))
-
-
-@app.route('/event_summaries', methods=['POST'])
-def get_event_summaries():
-    """ A route for building an event summary which details the average or best (depending on
-    the event format), and the constituent times with penalties, and best/worst indicated when
-    appropriate.
-
-    Ex: 15.24 = 14.09, 16.69, 14.94, (10.82), (18.39) --> for a Ao5 event
-        6:26.83 = 6:46.17, 5:50.88, 6:43.44           --> for a Mo3 event """
-
-    data = request.get_json()
-    summaries = {event['comp_event_id']: build_event_summary(event, None) for event in data}
-
-    return json.dumps(summaries)
-
-
-@app.route('/comment_url/<int:comp_id>')
-def comment_url(comp_id):
-    """ A route for retrieving the user's Reddit comment direct URL for a given comp event. """
-
-    if not current_user.is_authenticated:
-        return ""
-
-    user = get_user_by_username(current_user.username)
-    comment_id = get_comment_id_by_comp_id_and_user(comp_id, user.id)
-    if not comment_id:
-        return ""
-
-    return get_permalink_for_user_and_comment(user, comment_id)
 
 # -------------------------------------------------------------------------------------------------
 

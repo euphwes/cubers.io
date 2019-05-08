@@ -52,7 +52,6 @@ ASSETS.register({
         'js/ui/scramble_display_manager.js',
         'js/ui/main_screen_manager.js',
         'js/ui/timer_screen_manager.js',
-        'js/ui/summary_screen_manager.js',
         'js/ui/scramble_image_generator.js',
 
         'js/init.js',
@@ -65,7 +64,6 @@ ASSETS.register({
         'less/navbar.less',
         'less/timer_page.less',
         'less/events_page.less',
-        'less/summary.less',
         'less/results.less',
         'less/user.less',
         'less/event_results.less',
