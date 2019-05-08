@@ -47,9 +47,12 @@ def build_comment_source_from_events_results(events_results, user_profile_url):
         comment      = '\n' if not results.comment else build_user_comment(results.comment)
 
         if is_fmc:
-            event_result = int(results.average) / 100
-            if event_result == int(event_result):
-                event_result = int(event_result)
+            if results.average == 'DNF':
+                event_result = 'DNF'
+            else:
+                event_result = int(results.average) / 100
+                if event_result == int(event_result):
+                    event_result = int(event_result)
         else:
             event_result = convert_centiseconds_to_friendly_time(results.result)
 
