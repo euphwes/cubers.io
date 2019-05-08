@@ -8,7 +8,6 @@ from flask_login import current_user
 
 from app import app
 from app.business.user_results.creation import build_user_event_results
-from app.business.user_results.blacklisting import take_blacklist_action_if_necessary
 from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import save_event_results_for_user,\
     are_results_different_than_existing, get_event_results_for_user
@@ -34,13 +33,6 @@ def save_event():
     try:
         user = get_user_by_username(current_user.username)
         event_result, event_name = build_user_event_results(request.get_json(), user)
-
-        # Check if these event results should be autoblacklisted, and set their blacklist flag
-        # notes if so.
-        # NOTE: don't do this check directly inside `build_user_event_results` above, because
-        # other code paths use that. We only need to do the autoblacklist check before actually
-        # saving results
-        event_result = take_blacklist_action_if_necessary(event_result)
 
         app.logger.info(LOG_EVENT_RESULTS_TEMPLATE.format(user.username, event_name),
                         extra=__create_results_log_context(user, event_name, event_result))

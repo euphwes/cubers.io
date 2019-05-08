@@ -7,7 +7,6 @@ from app.persistence.comp_manager import get_competition, get_all_comp_events_fo
 from app.persistence.user_manager import get_user_by_id
 from app.persistence.settings_manager import get_all_user_ids_with_setting_value, TRUE_STR,\
     SettingCode
-from app.persistence.user_results_manager import get_all_complete_user_results_for_comp_and_user
 from app.util.reddit import build_comment_source_from_events_results, submit_comment_for_user,\
     update_comment_for_user, send_PM_to_user_with_title_and_body
 from app.util.events.resources import get_all_bonus_events_names
@@ -109,12 +108,12 @@ def prepare_new_competition_notification(comp_id, is_all_events):
         bonus_event_names = [name for name in all_event_names if name in all_bonus_event_names]
         bonus_event_names = naturally_join(bonus_event_names)
 
-        event_desc = ROTATING_EVENTS_DESC.format(bonus_events_list = bonus_event_names)
+        event_desc = ROTATING_EVENTS_DESC.format(bonus_events_list=bonus_event_names)
 
     for user_id in get_all_user_ids_with_setting_value(SettingCode.REDDIT_COMP_NOTIFY, TRUE_STR):
         username = get_user_by_id(user_id).username
-        message_body = NEW_COMP_TEMPLATE.format(comp_title = competition.title,
-                                                bonus_events_desc = event_desc, username = username)
+        message_body = NEW_COMP_TEMPLATE.format(comp_title=competition.title,
+                                                bonus_events_desc=event_desc, username=username)
         send_competition_notification_pm(username, message_body)
 
 
@@ -182,12 +181,12 @@ def send_end_of_competition_message(user_id, comp_id, comp_title):
         pb_info = PB_INFO_TEMPLATE.format(pb_events_list=pb_events_list, maybe_pluralized_pbs=maybe_pluralized_pbs)
 
     message_body = END_OF_COMP_BODY_TEMPLATE.format(
-        username = user.username,
-        comp_title = comp_title,
-        event_count = total_events_participated_in,
-        solves_count = total_solves,
-        pb_info = pb_info,
-        podium_info = podium_info
+        username=user.username,
+        comp_title=comp_title,
+        event_count=total_events_participated_in,
+        solves_count=total_solves,
+        pb_info=pb_info,
+        podium_info=podium_info
     )
 
     message_title = END_OF_COMP_TITLE_TEMPLATE.format(comp_title=comp_title)

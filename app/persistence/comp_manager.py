@@ -2,6 +2,7 @@
 to Competitions. """
 
 from datetime import datetime
+from functools import lru_cache
 
 from sqlalchemy.orm import joinedload
 
@@ -53,6 +54,17 @@ def get_all_comp_events_for_comp(comp_id):
         filter(CompetitionEvent.competition_id == comp_id).\
         order_by(Event.id).\
         all()
+
+
+@lru_cache()
+def get_comp_event_name_by_id(comp_event_id):
+    """ Returns a competition_event's event name by id. """
+
+    return CompetitionEvent.query.\
+        filter(CompetitionEvent.id == comp_event_id).\
+        first().\
+        Event.\
+        name
 
 
 def get_comp_event_by_id(comp_event_id):

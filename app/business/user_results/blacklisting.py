@@ -1,9 +1,11 @@
 
+from typing import Tuple, List
+
 from arrow import now
 
 from app import app
 from app.persistence.models import UserEventResults
-from app.persistence.comp_manager import get_comp_event_by_id
+from app.persistence.comp_manager import get_comp_event_name_by_id
 from app.util.events.resources import get_non_WCA_event_names
 
 # -------------------------------------------------------------------------------------------------
@@ -69,21 +71,22 @@ __AUTO_BLACKLIST_THRESHOLDS = {
 # Functions and types below are intended to be used directly.
 # -------------------------------------------------------------------------------------------------
 
-def take_blacklist_action_if_necessary(results: UserEventResults) -> UserEventResults:
+def take_blacklist_action_if_necessary(results: UserEventResults,
+                                       user_id: int) -> Tuple[UserEventResults, bool]:
     """ Determines if this UserEventResults should be auto-blacklisted because of an absurdly low
     time. Uses a multiplicative factor of the current world records as a threshold, which is
     adjustable by environment variable. """
 
     # If the results aren't complete, don't blacklist yet even if we otherwise would have
     if not results.is_complete:
-        return results
+        return results, False
 
     # A multiplicative factor to adjust autoblacklist thresholds up or down, relative to WR
     threshold_factor = app.config['AUTO_BL_FACTOR']
 
     # Retrieve the WR thresholds tuple by event name
-    comp_event = get_comp_event_by_id(results.comp_event_id)
-    thresholds = __AUTO_BLACKLIST_THRESHOLDS.get(comp_event.Event.name, None)
+    comp_event_name = get_comp_event_name_by_id(results.comp_event_id)
+    thresholds = __AUTO_BLACKLIST_THRESHOLDS.get(comp_event_name, None)
 
     # If we don't have any thresholds for the event for some reason, then bail without taking action
     if not thresholds:
@@ -91,42 +94,34 @@ def take_blacklist_action_if_necessary(results: UserEventResults) -> UserEventRe
 
     wr_single, wr_average = thresholds
 
+    timestamp = now().format('YYYY-MM-DD')
+
     # Check if the result's single should cause this to be auto-blacklisted
     try:
-        # If the single is too low, set the blacklisted flag and note,
-        # and unset any PB flags which were probably set earlier when
-        # build the UserEventResults
+        # If the single is too low, set the blacklisted flag and note
         if int(results.single) <= (threshold_factor * wr_single):
-            timestamp = now().format('YYYY-MM-DD')
-            if comp_event.Event.name in get_non_WCA_event_names():
+            if comp_event_name in get_non_WCA_event_names():
                 note = __AUTO_BONUS_BL_NOTE_TEMPLATE.format(type=__SINGLE, date=timestamp)
             else:
                 note = __AUTO_BLACKLIST_NOTE_TEMPLATE.format(type=__SINGLE, date=timestamp, factor=threshold_factor)
             results.blacklist_note = note
             results.is_blacklisted = True
-            results.was_pb_average = False
-            results.was_pb_single  = False
-            return results
+            return results, True
     except ValueError:
         pass  # int() failed, probably because the single is a DNF
 
     # Check if the result's average should cause this to be auto-blacklisted
     try:
-        # If the average is too low, set the blacklisted flag and note,
-        # and unset any PB flags which were probably set earlier when
-        # build the UserEventResults
+        # If the average is too low, set the blacklisted flag and note
         if int(results.average) <= (threshold_factor * wr_average):
-            timestamp = now().format('YYYY-MM-DD')
-            if comp_event.Event.name in get_non_WCA_event_names():
+            if comp_event_name in get_non_WCA_event_names():
                 note = __AUTO_BONUS_BL_NOTE_TEMPLATE.format(type=__AVERAGE, date=timestamp)
             else:
                 note = __AUTO_BLACKLIST_NOTE_TEMPLATE.format(type=__AVERAGE, date=timestamp, factor=threshold_factor)
             results.blacklist_note = note
             results.is_blacklisted = True
-            results.was_pb_average = False
-            results.was_pb_single  = False
-            return results
+            return results, True
     except ValueError:
         pass  # int() failed, probably because the average is a DNF
 
-    return results
+    return results, False

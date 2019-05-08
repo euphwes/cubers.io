@@ -11,6 +11,7 @@ from app.util.times import convert_centiseconds_to_friendly_time
 
 from app.business.user_results import DNF, DNS, FMC
 from app.business.user_results.personal_bests import set_pb_flags
+from app.business.user_results.blacklisting import take_blacklist_action_if_necessary
 
 # -------------------------------------------------------------------------------------------------
 
@@ -39,7 +40,7 @@ SOLVE_TIMES_SEPARATOR          = ', '
 # -------------------------------------------------------------------------------------------------
 
 def build_user_event_results(comp_event_dict: Dict[str, Any],
-                             user: Union[User, Nobody]) -> Tuple[UserEventResults, str]:
+                             user: User) -> Tuple[UserEventResults, str]:
     """ Builds a UserEventsResult object from a dictionary coming in from the front-end, which
     contains the competition event ID and the user's solves paired with the scrambles. """
 
@@ -83,51 +84,16 @@ def build_user_event_results(comp_event_dict: Dict[str, Any],
     # down the leaderboards noticeably.
     results.times_string = __build_times_string(results, event_format)
 
-    # Determine and set if the user set any PBs in this event.
-    # If there's no user, no need to check PB flags.
-    if user:
-        set_pb_flags(user.id, results, event_id, event_format)
+    # Determine if these results need to be automatically blacklisted because either they have
+    # suspect times, or if some other criteria is causing them to be blacklisted, and set the
+    # blacklisting flag as necessary.
+    results, was_blacklisting_action_taken = take_blacklist_action_if_necessary(results, user.id)
+
+    # If these results were not blacklisted, determine if the user set any PBs in this event
+    if not was_blacklisting_action_taken:
+        results = set_pb_flags(user.id, results, event_id, event_format)
 
     return results, event_name
-
-
-def build_event_summary(event: Dict[str, Any],
-                        user: Union[User, Nobody]) -> str:
-    """ Builds and returns the times summary for the event.
-    Ex. 2:49.46 = 2:53.39, 2:44.87, (2:58.07), 2:50.14, (2:26.52) """
-
-    event_name   = event[NAME]
-    event_format = get_event_by_name(event_name).eventFormat
-
-    # Wrap up the events data in the format expected by `build_user_event_results`
-    event_data_dict = dict()
-    event_data_dict[event[COMP_EVENT_ID]] = event
-
-    # Build up the UserEventResults
-    results, _ = build_user_event_results(event_data_dict, user)
-
-    # If the format is Bo1 (best of 1) just return human-friendly representation of the time
-    if event_format == EventFormat.Bo1:
-        return convert_centiseconds_to_friendly_time(results.single)
-
-    # The time on the left side of the `=` is the best single in a Bo3 event, otherwise it's the
-    # overall average for the event
-    best = results.single if (event_format == EventFormat.Bo3) else results.average
-
-    # If this isn't FMC, convert to human-friendly time
-    if not event_name == FMC:
-        best = convert_centiseconds_to_friendly_time(best)
-
-    # If this is FMC, convert the faux centiseconds representation to the number of moves
-    # 2833 --> 28.33 moves
-    # If the number of moves is an integer, represent it without the trailing ".00"
-    # 2800 --> 28 moves, not 28.00 moves
-    else:
-        best = best / 100
-        if best == int(best):
-            best = int(best)
-
-    return EVENT_SUMMARY_TEMPLATE.format(result=best, times_string=results.times_string)
 
 # -------------------------------------------------------------------------------------------------
 # Functions and types below are not meant to be used directly; instead these are just dependencies
