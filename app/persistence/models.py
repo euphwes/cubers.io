@@ -35,13 +35,16 @@ class User(UserMixin, Model):
     """ A simple model of a user. We know these will only be created either through OAuth-ing with
     Reddit, or by uploading solve records via API call, so all we really need is a username and
     a Reddit refresh token. WCA ID is optional for user profiles. """
-    __tablename__  = 'users'
-    id             = Column(Integer, primary_key=True)
-    username       = Column(String(64), index=True, unique=True)
-    wca_id         = Column(String(10))
-    refresh_token  = Column(String(64))
-    is_admin       = Column(Boolean)
-    results        = relationship("UserEventResults", backref="User")
+    __tablename__    = 'users'
+    id               = Column(Integer, primary_key=True)
+    username         = Column(String(64), index=True, unique=True)
+    wca_id           = Column(String(10))
+    refresh_token    = Column(String(64))
+    is_admin         = Column(Boolean)
+    is_results_mod   = Column(Boolean)
+    is_verified      = Column(Boolean)
+    always_blacklist = Column(Boolean)
+    results          = relationship("UserEventResults", backref="User")
 
 
 class Nobody(AnonymousUserMixin):
@@ -53,6 +56,7 @@ class Nobody(AnonymousUserMixin):
     def __init__(self, username=None):
         self.username = username if username else '<no_user>'
         self.is_admin = False
+        self.is_results_mod = False
 
     def __bool__(self):
         return False
@@ -144,7 +148,6 @@ class UserEventResults(Model):
     # To determine how to format friendly representations of results, single, average
     is_fmc   = False
     is_blind = False
-
 
     def set_solves(self, incoming_solves):
         """ Utility method to set a list of UserSolves for this UserEventResults. """
@@ -256,9 +259,6 @@ class WeeklyMetrics(Model):
     __tablename__   = 'weekly_metrics'
     id              = Column(Integer, primary_key=True)
     comp_id         = Column(Integer, ForeignKey('competitions.id'), index=True)
-    desktop_hits    = Column(Integer)
-    mobile_hits     = Column(Integer)
-    bot_hits        = Column(Integer)
     new_users_count = Column(Integer)
 
 
@@ -378,3 +378,13 @@ class UserSetting(Model):
     user          = relationship('User', primaryjoin=user_id == User.id)
     setting_code  = Column(String(128), index=True)
     setting_value = Column(String(128), index=True)
+
+
+class WeeklyBlacklist(Model):
+    """ A record which, if it exists, denotes that the corresponding user should have all their
+    results blacklisted for the current week's competition. """
+
+    __tablename__ = 'weekly_blacklist'
+    id            = Column(Integer, primary_key=True)
+    user_id       = Column(Integer, ForeignKey('users.id'))
+    reason        = Column(String(256))
