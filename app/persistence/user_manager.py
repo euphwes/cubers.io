@@ -2,7 +2,7 @@
 
 from app import DB
 from app.persistence.models import User
-from app.tasks.metrics import record_new_user
+from app.persistence.weekly_metrics_manager import increment_new_user_count
 
 # -------------------------------------------------------------------------------------------------
 
@@ -40,7 +40,7 @@ def update_or_create_user(username, refresh_token):
     else:
         user = User(username=username, refresh_token=refresh_token)
         DB.session.add(user)
-        record_new_user()
+        increment_new_user_count()
 
     DB.session.commit()
     return user
