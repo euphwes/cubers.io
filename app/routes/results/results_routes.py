@@ -6,7 +6,7 @@ from flask import render_template, redirect
 from flask_login import current_user
 
 from app import app
-from app.business.user_results import recalculate_user_pbs_for_event
+from app.business.user_results.personal_bests import recalculate_user_pbs_for_event
 from app.persistence.comp_manager import get_active_competition, get_complete_competitions,\
     get_previous_competition, get_competition, get_all_comp_events_for_comp, get_comp_event_by_id
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp_event,\

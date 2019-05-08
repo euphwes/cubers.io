@@ -96,12 +96,6 @@
      * Makes a call out to the server to save the event to the database
      */
     EventsDataManager.prototype._saveEventToServer = function(event) {
-        // wrap event in an object where the property name is the comp event id,
-        // and the property value is the event itself. This is just so server-side
-        // logic can be re-used
-        var event_data = {};
-        event_data[event.comp_event_id] = event;
-
         var onSaveCompleteRecordSummary = function(data, event) {
             if (event.status != 'complete') {
                 return;
@@ -132,7 +126,7 @@
         $.ajax({
             url: "/save_event",
             type: "POST",
-            data: JSON.stringify(event_data),
+            data: JSON.stringify(event),
             contentType: "application/json",
             success: function (data) { onSaveCompleteRecordSummary(data, event); },
         });

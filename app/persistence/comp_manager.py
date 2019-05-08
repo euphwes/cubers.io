@@ -2,7 +2,6 @@
 to Competitions. """
 
 from datetime import datetime
-from functools import lru_cache
 
 from sqlalchemy.orm import joinedload
 
@@ -45,7 +44,6 @@ def get_previous_competition():
         first()
 
 
-@lru_cache()
 def get_all_comp_events_for_comp(comp_id):
     """ Gets all CompetitionEvents for the specified competition. """
 
@@ -57,7 +55,6 @@ def get_all_comp_events_for_comp(comp_id):
         all()
 
 
-@lru_cache()
 def get_comp_event_by_id(comp_event_id):
     """ Returns a competition_event by id. """
 
@@ -123,9 +120,9 @@ def get_participants_in_competition_as_user_ids(comp_id):
 def get_complete_competitions():
     """ Returns id and title for all of the inactive competitions. """
 
-    #pylint: disable=C0301
     return Competition.query.\
-        with_entities(Competition.id, Competition.title, Competition.active, Competition.start_timestamp, Competition.end_timestamp).\
+        with_entities(Competition.id, Competition.title, Competition.active, Competition.start_timestamp,
+                      Competition.end_timestamp).\
         filter(Competition.active.is_(False)).\
         order_by(Competition.id.desc()).\
         all()
@@ -192,7 +189,7 @@ def save_new_competition(title, reddit_id, event_data):
         comp_event = CompetitionEvent(event_id=event.id)
 
         for scramble_text in data['scrambles']:
-            scramble = Scramble(scramble = scramble_text)
+            scramble = Scramble(scramble=scramble_text)
             comp_event.scrambles.append(scramble)
 
         new_comp.events.append(comp_event)

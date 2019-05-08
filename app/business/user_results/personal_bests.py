@@ -14,12 +14,13 @@ from app.business.user_results import DNF
 # Functions and types below are intended to be used directly.
 # -------------------------------------------------------------------------------------------------
 
-def set_pb_flags(event_result: UserEventResults,
+def set_pb_flags(user_id: int,
+                 event_result: UserEventResults,
                  event_id: int,
                  event_format: EventFormat) -> UserEventResults:
     """ Sets the appropriate flag if either the single or average for this event is a PB. """
 
-    pb_single, pb_average = __get_pbs_for_user_and_event_excluding_latest(event_result.user_id, event_id)
+    pb_single, pb_average = __get_pbs_for_user_and_event_excluding_latest(user_id, event_id)
 
     # If the current single or average are tied with, or faster than, the user's current PB,
     # then flag this result as a PB. Tied PBs count as PBs in WCA rules

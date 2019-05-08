@@ -10,7 +10,6 @@ from app.util.events.resources import get_WCA_event_names, get_non_WCA_event_nam
 
 # -------------------------------------------------------------------------------------------------
 
-@lru_cache()
 def get_event_by_name(name):
     """ Returns an event by name. """
 
@@ -19,7 +18,6 @@ def get_event_by_name(name):
         first()
 
 
-@lru_cache()
 def get_all_events():
     """ Returns a list of all events. """
 
@@ -39,7 +37,6 @@ def get_event_format_for_event(event_id):
         eventFormat
 
 
-@lru_cache()
 def get_all_WCA_events():
     """ Returns a list of all WCA events. """
 
@@ -47,7 +44,6 @@ def get_all_WCA_events():
     return [e for e in get_all_events() if e.name in wca_names]
 
 
-@lru_cache()
 def get_all_non_WCA_events():
     """ Returns a list of all non-WCA events. """
 
@@ -55,7 +51,6 @@ def get_all_non_WCA_events():
     return [e for e in get_all_events() if e.name in non_wca_names]
 
 
-@lru_cache()
 def get_all_bonus_events():
     """ Returns a list of all bonus events. """
 

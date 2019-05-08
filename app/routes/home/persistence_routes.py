@@ -7,8 +7,8 @@ from flask import request, abort, url_for
 from flask_login import current_user
 
 from app import app
-from app.business.user_results import build_user_event_results, build_event_summary,\
-    determine_if_should_be_autoblacklisted
+from app.business.user_results.creation import build_user_event_results, build_event_summary
+from app.business.user_results.blacklisting import take_blacklist_action_if_necessary
 from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_results_manager import save_event_results_for_user,\
     are_results_different_than_existing, get_comment_id_by_comp_id_and_user,\
@@ -42,7 +42,7 @@ def save_event():
         # NOTE: don't do this check directly inside `build_user_event_results` above, because
         # other code paths use that. We only need to do the autoblacklist check before actually
         # saving results
-        event_result = determine_if_should_be_autoblacklisted(event_result)
+        event_result = take_blacklist_action_if_necessary(event_result)
 
         app.logger.info(LOG_EVENT_RESULTS_TEMPLATE.format(user.username, event_name),
                         extra=__create_results_log_context(user, event_name, event_result))
@@ -84,7 +84,7 @@ def save_event():
 
     # TODO: Figure out specific exceptions that can happen here, probably mostly Reddit ones
     except Exception as ex:
-        app.logger.info(LOG_RESULTS_ERROR_TEMPLATE.format(user.username, event_name),
+        app.logger.info(LOG_RESULTS_ERROR_TEMPLATE.format(user.username, "whatever"),
                         extra=__create_results_error_log_context(user, ex))
         return abort(500, str(ex))
 

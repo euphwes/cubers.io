@@ -38,8 +38,7 @@ SOLVE_TIMES_SEPARATOR          = ', '
 # Functions and types below are intended to be used directly.
 # -------------------------------------------------------------------------------------------------
 
-def build_user_event_results(comp_event_id: int,
-                             comp_event_dict: Dict[str, Any],
+def build_user_event_results(comp_event_dict: Dict[str, Any],
                              user: Union[User, Nobody]) -> Tuple[UserEventResults, str]:
     """ Builds a UserEventsResult object from a dictionary coming in from the front-end, which
     contains the competition event ID and the user's solves paired with the scrambles. """
@@ -47,6 +46,7 @@ def build_user_event_results(comp_event_id: int,
     comment = comp_event_dict.get(COMMENT, '')
 
     # Retrieve the CompetitionEvent from the DB and get the event name, format, and expected solves
+    comp_event_id       = comp_event_dict[COMP_EVENT_ID]
     comp_event          = get_comp_event_by_id(comp_event_id)
     event_id            = comp_event.Event.id
     event_name          = comp_event.Event.name
@@ -86,7 +86,7 @@ def build_user_event_results(comp_event_id: int,
     # Determine and set if the user set any PBs in this event.
     # If there's no user, no need to check PB flags.
     if user:
-        set_pb_flags(user, results, event_id, event_format)
+        set_pb_flags(user.id, results, event_id, event_format)
 
     return results, event_name
 
