@@ -156,16 +156,13 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
 
     return user_site_rankings
 
-
 # -------------------------------------------------------------------------------------------------
 #                        Stuff for retrieving ordered lists of PB records
 # -------------------------------------------------------------------------------------------------
 
-# We don't wan't to use a dictionary here, that defeats the purpose of developer-readable objects
-# Can't use a namedtuple, because the values set there are immutable, and we need to be able to
-# modify the rank, which isn't known until after these records are created.
-#
-# pylint: disable=R0903
+# We don't wan't to use a dictionary here, that defeats the purpose of developer-readable objects.
+# Can't use a namedtuple, because the values set there are immutable, and we need to be able to modify the rank,
+# which isn't known until after these records are created.
 class PersonalBestRecord():
     """ Propery bag class for encapsulating a user's PB record. """
 
@@ -180,20 +177,13 @@ class PersonalBestRecord():
         self.rank          = '-1'
 
 
-# pylint: disable=C0103
 def _build_PersonalBestRecord(query_tuple):
     """ Builds a PersonalBestRecord from the 5-tuple returned from the ordered PB queries below.
     The tuple looks like (user_id, single/average, comp_id, comp_title, username). """
 
     user_id, result, comp_id, comp_title, username, comment = query_tuple
-    return PersonalBestRecord(
-        personal_best = result,
-        user_id       = user_id,
-        username      = username,
-        comp_id       = comp_id,
-        comp_title    = comp_title,
-        comment       = comment
-    )
+    return PersonalBestRecord(personal_best=result, user_id=user_id, username=username, comp_id=comp_id,
+        comp_title=comp_title, comment=comment)
 
 
 def _filter_one_pb_per_user(personal_bests):

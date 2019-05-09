@@ -234,7 +234,7 @@ def backfill_user_results_time_strings():
     if results_to_save:
         bulk_save_event_results(results_to_save)
         results_to_save = list()
-        print("Fixed {} of {} UserEventResults".format(total_fixed, total_to_fix)) 
+        print("Fixed {} of {} UserEventResults".format(total_fixed, total_to_fix))
 
 
 def fix_user_event_results(user_event_results):

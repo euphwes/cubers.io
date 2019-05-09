@@ -1,13 +1,14 @@
 
-from typing import Tuple, Union
+from typing import Tuple, Optional
 
 from arrow import now
 
 from app import app
 from app.persistence.models import UserEventResults, User
-from app.persistence.comp_manager import get_comp_event_name_by_id
+from app.persistence.comp_manager import get_comp_event_name_by_id, get_comp_event_by_id
 from app.persistence.weekly_blacklist_manager import ensure_weekly_blacklist_for_user,\
     get_weekly_blacklist_entry_by_user_id
+from app.tasks.results_management import blacklist_all_complete_results_for_user_and_comp
 
 # -------------------------------------------------------------------------------------------------
 
@@ -92,7 +93,6 @@ def take_blacklist_action_if_necessary(results: UserEventResults,
 
     # If the results aren't complete, return early since we don't need to blacklist yet
     if not results.is_complete:
-        app.logger.info('not blacklisting, incomplete')
         return results, False
 
     # Check if the user is flagged to have all of their results automatically blacklisted
@@ -125,7 +125,7 @@ def take_blacklist_action_if_necessary(results: UserEventResults,
     # automatically blacklisted, and fire off a task to retroactively blacklist other results
     # already posted this week.
     if __check_event_average_threshold_breached(results, average_threshold):
-        return __perform_average_results_blacklist_action(results, comp_event_name, user.id), True
+        return __perform_average_results_blacklist_action(results, comp_event_name, user), True
 
     # Everything's legit! Let those results through without blacklisting anything
     return results, False
@@ -159,12 +159,18 @@ def __perform_single_results_blacklist_action(results: UserEventResults,
 
 def __perform_average_results_blacklist_action(results: UserEventResults,
                                                comp_event_name: str,
-                                               user_id: int) -> UserEventResults:
+                                               user: User) -> UserEventResults:
     """ Blacklists this specific UserEventResults and sets the note indicating the results were
     blacklisted due to being lower than the single threshold. """
 
-    ensure_weekly_blacklist_for_user(user_id)
-    # TODO kick off task to blacklist result of results this week
+    # Make sure any new result this week are auto-blacklisted
+    ensure_weekly_blacklist_for_user(user.id)
+
+    # Retroactively blacklisted any non-blacklisted results already submitted this week
+    comp_id = get_comp_event_by_id(results.comp_event_id).competition_id
+    blacklist_all_complete_results_for_user_and_comp(user.id, comp_id, user.username)
+
+    # Blacklist these results and return
     return __blacklist_results_with_note(results, __AUTO_BLACKLIST_NOTE_TEMPLATE, type=__AVERAGE)
 
 
@@ -181,7 +187,7 @@ def __blacklist_results_with_note(results: UserEventResults,
     return results
 
 
-def __get_event_thresholds(comp_event_name: str) -> Union[Tuple[float, float], None]:
+def __get_event_thresholds(comp_event_name: str) -> Optional[Tuple[float, float]]:
     """ Retrieves the thresholds for single and average for the specified event, adjusted by an
     optional multiplicative factor from app config. """
 
