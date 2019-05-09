@@ -168,22 +168,23 @@ class PersonalBestRecord():
 
     # pylint: disable=R0913
     def __init__(self, **kwargs):
-        self.user_id       = kwargs.get('user_id')
-        self.comp_id       = kwargs.get('comp_id')
-        self.username      = kwargs.get('username')
-        self.comp_title    = kwargs.get('comp_title')
-        self.personal_best = kwargs.get('personal_best')
-        self.comment       = kwargs.get('comment')
-        self.rank          = '-1'
+        self.user_id          = kwargs.get('user_id')
+        self.comp_id          = kwargs.get('comp_id')
+        self.username         = kwargs.get('username')
+        self.comp_title       = kwargs.get('comp_title')
+        self.personal_best    = kwargs.get('personal_best')
+        self.comment          = kwargs.get('comment')
+        self.user_is_verified = kwargs.get('user_is_verified')
+        self.rank             = '-1'
 
 
 def _build_PersonalBestRecord(query_tuple):
     """ Builds a PersonalBestRecord from the 5-tuple returned from the ordered PB queries below.
     The tuple looks like (user_id, single/average, comp_id, comp_title, username). """
 
-    user_id, result, comp_id, comp_title, username, comment = query_tuple
+    user_id, result, comp_id, comp_title, username, comment, user_is_verified = query_tuple
     return PersonalBestRecord(personal_best=result, user_id=user_id, username=username, comp_id=comp_id,
-        comp_title=comp_title, comment=comment)
+        comp_title=comp_title, comment=comment, user_is_verified=user_is_verified)
 
 
 def _filter_one_pb_per_user(personal_bests):
@@ -249,9 +250,9 @@ def get_ordered_pb_singles_for_event(event_id):
         filter(UserEventResults.is_complete).\
         filter(UserEventResults.was_pb_single).\
         filter(UserEventResults.is_blacklisted.isnot(True)).\
-        group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username).\
+        group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username, User.is_verified).\
         order_by(UserEventResults.id.desc()).\
-        values(UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username, UserEventResults.comment)
+        values(UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username, UserEventResults.comment, User.is_verified)
     # pylint: enable=C0301
 
     # NOTE: if adding anything to this tuple being selected in values(...) above, add it to the
@@ -281,9 +282,9 @@ def get_ordered_pb_averages_for_event(event_id):
         filter(UserEventResults.is_complete).\
         filter(UserEventResults.was_pb_average).\
         filter(UserEventResults.is_blacklisted.isnot(True)).\
-        group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.average, Competition.id, Competition.title, User.username).\
+        group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.average, Competition.id, Competition.title, User.username, User.is_verified).\
         order_by(UserEventResults.id.desc()).\
-        values(UserEventResults.user_id, UserEventResults.average, Competition.id, Competition.title, User.username, UserEventResults.comment)
+        values(UserEventResults.user_id, UserEventResults.average, Competition.id, Competition.title, User.username, UserEventResults.comment, User.is_verified)
     # pylint: enable=C0301
 
     # NOTE: if adding anything to this tuple being selected in values(...) above, add it to the

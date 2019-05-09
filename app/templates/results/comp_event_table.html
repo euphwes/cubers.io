@@ -77,6 +77,14 @@
                         {% endif %}
                     </td>
                     <td scope="col">
+                        {% if show_admin %}
+                            {% if result.User.is_verified %}
+                                {% set verification_class = 'verified' %}
+                            {% else %}
+                                {% set verification_class = 'unverified' %}
+                            {% endif %}
+                            <span class="fas fa-user-check {{verification_class}} mr-1"></span>
+                        {% endif %}
                         <a href="{{ url_for('profile', username=result.User.username) }}">/u/{{ result.User.username }}</a>
                     </td>
                     {% if comp_event.Event.name == "FMC" %}

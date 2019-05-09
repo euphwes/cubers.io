@@ -5,6 +5,7 @@ from csv import writer as csv_writer
 from io import StringIO
 
 from flask import render_template, make_response
+from flask_login import current_user
 
 from app import app
 from app.business.rankings import get_ordered_pb_averages_for_event,\
@@ -36,7 +37,8 @@ def event_results(event_name):
     title = "{} Records".format(event.name)
 
     return render_template("records/event.html", event_id=event.id, event_name=event.name,
-        singles=singles, averages=averages, alternative_title=title)
+        singles=singles, averages=averages, alternative_title=title,
+        show_admin=(current_user.is_admin or current_user.is_results_mod))
 
 
 @app.route('/event/<event_name>/export/')
