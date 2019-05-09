@@ -5,8 +5,7 @@ from sys import maxsize as MAX
 from typing import Any, Dict, List, Union, Tuple, Iterable
 
 from app.persistence.comp_manager import get_comp_event_by_id
-from app.persistence.events_manager import get_event_by_name
-from app.persistence.models import UserEventResults, UserSolve, EventFormat, User, Nobody
+from app.persistence.models import UserEventResults, UserSolve, EventFormat, User
 from app.util.times import convert_centiseconds_to_friendly_time
 
 from app.business.user_results import DNF, DNS, FMC
@@ -87,7 +86,7 @@ def build_user_event_results(comp_event_dict: Dict[str, Any],
     # Determine if these results need to be automatically blacklisted because either they have
     # suspect times, or if some other criteria is causing them to be blacklisted, and set the
     # blacklisting flag as necessary.
-    results, was_blacklisting_action_taken = take_blacklist_action_if_necessary(results, user.id)
+    results, was_blacklisting_action_taken = take_blacklist_action_if_necessary(results, user)
 
     # If these results were not blacklisted, determine if the user set any PBs in this event
     if not was_blacklisting_action_taken:

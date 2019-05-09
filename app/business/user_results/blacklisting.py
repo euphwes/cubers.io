@@ -1,25 +1,32 @@
 
-from typing import Tuple, List
+from typing import Tuple, Union
 
 from arrow import now
 
 from app import app
-from app.persistence.models import UserEventResults
+from app.persistence.models import UserEventResults, User
 from app.persistence.comp_manager import get_comp_event_name_by_id
-from app.util.events.resources import get_non_WCA_event_names
 
 # -------------------------------------------------------------------------------------------------
 
-# Auto-blacklist notes
-__AUTO_BLACKLIST_NOTE_TEMPLATE = "Results automatically hidden on {date} because the {type} is less than the "
-__AUTO_BLACKLIST_NOTE_TEMPLATE += "'{factor} * WR {type}' threshold for this event."
+__TIMESTAMP_FORMAT = 'YYYY-MM-DD'
 
-# Bonus event blacklist notes
-__AUTO_BONUS_BL_NOTE_TEMPLATE = "Results automatically hidden on {date} because the {type} is less than the "
-__AUTO_BONUS_BL_NOTE_TEMPLATE += "{type} 'reasonable' threshold for this event."
+# Threshold breached blacklist note
+__AUTO_BLACKLIST_NOTE_TEMPLATE = "Results automatically hidden on {date} because the user's {type} is "
+__AUTO_BLACKLIST_NOTE_TEMPLATE += "less than the threshold for this event."
 
-__SINGLE  = 'single'
-__AVERAGE = 'average'
+# Permanent blacklist note
+__PERMA_BLACKLIST_NOTE_TEMPLATE = "Results automatically hidden on {date} because this user is flagged for "
+__PERMA_BLACKLIST_NOTE_TEMPLATE += "permanent blacklist."
+
+# For retrieving blacklist threshold multiplicative factor from app config
+__KEY_AUTO_BL_FACTOR = 'AUTO_BL_FACTOR'
+
+# Values to be inserted into blacklist note templates above, and key for a kwargs dict
+# to insert timestamp as `date` kwarg
+__SINGLE   = 'single'
+__AVERAGE  = 'average'
+__KEY_DATE = 'date'
 
 # Dictionary of event name to tuple of (WR single, WR average) in centiseconds
 # WCA WRs as of 12 Apr 2019
@@ -72,56 +79,131 @@ __AUTO_BLACKLIST_THRESHOLDS = {
 # -------------------------------------------------------------------------------------------------
 
 def take_blacklist_action_if_necessary(results: UserEventResults,
-                                       user_id: int) -> Tuple[UserEventResults, bool]:
+                                       user: User) -> Tuple[UserEventResults, bool]:
     """ Determines if this UserEventResults should be auto-blacklisted because of an absurdly low
     time. Uses a multiplicative factor of the current world records as a threshold, which is
     adjustable by environment variable. """
 
-    # If the results aren't complete, don't blacklist yet even if we otherwise would have
+    # If the results aren't complete, return early since we don't need to blacklist yet
     if not results.is_complete:
+        app.logger.info('not blacklisting, incomplete')
         return results, False
 
-    # A multiplicative factor to adjust autoblacklist thresholds up or down, relative to WR
-    threshold_factor = app.config['AUTO_BL_FACTOR']
+    # Check if the user is flagged to have all of their results automatically blacklisted
+    if user.always_blacklist:
+        return __perform_perma_blacklist_action(results), True
+
+    # TODO: weekly blacklist
+
+    # Get the auto-blacklist thresholds for the event these results are for.
+    # If we don't have thresholds, leave without taking any blacklist action
+    comp_event_name = get_comp_event_name_by_id(results.comp_event_id)
+    thresholds      = __get_event_thresholds(comp_event_name)
+    if not thresholds:
+        return results, False
+
+    # Extract the adjusted single and average thresholds
+    single_threshold, average_threshold = thresholds
+
+    # If the single threshold has been breached, blacklist just the one set of results.
+    # We don't want to go overboard and blacklist everything this week because a single
+    # very low time could be a legitimate accident
+    if __check_event_single_threshold_breached(results, single_threshold):
+        return __perform_single_results_autoblacklist_action(results, comp_event_name), True
+
+    # If the average threshold has been breached, it's more likely that the user is
+    # intentionally posting bogus times. Blacklist this set of results, add a
+    # WeeklyBlacklist record to indicate that other results posted this week are to be
+    # automatically blacklisted, and fire off a task to retroactively blacklist other results
+    # already posted this week.
+    if __check_event_average_threshold_breached(results, average_threshold):
+        return __perform_average_results_autoblacklist_action(results, comp_event_name), True
+
+    # Everything's legit! Let those results through without blacklisting anything
+    return results, False
+
+# -------------------------------------------------------------------------------------------------
+# Functions and types below are not meant to be used directly; instead these are just dependencies
+# of the publicly-visible functions above.
+# -------------------------------------------------------------------------------------------------
+
+def __perform_perma_blacklist_action(results: UserEventResults) -> UserEventResults:
+    """ Blacklists this specific UserEventResults and sets the note indicating the user was flagged
+    for permanent blacklist. """
+
+    return __blacklist_results_with_note(results, __PERMA_BLACKLIST_NOTE_TEMPLATE)
+
+
+def __perform_single_results_autoblacklist_action(results: UserEventResults,
+                                                  comp_event_name: str) -> UserEventResults:
+    """ Blacklists this specific UserEventResults and sets the note indicating the results were
+    blacklisted due to being lower than the single threshold. """
+
+    return __blacklist_results_with_note(results, __AUTO_BLACKLIST_NOTE_TEMPLATE, type=__SINGLE)
+
+
+def __perform_average_results_autoblacklist_action(results: UserEventResults,
+                                                   comp_event_name: str) -> UserEventResults:
+    """ Blacklists this specific UserEventResults and sets the note indicating the results were
+    blacklisted due to being lower than the single threshold. """
+
+    # TODO set weekly blacklist flag
+    # TODO kick off task to blacklist result of results this week
+    return __blacklist_results_with_note(results, __AUTO_BLACKLIST_NOTE_TEMPLATE, type=__AVERAGE)
+
+
+def __blacklist_results_with_note(results: UserEventResults,
+                                  note_template: str,
+                                  **kwargs) -> UserEventResults:
+    """ Blacklists a UserEventResults and applies the provided blacklist note, which is assumed to be a
+    template string. The keyword args provided to this function are formatted into the note as keyword args. """
+
+    kwargs[__KEY_DATE] = now().format(__TIMESTAMP_FORMAT)
+    results.is_blacklisted = True
+    results.blacklist_note = note_template.format(**kwargs)
+
+    return results
+
+
+def __get_event_thresholds(comp_event_name: str) -> Union[Tuple[float, float], None]:
+    """ Retrieves the thresholds for single and average for the specified event, adjusted by an
+    optional multiplicative factor from app config. """
 
     # Retrieve the WR thresholds tuple by event name
-    comp_event_name = get_comp_event_name_by_id(results.comp_event_id)
-    thresholds = __AUTO_BLACKLIST_THRESHOLDS.get(comp_event_name, None)
+    event_thresholds = __AUTO_BLACKLIST_THRESHOLDS.get(comp_event_name, None)
 
     # If we don't have any thresholds for the event for some reason, then bail without taking action
-    if not thresholds:
-        return results
+    if not event_thresholds:
+        return None
 
-    wr_single, wr_average = thresholds
+    # A multiplicative factor to adjust autoblacklist thresholds up or down
+    threshold_factor = app.config[__KEY_AUTO_BL_FACTOR]
 
-    timestamp = now().format('YYYY-MM-DD')
+    return (threshold_factor * entry for entry in event_thresholds)
 
-    # Check if the result's single should cause this to be auto-blacklisted
+
+def __check_event_single_threshold_breached(results: UserEventResults,
+                                            single_threshold: float) -> bool:
+    """ Checks if the results best single breaches the autoblacklist threshold for this event. """
+
+    return __check_if_threshold_breached(results.single, single_threshold)
+
+
+def __check_event_average_threshold_breached(results: UserEventResults,
+                                             average_threshold: float) -> bool:
+    """ Checks if the results average breaches the autoblacklist threshold for this event. """
+
+    return __check_if_threshold_breached(results.average, average_threshold)
+
+
+def __check_if_threshold_breached(results_value: str,
+                                  threshold_value: float) -> bool:
+    """ Checks if the given results value breaches the supplied threshold. """
+
+    # Return if the results value breaches the threshold
     try:
-        # If the single is too low, set the blacklisted flag and note
-        if int(results.single) <= (threshold_factor * wr_single):
-            if comp_event_name in get_non_WCA_event_names():
-                note = __AUTO_BONUS_BL_NOTE_TEMPLATE.format(type=__SINGLE, date=timestamp)
-            else:
-                note = __AUTO_BLACKLIST_NOTE_TEMPLATE.format(type=__SINGLE, date=timestamp, factor=threshold_factor)
-            results.blacklist_note = note
-            results.is_blacklisted = True
-            return results, True
-    except ValueError:
-        pass  # int() failed, probably because the single is a DNF
+        return int(results_value) <= threshold_value
 
-    # Check if the result's average should cause this to be auto-blacklisted
-    try:
-        # If the average is too low, set the blacklisted flag and note
-        if int(results.average) <= (threshold_factor * wr_average):
-            if comp_event_name in get_non_WCA_event_names():
-                note = __AUTO_BONUS_BL_NOTE_TEMPLATE.format(type=__AVERAGE, date=timestamp)
-            else:
-                note = __AUTO_BLACKLIST_NOTE_TEMPLATE.format(type=__AVERAGE, date=timestamp, factor=threshold_factor)
-            results.blacklist_note = note
-            results.is_blacklisted = True
-            return results, True
+    # int() failed, it's probably a DNF
     except ValueError:
-        pass  # int() failed, probably because the average is a DNF
-
-    return results, False
+        return False
