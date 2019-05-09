@@ -12,7 +12,7 @@ from app.persistence.comp_manager import get_all_competitions, get_complete_comp
     set_all_events_flag_for_next_comp
 from app.persistence.events_manager import get_all_events
 from app.persistence.user_manager import get_all_users, get_all_admins, set_user_as_admin,\
-    unset_user_as_admin, UserDoesNotExistException
+    unset_user_as_admin, UserDoesNotExistException, set_user_as_results_moderator, unset_user_as_results_moderator
 from app.persistence.user_results_manager import get_all_null_is_complete_event_results,\
     get_all_na_average_event_results, save_event_results_for_user, get_all_complete_event_results,\
     bulk_save_event_results, get_all_fmc_results
@@ -106,6 +106,28 @@ def remove_admin(username):
 
     try:
         unset_user_as_admin(username)
+    except UserDoesNotExistException as ex:
+        print(ex)
+
+
+@app.cli.command()
+@click.option('--username', '-u', type=str)
+def set_results_mod(username):
+    """ Sets the specified user as a results moderator. """
+
+    try:
+        set_user_as_results_moderator(username)
+    except UserDoesNotExistException as ex:
+        print(ex)
+
+
+@app.cli.command()
+@click.option('--username', '-u', type=str)
+def remove_results_mod(username):
+    """ Removes results moderator status for the specified user. """
+
+    try:
+        unset_user_as_results_moderator(username)
     except UserDoesNotExistException as ex:
         print(ex)
 

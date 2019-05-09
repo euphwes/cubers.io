@@ -10,9 +10,40 @@
 
 {% block content %}
 <div class="container-fluid cubers-container white-container profile-container">
+    {% if is_admin_viewing %}
     <div class="row">
-        <div class="col-12">
-            <h3 class="text-center">{{ user.username }}</h3>
+        <div class="col-12 profile_admin_area">
+            {% if user.is_verified %}
+                <a class="btn btn-sm btn-secondary mx-2" href="">Un-verify User</a>
+            {% else %}
+                <a class="btn btn-sm btn-success mx-2" href="">Verify User</a>
+            {% endif %}
+            {% if user.always_blacklist %}
+                <a class="btn btn-sm btn-success mx-2" href="">Remove Permanent Blacklist</a>
+            {% else %}
+                <a class="btn btn-sm btn-danger mx-2" href="">Apply Permanent Blacklist</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    <div class="row">
+        <div class="col-12 username_area">
+            {% if is_admin_viewing %}
+                {% if user.is_verified %}
+                    {% set verification_class = 'verified' %}
+                {% else %}
+                    {% set verification_class = 'unverified' %}
+                {% endif %}
+                <h3 class="text-center">
+                    {{ user.username }}
+                    <span class="fas fa-user-check {{verification_class}} ml-3" data-toggle="tooltip" data-placement="top" title="{{verification_class}}"></span>
+                    {% if user.always_blacklist %}
+                        <i class="fas fa-ban blacklisted mx-3"></i>
+                    {% endif %}
+                </h3>
+            {% else %}
+                <h3 class="text-center">{{ user.username }}</h3>
+            {% endif %}
         </div>
     </div>
     <div class="row">
