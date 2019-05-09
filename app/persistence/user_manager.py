@@ -1,5 +1,7 @@
 """ Utility module for persisting and retrieving users. """
 
+from typing import Optional
+
 from app import DB
 from app.persistence.models import User
 from app.persistence.weekly_metrics_manager import increment_new_user_count
@@ -46,13 +48,13 @@ def update_or_create_user(username, refresh_token):
     return user
 
 
-def get_user_by_username(username):
+def get_user_by_username(username) -> Optional[User]:
     """ Returns the user with this username, or else `None` if no such user exists. """
 
     return User.query.filter_by(username=username).first()
 
 
-def get_user_by_id(user_id):
+def get_user_by_id(user_id) -> Optional[User]:
     """ Returns the user with this user_id, or else `None` if no such user exists. """
 
     return User.query.filter_by(id=user_id).first()
@@ -82,6 +84,54 @@ def unset_user_as_admin(username):
     DB.session.commit()
 
 
+def set_perma_blacklist_for_user(user_id):
+    """ Sets permanent blacklist flag for a user. """
+
+    user = get_user_by_id(user_id)
+    if not user:
+        return
+
+    user.always_blacklist = True
+    DB.session.add(user)
+    DB.session.commit()
+
+
+def unset_perma_blacklist_for_user(user_id):
+    """ Removes permanent blacklist flag for a user. """
+
+    user = get_user_by_id(user_id)
+    if not user:
+        return
+
+    user.always_blacklist = False
+    DB.session.add(user)
+    DB.session.commit()
+
+
+def verify_user(user_id):
+    """ Sets verified flag for a user. """
+
+    user = get_user_by_id(user_id)
+    if not user:
+        return
+
+    user.is_verified = True
+    DB.session.add(user)
+    DB.session.commit()
+
+
+def unverify_user(user_id):
+    """ Removes verified flag for a user. """
+
+    user = get_user_by_id(user_id)
+    if not user:
+        return
+
+    user.is_verified = False
+    DB.session.add(user)
+    DB.session.commit()
+
+
 def set_user_as_results_moderator(username):
     """ Sets results moderator status for a user. Raises UserDoesNotExistException if no such user exists. """
 
@@ -89,7 +139,7 @@ def set_user_as_results_moderator(username):
     if not user:
         raise UserDoesNotExistException(username)
 
-    user.is_results_moderator = True
+    user.is_results_mod = True
     DB.session.add(user)
     DB.session.commit()
 
@@ -101,7 +151,7 @@ def unset_user_as_results_moderator(username):
     if not user:
         raise UserDoesNotExistException(username)
 
-    user.is_results_moderator = False
+    user.is_results_mod = False
     DB.session.add(user)
     DB.session.commit()
 

@@ -1,12 +1,13 @@
 """ Routes related to a user's profile. """
 
-from flask import render_template
+from flask import render_template, redirect, url_for
 from flask_login import current_user
 
 from app import app
 from app.business.user_history import get_user_competition_history
 from app.persistence.comp_manager import get_user_participated_competitions_count
-from app.persistence.user_manager import get_user_by_username
+from app.persistence.user_manager import get_user_by_username, verify_user, unverify_user,\
+    set_perma_blacklist_for_user, unset_perma_blacklist_for_user, get_user_by_id
 from app.persistence.user_results_manager import get_user_completed_solves_count
 from app.persistence.events_manager import get_events_id_name_mapping
 from app.persistence.user_site_rankings_manager import get_site_rankings_for_user
@@ -88,6 +89,71 @@ def profile(username):
         is_admin_viewing=current_user.is_admin, sor_all=sor_all, sor_wca=sor_wca,
         sor_non_wca=sor_non_wca, gold_count=gold_count, silver_count=silver_count,
         bronze_count=bronze_count)
+
+# -------------------------------------------------------------------------------------------------
+
+@app.route('/blacklist_user/<int:user_id>/')
+def blacklist_user(user_id: int):
+    """ Sets the perma-blacklist flag for the specified user. """
+
+    if not (current_user.is_authenticated and (current_user.is_admin or current_user.is_results_moderator)):
+        return ("Hey, you're not allowed to do that.", 403)
+
+    set_perma_blacklist_for_user(user_id)
+
+    user = get_user_by_id(user_id)
+    if not user:
+        return redirect(url_for('index'))
+
+    return redirect(url_for('profile', username=user.username))
+
+
+@app.route('/unblacklist_user/<int:user_id>/')
+def unblacklist_user(user_id: int):
+    """ Unsets the perma-blacklist flag for the specified user. """
+
+    if not (current_user.is_authenticated and (current_user.is_admin or current_user.is_results_moderator)):
+        return ("Hey, you're not allowed to do that.", 403)
+
+    unset_perma_blacklist_for_user(user_id)
+
+    user = get_user_by_id(user_id)
+    if not user:
+        return redirect(url_for('index'))
+
+    return redirect(url_for('profile', username=user.username))
+
+
+@app.route('/verify_user/<int:user_id>/')
+def do_verify_user(user_id: int):
+    """ Sets the verified flag for the specified user. """
+
+    if not (current_user.is_authenticated and (current_user.is_admin or current_user.is_results_moderator)):
+        return ("Hey, you're not allowed to do that.", 403)
+
+    verify_user(user_id)
+
+    user = get_user_by_id(user_id)
+    if not user:
+        return redirect(url_for('index'))
+
+    return redirect(url_for('profile', username=user.username))
+
+
+@app.route('/unverify_user/<int:user_id>/')
+def do_unverify_user(user_id: int):
+    """ Unsets the verified flag for the specified user. """
+
+    if not (current_user.is_authenticated and (current_user.is_admin or current_user.is_results_moderator)):
+        return ("Hey, you're not allowed to do that.", 403)
+
+    unverify_user(user_id)
+
+    user = get_user_by_id(user_id)
+    if not user:
+        return redirect(url_for('index'))
+
+    return redirect(url_for('profile', username=user.username))
 
 # -------------------------------------------------------------------------------------------------
 
