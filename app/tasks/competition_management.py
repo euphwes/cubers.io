@@ -1,7 +1,5 @@
 """ Tasks related to creating and scoring competitions. """
 
-# pylint: disable=line-too-long
-
 from datetime import datetime
 from pytz import timezone
 
@@ -24,19 +22,30 @@ from .admin_notification import notify_admin, send_weekly_report, AdminNotificat
 
 # -------------------------------------------------------------------------------------------------
 
-# Returns whether it's currently DST in the specified timezone.
-# Shamelessly taken from an answer here:
-# https://stackoverflow.com/questions/19774709/use-python-to-find-out-if-a-timezone-currently-in-daylight-savings-time
-# pylint:disable=invalid-name
-is_daylight_savings_in = lambda zonename: bool(datetime.now(timezone(zonename)).dst())
+__US_EASTERN_TIMEZONE = 'US/Eastern'
+
+def __is_daylight_savings_in(zonename: str) -> bool:
+    """ Returns whether it's currently daylight savings time in the specified timezone.
+    Shamelessly taken from an answer here: https://stackoverflow.com/questions/19774709 """
+
+    return bool(datetime.now(timezone(zonename)).dst())
+
+
+def __always_false(*args) -> bool:
+    """ Dummy function to always return false. """
+
+    return False
+
+# -------------------------------------------------------------------------------------------------
 
 if app.config['IS_DEVO']:
-    WRAP_WEEKLY_COMP_SCHEDULE = lambda dt: False  # don't run as periodic in devo
+    WRAP_WEEKLY_COMP_SCHEDULE = __always_false  # don't run as periodic in devo
+
 else:
     # We want the comps to be posted on at 10 PM US Eastern on Sundays, but we need to specify the
     # crontab time in UTC. Since the relationship between UTC and US/Eastern changes depending on
     # daylight savings time, we need to account for that
-    if is_daylight_savings_in('US/Eastern'):
+    if __is_daylight_savings_in(__US_EASTERN_TIMEZONE):
         # Mon 2 AM UTC == Sun 10 PM US/Eastern
         WRAP_WEEKLY_COMP_SCHEDULE = crontab(day_of_week='1', hour='2', minute='0')
     else:
@@ -90,7 +99,7 @@ def run_user_site_rankings():
     start = utcnow()
     user_count = get_user_count()
     precalculate_user_site_rankings()
-    end   = utcnow()
+    end = utcnow()
 
     body = 'Updated site rankings for {} users in {}s'.format(user_count, (end - start).seconds)
     notify_admin(None, body, AdminNotificationType.PUSHBULLET_NOTE)

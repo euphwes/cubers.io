@@ -6,32 +6,33 @@ from arrow import utcnow
 
 from . import huey
 
+from app import app
 from app.persistence.comp_manager import get_participants_in_competition, get_competition
 from app.persistence.weekly_metrics_manager import get_weekly_metrics
 
 # -------------------------------------------------------------------------------------------------
 
-# pylint: disable=too-few-public-methods
 class AdminNotificationType:
     """ Enum-esque container for encapsulating admin notification types """
+
     PUSHBULLET_NOTE = 'pb_note'
     PUSHBULLET_LINK = 'pb_link'
 
 # -------------------------------------------------------------------------------------------------
 
 # Get the Pushbullet API key and target channel tag from environment variables
-PUSHBULLET_API_KEY         = environ.get('PUSHBULLET_API_KEY', None)
-PUSHBULLET_TARGET_CHANNEL  = environ.get('PUSHBULLET_TARGET_CHANNEL', None)
+PUSHBULLET_API_KEY        = environ.get('PUSHBULLET_API_KEY', None)
+PUSHBULLET_TARGET_CHANNEL = environ.get('PUSHBULLET_TARGET_CHANNEL', None)
 
 # If we have both of those, assume for now we'll be operating with admin notification enabled
 PUSHBULLET_ADMIN_NOTIFICATION_ENABLED = bool(PUSHBULLET_API_KEY) and bool(PUSHBULLET_TARGET_CHANNEL)
 
 # If we're missing some Pushbullet setup, log it so we know
 if not PUSHBULLET_ADMIN_NOTIFICATION_ENABLED:
-    MSG =  "Can't set up admin notifications: "
+    MSG = "Can't set up admin notifications: "
     MSG += "missing one or more of the following environment variables -- "
     MSG += 'PUSHBULLET_API_KEY, PUSHBULLET_TARGET_CHANNEL'
-    print(MSG)
+    app.logger.error(MSG)
 
 # Starting with the assumption we'll be able to send notifications over Pushbullet
 # instantiate a Pushbullet client and look for the channel specified
@@ -48,9 +49,9 @@ if PUSHBULLET_ADMIN_NOTIFICATION_ENABLED:
     # flag so our notify_admin function effectively does nothing
     if not CHANNEL:
         PUSHBULLET_ADMIN_NOTIFICATION_ENABLED = False
-        MSG =  "Can't set up admin notifications: "
+        MSG = "Can't set up admin notifications: "
         MSG += "couldn't find Pushbullet channel for tag {}".format(PUSHBULLET_TARGET_CHANNEL)
-        print(MSG)
+        app.logger.error(MSG)
 
     # Otherwise if we found the channel, create a map between notification type and functions
     # bound to the Pushbullet channel itself
@@ -64,17 +65,8 @@ if PUSHBULLET_ADMIN_NOTIFICATION_ENABLED:
 
 WEEKLY_REPORT_TITLE_TEMPLATE = 'Weekly report for "{comp_name}"'
 
-WEEKLY_REPORT_BODY_TEMPLATE =\
-"""{total_participants} users participated.
-{new_users_count} new users registered.
-
-{traffic}
-"""
-
-TRAFFIC_TEMPLATE =\
-"""Desktop traffic: ({desktop_hits} hits = {desktop_percentage}%)
-Mobile traffic: ({mobile_hits} hits = {mobile_percentage}%)
-"""
+WEEKLY_REPORT_BODY_TEMPLATE = """{total_participants} users participated.
+{new_users_count} new users registered."""
 
 # -------------------------------------------------------------------------------------------------
 
@@ -96,30 +88,14 @@ def notify_admin(title, content, notification_type):
 def send_weekly_report(comp_id):
     """ Builds and sends an end-of-week report with stats from the specified competition. """
 
-    metrics      = get_weekly_metrics(comp_id)
-    mobile_hits  = metrics.mobile_hits if metrics.mobile_hits else 0
-    desktop_hits = metrics.desktop_hits if metrics.desktop_hits else 0
-    total_hits   = mobile_hits + desktop_hits
-
-    if total_hits:
-        mobile_percentage  = '{:.1f}'.format((mobile_hits/total_hits) * 100)
-        desktop_percentage = '{:.1f}'.format((desktop_hits/total_hits) * 100)
-        traffic_report = TRAFFIC_TEMPLATE.format(
-            desktop_hits       = desktop_hits,
-            mobile_hits        = mobile_hits,
-            desktop_percentage = desktop_percentage,
-            mobile_percentage  = mobile_percentage
-        )
-    else:
-        traffic_report = 'Desktop/Mobile traffic not recorded this week'
+    metrics = get_weekly_metrics(comp_id)
 
     new_users_count = metrics.new_users_count if metrics.new_users_count else 0
 
-    title = WEEKLY_REPORT_TITLE_TEMPLATE.format(comp_name = get_competition(comp_id).title)
+    title = WEEKLY_REPORT_TITLE_TEMPLATE.format(comp_name=get_competition(comp_id).title)
     content = WEEKLY_REPORT_BODY_TEMPLATE.format(
-        total_participants = len(get_participants_in_competition(comp_id)),
-        new_users_count    = new_users_count,
-        traffic            = traffic_report
+        total_participants=len(get_participants_in_competition(comp_id)),
+        new_users_count=new_users_count,
     )
 
     notify_admin(title, content, AdminNotificationType.PUSHBULLET_NOTE)
