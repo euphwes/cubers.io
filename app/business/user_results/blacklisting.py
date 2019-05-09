@@ -23,11 +23,18 @@ __PERMA_BLACKLIST_NOTE_TEMPLATE = "Results automatically hidden on {date} becaus
 __PERMA_BLACKLIST_NOTE_TEMPLATE += "permanent blacklist."
 
 # Weekly blacklist note
-__WEEKLY_BLACKLIST_NOTE_TEMPLATE = "Results automatically hidden on {date} because this user is flagged in "
-__WEEKLY_BLACKLIST_NOTE_TEMPLATE += "this week's competition due to other suspicious event results."
+__WEEKLY_BLACKLIST_NOTE_TEMPLATE = "Results automatically hidden on {date} because this user has a "
+__WEEKLY_BLACKLIST_NOTE_TEMPLATE += "weekly blacklist flag set due to other unlikely results."
 
 # For retrieving blacklist threshold multiplicative factor from app config
 __KEY_AUTO_BL_FACTOR = 'AUTO_BL_FACTOR'
+
+# Log message templates
+__LOG_BLACKLIST_BASE = "blacklisted {username}'s results for {comp_event_name}"
+__LOG_PERFORMED_PERMA_BLACKLIST_ACTION = __LOG_BLACKLIST_BASE + " -- permanent blacklist"
+__LOG_PERFORMED_WEEKLY_BLACKLIST_ACTION = __LOG_BLACKLIST_BASE + " -- weekly blacklist"
+__LOG_PERFORMED_SINGLE_BLACKLIST_ACTION = __LOG_BLACKLIST_BASE + " -- single threshold"
+__LOG_PERFORMED_AVERAGE_BLACKLIST_ACTION = __LOG_BLACKLIST_BASE + " -- average threshold"
 
 # Values to be inserted into blacklist note templates above, and key for a kwargs dict
 # to insert timestamp as `date` kwarg
@@ -95,29 +102,24 @@ def take_blacklist_action_if_necessary(results: UserEventResults,
     if not results.is_complete:
         return results, False
 
+    comp_event_name = get_comp_event_name_by_id(results.comp_event_id)
+
     # Check if the user is flagged to have all of their results automatically blacklisted
     if user.always_blacklist:
-        return __perform_perma_blacklist_action(results), True
+        return __perform_perma_blacklist_action(results, comp_event_name, user), True
 
     # Check if the user is flagged to have all of their results just for this week blacklisted
     if get_weekly_blacklist_entry_by_user_id(user.id):
-        return __perform_weekly_blacklist_action(results), True
+        return __perform_weekly_blacklist_action(results, comp_event_name, user), True
 
     # Get the auto-blacklist thresholds for the event these results are for.
     # If we don't have thresholds, leave without taking any blacklist action
-    comp_event_name = get_comp_event_name_by_id(results.comp_event_id)
-    thresholds      = __get_event_thresholds(comp_event_name)
+    thresholds = __get_event_thresholds(comp_event_name)
     if not thresholds:
         return results, False
 
     # Extract the adjusted single and average thresholds
     single_threshold, average_threshold = thresholds
-
-    # If the single threshold has been breached, blacklist just the one set of results.
-    # We don't want to go overboard and blacklist everything this week because a single
-    # very low time could be a legitimate accident
-    if __check_event_single_threshold_breached(results, single_threshold):
-        return __perform_single_results_blacklist_action(results, comp_event_name), True
 
     # If the average threshold has been breached, it's more likely that the user is
     # intentionally posting bogus times. Blacklist this set of results, add a
@@ -127,6 +129,12 @@ def take_blacklist_action_if_necessary(results: UserEventResults,
     if __check_event_average_threshold_breached(results, average_threshold):
         return __perform_average_results_blacklist_action(results, comp_event_name, user), True
 
+    # If the single threshold has been breached, blacklist just the one set of results.
+    # We don't want to go overboard and blacklist everything this week because a single
+    # very low time could be a legitimate accident
+    if __check_event_single_threshold_breached(results, single_threshold):
+        return __perform_single_results_blacklist_action(results, comp_event_name, user), True
+
     # Everything's legit! Let those results through without blacklisting anything
     return results, False
 
@@ -135,25 +143,36 @@ def take_blacklist_action_if_necessary(results: UserEventResults,
 # of the publicly-visible functions above.
 # -------------------------------------------------------------------------------------------------
 
-def __perform_perma_blacklist_action(results: UserEventResults) -> UserEventResults:
+def __perform_perma_blacklist_action(results: UserEventResults,
+                                     comp_event_name: str,
+                                     user: User) -> UserEventResults:
     """ Blacklists this specific UserEventResults and sets the note indicating the user was flagged
     for permanent blacklist. """
 
+    app.logger.info(__LOG_PERFORMED_PERMA_BLACKLIST_ACTION.format(comp_event_name=comp_event_name,
+        username=user.username))
     return __blacklist_results_with_note(results, __PERMA_BLACKLIST_NOTE_TEMPLATE)
 
 
-def __perform_weekly_blacklist_action(results: UserEventResults) -> UserEventResults:
+def __perform_weekly_blacklist_action(results: UserEventResults,
+                                      comp_event_name: str,
+                                      user: User) -> UserEventResults:
     """ Blacklists this specific UserEventResults and sets the note indicating it's because the
     user has a weekly blacklist record set. """
 
+    app.logger.info(__LOG_PERFORMED_WEEKLY_BLACKLIST_ACTION.format(comp_event_name=comp_event_name,
+        username=user.username))
     return __blacklist_results_with_note(results, __WEEKLY_BLACKLIST_NOTE_TEMPLATE)
 
 
 def __perform_single_results_blacklist_action(results: UserEventResults,
-                                              comp_event_name: str) -> UserEventResults:
+                                              comp_event_name: str,
+                                              user: User) -> UserEventResults:
     """ Blacklists this specific UserEventResults and sets the note indicating the results were
     blacklisted due to being lower than the single threshold. """
 
+    app.logger.info(__LOG_PERFORMED_SINGLE_BLACKLIST_ACTION.format(comp_event_name=comp_event_name,
+        username=user.username))
     return __blacklist_results_with_note(results, __AUTO_BLACKLIST_NOTE_TEMPLATE, type=__SINGLE)
 
 
@@ -164,11 +183,14 @@ def __perform_average_results_blacklist_action(results: UserEventResults,
     blacklisted due to being lower than the single threshold. """
 
     # Make sure any new result this week are auto-blacklisted
-    ensure_weekly_blacklist_for_user(user.id)
+    ensure_weekly_blacklist_for_user(user)
 
     # Retroactively blacklisted any non-blacklisted results already submitted this week
     comp_id = get_comp_event_by_id(results.comp_event_id).competition_id
     blacklist_all_complete_results_for_user_and_comp(user.id, comp_id, user.username)
+
+    app.logger.info(__LOG_PERFORMED_AVERAGE_BLACKLIST_ACTION.format(comp_event_name=comp_event_name,
+        username=user.username))
 
     # Blacklist these results and return
     return __blacklist_results_with_note(results, __AUTO_BLACKLIST_NOTE_TEMPLATE, type=__AVERAGE)
