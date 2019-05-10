@@ -7,6 +7,7 @@ from app.persistence.user_results_manager import get_all_complete_user_results_f
 from app.util.reddit import submit_post, update_post
 from app.util.sorting import sort_user_event_results
 from app.util.times import convert_centiseconds_to_friendly_time, convert_fmc_centimoves_to_moves
+from app.util.events.resources import sort_comp_events_by_global_sort_order
 
 # -------------------------------------------------------------------------------------------------
 
@@ -52,7 +53,7 @@ def post_results_thread(competition_id, is_rerun=False):
 
     # Iterate over all the events in the competition, simultaneously building up the post body and
     # tallying user points
-    for comp_event in comp.events:
+    for comp_event in sort_comp_events_by_global_sort_order(list(comp.events)):
         results = list(get_all_complete_user_results_for_comp_event(comp_event.id))
         if not results:
             continue
