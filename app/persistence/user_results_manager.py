@@ -72,29 +72,6 @@ def get_user_completed_solves_count(user_id):
         count()
 
 
-def get_comment_id_by_comp_id_and_user(comp_id, user_id):
-    """ Returns a Reddit comment ID for the specified user and competition id. """
-
-    for result in get_all_user_results_for_comp_and_user(comp_id, user_id):
-        if result.reddit_comment:
-            return result.reddit_comment
-    return None
-
-
-def are_results_different_than_existing(comp_event_results, user):
-    """ Determine if these results are identical to any previous existing results for this user
-    and this competition event by comparing their times strings and comments. """
-
-    existing_results = get_event_results_for_user(comp_event_results.comp_event_id, user)
-    if not existing_results:
-        return True
-
-    if existing_results.times_string != comp_event_results.times_string:
-        return True
-
-    return existing_results.comment != comp_event_results.comment
-
-
 def get_event_results_for_user(comp_event_id, user):
     """ Retrieves a UserEventResults for a specific user and competition event. """
 
@@ -331,7 +308,6 @@ def bulk_save_event_results(results_list):
     for result in results_list:
         DB.session.add(result)
     DB.session.commit()
-
 
 # -------------------------------------------------------------------------------------------------
 # Below are functions that aren't normally used in the app, but were used at some point for

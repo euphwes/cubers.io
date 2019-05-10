@@ -13,7 +13,7 @@ from app.persistence.weekly_blacklist_manager import clearly_weekly_blacklist
 from app.persistence.comp_manager import get_active_competition, get_all_comp_events_for_comp
 from app.persistence.user_manager import get_user_count
 from app.util.competition.generation import generate_new_competition
-from app.util.competition.scoring import score_reddit_thread
+from app.util.competition.scoring import post_results_thread
 from app.tasks.reddit import prepare_new_competition_notification,\
     prepare_end_of_competition_info_notifications
 
@@ -62,7 +62,7 @@ def wrap_weekly_competition():
     comp_events_in_comp = get_all_comp_events_for_comp(current_comp.id)
     set_medals_on_best_event_results(comp_events_in_comp)
 
-    score_reddit_thread_task(current_comp.id, current_comp.title)
+    post_results_thread_task(current_comp.id, current_comp.title)
     generate_new_competition_task()
     clearly_weekly_blacklist()
     send_weekly_report(current_comp.id)
@@ -70,10 +70,10 @@ def wrap_weekly_competition():
 
 
 @huey.task()
-def score_reddit_thread_task(comp_id, comp_title, is_rerun=False):
+def post_results_thread_task(comp_id, comp_title, is_rerun=False):
     """ A task to score the specified competition's Reddit thread. """
 
-    score_reddit_thread(comp_id, is_rerun=is_rerun)
+    post_results_thread(comp_id, is_rerun=is_rerun)
 
     body = 'Scored Reddit thread for {}'.format(comp_title)
     notify_admin(None, body, AdminNotificationType.PUSHBULLET_NOTE)

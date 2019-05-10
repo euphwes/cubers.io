@@ -30,4 +30,5 @@ def convert_centiseconds_to_friendly_time(centiseconds):
 
 def convert_seconds_to_friendly_time(seconds):
     """ Converts seconds to human-readable friendly time. """
+
     return convert_centiseconds_to_friendly_time(seconds * 100)

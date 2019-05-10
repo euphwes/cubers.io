@@ -5,7 +5,6 @@ from flask_assets import Bundle, Environment
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_mobility import Mobility
-from flask_login import AnonymousUserMixin
 from flask.logging import default_handler
 
 from babel.dates import format_date
@@ -84,10 +83,17 @@ app.logger.addHandler(stream_handler)
 
 # -------------------------------------------------------------------------------------------------
 
-from app.tasks import *              # noqa
-from app.persistence import models   # noqa
-from app.routes import *             # noqa
-from app.commands import *           # noqa
+from app.tasks import *               # noqa
+from app.persistence import models    # noqa
+from app.routes.admin import *        # noqa
+from app.routes.auth import *         # noqa
+from app.routes.events import *       # noqa
+from app.routes.home import *         # noqa
+from app.routes.persistence import *  # noqa
+from app.routes.results import *      # noqa
+from app.routes.user import *         # noqa
+from app.routes.util import *         # noqa
+from app.commands import *            # noqa
 from app.util.times import convert_centiseconds_to_friendly_time  # noqa
 
 # -------------------------------------------------------------------------------------------------

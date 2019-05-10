@@ -180,7 +180,7 @@ def save_competition(competition):
     DB.session.commit()
 
 
-def save_new_competition(title, reddit_id, event_data):
+def save_new_competition(title, event_data):
     """ Creates a new active competition, events for that competition, and ensures all the other
     competitions are now inactive. Returns the newly-created competition. """
 
@@ -193,8 +193,7 @@ def save_new_competition(title, reddit_id, event_data):
         comp.active = False
 
     # Create new active comp starting now
-    new_comp = Competition(title=title, reddit_thread_id=reddit_id,
-                           active=True, start_timestamp=now)
+    new_comp = Competition(title=title, active=True, start_timestamp=now)
 
     for data in event_data:
         event = get_event_by_name(data['name'])
