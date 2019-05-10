@@ -1,5 +1,7 @@
 """ Utility module for persisting and retrieving UserEventResults """
 
+from sqlalchemy.orm import joinedload
+
 from app import DB
 from app.persistence.comp_manager import get_active_competition
 from app.persistence.models import Competition, CompetitionEvent, Event, UserEventResults,\
@@ -175,7 +177,11 @@ def get_all_complete_user_results_for_comp_event(comp_event_id, omit_blacklisted
     if omit_blacklisted:
         results_query = results_query.filter(UserEventResults.is_blacklisted.isnot(True))
 
-    return results_query
+    results_query = results_query.\
+        options(joinedload(UserEventResults.User)).\
+        options(joinedload(UserEventResults.CompetitionEvent).subqueryload(CompetitionEvent.Event))
+
+    return results_query.all()
 
 
 def get_blacklisted_entries_for_comp(comp_id):

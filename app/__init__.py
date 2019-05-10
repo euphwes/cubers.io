@@ -84,6 +84,7 @@ app.logger.addHandler(stream_handler)
 # -------------------------------------------------------------------------------------------------
 
 from app.tasks import *               # noqa
+
 from app.persistence import models    # noqa
 from app.routes.admin import *        # noqa
 from app.routes.auth import *         # noqa
