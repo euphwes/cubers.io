@@ -4,10 +4,10 @@ from sys import maxsize as MAX
 
 from typing import Any, Dict, List, Union, Tuple, Iterable
 
+from app import app
 from app.persistence.comp_manager import get_comp_event_by_id
 from app.persistence.models import UserEventResults, UserSolve, EventFormat, User
 from app.util.times import convert_centiseconds_to_friendly_time
-
 from app.business.user_results import DNF, DNS, FMC
 from app.business.user_results.personal_bests import set_pb_flags
 from app.business.user_results.blacklisting import take_blacklist_action_if_necessary
@@ -112,12 +112,15 @@ def __build_user_solves(solves_data: Dict[str, Any],
         if not is_fmc and not time:
             continue
 
-        # For FMC, a DNF without a "time" (really move count) is ok
-        if is_fmc and not solve[IS_DNF]:
+        # For FMC, a DNF without a "time" (really move count) is ok, but no time and no DNF is not ok
+        if is_fmc and (not time) and (not solve[IS_DNF]):
             continue
 
         # Set the time (in centiseconds), DNF and +2 status, and the scramble ID for this UserSolve
-        time        = int(time)
+        if is_fmc:
+            time = int(time) if time else 0
+        else:
+            time = int(time)
         dnf         = solve[IS_DNF]
         plus_two    = solve[IS_PLUS_TWO]
         scramble_id = solve[SCRAMBLE_ID]
