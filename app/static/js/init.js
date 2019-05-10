@@ -1,6 +1,6 @@
 (function() {
     var app = window.app;
- 
+
     /**
      * Initializes all the modules in the app.
      * 
@@ -31,7 +31,6 @@
 
         app.mainScreenManager = new app.MainScreenManager();
         app.timerScreenManager = new app.TimerScreenManager();
-        app.summaryScreenManager = new app.SummaryScreenManager();
 
         app.eventsDataManager.buildAllIncompleteSummaries();
 

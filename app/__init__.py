@@ -53,10 +53,17 @@ ASSETS.register({
         'js/ui/main_screen_manager.js',
         'js/ui/timer_screen_manager.js',
         'js/ui/scramble_image_generator.js',
+        'js/ui/pentagons.js',
 
         'js/init.js',
         filters="jsmin",
         output='gen/app.js'
+    ),
+
+    'pentagons_js': Bundle(
+        'js/ui/pentagons.js',
+        filters="jsmin",
+        output='gen/pentagons.js'
     ),
 
     'app_css': Bundle(

@@ -1,0 +1,66 @@
+{% extends "common/base.html" %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<canvas id="pentagons"></canvas>
+<div class="container-fluid timer2-container">
+    <div class="row" style="height: 100%;">
+
+        <div class="timer2_left_portion">
+            <div class="timer2_sidebar_wrapper">
+                <div class="timer2_sidebar">
+                    <div class="timer2_times text-center">
+                        <div class="timer2_single_time ao5">&nbsp;9.23&nbsp;</div>
+                        <div class="timer2_single_time ao5">14.97&nbsp;</div>
+                        <div class="timer2_single_time ao5">17.23+</div>
+                        <div class="timer2_single_time ao5">DNF</div>
+                        <div class="timer2_single_time ao5">—</div>
+                    </div>
+                    <div class="timer2_preview"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="timer2_right_portion">
+            <div class="timer2_upper_area">
+                <div class="timer2_scramble_area">
+                    <div class="scram2 timer2_flex_full_center text-center">{{scramble}}</div>
+                </div>
+            </div>
+            
+            <div class="timer2_lower_area">
+                <div id="the_timer">
+                    <div class="timer_text text-center">0.00</div>
+                </div>
+                <div class="timer2_mods_area">
+                    <div class="timer2_controls_wrapper">
+                        <div class="timer2_control_icon"><button class="btn btn-lg btn-outline-light btn-timer-control"><i class="fas fa-undo"></i></button></div>
+                        <div class="timer2_control_icon"><button class="btn btn-lg btn-outline-light btn-timer-control">+2</button></div>
+                        <div class="timer2_control_icon"><button class="btn btn-lg btn-outline-light btn-timer-control">DNF</button></div>
+                        <div class="timer2_control_icon"><button class="btn btn-lg btn-outline-light btn-timer-control"><i class="far fa-comment"></i></button></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_script %}
+<script>
+    window.app = {};
+    $(function() {
+        var fitText = function() {
+            textFit($('.scram2')[0], {multiLine: true, maxFontSize: 40});
+        };
+        fitText();
+        $(window).resize(fitText);
+    })
+</script>
+{% assets "pentagons_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}
