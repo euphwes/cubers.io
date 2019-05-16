@@ -24,4 +24,7 @@ def timer_page(comp_event_id):
         "3Fw2 Bw Dw L2 U' Fw Uw R2 U' 3Lw2 L2 Uw 3Lw2 3Uw' Uw D' B2 Rw2 L' 3Dw Bw Uw 3Fw B' Bw' 3Uw 3Rw' 3Uw2 U 3Bw2 D 3Lw 3Rw Rw 3Bw2 D2 B2 U' Uw' Rw2 3Bw2 3Rw Dw' 3Bw' 3Lw2 Bw' 3Bw' U' 3Dw Rw Fw' Rw Bw L F2 3Lw2 3Uw2 Lw Fw2 D Fw2 3Lw' Fw L Dw 3Bw2 Dw' 3Lw2 3Fw' Uw2 3Rw2 U2 Rw2 Bw 3Fw Uw L Fw2 Uw' L Fw2 B' Bw' 3Lw' Fw' B F' 3Dw2 R' 3Bw' D' Lw D2 U' Uw 3Bw' F2 3Rw L' Fw2",
     ])
 
-    return render_template("timer/timer_page.html", scramble=scramble)
+    alternative_title = "7x7 - May 2019 Week 2"
+
+    return render_template("timer/timer_page.html", scramble=scramble,
+        alternative_title=alternative_title)
