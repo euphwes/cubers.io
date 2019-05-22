@@ -2,6 +2,11 @@
 
 {% block head %}
     {{ super() }}
+    {% block additional_styles %}
+        {% assets "app_css" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}" />
+        {% endassets %}
+    {% endblock %}
 {% endblock %}
 
 {% block content %}

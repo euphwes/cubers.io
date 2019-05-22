@@ -1,0 +1,304 @@
+@import (reference) "../common.less";
+
+#fade-wrapper {
+    display: none;
+    position: fixed;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    background: rgba(0, 0, 0, 0.95);
+
+    &.shown {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+// ---------------------------------------------------------------------------------------------------------
+
+#pentagons {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  
+    pointer-events: none;
+  
+    /* The pentagons are hidden until they are shown by a CSS animation */
+    opacity: 0;
+}
+
+.timer-container {
+    margin-top: @navbar-height;
+    // height: 100%;
+    height: ~"calc(100% - 48px)"; // 48px is navbar-height, but we can't use a variable in this context
+
+    &.mobile {
+        overflow-y: hidden;
+    }
+}
+
+.flex_full_center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.left_portion {
+    height: 100%;
+    width: 20%;
+    // background-color: green;
+}
+
+.right_portion {
+    height: 100%;
+    width: 80%;
+    // background-color: red;
+
+    .upper_area {
+        display: flex;
+    
+        height: 30%;
+        width: 100%;
+    
+        .scramble_area {
+            width: 100%;
+            height: 100%;
+    
+            padding: 10px 20px;
+            &.mobile {
+                padding: 5px;
+            }
+    
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 400;
+    
+            .scram2 {
+                border: 3px solid white;
+                padding: 10px;
+                height: 100%;
+            }
+        }
+    }
+    
+
+    .lower_area {
+        height: 70%;
+        width: 100%;
+    }
+}
+
+.upper_portion {
+    height: 80%;
+    width: 100%;
+
+    .upper_area {
+        height: 50%;
+        width: 100%;
+    
+        .scramble_area {
+            width: 100%;
+            height: 85%;
+    
+            padding: 10px 20px;
+            &.mobile {
+                padding: 5px;
+            }
+    
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 400;
+    
+            .scram2 {
+                border: 3px solid white;
+                padding: 10px;
+                height: 100%;
+            }
+        }
+
+        .times {
+            width: 100%;
+            height: 15%;
+
+            color: white;
+            font-family: 'Roboto Mono', monospace;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+
+            .single_time {
+                text-align: center;
+                width: 15%;
+                margin: 0 1.5vw;
+            }
+        }
+    }
+    
+
+    .lower_area {
+        height: 50%;
+        width: 100%;
+    }
+}
+
+.lower_portion {
+    height: 20%;
+    width: 100%;
+}
+
+
+#the_timer {
+    height: 60%;
+    width: 100%;
+
+    font-family: 'Roboto', sans-serif;
+
+    color: white;
+
+    position: relative;
+    display: flex;
+
+    .timer_text {
+        width: 100%;
+        font-size: 12vw;
+
+        &.mobile {
+            font-size: 20vw;
+            bottom: 1vh;
+        }
+
+        position: absolute;
+        bottom: -5vh;
+    }
+
+    // background-color: orange;
+}
+
+.mods_area {
+    height: 40%;
+    width: 100%;
+
+    .controls_wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .control_icon {
+            margin: 0 1vw;
+
+            &.mobile {
+                margin: 0 2vw;
+            }
+        
+            .btn-timer-control {
+                height: 48px;
+                width: 75px;
+
+                &.mobile {
+                    height: 40px;
+                    width: 60px;
+                }
+
+                border-width: 2px;
+            }
+        }
+    }
+}
+
+
+.sidebar {
+    background-color: white;
+    padding: 10px;
+    height: 100%;
+    width: 100%;
+
+    box-shadow: 5px 0px 7px 0px rgba(0,0,0,0.64);
+    -webkit-box-shadow: 5px 0px 7px 0px rgba(0,0,0,0.64);
+    -moz-box-shadow: 5px 0px 7px 0px rgba(0,0,0,0.64);
+
+    .times {
+        height: 40%;
+
+        font-family: 'Roboto Mono', monospace;
+
+        .solves_header {
+            text-align: left;
+            height: 10%;
+        }
+
+        .single_time {
+            padding: 5px;
+            font-size: 18px;
+            text-align: center;
+            border-bottom: 1px solid #eeeeee;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            height: 18%;
+        }
+    }
+
+    .preview {
+        height: 50%;
+    }
+}
+
+.sidebar.mobile {
+    background-color: white;
+    height: 100%;
+    width: 100%;
+    display: flex;
+
+    box-shadow: 3px 0px 7px 0px rgba(0,0,0,0.64);
+    -webkit-box-shadow: 3px 0px 7px 0px rgba(0,0,0,0.64);
+    -moz-box-shadow: 3px 0px 7px 0px rgba(0,0,0,0.64);
+
+    .times {
+        height: 100%;
+        width: 50%;
+
+        font-family: 'Roboto Mono', monospace;
+
+        .solves_header {
+            text-align: left;
+            height: 10%;
+        }
+
+        .single_time {
+            padding: 5px;
+            font-size: 18px;
+            text-align: center;
+            border-bottom: 1px solid #eeeeee;
+
+            &.no-border {
+                border-bottom: none;
+            }
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            height: 20%;
+        }
+    }
+
+    .preview {
+        height: 100%;
+        width: 50%;
+    }
+}
+
+.sidebar_wrapper {
+    height: 100%;
+    width: 100%;
+    position: relative;
+}

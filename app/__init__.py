@@ -65,10 +65,28 @@ ASSETS.register({
         output='gen/pentagons.js'
     ),
 
+    'timer_desktop_css': Bundle(
+        'less/common.less',
+        'less/navbar.less',
+        'less/timer/timer_common.less',
+        'less/timer/desktop.less',
+        filters="less,cssmin",
+        output='gen/timer_desktop_css.css'),
+
+    'timer_mobile_css': Bundle(
+        'less/common.less',
+        'less/navbar.less',
+        'less/timer/timer_common.less',
+        'less/timer/mobile.less',
+        filters="less,cssmin",
+        output='gen/timer_mobile_css.css'),
+
     'app_css': Bundle(
         'less/common.less',
         'less/navbar.less',
-        'less/timer_page.less',
+        'less/timer/timer_common.less',
+        'less/timer/desktop.less',
+        'less/timer/mobile.less',
         'less/events_page.less',
         'less/results.less',
         'less/user.less',
