@@ -1,24 +1,16 @@
 """ Business logic for creating a new competition. """
 
-from collections import namedtuple
 from datetime import datetime
 from math import ceil
 
 from app import app
-
-from app.persistence.comp_manager import get_competition_gen_resources,\
-save_competition_gen_resources, save_new_competition
-
-from app.persistence.events_manager import retrieve_from_scramble_pool_for_event,\
-    get_events_name_id_mapping, delete_from_scramble_pool
-
+from app.persistence.comp_manager import get_competition_gen_resources, save_competition_gen_resources,\
+    save_new_competition
+from app.persistence.events_manager import retrieve_from_scramble_pool_for_event, get_events_name_id_mapping,\
+    delete_from_scramble_pool
 from app.persistence.weekly_metrics_manager import create_new_weekly_metrics_for_comp
-
 from app.util.events.resources import get_all_weekly_events, get_all_bonus_events,\
-get_bonus_events_rotation_starting_at, get_COLL_at_index, get_bonus_events_without_current,\
-get_num_COLLs, get_num_bonus_events, EVENT_COLL
-
-from app.util.competition.posting import post_competition
+    get_bonus_events_rotation_starting_at, get_COLL_at_index, get_num_COLLs, get_num_bonus_events, EVENT_COLL
 
 # -------------------------------------------------------------------------------------------------
 
@@ -37,15 +29,16 @@ if IS_DEVO:
 # -------------------------------------------------------------------------------------------------
 
 def generate_new_competition():
-    """ Generate a new competition and post to Reddit. """
+    """ Generate a new competition. """
 
     # Get the info required to know what events and COLL to do next
     comp_gen_data = get_competition_gen_resources()
     was_all_events = comp_gen_data.all_events
 
-    # Figure out next competition number
+    # Increment competition number. We're not using this anywhere at the moment now that
+    # we're not posting competition threads to Reddit, but let's keep track anyway in case
+    # we might like the info in the future.
     comp_gen_data.current_comp_num += 1
-    comp_number = comp_gen_data.current_comp_num
 
     # Determine the competition name. If there is a title override in the competition generation
     # data, use that for this week and then empty it so it doesn't apply to next week also.
@@ -63,19 +56,8 @@ def generate_new_competition():
     # Get the list of events data/scrambles for every event
     event_data = get_events_data(weekly_events, bonus_events, comp_gen_data)
 
-    # Get lists of current and upcoming bonus event names for use in building the Reddit post
-    bonus_names  = [e.name for e in bonus_events]
-    upcoming_bonus_names = [e.name for e in get_bonus_events_without_current(bonus_events)]
-    if not upcoming_bonus_names:
-        upcoming_bonus_names = ["Back to the normal rotation next week."]
-
-    # Post competition to reddit
-    reddit_id = post_competition(comp_name, comp_number, event_data,\
-        bonus_names, upcoming_bonus_names)
-
     # Save new competition to database
-    # TODO: fix relay scrambles for representation in reddit thread
-    new_db_competition = save_new_competition(comp_name, reddit_id, event_data)
+    new_db_competition = save_new_competition(comp_name, event_data)
 
     # Create a weekly metrics record for the competition
     create_new_weekly_metrics_for_comp(new_db_competition.id)
@@ -91,7 +73,7 @@ def generate_new_competition():
 def week_of_month(datetime_timestamp):
     """ Returns the week of the month for the specified date. """
 
-    return ceil(datetime_timestamp.day/7)
+    return ceil(datetime_timestamp.day / 7)
 
 
 def get_comp_name_from_date():
@@ -99,9 +81,9 @@ def get_comp_name_from_date():
 
     today = datetime.utcnow()
     return COMPETITION_NAME_TEMPLATE.format(
-        month = today.strftime('%b'),
-        year  = today.year,
-        week  = week_of_month(today)
+        month=today.strftime('%b'),
+        year=today.year,
+        week=week_of_month(today)
     )
 
 
@@ -113,7 +95,7 @@ def get_bonus_events(comp_gen_data):
     # the flag so next week's bonus event behavior falls back to default
     if comp_gen_data.all_events:
         comp_gen_data.all_events = False
-        update_coll_info(comp_gen_data) # Make sure the COLL index has been updated
+        update_coll_info(comp_gen_data)  # Make sure the COLL index has been updated
         return get_all_bonus_events()
 
     # Update start index for bonus events by moving the start index up by BONUS_EVENT_COUNT
@@ -125,7 +107,7 @@ def get_bonus_events(comp_gen_data):
         comp_gen_data.current_bonus_index = new_index
         bonus_events = get_bonus_events_rotation_starting_at(new_index, BONUS_EVENT_COUNT)
         if EVENT_COLL in bonus_events:
-            update_coll_info(comp_gen_data) # Make sure the COLL index has been updated
+            update_coll_info(comp_gen_data)  # Make sure the COLL index has been updated
         return bonus_events
 
 
@@ -150,16 +132,16 @@ def get_events_data(weekly_events, bonus_events, comp_gen_data):
                 coll = get_COLL_at_index(comp_gen_data.current_OLL_index)
                 coll_scrambles = [EVENT_COLL.get_scramble(coll) for _ in range(event.num_scrambles)]
                 events_data.append(dict({
-                    'name'     : event.name,
-                    'event_id' : event_id,
-                    'scrambles': [s[0] for s in coll_scrambles],
+                    'name':               event.name,
+                    'event_id':           event_id,
+                    'scrambles':          [s[0] for s in coll_scrambles],
                     'scrambles_for_post': [s[1] for s in coll_scrambles],
                 }))
 
             else:
                 events_data.append(dict({
-                    'name'     : event.name,
-                    'event_id' : event_id,
+                    'name':      event.name,
+                    'event_id':  event_id,
                     'scrambles': get_scrambles_for_event(event_id, event.num_scrambles),
                 }))
 

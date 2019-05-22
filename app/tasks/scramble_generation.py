@@ -20,7 +20,7 @@ ScramblePoolTopOffInfo = namedtuple('ScramblePoolTopOffInfo', ['event_id', 'even
 # In dev environments, run the task to check the scramble pool every 5 minutes.
 # In prod, run it every 6 hours
 if app.config['IS_DEVO']:
-    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(minute="*/5") # Once every 5 minutes
+    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(minute="*/5")  # Once every 5 minutes
 else:
     CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(hour="*/6", minute="0")   # Once every 6 hours
 
@@ -44,7 +44,7 @@ def check_scramble_pool():
         # Determine if the scramble pool is too low for this event. If so, enqueue a task to
         # generate enough scrambles for this event to bring the pool up to (2 * number of solves)
         # for that event
-        num_missing = (2 * event.totalSolves) - len(event.scramble_pool)
+        num_missing = (5 * event.totalSolves) - len(event.scramble_pool)
         if num_missing > 0:
             top_off_scramble_pool(ScramblePoolTopOffInfo(event.id, event.name, num_missing))
             event_scramble_msgs.append('{} for {}'.format(num_missing, event.name))

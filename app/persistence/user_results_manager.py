@@ -1,5 +1,7 @@
 """ Utility module for persisting and retrieving UserEventResults """
 
+from sqlalchemy.orm import joinedload
+
 from app import DB
 from app.persistence.comp_manager import get_active_competition
 from app.persistence.models import Competition, CompetitionEvent, Event, UserEventResults,\
@@ -70,29 +72,6 @@ def get_user_completed_solves_count(user_id):
         filter(UserEventResults.user_id == user_id).\
         distinct(UserSolve.id).\
         count()
-
-
-def get_comment_id_by_comp_id_and_user(comp_id, user_id):
-    """ Returns a Reddit comment ID for the specified user and competition id. """
-
-    for result in get_all_user_results_for_comp_and_user(comp_id, user_id):
-        if result.reddit_comment:
-            return result.reddit_comment
-    return None
-
-
-def are_results_different_than_existing(comp_event_results, user):
-    """ Determine if these results are identical to any previous existing results for this user
-    and this competition event by comparing their times strings and comments. """
-
-    existing_results = get_event_results_for_user(comp_event_results.comp_event_id, user)
-    if not existing_results:
-        return True
-
-    if existing_results.times_string != comp_event_results.times_string:
-        return True
-
-    return existing_results.comment != comp_event_results.comment
 
 
 def get_event_results_for_user(comp_event_id, user):
@@ -198,7 +177,11 @@ def get_all_complete_user_results_for_comp_event(comp_event_id, omit_blacklisted
     if omit_blacklisted:
         results_query = results_query.filter(UserEventResults.is_blacklisted.isnot(True))
 
-    return results_query
+    results_query = results_query.\
+        options(joinedload(UserEventResults.User)).\
+        options(joinedload(UserEventResults.CompetitionEvent).subqueryload(CompetitionEvent.Event))
+
+    return results_query.all()
 
 
 def get_blacklisted_entries_for_comp(comp_id):
@@ -331,7 +314,6 @@ def bulk_save_event_results(results_list):
     for result in results_list:
         DB.session.add(result)
     DB.session.commit()
-
 
 # -------------------------------------------------------------------------------------------------
 # Below are functions that aren't normally used in the app, but were used at some point for

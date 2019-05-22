@@ -20,6 +20,9 @@ class AdminNotificationType:
 
 # -------------------------------------------------------------------------------------------------
 
+# Let's not bother sending notifications in devo
+IS_DEVO = app.config['IS_DEVO']
+
 # Get the Pushbullet API key and target channel tag from environment variables
 PUSHBULLET_API_KEY        = environ.get('PUSHBULLET_API_KEY', None)
 PUSHBULLET_TARGET_CHANNEL = environ.get('PUSHBULLET_TARGET_CHANNEL', None)
@@ -72,8 +75,11 @@ WEEKLY_REPORT_BODY_TEMPLATE = """{total_participants} users participated.
 
 @huey.task()
 def notify_admin(title, content, notification_type):
-    """ Sends an admin notification (note, link, etc) with the content supplied,
-    to the target Pushbullet channel specified above. """
+    """ Sends an admin notification (note, link, etc) with the content supplied to the target
+    Pushbullet channel specified above. """
+
+    if IS_DEVO:
+        return
 
     if not PUSHBULLET_ADMIN_NOTIFICATION_ENABLED:
         return

@@ -1,7 +1,5 @@
 """ Resources for data related to events. """
 
-#pylint: disable=C0103
-
 from random import choice
 
 from pyTwistyScrambler import scrambler333, scrambler222, scrambler444, scrambler555,\
@@ -35,12 +33,12 @@ def redi_scrambler():
     """ Returns a scramble for a Redi cube in MoYu notation. """
 
     scramble = list()
-    possible_moves = [["R", "R'"],["L", "L'"]]
+    possible_moves = [["R", "R'"], ["L", "L'"]]
 
     for _ in range(7):
-        i = choice([0, 1]) # start each chunk with either R-moves or L-moves at random
-        for n in range(choice([3, 4, 5])): # either 3, 4, or 5 moves between each 'x'
-            ix = (i + n) % 2 # alternate between R-moves and L-moves each time
+        i = choice([0, 1])  # start each chunk with either R-moves or L-moves at random
+        for n in range(choice([3, 4, 5])):  # either 3, 4, or 5 moves between each 'x'
+            ix = (i + n) % 2  # alternate between R-moves and L-moves each time
             scramble.append(choice(possible_moves[ix]))
         scramble.append('x')
 
@@ -66,7 +64,7 @@ def does_FMC_scramble_have_cancellations(scramble):
     """ Returns whether the supplied scramble would have cancellations when padding with
     R' U' F at the beginning and end, as FMC regulations require. """
 
-    scramble = scramble.split(' ') # turn it into a list of moves
+    scramble = scramble.split(' ')  # turn it into a list of moves
 
     # check if there are any obvious cancellations: F touch F at the beginning,
     # or R touching R at the end
@@ -273,7 +271,7 @@ def sort_comp_events_by_global_sort_order(comp_events):
 
     ordered_comp_events = list()
 
-    event_name_comp_event_map = {c.Event.name : c for c in comp_events}
+    event_name_comp_event_map = {c.Event.name: c for c in comp_events}
     comp_event_names = set(event_name_comp_event_map.keys())
 
     for event in __GLOBAL_SORT_ORDER:
@@ -334,7 +332,7 @@ def get_bonus_events_rotation_starting_at(starting_index, count=5):
     bring us past the end of the list. """
 
     double_wide = __BONUS_EVENTS * 2
-    return double_wide[starting_index : starting_index + count]
+    return double_wide[starting_index: starting_index + count]
 
 
 def get_bonus_events_without_current(bonus_events):

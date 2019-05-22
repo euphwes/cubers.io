@@ -126,6 +126,14 @@
                             <tr class="{{ its_me }}" id = "{{ me_id }}">
                                 <td>{{ record.rank }}</td>
                                 <td>
+                                    {% if show_admin %}
+                                        {% if record.user_is_verified %}
+                                            {% set verification_class = 'verified' %}
+                                        {% else %}
+                                            {% set verification_class = 'unverified' %}
+                                        {% endif %}
+                                        <span class="fas fa-user-check {{verification_class}} mr-1"></span>
+                                    {% endif %}
                                     <a href="{{ url_for('profile', username=record.username) }}">/u/{{ record.username }}</a>
                                 </td>
 

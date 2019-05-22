@@ -17,7 +17,7 @@ from app.persistence.user_results_manager import get_all_null_is_complete_event_
     get_all_na_average_event_results, save_event_results_for_user, get_all_complete_event_results,\
     bulk_save_event_results, get_all_fmc_results
 from app.business.user_results import set_medals_on_best_event_results
-from app.tasks.competition_management import score_reddit_thread_task,\
+from app.tasks.competition_management import post_results_thread_task,\
     generate_new_competition_task, wrap_weekly_competition, run_user_site_rankings
 
 # -------------------------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ def score_comp_only(comp_id, rerun):
     """ Score only the specified competition, optionally as a re-run. """
 
     comp = get_competition(comp_id)
-    score_reddit_thread_task(comp.id, comp.title, is_rerun=rerun)
+    post_results_thread_task(comp.id, comp.title, is_rerun=rerun)
 
 
 @app.cli.command()
