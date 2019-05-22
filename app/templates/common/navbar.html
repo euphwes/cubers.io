@@ -97,21 +97,20 @@
                     </a>
                     <div class="dropdown-menu dropdown-menu-right">
                         <a class="dropdown-item" href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
-                        <a class="dropdown-item" href="{{ url_for('edit_settings')}}">Preferences</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
                     </div>
+                </li>
+                <li class="nav-item nav-settings flex-center-all">
+                    <a class="nav-link py-0" href="{{ url_for('edit_settings')}}">
+                        <i class="fas fa-cog"></i>
+                    </a>
                 </li>
                 {% else %}
                 <li class="nav-item">
                     <a class="nav-link py-0" href="{{ url_for('login') }}">Login with Reddit</a>
                 </li>
                 {% endif %}
-                <li class="nav-item nav-github flex-center-all">
-                    <a class="nav-link py-0" href="https://github.com/euphwes/cubers.io" target="_blank">
-                        <i class="fab fa-github"></i>
-                    </a>
-                </li>
             </ul>
         </div>
     </div>
