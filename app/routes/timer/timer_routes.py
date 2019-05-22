@@ -2,12 +2,17 @@
 
 from random import choice
 
-from flask import render_template, redirect, abort
+from flask import render_template, redirect, abort, request
 from flask_login import current_user
 
 from app import app
 
 # -------------------------------------------------------------------------------------------------
+
+TIMER_TEMPLATE_MOBILE_MAP = {
+    True:  'timer/mobile/timer_page.html',
+    False: 'timer/timer_page.html',
+}
 
 # -------------------------------------------------------------------------------------------------
 
@@ -26,5 +31,5 @@ def timer_page(comp_event_id):
 
     alternative_title = "7x7 - May 2019 Week 2"
 
-    return render_template("timer/timer_page.html", scramble=scramble,
+    return render_template(TIMER_TEMPLATE_MOBILE_MAP[request.MOBILE], scramble=scramble,
         alternative_title=alternative_title)
