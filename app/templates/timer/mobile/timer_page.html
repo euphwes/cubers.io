@@ -10,14 +10,14 @@
 {% endblock %}
 
 {% block content %}
-<canvas id="pentagons"></canvas>
-<div class="container-fluid timer-container mobile">
+<canvas id="shapes"></canvas>
+<div class="container-fluid timer-container">
     <div class="row" style="height: 100%;">
 
         <div class="upper_portion">
-            <div class="upper_area">
-                <div class="scramble_area mobile">
-                    <div class="scram2 flex_full_center text-center mobile">{{scramble}}</div>
+            <div class="scramble_wrapper">
+                <div class="scramble_area">
+                    <div class="scram flex_full_center text-center">{{scramble}}</div>
                 </div>
                 <div class="times text-center">
                     <div class="single_time">9.23</div>
@@ -28,16 +28,16 @@
                 </div>
             </div>
             
-            <div class="lower_area">
-                <div id="the_timer" class="mobile">
-                    <div class="timer_text text-center mobile">0.00</div>
+            <div class="timer_controls_wrapper">
+                <div id="the_timer">
+                    <div class="timer_text text-center">0.00</div>
                 </div>
                 <div class="mods_area">
-                    <div class="controls_wrapper mobile">
-                        <div class="control_icon mobile"><button class="btn btn-outline-light btn-timer-control mobile"><i class="fas fa-undo"></i></button></div>
-                        <div class="control_icon mobile"><button class="btn btn-outline-light btn-timer-control mobile">+2</button></div>
-                        <div class="control_icon mobile"><button class="btn btn-outline-light btn-timer-control mobile">DNF</button></div>
-                        <div class="control_icon mobile"><button class="btn btn-outline-light btn-timer-control mobile"><i class="far fa-comment"></i></button></i></div>
+                    <div class="controls_wrapper">
+                        <div class="control_icon"><button class="btn btn-outline-light btn-timer-control"><i class="fas fa-undo"></i></button></div>
+                        <div class="control_icon"><button class="btn btn-outline-light btn-timer-control">+2</button></div>
+                        <div class="control_icon"><button class="btn btn-outline-light btn-timer-control">DNF</button></div>
+                        <div class="control_icon"><button class="btn btn-outline-light btn-timer-control"><i class="far fa-comment"></i></button></i></div>
                     </div>
                 </div>
             </div>
@@ -63,10 +63,10 @@
 <script>
     window.app = {};
     $(function() {
-        textFit($('.scram2')[0], {multiLine: true, maxFontSize: 40});
+        textFit($('.scram')[0], {multiLine: true, maxFontSize: 40});
     })
 </script>
-{% assets "pentagons_js" %}
+{% assets "shapes_js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endblock %}

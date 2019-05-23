@@ -2,8 +2,8 @@
 // in a canvas. You can use it as follows:
 //
 //     var myCanvas = document.getElementById(...);
-//     var pents = new window.app.Pentagons(myCanvas);
-//     pents.begin();
+//     var shapes = new window.app.Shapes(myCanvas);
+//     shapes.begin();
 //
 // It is your responsibility to resize the canvas as needed.
 
@@ -38,12 +38,12 @@
       return this.elapsed() >= this.duration;
     };
   
-    function MovingPentagon(initial) {
+    function MovingShape(initial) {
       this.pentagon = initial.copy();
       this.animation = new Animation(initial, initial, 0);
     }
   
-    function Pentagon(x, y, radius, rotation, opacity, numSides) {
+    function Shape(x, y, radius, rotation, opacity, numSides) {
       this.x = x;
       this.y = y;
       this.radius = radius;
@@ -52,12 +52,12 @@
       this.numSides = numSides;
     }
   
-    Pentagon.prototype.copy = function() {
-      return new Pentagon(this.x, this.y, this.radius, this.rotation,
+    Shape.prototype.copy = function() {
+      return new Shape(this.x, this.y, this.radius, this.rotation,
         this.opacity, this.numSides);
     };
   
-    Pentagon.prototype.draw = function(ctx, width, height) {
+    Shape.prototype.draw = function(ctx, width, height) {
       var radius = this.radius;
       var rotation = this.rotation;
       var numSides = this.numSides;
@@ -84,24 +84,24 @@
       ctx.fill();
     };
   
-    function Pentagons(canvas, count) {
+    function Shapes(canvas, count) {
       this.canvas = canvas;
-      this.movingPentagons = [];
+      this.movingShapes = [];
   
       // Generate some pentagons to start
       for (var i = 0; i < (count || 12); ++i) {
-        var moving = new MovingPentagon(this.random());
-        this.movingPentagons.push(moving);
+        var moving = new MovingShape(this.random());
+        this.movingShapes.push(moving);
       }
     }
   
-    Pentagons.prototype.begin = function() {
+    Shapes.prototype.begin = function() {
       setInterval(function() {
         this.draw();
       }.bind(this), 1000/24);
     };
   
-    Pentagons.prototype.draw = function() {
+    Shapes.prototype.draw = function() {
       var context = this.canvas.getContext('2d');
       var width = this.canvas.width;
       var height = this.canvas.height;
@@ -109,8 +109,8 @@
       context.clearRect(0, 0, width, height);
   
       // Animate and draw the pentagons
-      for (var i = 0, len = this.movingPentagons.length; i < len; ++i) {
-        var p = this.movingPentagons[i];
+      for (var i = 0, len = this.movingShapes.length; i < len; ++i) {
+        var p = this.movingShapes[i];
         p.animation.intermediate(p.pentagon);
   
         // Draw the pentagon
@@ -125,26 +125,26 @@
       }
     };
   
-    Pentagons.prototype.random = function(ignoreIdx) {
+    Shapes.prototype.random = function(ignoreIdx) {
       var radius = 0.11 + (Math.pow(Math.random(), 15)+1.0)*0.075;
       var opacity = Math.random()*0.22 + 0.04;
       var numSides = 3 + Math.floor(Math.random() * 3);
       console.log(numSides);
   
       if ('undefined' === typeof ignoreIdx) {
-        return new Pentagon(Math.random(), Math.random(), radius,
+        return new Shape(Math.random(), Math.random(), radius,
           Math.random()*Math.PI*2, opacity, numSides);
       }
   
       // The new pentagon is dependent on the previous pentagon.
-      var last = this.movingPentagons[ignoreIdx].pentagon;
+      var last = this.movingShapes[ignoreIdx].pentagon;
       var coords = this._gravityCoords(ignoreIdx, last);
       var rotation = Math.PI*(Math.random()-0.5) + last.rotation;
   
-      return new Pentagon(coords.x, coords.y, radius, rotation, opacity, last.numSides);
+      return new Shape(coords.x, coords.y, radius, rotation, opacity, last.numSides);
     };
   
-    Pentagons.prototype._gravityCoords = function(ignoreIdx, last) {
+    Shapes.prototype._gravityCoords = function(ignoreIdx, last) {
       var newCoords = {};
   
       // Use gravity to figure out where the pentagon "wants" to go.
@@ -156,11 +156,11 @@
         var force = 1/Math.pow(axisCoord+0.01, 2) - 1/Math.pow(1.01-axisCoord, 2);
   
         // Apply inverse square forces from other pentagons.
-        for (var i = 0, len = this.movingPentagons.length; i < len; ++i) {
+        for (var i = 0, len = this.movingShapes.length; i < len; ++i) {
           if (i === ignoreIdx) {
             continue;
           }
-          var p = this.movingPentagons[i].pentagon;
+          var p = this.movingShapes[i].pentagon;
           var dSquared = Math.pow(p.x-last.x, 2) + Math.pow(p.y-last.y, 2);
           var forceMag = 1/dSquared;
           var distance = Math.sqrt(dSquared);
@@ -181,22 +181,22 @@
       return newCoords;
     };
   
-    window.app.Pentagons = Pentagons;
+    window.app.Shapes = Shapes;
 
     $(function() {
-      var canvas = $('#pentagons')[0];
-      var pents = new Pentagons(canvas);
-      pents.begin();
+      var canvas = $('#shapes')[0];
+      var shapes = new Shapes(canvas);
+      shapes.begin();
       var resizeFunc = function() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        pents.draw();
+        shapes.draw();
       };
       $(window).resize(resizeFunc);
       resizeFunc();
   
       setTimeout(function() {
-        $('#pentagons').css({
+        $('#shapes').css({
           opacity: 1,
           '-ms-transform': 'none',
           '-webkit-transform': 'none',

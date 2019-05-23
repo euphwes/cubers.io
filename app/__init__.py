@@ -52,23 +52,23 @@ ASSETS.register({
         'js/ui/main_screen_manager.js',
         'js/ui/timer_screen_manager.js',
         'js/ui/scramble_image_generator.js',
-        'js/ui/pentagons.js',
+        'js/ui/shapes.js',
 
         'js/init.js',
         filters="jsmin",
         output='gen/app.js'
     ),
 
-    'pentagons_js': Bundle(
-        'js/ui/pentagons.js',
+    'shapes_js': Bundle(
+        'js/ui/shapes.js',
         filters="jsmin",
-        output='gen/pentagons.js'
+        output='gen/shapes.js'
     ),
 
     'timer_desktop_css': Bundle(
         'less/common.less',
         'less/navbar.less',
-        'less/timer/timer_common.less',
+        'less/timer/common.less',
         'less/timer/desktop.less',
         filters="less,cssmin",
         output='gen/timer_desktop_css.css'),
@@ -76,7 +76,7 @@ ASSETS.register({
     'timer_mobile_css': Bundle(
         'less/common.less',
         'less/navbar.less',
-        'less/timer/timer_common.less',
+        'less/timer/common.less',
         'less/timer/mobile.less',
         filters="less,cssmin",
         output='gen/timer_mobile_css.css'),
@@ -84,7 +84,7 @@ ASSETS.register({
     'app_css': Bundle(
         'less/common.less',
         'less/navbar.less',
-        'less/timer/timer_common.less',
+        'less/timer/common.less',
         'less/timer/desktop.less',
         'less/timer/mobile.less',
         'less/events_page.less',

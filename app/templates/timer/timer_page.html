@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-<canvas id="pentagons"></canvas>
+<canvas id="shapes"></canvas>
 <div class="container-fluid timer-container">
     <div class="row" style="height: 100%;">
 
@@ -33,13 +33,13 @@
         </div>
 
         <div class="right_portion">
-            <div class="upper_area">
+            <div class="scramble_wrapper">
                 <div class="scramble_area">
-                    <div class="scram2 flex_full_center text-center">{{scramble}}</div>
+                    <div class="scram flex_full_center text-center">{{scramble}}</div>
                 </div>
             </div>
             
-            <div class="lower_area">
+            <div class="timer_controls_wrapper">
                 <div id="the_timer">
                     <div class="timer_text text-center">0.00</div>
                 </div>
@@ -62,13 +62,13 @@
     window.app = {};
     $(function() {
         var fitText = function() {
-            textFit($('.scram2')[0], {multiLine: true, maxFontSize: 40});
+            textFit($('.scram')[0], {multiLine: true, maxFontSize: 40});
         };
         fitText();
         $(window).resize(fitText);
     })
 </script>
-{% assets "pentagons_js" %}
+{% assets "shapes_js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endblock %}
