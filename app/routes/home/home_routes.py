@@ -1,20 +1,13 @@
 """ Routes related to the main page. """
 
-from flask import render_template, request, redirect, url_for
+from flask import render_template, redirect, url_for
 from flask_login import current_user
 
 from app import app
 from app.persistence import comp_manager
-from app.persistence.settings_manager import SettingCode, SettingType, TRUE_STR,\
-    get_default_values_for_settings, get_bulk_settings_for_user_as_dict, get_setting_type
 from app.persistence.events_manager import get_all_bonus_events_names
-from app.persistence.user_results_manager import get_event_results_for_user
-from app.persistence.models import EventFormat
+from app.persistence.user_results_manager import get_all_user_results_for_comp_and_user
 from app.util.events.resources import sort_comp_events_by_global_sort_order
-
-# -------------------------------------------------------------------------------------------------
-
-LOG_MAIN_PAGE_LOAD_TEMPLATE = "{}: loaded main page"
 
 # -------------------------------------------------------------------------------------------------
 
@@ -22,60 +15,33 @@ LOG_MAIN_PAGE_LOAD_TEMPLATE = "{}: loaded main page"
 def index():
     """ Main page for the app. Shows cards for every event in the current competition."""
 
-    if (not current_user.is_authenticated) and ('nologin' not in request.args):
-        return redirect(url_for(".prompt_login"))
+    if not current_user.is_authenticated:
+        return redirect(url_for("prompt_login"))
 
+    # Get the current competition, and all events' results for the logged in user
     comp = comp_manager.get_active_competition()
+    user_results = get_all_user_results_for_comp_and_user(comp.id, current_user.id)
 
-    # Get the user's relevant user settings, otherwise get defaults
-    settings = get_user_settings(current_user)
+    # Get a dict of comp ID to result for all complete events
+    complete_events = { r.CompetitionEvent.id: r.friendly_result() for r in user_results if r.is_complete }
 
-    # This `events_for_json` dictionary is rendered into the page as a Javascript object, to be
-    # pulled in by the main JS app's events data manager. Keys are competitionEvent ID and the
-    # values are a dictionary containing the event name, event ID, event format, user comment,
-    # and scrambles. The scrambles here a dictionary themselves containing the scramble ID, actual
-    # scramble text, and has a placeholder for any complete user times to be filled in.
-    events_for_json = dict()
+    # Build a function which determines if a result is incomplete (solves are recorded, but enough yet to be complete)
+    # Then build up a set of comp event IDs for incomplete events
+    is_incomplete = __build_is_incomplete_func(set(complete_events.keys()))
+    incomplete_event_ids = set(r.CompetitionEvent.id for r in user_results if is_incomplete(r))
 
-    # Iterate over each competition event in this event, get the dict representation of it
-    # that can be used in the front end to render everything. If there is a logged-in user,
-    # fill that event dict with info about that user's completed solves, comments, etc
-    for comp_event in comp.events:
-        event_dict = comp_event.to_front_end_consolidated_dict()
-        fill_user_data_for_event(current_user, event_dict)
-        events_for_json[str(comp_event.id)] = event_dict
-
-    # Build a list of competition events in this comp. Initially order them by event ID,
-    # but then sort and group them by WCA events first, non-WCA weekly events next, and then
-    # bonus events last. This ordering ensures events are ordered relative to each other in
-    # the same way each comp
-    ordered_comp_events = sort_comp_events_by_global_sort_order(comp.events)
+    # Build a list of competition events in this comp. Initially order them by event ID, but then sort and group them
+    # by WCA events first, non-WCA weekly events next, and then bonus events last. This ordering ensures events are
+    # ordered relative to each other in the same way each comp
+    comp_events = sort_comp_events_by_global_sort_order(comp.events)
 
     # Build a set of comp event IDs that are bonus events so we can mark them on the main page
     bonus_event_names = set(get_all_bonus_events_names())
-    bonus_events_ids = set(c.id for c in ordered_comp_events if c.Event.name in bonus_event_names)
+    bonus_events_ids = set(c.id for c in comp_events if c.Event.name in bonus_event_names)
 
-    # Record which events are complete and which are incomplete, so we can render the event cards
-    # on the front end directly with the correct completion status (checkmark for complete, clock
-    # for started but incomplete). Otherwise we need to calculate that after the page loads and
-    # there's a fugly flicker when we apply those styles to the event cards
-    complete_events = dict()
-    incomplete_events = dict()
-    for comp_event_id, event in events_for_json.items():
-        if event.get(STATUS, '') == STATUS_COMPLETE:
-            complete_events[int(comp_event_id)] = event
-        elif event.get(STATUS, '') == STATUS_INCOMPLETE:
-            incomplete_events[int(comp_event_id)] = event
-
-    app.logger.info(LOG_MAIN_PAGE_LOAD_TEMPLATE.format(current_user.username),
-                    extra=__build_main_page_load_log_context(current_user, complete_events, incomplete_events))
-
-    # Phew finally we can just render the page
-    # pylint: disable=C0330
-    return render_template('index.html', current_competition=comp, events_data=events_for_json,
-        ordered_comp_events=ordered_comp_events, complete_events=complete_events,
-        incomplete_events=incomplete_events, comp_id=comp.id, settings=settings,
-        bonus_events_ids=bonus_events_ids)
+    # Phew, finally we can render the page
+    return render_template('index.html', current_competition=comp, comp_events=comp_events,
+        complete_events=complete_events, incomplete_events=incomplete_event_ids, bonus_events_ids=bonus_events_ids)
 
 
 @app.route('/prompt_login')
@@ -87,141 +53,11 @@ def prompt_login():
 
 # -------------------------------------------------------------------------------------------------
 
-# The front-end dictionary keys
-COMMENT        = 'comment'
-SOLVES         = 'scrambles'  # Because the times are paired with the scrambles in the front end
-TIME           = 'time'
-SCRAMBLE_ID    = 'id'
-IS_DNF         = 'isDNF'
-IS_PLUS_TWO    = 'isPlusTwo'
-COMP_EVENT_ID  = 'comp_event_id'
-STATUS         = 'status'
-SUMMARY        = 'summary'
-SINGLE         = 'single'
-AVERAGE        = 'average'
-RESULT         = 'result'
-WAS_PB_SINGLE  = 'wasPbSingle'
-WAS_PB_AVERAGE = 'wasPbAverage'
-EVENT_FORMAT   = 'event_format'
-BLIND_STATUS   = 'blind_status'
+def __build_is_incomplete_func(complete_ids):
+    """ Returns a function which tells if the supplied UserEventResult is considered incomplete for
+    the purpose of the main page; that is, it has some solves complete, but is not fully complete. """
 
-# Completeness status
-STATUS_COMPLETE   = 'complete'
-STATUS_INCOMPLETE = 'incomplete'
+    def __is_incomplete(result):
+        return (result.CompetitionEvent.id not in complete_ids) and bool(result.solves)
 
-def fill_user_data_for_event(user, event_data):
-    """ Checks if the user has a UserEventResults for this competition event. If they do, aggregate
-    their data (user comment, solve times, solve penalty flags, etc) into the event data dictionary
-    being passed to the front end so it's available at render-time and available to the JS app's
-    events data manager.  """
-
-    # If there's no logged in user, there's nothing to fill in
-    if not user:
-        return
-
-    # Get UserEventResults for this competition event and user.
-    # If there are no results, there's nothing to fill in, so we can just bail.
-    results = get_event_results_for_user(event_data[COMP_EVENT_ID], user)
-    if not results:
-        return
-
-    # Remember various stats about the userEventResults, so we can use it up front
-    event_data[COMMENT]        = results.comment
-    event_data[SUMMARY]        = results.times_string
-    event_data[RESULT]         = results.friendly_result()
-    event_data[SINGLE]         = results.friendly_single()
-    event_data[AVERAGE]        = results.friendly_average()
-    event_data[WAS_PB_SINGLE]  = results.was_pb_single
-    event_data[WAS_PB_AVERAGE] = results.was_pb_average
-
-    # Record a "blind status" flag for blind events that helps determine whether to display the
-    # "done" messaging in the timer screen. The messaging should only be shown for blind events
-    # if all 3 solves have been done, and we're sure the results have been calculated against
-    # all 3 solves.
-    if event_data[EVENT_FORMAT] == EventFormat.Bo3:
-        num_solves = len(results.solves)
-        event_data[BLIND_STATUS] = STATUS_COMPLETE if num_solves == 3 else STATUS_INCOMPLETE
-
-    # Iterate through all the solves completed by the user, matching them to a scramble in
-    # the events data. Record the time and penalty information so we have it up front.
-    for solve in results.solves:
-        for scramble in event_data[SOLVES]:
-            if scramble[SCRAMBLE_ID] != solve.scramble_id:
-                continue
-            scramble[TIME]        = solve.time
-            scramble[IS_DNF]      = solve.is_dnf
-            scramble[IS_PLUS_TWO] = solve.is_plus_two
-
-    # If the UserEventResults indicates the user has completed the event, then set the event status
-    # to complete so we can stick the nice pleasing checkmark on the card at render time
-    if results.is_complete:
-        event_data[STATUS] = STATUS_COMPLETE
-
-    # If the event is not complete but has some solves, set the status as 'incomplete' so we can
-    # render the clock thing
-    elif bool(list(results.solves)):
-        event_data[STATUS] = STATUS_INCOMPLETE
-
-# -------------------------------------------------------------------------------------------------
-
-# These are the settings relevant to the operation of the main cubers.io application
-SETTINGS_TO_POPULATE = [
-    SettingCode.DEFAULT_TO_MANUAL_TIME,
-    SettingCode.HIDE_RUNNING_TIMER,
-    SettingCode.HIDE_INSPECTION_TIME,
-    SettingCode.USE_INSPECTION_TIME,
-    SettingCode.USE_CUSTOM_CUBE_COLORS,
-    SettingCode.CUSTOM_CUBE_COLOR_U,
-    SettingCode.CUSTOM_CUBE_COLOR_F,
-    SettingCode.CUSTOM_CUBE_COLOR_R,
-    SettingCode.CUSTOM_CUBE_COLOR_D,
-    SettingCode.CUSTOM_CUBE_COLOR_B,
-    SettingCode.CUSTOM_CUBE_COLOR_L,
-    SettingCode.USE_CUSTOM_PYRAMINX_COLORS,
-    SettingCode.CUSTOM_PYRAMINX_COLOR_D,
-    SettingCode.CUSTOM_PYRAMINX_COLOR_L,
-    SettingCode.CUSTOM_PYRAMINX_COLOR_F,
-    SettingCode.CUSTOM_PYRAMINX_COLOR_R,
-    SettingCode.USE_CUSTOM_MEGAMINX_COLORS,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_1,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_2,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_3,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_4,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_5,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_6,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_7,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_8,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_9,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_10,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_11,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_12,
-]
-
-def get_user_settings(user):
-    """ Retrieves certain settings for use in the front-end. If there is no logged-in user, just
-    retrieve default values for these settings. """
-
-    if user:
-        settings = get_bulk_settings_for_user_as_dict(user.id, SETTINGS_TO_POPULATE)
-    else:
-        settings = get_default_values_for_settings(SETTINGS_TO_POPULATE)
-
-    # Convert boolean settings back to actual booleans
-    for code, value in settings.items():
-        if get_setting_type(code) == SettingType.BOOLEAN:
-            settings[code] = value == TRUE_STR
-
-    return settings
-
-# -------------------------------------------------------------------------------------------------
-
-def __build_main_page_load_log_context(user, complete_events, incomplete_events):
-    """ Builds some logging context related to creating/updating user events results. """
-
-    return {
-        'username': user.username,
-        'events': {
-            'complete': [event['name'] for _, event in complete_events.items()],
-            'incomplete': [event['name'] for _, event in incomplete_events.items()],
-        }
-    }
+    return __is_incomplete

@@ -3,7 +3,7 @@
 {% block head %}
     {{ super() }}
     {% block additional_styles %}
-        {% assets "app_css" %}
+        {% assets "index_css" %}
         <link rel="stylesheet" href="{{ ASSET_URL }}" />
         {% endassets %}
     {% endblock %}
@@ -12,36 +12,7 @@
 {% block content %}
 <!-- Main competition event listing panel -->
 <div class="cubers-container">
-
     <!-- Events cards container panel -->
     {% include 'events/events_container.html' %}
-    
-    <!-- Timer container panel -->
-    <div class="container-fluid ultra-hidden" id="timer_panel"></div>
-
-    <!-- Results summary panel -->
-    <div class="container-fluid ultra-hidden" id="summary_panel"></div>
-
 </div>
-
-{% include 'timer/timer_handlebars_template.html' %}
-
-{% endblock %}
-
-{% block additional_script %}
-<script>
-    window.app = {};
-    window.app.events_data = {{ events_data|tojson }};
-    window.app.comp_id = {{ comp_id }};
-    window.app.settings_data = {{ settings|tojson }};
-    {% if current_user.is_authenticated %}
-    window.app.user_logged_in = true;
-    {% else %}
-    window.app.user_logged_in = false;
-    {% endif %}
-</script>
-
-{% assets "app_js" %}
-<script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %}
 {% endblock %}

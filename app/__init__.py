@@ -71,7 +71,7 @@ ASSETS.register({
         'less/timer/common.less',
         'less/timer/desktop.less',
         filters="less,cssmin",
-        output='gen/timer_desktop_css.css'),
+        output='gen/timer_desktop.css'),
 
     'timer_mobile_css': Bundle(
         'less/common.less',
@@ -79,7 +79,14 @@ ASSETS.register({
         'less/timer/common.less',
         'less/timer/mobile.less',
         filters="less,cssmin",
-        output='gen/timer_mobile_css.css'),
+        output='gen/timer_mobile.css'),
+
+    'index_css': Bundle(
+        'less/common.less',
+        'less/navbar.less',
+        'less/events_page.less',
+        filters="less,cssmin",
+        output='gen/index.css'),
 
     'app_css': Bundle(
         'less/common.less',
