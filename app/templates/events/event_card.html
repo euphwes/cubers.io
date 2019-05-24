@@ -1,32 +1,22 @@
 {% if competition_event.id in complete_events.keys() %}
-<div class="event-card drop-shadow complete" id="event-{{competition_event.id}}"
-        data-comp_event_id="{{competition_event.id}}"
-        data-event_name="{{competition_event.Event.name}}"
-        data-event_id="{{competition_event.Event.id}}">
+    {% set additional_class = 'complete' %}
 {% else %}
 {% if competition_event.id in incomplete_events %}
-<div class="event-card drop-shadow incomplete" id="event-{{competition_event.id}}"
-        data-comp_event_id="{{competition_event.id}}"
-        data-event_name="{{competition_event.Event.name}}"
-        data-event_id="{{competition_event.Event.id}}">
+    {% set additional_class = 'incomplete' %}
 {% else %}
-<div class="event-card drop-shadow" id="event-{{competition_event.id}}"
-        data-comp_event_id="{{competition_event.id}}"
-        data-event_name="{{competition_event.Event.name}}"
-        data-event_id="{{competition_event.Event.id}}">
+{% set additional_class = '' %}
 {% endif %}
 {% endif %}
+<div class="event-card drop-shadow {{ additional_class }}"
+    data-compete_url="{{ url_for('timer_page', comp_event_id=competition_event.id)}}">
+
     <div class="event-image-container">
         <img class="event-image" src="./static/images/cube-{{ competition_event.Event.id }}.png">
         <div class="overlay complete-overlay">
-            <a href="#" class="icon">
-                <i class="fas fa-check"></i>
-            </a>
+            <a href="#" class="icon"><i class="fas fa-check"></i></a>
         </div>
         <div class="overlay incomplete-overlay">
-            <a href="#" class="icon">
-                <i class="far fa-clock"></i>
-            </a>
+            <a href="#" class="icon"><i class="far fa-clock"></i></a>
         </div>
     </div>
     <div class="event-name">

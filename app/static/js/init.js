@@ -29,11 +29,6 @@
         app.scrambleDisplayManager = new app.ScrambleDisplayManager();
         app.scrambleImageGenerator = new app.ScrambleImageGenerator();
 
-        app.mainScreenManager = new app.MainScreenManager();
-        app.timerScreenManager = new app.TimerScreenManager();
-
-        app.eventsDataManager.buildAllIncompleteSummaries();
-
         window.scrollTo(0,1);
     }
 

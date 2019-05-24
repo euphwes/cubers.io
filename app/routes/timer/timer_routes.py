@@ -26,7 +26,7 @@ TIMER_TEMPLATE_MOBILE_MAP = {
 
 # -------------------------------------------------------------------------------------------------
 
-@app.route('/timer/<int:comp_event_id>')
+@app.route('/compete/<int:comp_event_id>')
 def timer_page(comp_event_id):
     """ TODO: fill this for real.
     A temp route for working on timer page redesign outside of the real timer page. """

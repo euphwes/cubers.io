@@ -10,9 +10,17 @@
 {% endblock %}
 
 {% block content %}
-<!-- Main competition event listing panel -->
+<canvas id="shapes"></canvas>
 <div class="cubers-container">
-    <!-- Events cards container panel -->
     {% include 'events/events_container.html' %}
 </div>
+{% endblock %}
+
+{% block additional_script %}
+{% assets "shapes_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% assets "index_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 {% endblock %}

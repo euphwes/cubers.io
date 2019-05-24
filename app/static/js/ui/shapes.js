@@ -2,14 +2,12 @@
 // in a canvas. You can use it as follows:
 //
 //     var myCanvas = document.getElementById(...);
-//     var shapes = new window.app.Shapes(myCanvas);
+//     var shapes = new window.shapesHolder.Shapes(myCanvas);
 //     shapes.begin();
 //
 // It is your responsibility to resize the canvas as needed.
 
 (function() {
-
-    window.app.thing = {};
 
     function Animation(start, end, duration) {
       this.start = start;
@@ -61,7 +59,6 @@
       var radius = this.radius;
       var rotation = this.rotation;
       var numSides = this.numSides;
-      console.log(this.numSides);
       var x = this.x;
       var y = this.y;
       var size = Math.max(width, height);
@@ -89,7 +86,7 @@
       this.movingShapes = [];
   
       // Generate some pentagons to start
-      for (var i = 0; i < (count || 12); ++i) {
+      for (var i = 0; i < (count || 18); ++i) {
         var moving = new MovingShape(this.random());
         this.movingShapes.push(moving);
       }
@@ -126,10 +123,10 @@
     };
   
     Shapes.prototype.random = function(ignoreIdx) {
-      var radius = 0.11 + (Math.pow(Math.random(), 15)+1.0)*0.075;
-      var opacity = Math.random()*0.22 + 0.04;
-      var numSides = 3 + Math.floor(Math.random() * 3);
-      console.log(numSides);
+      var radius = (0.11 + (Math.pow(Math.random(), 15)+1.0)*0.075)*0.65;
+      var opacity = Math.random()*0.32 + 0.04;
+      var numSides = 5;
+      // var numSides = 3 + Math.floor(Math.random() * 3);
   
       if ('undefined' === typeof ignoreIdx) {
         return new Shape(Math.random(), Math.random(), radius,
@@ -181,8 +178,6 @@
       return newCoords;
     };
   
-    window.app.Shapes = Shapes;
-
     $(function() {
       var canvas = $('#shapes')[0];
       var shapes = new Shapes(canvas);

@@ -31,39 +31,32 @@ MIGRATE = Migrate(app, DB)
 
 ASSETS = Environment(app)
 ASSETS.register({
-    'app_js': Bundle(
-        'js/event_emitter.js',
 
-        'js/util/time_convert_format.js',
-        'js/util/extensions_and_polyfill.js',
-        'js/util/handlebars_helpers.js',
-
-        'js/controller/app_mode_manager.js',
-
-        'js/timer.js',
-
-        'js/controller/events_data_manager.js',
-        'js/controller/current_scrambles_manager.js',
-        'js/controller/user_settings_manager.js',
-
-        'js/ui/solve_card_manager.js',
-        'js/ui/timer_display_manager.js',
-        'js/ui/scramble_display_manager.js',
-        'js/ui/main_screen_manager.js',
-        'js/ui/timer_screen_manager.js',
-        'js/ui/scramble_image_generator.js',
-        'js/ui/shapes.js',
-
-        'js/init.js',
-        filters="jsmin",
-        output='gen/app.js'
-    ),
+    # ---------common static bundles ------------
 
     'shapes_js': Bundle(
         'js/ui/shapes.js',
         filters="jsmin",
         output='gen/shapes.js'
     ),
+
+    # --------- home page static bundles ------------
+
+    'index_js': Bundle(
+        'js/home/home_page.js',
+        filters="jsmin",
+        output='gen/index.js'
+    ),
+
+    'index_css': Bundle(
+        'less/common.less',
+        'less/navbar.less',
+        'less/events_page.less',
+        'less/home/common.less',
+        filters="less,cssmin",
+        output='gen/index.css'),
+
+    # --------- timer page static bundles ------------
 
     'timer_desktop_css': Bundle(
         'less/common.less',
@@ -80,13 +73,6 @@ ASSETS.register({
         'less/timer/mobile.less',
         filters="less,cssmin",
         output='gen/timer_mobile.css'),
-
-    'index_css': Bundle(
-        'less/common.less',
-        'less/navbar.less',
-        'less/events_page.less',
-        filters="less,cssmin",
-        output='gen/index.css'),
 
     'app_css': Bundle(
         'less/common.less',
