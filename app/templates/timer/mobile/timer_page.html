@@ -20,11 +20,9 @@
                     <div class="scram flex_full_center text-center">{{scramble}}</div>
                 </div>
                 <div class="times text-center">
-                    <div class="single_time">9.23</div>
-                    <div class="single_time">14.97</div>
-                    <div class="single_time">17.23+</div>
-                    <div class="single_time">DNF</div>
-                    <div class="single_time">—</div>
+                    {% for solve in user_solves %}
+                    <div class="single_time">{{ solve }}</div>
+                    {% endfor %}
                 </div>
             </div>
             

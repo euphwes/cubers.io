@@ -9,7 +9,7 @@ from flask import render_template, request, redirect, url_for
 from flask_login import current_user
 
 from app import app
-from app.persistence import comp_manager
+from app.persistence.comp_manager import get_comp_event_by_id
 from app.persistence.settings_manager import SettingCode, SettingType, TRUE_STR,\
     get_default_values_for_settings, get_bulk_settings_for_user_as_dict, get_setting_type
 from app.persistence.events_manager import get_all_bonus_events_names
@@ -31,15 +31,56 @@ def timer_page(comp_event_id):
     """ TODO: fill this for real.
     A temp route for working on timer page redesign outside of the real timer page. """
 
-    scramble = choice([
-        # "D' B2 L2 D R2 F2 D2 U' R2 F2 D2 L B R2 U' L2 D2 F U' B2 L'",
-        "3Fw2 Bw Dw L2 U' Fw Uw R2 U' 3Lw2 L2 Uw 3Lw2 3Uw' Uw D' B2 Rw2 L' 3Dw Bw Uw 3Fw B' Bw' 3Uw 3Rw' 3Uw2 U 3Bw2 D 3Lw 3Rw Rw 3Bw2 D2 B2 U' Uw' Rw2 3Bw2 3Rw Dw' 3Bw' 3Lw2 Bw' 3Bw' U' 3Dw Rw Fw' Rw Bw L F2 3Lw2 3Uw2 Lw Fw2 D Fw2 3Lw' Fw L Dw 3Bw2 Dw' 3Lw2 3Fw' Uw2 3Rw2 U2 Rw2 Bw 3Fw Uw L Fw2 Uw' L Fw2 B' Bw' 3Lw' Fw' B F' 3Dw2 R' 3Bw' D' Lw D2 U' Uw 3Bw' F2 3Rw L' Fw2",
-    ])
+    comp_event = get_comp_event_by_id(comp_event_id)
+    if not comp_event:
+        return ("Can't find that event, oops.", 404)
 
-    alternative_title = "7x7 - May 2019 Week 2"
+    comp = comp_event.Competition
+    if not comp.active:
+        return ("Oops, that event belongs to a competition which has ended.", 400)
+
+    scrambles = comp_event.scrambles
+    user_results = get_event_results_for_user(comp_event_id, current_user)
+
+    user_solves = ['—'] * comp_event.Event.totalSolves
+
+    if user_results:
+        for i, scramble in enumerate(scrambles):
+            for solve in user_results.solves:
+                if scramble.id == solve.scramble_id:
+                    user_solves[i] = solve.get_total_time()
+
+        first_unsolved_idx = -1
+        for i, solve in enumerate(user_solves):
+            if solve == '—':
+                first_unsolved_idx = i
+                break
+
+    else:
+        first_unsolved_idx = 0
+
+    if first_unsolved_idx != -1:        
+        print(first_unsolved_idx)
+        scramble = comp_event.scrambles[first_unsolved_idx].scramble
+    else:
+        scramble = "Congrats! You're done."
+
+
+
+    # TODO: on desktop, pad the solve times with nbsp to align them at the decimal like so:
+    """
+    <div class="solves_header">Solves</div>
+    <div class="single_time">&nbsp;9.23&nbsp;</div>
+    <div class="single_time">14.97&nbsp;</div>
+    <div class="single_time">17.23+</div>
+    <div class="single_time">DNF</div>
+    <div class="single_time">—</div>
+    """
+
+    alternative_title = '{} — {}'.format(comp_event.Event.name, comp.title)
 
     return render_template(TIMER_TEMPLATE_MOBILE_MAP[request.MOBILE], scramble=scramble,
-        alternative_title=alternative_title)
+        alternative_title=alternative_title, user_solves=user_solves)
 
 # -------------------------------------------------------------------------------------------------
 
