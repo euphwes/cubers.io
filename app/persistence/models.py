@@ -4,7 +4,7 @@ from collections import namedtuple, OrderedDict
 import json
 
 from flask_login import LoginManager, UserMixin, AnonymousUserMixin
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, reconstructor
 
 from app import DB, app
 from app.util.times import convert_centiseconds_to_friendly_time
@@ -145,9 +145,17 @@ class UserEventResults(Model):
     was_gold_medal    = Column(Boolean)
     was_silver_medal  = Column(Boolean)
     was_bronze_medal  = Column(Boolean)
-    # To determine how to format friendly representations of results, single, average
-    is_fmc   = False
-    is_blind = False
+
+    @reconstructor
+    def init_on_load(self):
+        """ Determine on load if these results are for FMC, or for a blind event, to facilitate
+        getting user-friendly representations of individual solve times and overall result, single
+        or average. """
+
+        event_name = self.CompetitionEvent.Event.name
+        self.is_fmc   = event_name == 'FMC'
+        self.is_blind = event_name in ('2BLD', '3BLD', '4BLD', '5BLD')
+
 
     def set_solves(self, incoming_solves):
         """ Utility method to set a list of UserSolves for this UserEventResults. """
@@ -345,18 +353,47 @@ class UserSolve(Model):
     """ A user's solve for a specific scramble, in a specific event, at a competition.
     Solve times are in centiseconds (ex: 1234 = 12.34s)."""
 
-    __tablename__ = 'user_solves'
-    id            = Column(Integer, primary_key=True)
-    time          = Column(Integer)
-    is_dnf        = Column(Boolean, default=False)
-    is_plus_two   = Column(Boolean, default=False)
-    scramble_id   = Column(Integer, ForeignKey('scrambles.id'))
+    __tablename__         = 'user_solves'
+    id                    = Column(Integer, primary_key=True)
+    time                  = Column(Integer)
+    is_dnf                = Column(Boolean, default=False)
+    is_plus_two           = Column(Boolean, default=False)
+    scramble_id           = Column(Integer, ForeignKey('scrambles.id'))
     user_event_results_id = Column(Integer, ForeignKey('user_event_results.id'))
+    UserEventResults      = relationship("UserEventResults")
 
 
     def get_total_time(self):
         """ Returns the solve's time with +2s penalty counted, if applicable. """
         return (self.time + 200) if self.is_plus_two else self.time
+
+
+    def get_friendly_time(self):
+        """ Utility method to return a friendly representation of the value passed in. Depends
+        on whether or not this UserEventResults is for an FMC event or not. """
+
+        if not self.time:
+            return ''
+
+        # TODO: handle blind DNFs, which show "DNF(time here)"
+        if self.is_dnf == 'DNF':
+            return 'DNF'
+
+        total_time = self.get_total_time()
+
+        if self.UserEventResults.is_fmc:
+            # TODO consolidate this with the jinja filter format for fmc function, and move into
+            # the time utils module
+            converted_value = int(total_time) / 100
+            if converted_value == int(converted_value):
+                converted_value = int(converted_value)
+            return converted_value
+
+        converted_to_friendly = convert_centiseconds_to_friendly_time(total_time)
+        if self.is_plus_two:
+            converted_to_friendly = converted_to_friendly + '+'
+
+        return converted_to_friendly
 
 
     def to_log_dict(self):

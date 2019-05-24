@@ -48,7 +48,7 @@ def timer_page(comp_event_id):
         for i, scramble in enumerate(scrambles):
             for solve in user_results.solves:
                 if scramble.id == solve.scramble_id:
-                    user_solves[i] = solve.get_total_time()
+                    user_solves[i] = solve.get_friendly_time()
 
         first_unsolved_idx = -1
         for i, solve in enumerate(user_solves):
