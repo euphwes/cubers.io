@@ -51,7 +51,7 @@ pkginfo==1.4.2
 praw==5.4.0
 prawcore==0.14.0
 prompt-toolkit==1.0.15
-psycopg2-binary==2.7.6.1
+psycopg2-binary==2.8.2
 ptyprocess==0.6.0
 pushbullet.py==0.11.0
 pycodestyle==2.5.0
