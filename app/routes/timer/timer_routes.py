@@ -1,11 +1,6 @@
 """ Routes related to displaying competition results. """
 
-from random import choice
-
 from flask import render_template, redirect, abort, request
-from flask_login import current_user
-
-from flask import render_template, request, redirect, url_for
 from flask_login import current_user
 
 from app import app
@@ -15,7 +10,6 @@ from app.persistence.settings_manager import SettingCode, SettingType, TRUE_STR,
 from app.persistence.events_manager import get_all_bonus_events_names
 from app.persistence.user_results_manager import get_event_results_for_user
 from app.persistence.models import EventFormat
-from app.util.events.resources import sort_comp_events_by_global_sort_order
 
 # -------------------------------------------------------------------------------------------------
 
@@ -43,6 +37,7 @@ def timer_page(comp_event_id):
     user_results = get_event_results_for_user(comp_event_id, current_user)
 
     user_solves = ['—'] * comp_event.Event.totalSolves
+    first_unsolved_idx = 0
 
     if user_results:
         for i, scramble in enumerate(scrambles):
@@ -56,31 +51,16 @@ def timer_page(comp_event_id):
                 first_unsolved_idx = i
                 break
 
-    else:
-        first_unsolved_idx = 0
-
-    if first_unsolved_idx != -1:        
+    if first_unsolved_idx != -1:
         print(first_unsolved_idx)
         scramble = comp_event.scrambles[first_unsolved_idx].scramble
     else:
         scramble = "Congrats! You're done."
 
-
-
-    # TODO: on desktop, pad the solve times with nbsp to align them at the decimal like so:
-    """
-    <div class="solves_header">Solves</div>
-    <div class="single_time">&nbsp;9.23&nbsp;</div>
-    <div class="single_time">14.97&nbsp;</div>
-    <div class="single_time">17.23+</div>
-    <div class="single_time">DNF</div>
-    <div class="single_time">—</div>
-    """
-
     alternative_title = '{} — {}'.format(comp_event.Event.name, comp.title)
 
     return render_template(TIMER_TEMPLATE_MOBILE_MAP[request.MOBILE], scramble=scramble,
-        alternative_title=alternative_title, user_solves=user_solves)
+        event_name=comp_event.Event.name, alternative_title=alternative_title, user_solves=user_solves)
 
 # -------------------------------------------------------------------------------------------------
 

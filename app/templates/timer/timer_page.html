@@ -23,7 +23,7 @@
                         <div class="single_time">{{ solve }}</div>
                         {% endfor %}
                     </div>
-                    <div class="preview flex_full_center">
+                    <div class="scramble_preview flex_full_center" data-scramble="{{scramble}}">
                         <canvas id="normal_scramble_image"></canvas>
                     </div>
                 </div>
@@ -56,16 +56,16 @@
 {% endblock %}
 
 {% block additional_script %}
+{% assets "init_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 <script>
-    $(function() {
-        var fitText = function() {
-            textFit($('.scram')[0], {multiLine: true, maxFontSize: 40});
-        };
-        fitText();
-        $(window).resize(fitText);
-    })
+    (function() {
+        window.app.scramble = {{scramble|tojson}};
+        window.app.eventName = {{event_name|tojson}};
+    })();
 </script>
-{% assets "shapes_js" %}
+{% assets "timer_timer_js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endblock %}

@@ -42,15 +42,9 @@
         </div>
 
         <div class="lower_portion">
-            <div style="position: absolute; bottom: 0; right: 0; border: 2px solid white; margin: 5px; padding: 10px; color: white;">
-                <p>
-                    scramble preview here<br>
-                    but, ya know, an image
-                </p>
-            </div>
-            <!-- <div class="preview flex_full_center">
+            <div class="scramble_preview flex_full_center" data-scramble="{{scramble}}">
                 <canvas id="normal_scramble_image"></canvas>
-            </div> -->
+            </div>
         </div>
 
     </div>
@@ -58,13 +52,16 @@
 {% endblock %}
 
 {% block additional_script %}
+{% assets "init_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 <script>
-    window.app = {};
-    $(function() {
-        textFit($('.scram')[0], {multiLine: true, maxFontSize: 40});
-    })
+    (function() {
+        window.app.scramble = {{scramble|tojson}};
+        window.app.eventName = {{event_name|tojson}};
+    })();
 </script>
-{% assets "shapes_js" %}
+{% assets "timer_timer_js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endblock %}

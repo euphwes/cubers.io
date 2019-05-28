@@ -12,7 +12,7 @@
     var TRANSPARENT = "rgba(255, 255, 255, 0)";
 
     var setColors = function() {
-        if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_CUBE_COLORS)) {
+        if (typeof window.app.userSettingsManager !== 'undefined' && window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_CUBE_COLORS)) {
             cube_colors = [
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_D),
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_L),
@@ -52,7 +52,7 @@
             };
         }
 
-        if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_PYRAMINX_COLORS)) {
+        if (typeof window.app.userSettingsManager !== 'undefined' && window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_PYRAMINX_COLORS)) {
             pyra_colors = [
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_PYRAMINX_COLOR_F),
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_PYRAMINX_COLOR_L),
@@ -63,7 +63,7 @@
             pyra_colors = ['#0f0', '#f00', '#00f', '#ff0'];
         }
 
-        if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_MEGAMINX_COLORS)) {
+        if (typeof window.app.userSettingsManager !== 'undefined' && window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_MEGAMINX_COLORS)) {
             mega_colors = [
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_1),
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_2),
@@ -1810,37 +1810,21 @@
     function ScrambleImageGenerator() {
         this.largeCanvasId = '#big_scramble_image';
         this.normalCanvasId = '#normal_scramble_image';
-
-        setColors();
-
-        this._registerCurrentScramblesManagerHandlers();
-        this.reset();
-    }
-
-    ScrambleImageGenerator.prototype.reset = function() {
         this.mobileScalingFactor = 10;
         this.haveEstablishedMobileScalingFactor = false;
         this.desktopScalingFactor = 10;
         this.haveEstablishedDesktopScalingFactor = false;
-    };
 
-    ScrambleImageGenerator.prototype._prepareNewImage = function(scrambleEventData) {
-        // If on mobile, ensure scramble preview button is not disabled
-        $('#show-scramble-btn>.btn-return').removeClass('btn-disabled').removeAttr('disabled');
+        setColors();
 
-        // If on desktop, ensure the scramble area is visible, even if previously hidden
-        $('.scramble_preview_buffer').removeClass('d-none');
+        this.prepareNewImage();
+    }
 
-        // If this isn't a supported event, clear the image, reset scaling factors.
-        if (window.app.scramblePreviewUnsupportedEvents.includes(scrambleEventData.eventName)) {
-            this._clearImage(); this.reset();
-            $('.scramble_preview_buffer').removeClass('clickable');
-            return false
-        };
+    ScrambleImageGenerator.prototype.prepareNewImage = function() {
 
         // Store these for later in case in case the user takes action to show a bigger scramble image
-        this.savedScramble = scrambleEventData.scramble.scramble;
-        this.savedEventName = scrambleEventData.eventName;
+        this.savedScramble = app.scramble;
+        this.savedEventName = app.eventName;
 
         // If the event is COLL, extract the actual scramble part, which should be the final thing after a line break
         if (this.savedEventName == 'COLL') {
@@ -1872,7 +1856,7 @@
 
         // Target width is 20 less than column container width, so there's a ~10px buffer on either side
         // Find the correct scaling factor and remember that we've done so
-        var targetWidth = $('.scramble_preview_buffer').width() - 20;
+        var targetWidth = $('.scramble_preview').width() - 10;
         this.desktopScalingFactor = this.determineScalingFactorAndDraw(targetWidth, true);
         this.haveEstablishedDesktopScalingFactor = true;
 
@@ -1937,22 +1921,8 @@
         if (image.findCanvas('#big_scramble_image')) {
             image.clearCanvas();
         }
-
-        // If on mobile, ensure scramble preview button is disabled since there's nothing to show
-        $('#show-scramble-btn>.btn-return').addClass('btn-disabled').attr('disabled', 'disabled');
-
-        // If on desktop, make it so the scramble area is entirely hidden if there's nothing to show
-        $('.scramble_preview_buffer').addClass('d-none');
-    };
-
-    /**
-     * Register handlers for current scrambles manager events.
-     */
-    ScrambleImageGenerator.prototype._registerCurrentScramblesManagerHandlers = function() {
-        app.currentScramblesManager.on(app.EVENT_NOTHING_TO_ATTACH, this._clearImage.bind(this));
-        app.currentScramblesManager.on(app.EVENT_NEW_SCRAMBLE_ATTACHED, this._prepareNewImage.bind(this));
     };
 
     // Make ScrambleImageGenerator visible at app scope
-    app.ScrambleImageGenerator = ScrambleImageGenerator;
+    window.app.ScrambleImageGenerator = ScrambleImageGenerator;
 })();

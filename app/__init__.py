@@ -32,18 +32,19 @@ MIGRATE = Migrate(app, DB)
 ASSETS = Environment(app)
 ASSETS.register({
 
-    # ---------common static bundles ------------
+    # --------- common static bundles ------------
 
-    'shapes_js': Bundle(
-        'js/ui/shapes.js',
+    'init_js': Bundle(
+        'js/init.js',
         filters="jsmin",
-        output='gen/shapes.js'
+        output='gen/init.js'
     ),
 
     # --------- home page static bundles ------------
 
     'index_js': Bundle(
         'js/home/home_page.js',
+        'js/ui/shapes.js',
         filters="jsmin",
         output='gen/index.js'
     ),
@@ -57,6 +58,14 @@ ASSETS.register({
         output='gen/index.css'),
 
     # --------- timer page static bundles ------------
+
+    'timer_timer_js': Bundle(
+        'js/ui/scramble_image_generator.js',
+        'js/ui/shapes.js',
+        'js/timer/timer_page.js',
+        filters="jsmin",
+        output='gen/timer_timer.js'
+    ),
 
     'timer_desktop_css': Bundle(
         'less/common.less',
@@ -73,6 +82,8 @@ ASSETS.register({
         'less/timer/mobile.less',
         filters="less,cssmin",
         output='gen/timer_mobile.css'),
+
+    # --------- the rest ------------
 
     'app_css': Bundle(
         'less/common.less',
