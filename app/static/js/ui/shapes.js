@@ -124,7 +124,7 @@
   
     Shapes.prototype.random = function(ignoreIdx) {
       var radius = (0.11 + (Math.pow(Math.random(), 15)+1.0)*0.075)*0.65;
-      var opacity = Math.random()*0.32 + 0.04;
+      var opacity = Math.random()*0.20 + 0.04;
       var numSides = 3 + Math.floor(Math.random() * 3);
   
       if ('undefined' === typeof ignoreIdx) {
