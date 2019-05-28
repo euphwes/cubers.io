@@ -2,6 +2,11 @@
 
 {% block head %}
 {{ super() }}
+    {% block additional_styles %}
+        {% assets "app_css" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}" />
+        {% endassets %}
+    {% endblock %}
 {% endblock %}
 
 {% set sor_explanation = "The sum of site rankings across all events. Lower is better.\nEvents not participated in give a (number of participants + 1) rank." %}
