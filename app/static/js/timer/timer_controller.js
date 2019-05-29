@@ -119,18 +119,15 @@
         kd.SPACE.up(this._handleSpaceUp.bind(this));
         kd.SPACE.down(this._handleSpaceDown.bind(this));
 
-        // wire the touch events, basically treating touchend as spacebar up and touchstart
-        // as spacebar down
-        if (app.is_mobile) {
-            $('.timer-wrapper').on("touchend", function(e){
-                this.isTouchDown = false;
-                this._handleSpaceUp.bind(this)(e);
-            }.bind(this));
-            $('.timer-wrapper').on("touchstart", function(e){
-                this.isTouchDown = true;
-                this._handleSpaceDown.bind(this)(e);
-            }.bind(this));
-        }
+        // wire the touch events, basically treating touchend as spacebar up and touchstart as spacebar down
+        $('.timer_text').on("touchend", function(e){
+            this.isTouchDown = false;
+            this._handleSpaceUp.bind(this)(e);
+        }.bind(this));
+        $('.timer_text').on("touchstart", function(e){
+            this.isTouchDown = true;
+            this._handleSpaceDown.bind(this)(e);
+        }.bind(this));
 
         this._setState(STATE_INACTIVE);
     };
@@ -150,11 +147,11 @@
         kd.SPACE.unbindDown();
 
         // unbind the touch events
-        $('.timer-wrapper').off("touchstart");
+        $('.timer_text').off("touchstart");
 
         // do not unbind the touchend because then we can't keep track of whether
         // the touch event has ended
-        // $('.timer-wrapper').off("touchend");
+        // $('.timer_text').off("touchend");
     };
 
     /**
