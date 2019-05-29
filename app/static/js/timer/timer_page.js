@@ -23,4 +23,8 @@
         });
     }
 
+    // Timer stuff
+    window.app.timer = new window.app.Timer(window.app.eventName);
+    window.app.timerDisplayManager = new window.app.TimerDisplayManager();
+
 })();

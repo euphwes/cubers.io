@@ -60,8 +60,13 @@ ASSETS.register({
     # --------- timer page static bundles ------------
 
     'timer_timer_js': Bundle(
+        'js/event_emitter.js',
+        'js/util/extensions_and_polyfill.js',
+        'js/util/time_convert_format.js',
         'js/ui/scramble_image_generator.js',
         'js/ui/shapes.js',
+        'js/timer/timer_controller.js',
+        'js/timer/timer_display_manager.js',
         'js/timer/timer_page.js',
         filters="jsmin",
         output='gen/timer_timer.js'

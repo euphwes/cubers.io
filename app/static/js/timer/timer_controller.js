@@ -33,14 +33,13 @@
     /**
      * The solve timer which tracks elapsed time.
      */
-    function Timer() {
+    function Timer(event_name) {
         app.EventEmitter.call(this);
 
         this.start_time = 0;
         this.elapsed_time = 0;
         this.timer_interval = null;
         this.scramble_id = 0;
-        this.comp_event_id = 0;
         this.inspection_start_time = 0;
         this.inspection_end_time = 0;
         this.auto_dnf = false;
@@ -55,30 +54,27 @@
         this.apply_auto_dnf = false;
         this.apply_auto_plus_two = false;
 
+        this._determineIfUsingInspectionBasedOnEvent(event_name);
+
         // keydrown.js's keyboard state manager is tick-based
         // this is boilerplate to make sure the kd namespace has a recurring tick
         kd.run(function () { kd.tick(); });
 
-        this._registerAppModeManagerListeners();
+        this._enable();
     }
     Timer.prototype = Object.create(app.EventEmitter.prototype);
-
-    /**
-     * Sets the timer's competition event ID.
-     */
-    Timer.prototype.setCompEventId = function(comp_event_id) {
-        this.comp_event_id = comp_event_id;
-    };
 
     /**
      * If the event is a blind event, there is no inspection time. Otherwise check the setting
      * to determine whether or not to use inspection time.
      */
-    Timer.prototype.determineIfUsingInspectionBasedOnEvent = function(event_name) {
+    Timer.prototype._determineIfUsingInspectionBasedOnEvent = function(event_name) {
         if (["2BLD", "3BLD", "4BLD", "5BLD"].includes(event_name)) {
             this.useInspectionTime = false;
         } else {
-            this.useInspectionTime = app.userSettingsManager.get_setting(app.Settings.USE_INSPECTION_TIME);
+            this.useInspectionTime = true;
+            // TODO: check settings for inspection
+            // this.useInspectionTime = app.userSettingsManager.get_setting(app.Settings.USE_INSPECTION_TIME);
         }
     };
 
@@ -328,7 +324,6 @@
         var data = {};
         data.elapsed_time  = this.elapsed_time;
         data.scramble_id   = this.scramble_id;
-        data.comp_event_id = this.comp_event_id;
         data.isDNF         = false;
         data.isPlusTwo     = false;
 
@@ -395,23 +390,13 @@
         if (seconds_remaining < this.AUTO_DNF_THRESHOLD) {
             this.apply_auto_dnf = true;
             this.apply_auto_plus_two = false;
-            console.log('auto dnf');
             this._stop();
             return;
         } else if (seconds_remaining < this.AUTO_PLUS_TWO_THRESHOLD) {
-            console.log('auto plus 2');
             this.apply_auto_plus_two = true;
         }
 
         this.emit(EVENT_INSPECTION_INTERVAL, {seconds_remaining});
-    };
-
-    /**
-     * Register handlers for AppModeManager events.
-     */
-    Timer.prototype._registerAppModeManagerListeners = function() {
-        app.appModeManager.on(app.EVENT_APP_MODE_TO_MAIN, this._disable.bind(this));
-        app.appModeManager.on(app.EVENT_APP_MODE_TO_SUMMARY, this._disable.bind(this));
     };
 
     // Make timer and event names visible at app scope

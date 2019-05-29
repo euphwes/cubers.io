@@ -6,7 +6,6 @@
      */
     function TimerDisplayManager() {
         this._registerTimerEventHandlers();
-        this._registerScramblesManagerHandlers();
     }
 
     /**
@@ -45,26 +44,27 @@
         } else {
             this._displayTime(timerStopData.friendly_seconds, timerStopData.friendly_centiseconds);
         }
-        $('.timer-wrapper').removeClass('fullscreen');
-        $('.timer-wrapper').removeClass('hidden');
+        $('.timer_text').removeClass('fullscreen');
+        $('.timer_text').removeClass('hidden');
     };
 
     /**
      * Event handler for the timer's start event - updates display time
      */
     TimerDisplayManager.prototype._handleTimerStart = function () {
-        $('.timer-wrapper').removeClass('armed');
-        if (app.userSettingsManager.get_setting(app.Settings.HIDE_RUNNING_TIMER)) {
-            $('.timer-wrapper').addClass('hidden');
-        }
+        $('.timer_text').removeClass('armed');
+        // TODO check settings
+        // if (app.userSettingsManager.get_setting(app.Settings.HIDE_RUNNING_TIMER)) {
+        //     $('.timer_text').addClass('hidden');
+        // }
     };
 
     /**
      * Event handler for the timer's armed event
      */
     TimerDisplayManager.prototype._handleTimerArmed = function () {
-        $('.timer-wrapper').addClass('fullscreen');
-        $('.timer-wrapper').addClass('armed');
+        $('.timer_text').addClass('fullscreen');
+        $('.timer_text').addClass('armed');
         this._showZero();
     };
 
@@ -72,9 +72,9 @@
      * Event handler for the timer's inspection armed event
      */
     TimerDisplayManager.prototype._handleInspectionArmed = function () {
-        $('.timer-wrapper').addClass('armed');
+        $('.timer_text').addClass('armed');
         if (app.userSettingsManager.get_setting(app.Settings.HIDE_INSPECTION_TIME)) {
-            $('.timer-wrapper').removeClass('hidden');
+            $('.timer_text').removeClass('hidden');
         }
     };
 
@@ -96,12 +96,13 @@
      * Event handler for the timer starting inspection time
      */
     TimerDisplayManager.prototype._handleInspectionStarted = function(inspectionStartingSeconds) {
-        $('.timer-wrapper').removeClass('armed');
-        if (app.userSettingsManager.get_setting(app.Settings.HIDE_INSPECTION_TIME)) {
-            $('.timer-wrapper').addClass('hidden');
-        } else {
+        $('.timer_text').removeClass('armed');
+        // TODO settings
+        // if (app.userSettingsManager.get_setting(app.Settings.HIDE_INSPECTION_TIME)) {
+            // $('.timer_text').addClass('hidden');
+        // } else {
             this._displayTime(inspectionStartingSeconds, "", true);
-        }
+        // }
     };
 
     /**
@@ -116,14 +117,6 @@
         app.timer.on(app.EVENT_INSPECTION_INTERVAL, this._handleInspectionInterval.bind(this));
         app.timer.on(app.EVENT_INSPECTION_STARTED, this._handleInspectionStarted.bind(this));
         app.timer.on(app.EVENT_TIMER_CANCELLED, this._showZero.bind(this));
-    };
-
-    /**
-     * Register handlers for scrambles manager events.
-     */
-    TimerDisplayManager.prototype._registerScramblesManagerHandlers = function() {
-        app.currentScramblesManager.on(app.EVENT_NOTHING_TO_ATTACH, this._showZero.bind(this));
-
     };
 
     app.TimerDisplayManager = TimerDisplayManager;
