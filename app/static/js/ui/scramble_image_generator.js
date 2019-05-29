@@ -1850,8 +1850,6 @@
         // Find the correct scaling factor and remember that we've done so
         var targetWidth = $('.scramble_preview').width();
         var targetHeight = $('.scramble_preview').height();
-        console.log(targetWidth);
-        console.log(targetHeight);
         this.desktopScalingFactor = this.determineScalingFactorAndDraw(targetWidth, targetHeight);
         this.haveEstablishedDesktopScalingFactor = true;
 

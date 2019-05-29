@@ -7,7 +7,6 @@ from app import app
 from app.persistence.comp_manager import get_comp_event_by_id
 from app.persistence.settings_manager import SettingCode, SettingType, TRUE_STR,\
     get_default_values_for_settings, get_bulk_settings_for_user_as_dict, get_setting_type
-from app.persistence.events_manager import get_all_bonus_events_names
 from app.persistence.user_results_manager import get_event_results_for_user
 from app.persistence.models import EventFormat
 
@@ -17,6 +16,9 @@ TIMER_TEMPLATE_MOBILE_MAP = {
     True:  'timer/mobile/timer_page.html',
     False: 'timer/timer_page.html',
 }
+
+NO_SCRAMBLE_PREVIEW_EVENTS = ["2BLD", "3BLD", "4BLD", "5BLD", "Kilominx", "3x3 Mirror Blocks/Bump",
+    "3x3x4", "3x3x5", "2-3-4 Relay", "3x3 Relay of 3", "PLL Time Attack"]
 
 # -------------------------------------------------------------------------------------------------
 
@@ -59,8 +61,11 @@ def timer_page(comp_event_id):
 
     alternative_title = '{} — {}'.format(comp_event.Event.name, comp.title)
 
+    show_scramble_preview = comp_event.Event.name not in NO_SCRAMBLE_PREVIEW_EVENTS
+
     return render_template(TIMER_TEMPLATE_MOBILE_MAP[request.MOBILE], scramble=scramble,
-        event_name=comp_event.Event.name, alternative_title=alternative_title, user_solves=user_solves)
+        event_name=comp_event.Event.name, alternative_title=alternative_title, user_solves=user_solves,
+        show_scramble_preview=show_scramble_preview)
 
 # -------------------------------------------------------------------------------------------------
 

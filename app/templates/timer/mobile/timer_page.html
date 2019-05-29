@@ -42,9 +42,11 @@
         </div>
 
         <div class="lower_portion">
-            <div class="scramble_preview flex_full_center" data-scramble="{{scramble}}">
+            {% if show_scramble_preview %}
+            <div class="scramble_preview flex_full_center">
                 <canvas id="normal_scramble_image"></canvas>
             </div>
+            {% endif %}
         </div>
 
     </div>
@@ -64,6 +66,7 @@
     (function() {
         window.app.scramble = {{scramble|tojson}};
         window.app.eventName = {{event_name|tojson}};
+        window.app.doShowScramble = {{show_scramble_preview|tojson}}
     })();
 </script>
 {% assets "timer_timer_js" %}
