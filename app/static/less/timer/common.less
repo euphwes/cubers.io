@@ -77,6 +77,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
+
+    .control_icon {
+        transition: all .3s ease-in-out;
+    }
+
+    &.disabled {
+        .control_icon {
+            pointer-events: none;
+            transform: scale(0);
+            transition: all .3s ease-in-out;
+        }
+    }
 }
 
 .btn-timer-control {

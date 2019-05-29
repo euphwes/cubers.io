@@ -46,6 +46,7 @@
         }
         $('.timer_text').removeClass('fullscreen');
         $('.timer_text').removeClass('hidden');
+        $('.controls_wrapper').removeClass('disabled');
     };
 
     /**
@@ -65,6 +66,7 @@
     TimerDisplayManager.prototype._handleTimerArmed = function () {
         $('.timer_text').addClass('fullscreen');
         $('.timer_text').addClass('armed');
+        $('.controls_wrapper').addClass('disabled');
         this._showZero();
     };
 
