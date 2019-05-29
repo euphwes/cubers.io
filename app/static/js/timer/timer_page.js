@@ -6,5 +6,16 @@
     fitText();
     $(window).resize(fitText);
 
-    new window.app.ScrambleImageGenerator();
+    // Initialize the scramble image generator, which will render the small-size scramble preview
+    // Add a click/press handler on the preview to show the large scramble preview
+    var imageGenerator = new window.app.ScrambleImageGenerator();
+    $('.scramble_preview').click(function(){
+        imageGenerator.showLargeImage();
+        $('#fade-wrapper').fadeIn().addClass('shown');
+        $('#fade-wrapper').click(function(){
+            $(this).fadeOut(function(){
+                $(this).removeClass('shown');
+            });
+        });
+    });
 })();
