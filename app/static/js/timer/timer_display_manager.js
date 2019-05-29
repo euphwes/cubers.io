@@ -44,9 +44,6 @@
         } else {
             this._displayTime(timerStopData.friendly_seconds, timerStopData.friendly_centiseconds);
         }
-        $('.timer_text').removeClass('fullscreen');
-        $('.timer_text').removeClass('hidden');
-        $('.controls_wrapper').removeClass('disabled');
     };
 
     /**
@@ -75,9 +72,10 @@
      */
     TimerDisplayManager.prototype._handleInspectionArmed = function () {
         $('.timer_text').addClass('armed');
-        if (app.userSettingsManager.get_setting(app.Settings.HIDE_INSPECTION_TIME)) {
-            $('.timer_text').removeClass('hidden');
-        }
+        // TODO: settings
+        // if (app.userSettingsManager.get_setting(app.Settings.HIDE_INSPECTION_TIME)) {
+        //     $('.timer_text').removeClass('hidden');
+        // }
     };
 
     /**
@@ -118,8 +116,12 @@
         app.timer.on(app.EVENT_TIMER_INTERVAL, this._handleTimerInterval.bind(this));
         app.timer.on(app.EVENT_INSPECTION_INTERVAL, this._handleInspectionInterval.bind(this));
         app.timer.on(app.EVENT_INSPECTION_STARTED, this._handleInspectionStarted.bind(this));
-        app.timer.on(app.EVENT_TIMER_CANCELLED, this._showZero.bind(this));
+        app.timer.on(app.EVENT_TIMER_CANCELLED, function() {
+            this._showZero.bind(this)();
+            $('.timer_text').removeClass('fullscreen');
+            $('.timer_text').removeClass('hidden');
+            $('.controls_wrapper').removeClass('disabled');
+        }.bind(this) );
     };
-
     app.TimerDisplayManager = TimerDisplayManager;
 })();

@@ -60,6 +60,10 @@
         // this is boilerplate to make sure the kd namespace has a recurring tick
         kd.run(function () { kd.tick(); });
 
+        // TODO: flesh this comment out, handle back button to instead cancel timer
+        history.pushState({}, '', '');
+        $(window).on('popstate', this._handleNavigationStateChange.bind(this));
+
         this._enable();
     }
     Timer.prototype = Object.create(app.EventEmitter.prototype);
@@ -76,20 +80,6 @@
             // TODO: check settings for inspection
             // this.useInspectionTime = app.userSettingsManager.get_setting(app.Settings.USE_INSPECTION_TIME);
         }
-    };
-
-    /**
-     * "Attach" the timer to a specific scramble_id so it can send
-     * appropriate data when it emits events.
-     */
-    Timer.prototype.attachToScramble = function(scramble_id) {
-        // if the timer is being attached to a new scramble while it's in any sort of active state,
-        // cancel the timer so the re-attach doesn't cause stuff to misbehave
-        if ([STATE_RUNNING, STATE_ARMED, STATE_INSPECTION, STATE_INSPECTION_ARMED].includes(this.state)) {
-            this._stop(true);
-        }
-        this.scramble_id = scramble_id;
-        this._enable();
     };
 
     /**
@@ -223,8 +213,8 @@
      * Handles the keydown event for keys other than space
      */
     Timer.prototype._handleOtherKeyDown = function(e) {
-        // If the timer isn't running, don't do anything
-        if (this.state != STATE_RUNNING) {
+        // If the timer or inspection isn't running, don't do anything
+        if (!(this.state == STATE_RUNNING || this.state == STATE_INSPECTION)) {
             return;
         }
 
@@ -239,6 +229,21 @@
         var shouldCancelTimer = (code == 27);
         this._stop(shouldCancelTimer);
         e.preventDefault();
+    };
+
+    Timer.prototype._handleNavigationStateChange = function(e) {
+        // If the timer or inspection isn't running, actually navigate back
+        if (!(this.state == STATE_RUNNING || this.state == STATE_INSPECTION)) {
+            history.back();
+            return;
+        }
+
+        // Otherwise cancel the timer
+        this._stop(true);
+
+        // Add another bogus history state to be popped so the user can cancel
+        // the timer multiple times if they want
+        history.pushState({}, '', '');
     };
 
     /**
