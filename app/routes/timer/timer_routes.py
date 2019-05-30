@@ -54,18 +54,31 @@ def timer_page(comp_event_id):
                 break
 
     if first_unsolved_idx != -1:
-        print(first_unsolved_idx)
         scramble = comp_event.scrambles[first_unsolved_idx].scramble
+        scramble_id = comp_event.scrambles[first_unsolved_idx].id
     else:
         scramble = "Congrats! You're done."
+        scramble_id = -1
 
     alternative_title = '{} — {}'.format(comp_event.Event.name, comp.title)
 
     show_scramble_preview = comp_event.Event.name not in NO_SCRAMBLE_PREVIEW_EVENTS
 
-    return render_template(TIMER_TEMPLATE_MOBILE_MAP[request.MOBILE], scramble=scramble,
+    return render_template(TIMER_TEMPLATE_MOBILE_MAP[request.MOBILE], scramble=scramble, scramble_id=scramble_id,
         event_name=comp_event.Event.name, alternative_title=alternative_title, user_solves=user_solves,
         show_scramble_preview=show_scramble_preview)
+
+
+# -------------------------------------------------------------------------------------------------
+
+@app.route('/postSolve', methods=['POST'])
+def postSolve():
+    """ saves a solve """
+
+    import sys
+    import json
+    print(json.loads(request.data), file=sys.stderr)
+    return ""
 
 # -------------------------------------------------------------------------------------------------
 

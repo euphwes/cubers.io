@@ -33,13 +33,12 @@
     /**
      * The solve timer which tracks elapsed time.
      */
-    function Timer(event_name) {
+    function Timer(event_name, scramble_id) {
         app.EventEmitter.call(this);
 
         this.start_time = 0;
         this.elapsed_time = 0;
         this.timer_interval = null;
-        this.scramble_id = 0;
         this.inspection_start_time = 0;
         this.inspection_end_time = 0;
         this.auto_dnf = false;
@@ -55,6 +54,8 @@
         this.apply_auto_plus_two = false;
 
         this._determineIfUsingInspectionBasedOnEvent(event_name);
+
+        this.scramble_id = scramble_id;
 
         // keydrown.js's keyboard state manager is tick-based
         // this is boilerplate to make sure the kd namespace has a recurring tick
@@ -315,55 +316,42 @@
             return;
         }
 
-        // calculate elapsed time, 
-        this.elapsed_time = (new Date()) - this.start_time;
+        // calculate elapsed milliseconds
+        var elapsed_millis = (new Date()) - this.start_time;
 
-        // separate seconds and centiseconds, and get the "full time" string
-        // as seconds converted to minutes + decimal + centiseconds
-        var s = this.elapsed_time.getSecondsFromMs();
-        var cs = this.elapsed_time.getTwoDigitCentisecondsFromMs();
+        // convert milliseconds to centiseconds
+        var s = elapsed_millis.getSecondsFromMs();
+        var cs = elapsed_millis.getTwoDigitCentisecondsFromMs();
 
         var data = {};
-        data.elapsed_time  = this.elapsed_time;
-        data.scramble_id   = this.scramble_id;
-        data.isDNF         = false;
-        data.isPlusTwo     = false;
+        data.scramble_id = this.scramble_id;
+        data.is_dnf = false;
+        data.is_plus_two = false;
+        data.elapsed_centiseconds = parseInt(s * 100) + parseInt(cs);
 
         // Check auto-penalty flags if we did inspection time
         if (this.useInspectionTime) {
-            data.isDNF = this.apply_auto_dnf;
-            data.isPlusTwo = this.apply_auto_plus_two;
-            if (data.isDNF) {
-                s  = '0';
-                cs = '1';
-                // HACK ALERT!! If cs and s = 0, the total raw centiseconds is 0, which throws off
-                // a lot of Boolean(time) checks which expect a "falsy" time to indicate the solve isn't done.
-                // It's easier to just set this to something non-zero, since the value shouldn't surface anyway.
-                // TODO: fix logic to not do Boolean(time), and instead check some isSolveComplete flag
-            }
+            data.is_dnf = this.apply_auto_dnf;
+            data.is_plus_two = this.apply_auto_plus_two;
         }
 
+        // TODO more comments
         data.friendly_seconds = app.convertSecondsToMinutes(s);
         data.friendly_centiseconds = cs;
-        data.rawTimeCs = parseInt(s*100) + parseInt(cs);
-
-        if (data.isDNF) {
-            data.friendly_time_full = "DNF";
-        } else if (data.isPlusTwo) {
-            data.friendly_time_full = (parseInt(data.friendly_seconds) + 2) + "." + cs + "+";
-        } else {
-            data.friendly_time_full = data.friendly_seconds + "." + cs;
-        }
 
         // emit the event which notifies everybody else that the timer has stopped
         this.emit(EVENT_TIMER_STOP, data);
 
-        // reset the flags to auto-apply penalties if inspection is too long
-        // reset stuff related to inspection time, to start the next solve on a clean slate
-        this.inspection_start_time = 0;
-        this.inspection_end_time = 0;
-        this.apply_auto_dnf = false;
-        this.apply_auto_plus_two = false;
+        var reload = function () { setTimeout(function () { window.location.reload(); }, 1000); };
+
+        $.ajax({
+            url: '/postSolve',
+            type: "POST",
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            success: reload,
+            failure: reload
+        });
     };
 
     /**
