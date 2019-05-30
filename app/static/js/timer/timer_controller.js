@@ -33,7 +33,7 @@
     /**
      * The solve timer which tracks elapsed time.
      */
-    function Timer(event_name, scramble_id) {
+    function Timer(event_name, scramble_id, comp_event_id) {
         app.EventEmitter.call(this);
 
         this.start_time = 0;
@@ -47,7 +47,7 @@
         this.isTouchDown = false;
 
         // values related to inspection time starting point and automatic penalty thresholds
-        this.INSPECTION_TIME_AMOUNT = 15;
+        this.INSPECTION_TIME_AMOUNT = 3;
         this.AUTO_DNF_THRESHOLD = -2;
         this.AUTO_PLUS_TWO_THRESHOLD = 0;
         this.apply_auto_dnf = false;
@@ -56,6 +56,7 @@
         this._determineIfUsingInspectionBasedOnEvent(event_name);
 
         this.scramble_id = scramble_id;
+        this.comp_event_id = comp_event_id;
 
         // keydrown.js's keyboard state manager is tick-based
         // this is boilerplate to make sure the kd namespace has a recurring tick
@@ -323,34 +324,44 @@
         var s = elapsed_millis.getSecondsFromMs();
         var cs = elapsed_millis.getTwoDigitCentisecondsFromMs();
 
-        var data = {};
-        data.scramble_id = this.scramble_id;
-        data.is_dnf = false;
-        data.is_plus_two = false;
-        data.elapsed_centiseconds = parseInt(s * 100) + parseInt(cs);
+        var solve_data = {};
+        solve_data.scramble_id = this.scramble_id;
+        solve_data.comp_event_id = this.comp_event_id;
+        solve_data.is_dnf = false;
+        solve_data.is_plus_two = false;
 
         // Check auto-penalty flags if we did inspection time
         if (this.useInspectionTime) {
-            data.is_dnf = this.apply_auto_dnf;
-            data.is_plus_two = this.apply_auto_plus_two;
+            solve_data.is_dnf = this.apply_auto_dnf;
+            solve_data.is_plus_two = this.apply_auto_plus_two;
         }
 
-        // TODO more comments
-        data.friendly_seconds = app.convertSecondsToMinutes(s);
-        data.friendly_centiseconds = cs;
+        solve_data.elapsed_centiseconds = parseInt(s * 100) + parseInt(cs);
+
+        // HACK ALERT -- if timer is never started and auto-DNF is applied, there's number overflow
+        // that happens where the elapsed centis end up being ~155925367637, give or take. Check if
+        // both DNF is applied and centis > 150000000000 (roughly 47 years), and just reset the centis
+        // down to 1 as a special case.
+        if (solve_data.is_dnf && solve_data.elapsed_centiseconds > 150000000000) {
+            solve_data.elapsed_centiseconds = 1;
+        }
 
         // emit the event which notifies everybody else that the timer has stopped
-        this.emit(EVENT_TIMER_STOP, data);
+        this.emit(EVENT_TIMER_STOP, {
+            friendly_seconds: app.convertSecondsToMinutes(s),
+            friendly_centiseconds: cs,
+            is_dnf: solve_data.is_dnf
+        });
 
         var reload = function () { setTimeout(function () { window.location.reload(); }, 1000); };
 
         $.ajax({
-            url: '/postSolve',
+            url: '/post_solve',
             type: "POST",
-            data: JSON.stringify(data),
+            data: JSON.stringify(solve_data),
             contentType: "application/json",
             success: reload,
-            failure: reload
+            error: function(xhr) { alert(xhr.responseText); }
         });
     };
 

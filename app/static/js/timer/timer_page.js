@@ -24,7 +24,7 @@
     }
 
     // Timer stuff
-    window.app.timer = new window.app.Timer(window.app.eventName, window.app.scrambleId);
+    window.app.timer = new window.app.Timer(window.app.eventName, window.app.scrambleId, window.app.compEventId);
     window.app.timerDisplayManager = new window.app.TimerDisplayManager();
 
 })();

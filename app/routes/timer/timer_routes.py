@@ -65,20 +65,9 @@ def timer_page(comp_event_id):
     show_scramble_preview = comp_event.Event.name not in NO_SCRAMBLE_PREVIEW_EVENTS
 
     return render_template(TIMER_TEMPLATE_MOBILE_MAP[request.MOBILE], scramble=scramble, scramble_id=scramble_id,
-        event_name=comp_event.Event.name, alternative_title=alternative_title, user_solves=user_solves,
-        show_scramble_preview=show_scramble_preview)
+        comp_event_id=comp_event_id, event_name=comp_event.Event.name, alternative_title=alternative_title,
+        user_solves=user_solves, show_scramble_preview=show_scramble_preview)
 
-
-# -------------------------------------------------------------------------------------------------
-
-@app.route('/postSolve', methods=['POST'])
-def postSolve():
-    """ saves a solve """
-
-    import sys
-    import json
-    print(json.loads(request.data), file=sys.stderr)
-    return ""
 
 # -------------------------------------------------------------------------------------------------
 
@@ -130,80 +119,3 @@ def get_user_settings(user):
             settings[code] = value == TRUE_STR
 
     return settings
-
-    # -------------------------------------------------------------------------------------------------
-
-# The front-end dictionary keys
-COMMENT        = 'comment'
-SOLVES         = 'scrambles'  # Because the times are paired with the scrambles in the front end
-TIME           = 'time'
-SCRAMBLE_ID    = 'id'
-IS_DNF         = 'isDNF'
-IS_PLUS_TWO    = 'isPlusTwo'
-COMP_EVENT_ID  = 'comp_event_id'
-STATUS         = 'status'
-SUMMARY        = 'summary'
-SINGLE         = 'single'
-AVERAGE        = 'average'
-RESULT         = 'result'
-WAS_PB_SINGLE  = 'wasPbSingle'
-WAS_PB_AVERAGE = 'wasPbAverage'
-EVENT_FORMAT   = 'event_format'
-BLIND_STATUS   = 'blind_status'
-
-# Completeness status
-STATUS_COMPLETE   = 'complete'
-STATUS_INCOMPLETE = 'incomplete'
-
-def fill_user_data_for_event(user, event_data):
-    """ Checks if the user has a UserEventResults for this competition event. If they do, aggregate
-    their data (user comment, solve times, solve penalty flags, etc) into the event data dictionary
-    being passed to the front end so it's available at render-time and available to the JS app's
-    events data manager.  """
-
-    # If there's no logged in user, there's nothing to fill in
-    if not user:
-        return
-
-    # Get UserEventResults for this competition event and user.
-    # If there are no results, there's nothing to fill in, so we can just bail.
-    results = get_event_results_for_user(event_data[COMP_EVENT_ID], user)
-    if not results:
-        return
-
-    # Remember various stats about the userEventResults, so we can use it up front
-    event_data[COMMENT]        = results.comment
-    event_data[SUMMARY]        = results.times_string
-    event_data[RESULT]         = results.friendly_result()
-    event_data[SINGLE]         = results.friendly_single()
-    event_data[AVERAGE]        = results.friendly_average()
-    event_data[WAS_PB_SINGLE]  = results.was_pb_single
-    event_data[WAS_PB_AVERAGE] = results.was_pb_average
-
-    # Record a "blind status" flag for blind events that helps determine whether to display the
-    # "done" messaging in the timer screen. The messaging should only be shown for blind events
-    # if all 3 solves have been done, and we're sure the results have been calculated against
-    # all 3 solves.
-    if event_data[EVENT_FORMAT] == EventFormat.Bo3:
-        num_solves = len(results.solves)
-        event_data[BLIND_STATUS] = STATUS_COMPLETE if num_solves == 3 else STATUS_INCOMPLETE
-
-    # Iterate through all the solves completed by the user, matching them to a scramble in
-    # the events data. Record the time and penalty information so we have it up front.
-    for solve in results.solves:
-        for scramble in event_data[SOLVES]:
-            if scramble[SCRAMBLE_ID] != solve.scramble_id:
-                continue
-            scramble[TIME]        = solve.time
-            scramble[IS_DNF]      = solve.is_dnf
-            scramble[IS_PLUS_TWO] = solve.is_plus_two
-
-    # If the UserEventResults indicates the user has completed the event, then set the event status
-    # to complete so we can stick the nice pleasing checkmark on the card at render time
-    if results.is_complete:
-        event_data[STATUS] = STATUS_COMPLETE
-
-    # If the event is not complete but has some solves, set the status as 'incomplete' so we can
-    # render the clock thing
-    elif bool(list(results.solves)):
-        event_data[STATUS] = STATUS_INCOMPLETE

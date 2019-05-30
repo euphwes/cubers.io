@@ -2,9 +2,8 @@
 
 from sys import maxsize as MAX
 
-from typing import Any, Dict, List, Union, Tuple, Iterable
+from typing import Any, Dict, List, Union, Tuple, Iterable, Sequence
 
-from app import app
 from app.persistence.comp_manager import get_comp_event_by_id
 from app.persistence.models import UserEventResults, UserSolve, EventFormat, User
 from app.util.times import convert_centiseconds_to_friendly_time
@@ -19,8 +18,8 @@ COMMENT       = 'comment'
 SOLVES        = 'scrambles'  # Because the solve times are paired with the scrambles up front
 TIME          = 'time'
 SCRAMBLE_ID   = 'id'
-IS_DNF        = 'isDNF'
-IS_PLUS_TWO   = 'isPlusTwo'
+IS_DNF        = 'is_dnf'
+IS_PLUS_TWO   = 'is_plus_two'
 COMP_EVENT_ID = 'comp_event_id'
 NAME          = 'name'
 
@@ -165,7 +164,7 @@ def __set_single_and_average(user_event_results: UserEventResults,
 
 def __build_times_string(results: UserEventResults,
                          event_format: EventFormat,
-                         want_list: bool = False) -> str:
+                         want_list: bool = False) -> Union[str, Sequence]:
     """ Builds a list of individual times, with best and worst times in parentheses if appropriate
     for the given event format. Note: this expects `is_fmc` to be explicitly set on the `results` if
     these results are for FMC. """
@@ -305,7 +304,7 @@ def __determine_bests(solves: Iterable[UserSolve],
         raise ValueError(event_format, '{event_format} is not a valid event format.')
 
 
-def __determine_bests_bo1(solves: Iterable[UserSolve]) -> Tuple[Union[str, int], Union[str, int]]:
+def __determine_bests_bo1(solves: Sequence[UserSolve]) -> Tuple[Union[str, int], Union[str, int]]:
     """ Returns just the one single. """
 
     solve = solves[0]
@@ -331,7 +330,7 @@ def __determine_bests_mo3(solves: Iterable[UserSolve]) -> Tuple[Union[str, int],
     # If there are any DNFs at all in a Mo3, the average must be DNF.
     # Otherwise the average is the mean of the 3 solves.
     if dnf_count > 0:
-        average = DNF
+        average: Union[str, int] = DNF
     else:
         average = round(sum(solve.get_total_time() for solve in solves) / 3.0)
 
