@@ -1,8 +1,6 @@
 """ Stuff related to handling user PBs (personal bests) in user event results. """
 
-from typing import Union, Tuple
-
-from app.persistence.models import EventFormat, UserEventResults
+from app.persistence.models import EventFormat
 from app.persistence.events_manager import get_event_format_for_event
 from app.persistence.user_results_manager import get_pb_single_event_results_except_current_comp,\
     bulk_save_event_results, get_pb_average_event_results_except_current_comp,\
@@ -14,10 +12,7 @@ from app.business.user_results import DNF
 # Functions and types below are intended to be used directly.
 # -------------------------------------------------------------------------------------------------
 
-def set_pb_flags(user_id: int,
-                 event_result: UserEventResults,
-                 event_id: int,
-                 event_format: EventFormat) -> UserEventResults:
+def set_pb_flags(user_id, event_result, event_id, event_format):
     """ Sets the appropriate flag if either the single or average for this event is a PB. """
 
     pb_single, pb_average = __get_pbs_for_user_and_event_excluding_latest(user_id, event_id)
@@ -41,7 +36,7 @@ def set_pb_flags(user_id: int,
     return event_result
 
 
-def recalculate_user_pbs_for_event(user_id: int, event_id: int) -> None:
+def recalculate_user_pbs_for_event(user_id, event_id):
     """ Recalculates PBs for all UserEventResults for the specified user and event. """
 
     # Get the user's event results for this event. If they don't have any, we can just bail
@@ -111,7 +106,7 @@ def recalculate_user_pbs_for_event(user_id: int, event_id: int) -> None:
 __PB_DNF    = 88888888  # In centiseconds, this is ~246 hours. Slower than any conceivable real time
 __NO_PB_YET = 99999999
 
-def __pb_representation(time: Union[int, str]) -> int:
+def __pb_representation(time):
     """ Takes a `time` value from a user solve and converts it into a representation useful for
     determining PBs. Strings or lack of times are represented as integers, and numbers are returned
     directly as integers for direct comparison. """
@@ -126,8 +121,7 @@ def __pb_representation(time: Union[int, str]) -> int:
 __DNF_AS_PB = __pb_representation(DNF)
 
 
-def __get_pbs_for_user_and_event_excluding_latest(user_id: int,
-                                                  event_id: int) -> Tuple[int, int]:
+def __get_pbs_for_user_and_event_excluding_latest(user_id, event_id):
     """ Returns a tuple of PB single and average for this event for the specified user, except
     for the current comp. Excluding the current comp allows for the user to keep updating their
     results for this comp, and the logic determining if this comp has a PB result doesn't include

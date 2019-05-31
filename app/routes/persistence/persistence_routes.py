@@ -9,11 +9,10 @@ from flask import request, abort
 from flask_login import current_user
 
 from app import app
-from app.business.user_results.creation import build_user_event_results
+from app.business.user_results.creation import process_event_results
+from app.persistence.models import UserSolve, UserEventResults
 from app.persistence.comp_manager import get_comp_event_by_id
-from app.persistence.user_manager import get_user_by_username
-from app.persistence.user_results_manager import save_event_results_for_user, get_event_results_for_user
-from app.persistence.models import UserEventResults
+from app.persistence.user_results_manager import save_event_results, get_event_results_for_user
 
 # -------------------------------------------------------------------------------------------------
 
@@ -31,46 +30,9 @@ EXPECTED_FIELDS = (IS_DNF, IS_PLUS_TWO, SCRAMBLE_ID, COMP_EVENT_ID, CENTISECONDS
 
 # -------------------------------------------------------------------------------------------------
 
-@app.route('/save_event', methods=['POST'])
-def save_event():
-    """ A route for saving a specific event to the database. """
-
-    if not current_user.is_authenticated:
-        app.logger.warning('unauthenticated user attempting save_event')
-        return abort(HTTPStatus.UNAUTHORIZED)
-
-    try:
-        user = get_user_by_username(current_user.username)
-        event_result, event_name = build_user_event_results(request.get_json(), user)
-
-        app.logger.info(LOG_EVENT_RESULTS_TEMPLATE.format(user.username, event_name),
-                        extra=__create_results_log_context(user, event_name, event_result))
-
-        saved_results = save_event_results_for_user(event_result, user)
-        app.logger.info(LOG_SAVED_RESULTS_TEMPLATE.format(user.username, event_name))
-
-        # Build up a dictionary of relevant information about the event results so far, to include
-        # the summary (aka times string), PB flags, single and average, and complete status
-        event_info = {
-            'single':       saved_results.friendly_single(),
-            'wasPbSingle':  saved_results.was_pb_single,
-            'average':      saved_results.friendly_average(),
-            'wasPbAverage': saved_results.was_pb_average,
-            'summary':      saved_results.times_string,
-            'result':       saved_results.friendly_result(),
-        }
-        return json.dumps(event_info)
-
-    # TODO: Figure out specific exceptions that can happen here, probably mostly Reddit ones
-    except Exception as ex:
-        app.logger.info(LOG_RESULTS_ERROR_TEMPLATE.format(user.username, "whatever"),
-                        extra=__create_results_error_log_context(user, ex))
-        return abort(HTTPStatus.INTERNAL_SERVER_ERROR, str(ex))
-
-
 @app.route('/post_solve', methods=['POST'])
 def post_solve():
-    """ saves a solve """
+    """ TODO: make this better, saves a solve """
 
     if not current_user.is_authenticated:
         app.logger.warning('unauthenticated user attempting save_event')
@@ -88,20 +50,27 @@ def post_solve():
     comp_event_id = solve_data[COMP_EVENT_ID]
     centiseconds  = solve_data[CENTISECONDS]
 
+    # Retrieve the specified competition event
     comp_event = get_comp_event_by_id(comp_event_id)
     if not comp_event:
         return ("Can't find that event, oops.", HTTPStatus.NOT_FOUND)
 
+    # Verify that the competition event belongs to the active competition. If it doesn't, return an error message
     comp = comp_event.Competition
     if not comp.active:
         return ("Oops, that event belongs to a competition which has ended.", HTTPStatus.BAD_REQUEST)
 
-    user_results = get_event_results_for_user(comp_event_id, current_user)
-    if not user_results:
-        user_results = UserEventResults(comp_event_id=comp_event_id)
+    # Retrieve the user's results record for this event, if they exist, or else create a new record
+    user_event_results = get_event_results_for_user(comp_event_id, current_user)
+    if not user_event_results:
+        user_event_results = UserEventResults(comp_event_id=comp_event_id, user_id=current_user.id)
 
-    for solve in user_results.solves:
-        pass
+    solve = UserSolve(time=centiseconds, is_dnf=is_dnf, is_plus_two=is_plus_two, scramble_id=scramble_id)
+    user_event_results.solves.append(solve)
+
+    process_event_results(user_event_results, comp_event, current_user)
+
+    save_event_results(user_event_results)
 
     return ('', HTTPStatus.NO_CONTENT)
 

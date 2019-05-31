@@ -47,7 +47,7 @@
         this.isTouchDown = false;
 
         // values related to inspection time starting point and automatic penalty thresholds
-        this.INSPECTION_TIME_AMOUNT = 3;
+        this.INSPECTION_TIME_AMOUNT = 15;
         this.AUTO_DNF_THRESHOLD = -2;
         this.AUTO_PLUS_TWO_THRESHOLD = 0;
         this.apply_auto_dnf = false;
@@ -353,7 +353,7 @@
             is_dnf: solve_data.is_dnf
         });
 
-        var reload = function () { setTimeout(function () { window.location.reload(); }, 1000); };
+        var reload = function () { setTimeout(function () { window.location.reload(); }, 250); };
 
         $.ajax({
             url: '/post_solve',

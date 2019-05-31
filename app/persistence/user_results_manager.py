@@ -253,59 +253,13 @@ def get_all_complete_user_results_for_user_and_event(user_id, event_id):
         all()
 
 
-def save_event_results_for_user(comp_event_results, user):
-    """ Associates a UserEventResults with a specific user and saves it to the database.
-    If the user already has an EventResults for this competition, update it instead. """
+def save_event_results(comp_event_results):
+    """ Saves a UserEventResults record. """
 
-    # if an existing record exists, update that
-    existing_results = get_event_results_for_user(comp_event_results.comp_event_id, user)
-    if existing_results:
-        return __save_existing_event_results(existing_results, comp_event_results)
-
-    # Otherwise associate the new results with this user and save and commit
-    comp_event_results.user_id = user.id
     DB.session.add(comp_event_results)
     DB.session.commit()
 
     return comp_event_results
-
-
-def __save_existing_event_results(existing_results, new_results):
-    """ Update the existing UserEventResults and UserSolves with the new data. """
-
-    existing_results.single           = new_results.single
-    existing_results.average          = new_results.average
-    existing_results.result           = new_results.result
-    existing_results.comment          = new_results.comment
-    existing_results.is_complete      = new_results.is_complete
-    existing_results.times_string     = new_results.times_string
-    existing_results.was_pb_average   = new_results.was_pb_average
-    existing_results.was_pb_single    = new_results.was_pb_single
-    existing_results.is_blacklisted   = new_results.is_blacklisted
-    existing_results.blacklist_note   = new_results.blacklist_note
-    existing_results.was_gold_medal   = new_results.was_gold_medal
-    existing_results.was_silver_medal = new_results.was_silver_medal
-    existing_results.was_bronze_medal = new_results.was_bronze_medal
-
-    # Update any existing solves with the data coming in from the new solves
-    for old_solve in existing_results.solves:
-        found = False
-        for new_solve in new_results.solves:
-            if old_solve.scramble_id == new_solve.scramble_id:
-                found = True
-                old_solve.time        = new_solve.time
-                old_solve.is_dnf      = new_solve.is_dnf
-                old_solve.is_plus_two = new_solve.is_plus_two
-        if not found:
-            DB.session.delete(old_solve)
-
-    # Determine which of the new solves are actually new and add those to the results record
-    old_scramble_ids = [solve.scramble_id for solve in existing_results.solves]
-    for new_solve in [s for s in new_results.solves if s.scramble_id not in old_scramble_ids]:
-        existing_results.solves.append(new_solve)
-
-    DB.session.commit()
-    return existing_results
 
 
 def bulk_save_event_results(results_list):
@@ -314,36 +268,3 @@ def bulk_save_event_results(results_list):
     for result in results_list:
         DB.session.add(result)
     DB.session.commit()
-
-# -------------------------------------------------------------------------------------------------
-# Below are functions that aren't normally used in the app, but were used at some point for
-# data cleanup with the commands in `commands.py`
-# -------------------------------------------------------------------------------------------------
-
-def get_all_null_is_complete_event_results():
-    """ Get all UserEventResults with a null is_complete value. """
-
-    # pylint: disable=C0121
-    return UserEventResults.query.\
-        filter(UserEventResults.is_complete == None).\
-        all()
-
-
-def get_all_na_average_event_results():
-    """ Get all UserEventResults where the average is N/A. """
-
-    return UserEventResults.query.\
-        filter(UserEventResults.average == 'N/A').\
-        all()
-
-
-def get_all_fmc_results():
-    """ Get all UserEventResults for FMC. """
-
-    return DB.session.\
-        query(UserEventResults).\
-        join(CompetitionEvent).\
-        join(Event).\
-        filter(Event.name == 'FMC').\
-        filter(UserEventResults.is_complete).\
-        all()

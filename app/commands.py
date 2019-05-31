@@ -4,18 +4,11 @@ import click
 
 from app import app
 from app.business.user_results.personal_bests import recalculate_user_pbs_for_event
-from app.business.user_results.creation import __determine_best_single,\
-    __determine_bests, __determine_event_result, __build_times_string
-from app.persistence.models import EventFormat
-from app.persistence.comp_manager import get_all_competitions, get_complete_competitions,\
-    bulk_update_comps, get_all_comp_events_for_comp, get_competition, override_title_for_next_comp,\
-    set_all_events_flag_for_next_comp
+from app.persistence.comp_manager import get_complete_competitions, get_all_comp_events_for_comp,\
+    get_competition, override_title_for_next_comp, set_all_events_flag_for_next_comp
 from app.persistence.events_manager import get_all_events
 from app.persistence.user_manager import get_all_users, get_all_admins, set_user_as_admin,\
     unset_user_as_admin, UserDoesNotExistException, set_user_as_results_moderator, unset_user_as_results_moderator
-from app.persistence.user_results_manager import get_all_null_is_complete_event_results,\
-    get_all_na_average_event_results, save_event_results_for_user, get_all_complete_event_results,\
-    bulk_save_event_results, get_all_fmc_results
 from app.business.user_results import set_medals_on_best_event_results
 from app.tasks.competition_management import post_results_thread_task,\
     generate_new_competition_task, wrap_weekly_competition, run_user_site_rankings
@@ -146,23 +139,6 @@ def list_admins():
 
 
 @app.cli.command()
-def fix_goofy_comp_names():
-    """ Updates competition titles from "Cubing Competition 299!" format to "Competition 299" """
-
-    comps_to_be_updated = list()
-    for comp in get_all_competitions():
-        if not comp.title:
-            continue
-        previous_title = comp.title
-        comp.title = comp.title.replace("Cubing ", "").replace("!", "").replace("  ", " ").strip()
-        new_title = comp.title
-        print("{} --> {}".format(previous_title, new_title))
-        comps_to_be_updated.append(comp)
-
-    bulk_update_comps(comps_to_be_updated)
-
-
-@app.cli.command()
 def recalculate_pbs():
     """ Works through every user, every event type, and re-calculates PB averages and singles
     and sets appropriate flags on UserEventResults. """
@@ -191,107 +167,3 @@ def backfill_results_medals():
     for i, comp in enumerate(all_comps):
         print('Backfilling for comp {} ({}/{})'.format(comp.id, i + 1, total_num))
         set_medals_on_best_event_results(get_all_comp_events_for_comp(comp.id))
-
-
-@app.cli.command()
-def fix_user_results_add_result_complete():
-    """ Utility command to backfill all UserEventResults with null is_complete value. """
-
-    null_is_complete_results = get_all_null_is_complete_event_results()
-    fix_user_event_results(null_is_complete_results)
-
-
-@app.cli.command()
-def fix_user_results_with_na_average():
-    """ Utility command to backfill all UserEventResults with N/A average value. """
-
-    na_average_results = get_all_na_average_event_results()
-    fix_user_event_results(na_average_results)
-
-
-@app.cli.command()
-def fix_fmc_user_results_with_intended_dnf():
-    """ Utility command to fix all UserEventResults for FMC where the user had unrealistically
-    high solves, probably intended to be DNFs. """
-
-    results_to_save = list()
-    for result in get_all_fmc_results():
-        altered_result = False
-        for solve in result.solves:
-            if solve.time >= 15000 and not solve.is_dnf:
-                altered_result = True
-                solve.is_dnf = True
-        if altered_result:
-            result.average = 'DNF'
-            result.is_fmc = True
-            result.times_string = __build_times_string(result, EventFormat.Mo3)
-            results_to_save.append(result)
-            print("Fixed FMC results with DNF with ID {}".format(result.id))
-
-    bulk_save_event_results(results_to_save)
-
-
-@app.cli.command()
-def backfill_user_results_time_strings():
-    """ Utility command to backfill all UserEventResults with no times_string value. """
-
-    complete_results = get_all_complete_event_results()
-    total_to_fix = len(complete_results)
-    total_fixed  = 0
-
-    results_to_save = list()
-    for results in complete_results:
-        event_format = results.CompetitionEvent.Event.eventFormat
-
-        results.times_string = __build_times_string(results, event_format)
-
-        results_to_save.append(results)
-        total_fixed += 1
-
-        if len(results_to_save) > 25:
-            bulk_save_event_results(results_to_save)
-            results_to_save = list()
-            print("Fixed {} of {} UserEventResults".format(total_fixed, total_to_fix))
-
-    if results_to_save:
-        bulk_save_event_results(results_to_save)
-        results_to_save = list()
-        print("Fixed {} of {} UserEventResults".format(total_fixed, total_to_fix))
-
-
-def fix_user_event_results(user_event_results):
-    """Fix user event results is_complete, single, average, and result fields. """
-
-    total_to_fix = len(user_event_results)
-    total_fixed  = 0
-
-    for results in user_event_results:
-
-        event_format        = results.CompetitionEvent.Event.eventFormat
-        expected_num_solves = results.CompetitionEvent.Event.totalSolves
-
-        if len(results.solves) < expected_num_solves:
-            results.single = __determine_best_single(results.solves)
-            results.average = ''
-        else:
-            single, average = __determine_bests(results.solves, event_format)
-            results.single  = single
-            results.average = average
-
-        # Determine whether this event is considered complete or not
-        if event_format == EventFormat.Bo3:
-            # All blind events are best-of-3, but ranked by single,
-            # so consider those complete if there are any solves complete at all
-            results.is_complete = bool(results.solves)
-        else:
-            # Other events are complete if all solves have been completed
-            results.is_complete = len(results.solves) == expected_num_solves
-
-        # If complete, set the result (either best single, mean, or average) depending on event format
-        if results.is_complete:
-            results.result = __determine_event_result(results.single, results.average, event_format)
-
-        save_event_results_for_user(results, results.User)
-
-        total_fixed += 1
-        print("Fixed {} of {} UserEventResults".format(total_fixed, total_to_fix))

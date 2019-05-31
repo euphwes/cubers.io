@@ -2,29 +2,13 @@
 
 from sys import maxsize as MAX
 
-from typing import Any, Dict, List, Union, Tuple, Iterable, Sequence
-
-from app.persistence.comp_manager import get_comp_event_by_id
-from app.persistence.models import UserEventResults, UserSolve, EventFormat, User
+from app.persistence.models import EventFormat
 from app.util.times import convert_centiseconds_to_friendly_time
-from app.business.user_results import DNF, DNS, FMC
+from app.business.user_results import DNF, DNS
 from app.business.user_results.personal_bests import set_pb_flags
 from app.business.user_results.blacklisting import take_blacklist_action_if_necessary
 
 # -------------------------------------------------------------------------------------------------
-
-# Keys to the dictionary passed from the front-end back to the server for creating UserEventResults
-COMMENT       = 'comment'
-SOLVES        = 'scrambles'  # Because the solve times are paired with the scrambles up front
-TIME          = 'time'
-SCRAMBLE_ID   = 'id'
-IS_DNF        = 'is_dnf'
-IS_PLUS_TWO   = 'is_plus_two'
-COMP_EVENT_ID = 'comp_event_id'
-NAME          = 'name'
-
-# Other useful constant values
-BLIND_EVENTS = ('2BLD', '3BLD', '4BLD', '5BLD')
 
 # Summary and times strings templates
 EVENT_SUMMARY_TEMPLATE         = '{result} = {times_string}'
@@ -37,27 +21,13 @@ SOLVE_TIMES_SEPARATOR          = ', '
 # Functions and types below are intended to be used directly.
 # -------------------------------------------------------------------------------------------------
 
-def build_user_event_results(comp_event_dict: Dict[str, Any],
-                             user: User) -> Tuple[UserEventResults, str]:
+def process_event_results(results, comp_event, user):
     """ Builds a UserEventsResult object from a dictionary coming in from the front-end, which
     contains the competition event ID and the user's solves paired with the scrambles. """
 
-    comment = comp_event_dict.get(COMMENT, '')
-
-    # Retrieve the CompetitionEvent from the DB and get the event name, format, and expected solves
-    comp_event_id       = comp_event_dict[COMP_EVENT_ID]
-    comp_event          = get_comp_event_by_id(comp_event_id)
     event_id            = comp_event.Event.id
-    event_name          = comp_event.Event.name
     event_format        = comp_event.Event.eventFormat
     expected_num_solves = comp_event.Event.totalSolves
-
-    # Create the actual UserEventResults
-    results = UserEventResults(comp_event_id=comp_event_id, comment=comment)
-
-    # Build up a list of UserSolves for this UserEventResults
-    solves = __build_user_solves(comp_event_dict[SOLVES], is_fmc=event_name == FMC)
-    results.set_solves(solves)
 
     # Set the best single and overall average for this event
     __set_single_and_average(results, expected_num_solves, event_format)
@@ -65,14 +35,9 @@ def build_user_event_results(comp_event_dict: Dict[str, Any],
     # Determine if the user has completed their results for this event
     __set_is_complete(results, event_format, expected_num_solves)
 
-    # Figure out if this is for FMC, a blind event, or neither
-    # Useful for deciding how to represent results to the user
-    results.is_fmc   = event_name == FMC
-    results.is_blind = event_name in BLIND_EVENTS
-
     # If the results are not yet complete, go ahead and return now
     if not results.is_complete:
-        return results, event_name
+        return results
 
     # Set the result (either best single, mean, or average) depending on event format
     results.result = __determine_event_result(results.single, results.average, event_format)
@@ -91,48 +56,14 @@ def build_user_event_results(comp_event_dict: Dict[str, Any],
     if not was_blacklisting_action_taken:
         results = set_pb_flags(user.id, results, event_id, event_format)
 
-    return results, event_name
+    return results
 
 # -------------------------------------------------------------------------------------------------
 # Functions and types below are not meant to be used directly; instead these are just dependencies
 # of the publicly-visible functions above.
 # -------------------------------------------------------------------------------------------------
 
-def __build_user_solves(solves_data: Dict[str, Any],
-                        is_fmc: bool = False) -> List[UserSolve]:
-    """ Builds and returns a list of UserSolves from the data coming from the front end. """
-
-    user_solves = list()
-
-    for solve in solves_data:
-        time = solve[TIME]
-
-        # For non-FMC, if the user hasn't recorded a time for this scramble, then just skip to the next
-        if not is_fmc and not time:
-            continue
-
-        # For FMC, a DNF without a "time" (really move count) is ok, but no time and no DNF is not ok
-        if is_fmc and (not time) and (not solve[IS_DNF]):
-            continue
-
-        # Set the time (in centiseconds), DNF and +2 status, and the scramble ID for this UserSolve
-        if is_fmc:
-            time = int(time) if time else 0
-        else:
-            time = int(time)
-        dnf         = solve[IS_DNF]
-        plus_two    = solve[IS_PLUS_TWO]
-        scramble_id = solve[SCRAMBLE_ID]
-
-        user_solve = UserSolve(time=time, is_dnf=dnf, is_plus_two=plus_two, scramble_id=scramble_id)
-        user_solves.append(user_solve)
-
-    return user_solves
-
-
-def __set_is_complete(user_event_results: UserEventResults,
-                      event_format: EventFormat,
-                      expected_num_solves: int):
+def __set_is_complete(user_event_results, event_format, expected_num_solves):
     """ Determine whether this event is considered complete or not. """
 
     # All blind events are best-of-3, but ranked by single, so consider those complete if there
@@ -145,9 +76,7 @@ def __set_is_complete(user_event_results: UserEventResults,
         user_event_results.is_complete = len(user_event_results.solves) == expected_num_solves
 
 
-def __set_single_and_average(user_event_results: UserEventResults,
-                             expected_num_solves: int,
-                             event_format: EventFormat):
+def __set_single_and_average(user_event_results, expected_num_solves, event_format):
     """ Determines and sets the best single and average for the UserEventResults. """
 
     # If not all the solves have been completed, we only know the single
@@ -162,9 +91,7 @@ def __set_single_and_average(user_event_results: UserEventResults,
         user_event_results.average = average
 
 
-def __build_times_string(results: UserEventResults,
-                         event_format: EventFormat,
-                         want_list: bool = False) -> Union[str, Sequence]:
+def __build_times_string(results, event_format, want_list = False):
     """ Builds a list of individual times, with best and worst times in parentheses if appropriate
     for the given event format. Note: this expects `is_fmc` to be explicitly set on the `results` if
     these results are for FMC. """
@@ -256,7 +183,7 @@ def __build_times_string(results: UserEventResults,
 #    Logic for determining best single and average from a set of solves, for a given EventFormat
 # -------------------------------------------------------------------------------------------------
 
-def __determine_best_single(solves: Iterable[UserSolve]) -> Union[str, int]:
+def __determine_best_single(solves):
     """ Determines the best single in the set of solves. """
 
     # If all solves are DNF, then DNF is the best we've got
@@ -268,9 +195,7 @@ def __determine_best_single(solves: Iterable[UserSolve]) -> Union[str, int]:
     return min(solve.get_total_time() for solve in solves if not solve.is_dnf)
 
 
-def __determine_event_result(single: Union[str, int],
-                             average: Union[str, int],
-                             event_format: EventFormat) -> Union[str, int]:
+def __determine_event_result(single, average, event_format):
     """ Returns the correct overall result (either single or average) based on the event format. """
 
     results_dict = {
@@ -286,8 +211,7 @@ def __determine_event_result(single: Union[str, int],
         raise ValueError(event_format, '{event_format} is not a valid event format.')
 
 
-def __determine_bests(solves: Iterable[UserSolve],
-                      event_format: EventFormat) -> Tuple[Union[str, int], Union[str, int]]:
+def __determine_bests(solves, event_format):
     """ Returns a tuple of (best single, average) for these solves based on the supplied
     event format." """
 
@@ -304,7 +228,7 @@ def __determine_bests(solves: Iterable[UserSolve],
         raise ValueError(event_format, '{event_format} is not a valid event format.')
 
 
-def __determine_bests_bo1(solves: Sequence[UserSolve]) -> Tuple[Union[str, int], Union[str, int]]:
+def __determine_bests_bo1(solves):
     """ Returns just the one single. """
 
     solve = solves[0]
@@ -315,13 +239,13 @@ def __determine_bests_bo1(solves: Sequence[UserSolve]) -> Tuple[Union[str, int],
     return solve.get_total_time(), ''
 
 
-def __determine_bests_bo3(solves: Iterable[UserSolve]) -> Tuple[Union[str, int], Union[str, int]]:
+def __determine_bests_bo3(solves):
     """ Returns the best single for these 3 solves, and 'N/A' for the average. """
 
     return __determine_bests_mo3(solves)
 
 
-def __determine_bests_mo3(solves: Iterable[UserSolve]) -> Tuple[Union[str, int], Union[str, int]]:
+def __determine_bests_mo3(solves):
     """ Returns the best single and mean for these 3 solves. """
 
     # Count how many DNFs are in these solves
@@ -330,7 +254,7 @@ def __determine_bests_mo3(solves: Iterable[UserSolve]) -> Tuple[Union[str, int],
     # If there are any DNFs at all in a Mo3, the average must be DNF.
     # Otherwise the average is the mean of the 3 solves.
     if dnf_count > 0:
-        average: Union[str, int] = DNF
+        average = DNF
     else:
         average = round(sum(solve.get_total_time() for solve in solves) / 3.0)
 
@@ -344,7 +268,7 @@ def __determine_bests_mo3(solves: Iterable[UserSolve]) -> Tuple[Union[str, int],
     return single, average
 
 
-def __determine_bests_ao5(solves: Iterable[UserSolve]) -> Tuple[Union[str, int], Union[str, int]]:
+def __determine_bests_ao5(solves):
     """ Returns the best single and average for these 5 solves, where the average
     is the arithmetic mean of the middle 3 solves. """
 
