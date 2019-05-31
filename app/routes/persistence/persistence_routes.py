@@ -1,6 +1,5 @@
 """ Routes related to saving results to the database. """
 
-import traceback
 import json
 
 from http import HTTPStatus
@@ -28,20 +27,24 @@ COMP_EVENT_ID = 'comp_event_id'
 CENTISECONDS  = 'elapsed_centiseconds'
 EXPECTED_FIELDS = (IS_DNF, IS_PLUS_TWO, SCRAMBLE_ID, COMP_EVENT_ID, CENTISECONDS)
 
+ERR_MSG_MISSING_INFO = 'Some required information is missing from your solve.'
+ERR_MSG_NO_SUCH_EVENT = "Can't find a competition event with ID {}."
+ERR_MSG_INACTIVE_COMP = 'This event belongs to a competition which has ended.'
+
 # -------------------------------------------------------------------------------------------------
 
 @app.route('/post_solve', methods=['POST'])
 def post_solve():
-    """ TODO: make this better, saves a solve """
+    """ Saves a solve. Ensures the user has UserEventResults for this event, associated this solve
+    with those results, and processes the results to make sure all relevant data is up-to-date. """
 
     if not current_user.is_authenticated:
-        app.logger.warning('unauthenticated user attempting save_event')
         return abort(HTTPStatus.UNAUTHORIZED)
 
-    # Extract JSON solve data, deserialize to dictionary, and verify that all expected fields are present
+    # Extract JSON solve data, deserialize to dict, and verify that all expected fields are present
     solve_data = json.loads(request.data)
     if not all(key in solve_data for key in EXPECTED_FIELDS):
-        return ('oops you forgot some data', HTTPStatus.BAD_REQUEST)
+        return (ERR_MSG_MISSING_INFO, HTTPStatus.BAD_REQUEST)
 
     # Extract all the specific fields out of the solve data dictionary
     is_dnf        = solve_data[IS_DNF]
@@ -53,48 +56,28 @@ def post_solve():
     # Retrieve the specified competition event
     comp_event = get_comp_event_by_id(comp_event_id)
     if not comp_event:
-        return ("Can't find that event, oops.", HTTPStatus.NOT_FOUND)
+        return (ERR_MSG_NO_SUCH_EVENT.format(comp_event_id), HTTPStatus.NOT_FOUND)
 
-    # Verify that the competition event belongs to the active competition. If it doesn't, return an error message
+    # Verify that the competition event belongs to the active competition.
     comp = comp_event.Competition
     if not comp.active:
-        return ("Oops, that event belongs to a competition which has ended.", HTTPStatus.BAD_REQUEST)
+        return (ERR_MSG_INACTIVE_COMP, HTTPStatus.BAD_REQUEST)
 
-    # Retrieve the user's results record for this event, if they exist, or else create a new record
+    # Retrieve the user's results record for this event if they exist, or else create a new record
     user_event_results = get_event_results_for_user(comp_event_id, current_user)
     if not user_event_results:
-        user_event_results = UserEventResults(comp_event_id=comp_event_id, user_id=current_user.id)
+        user_event_results = UserEventResults(comp_event_id=comp_event_id,
+                                              user_id=current_user.id)
 
-    solve = UserSolve(time=centiseconds, is_dnf=is_dnf, is_plus_two=is_plus_two, scramble_id=scramble_id)
+    # Create the record for this solve and associate it with the user's event results
+    solve = UserSolve(time=centiseconds, is_dnf=is_dnf, is_plus_two=is_plus_two,
+                      scramble_id=scramble_id)
     user_event_results.solves.append(solve)
 
+    # Process through the user's event results, ensuring PB flags, best single, average, overall
+    # event result, etc are all up-to-date.
     process_event_results(user_event_results, comp_event, current_user)
-
     save_event_results(user_event_results)
 
+    # We don't need to return any info, just indicate intentionally empty.
     return ('', HTTPStatus.NO_CONTENT)
-
-# -------------------------------------------------------------------------------------------------
-
-def __create_results_log_context(user, event_name, event_result: UserEventResults):
-    """ Builds some logging context related to creating/updating user events results. """
-
-    results_info = event_result.to_log_dict()
-    results_info['event_name'] = event_name
-
-    return {
-        'username': user.username,
-        'results': results_info
-    }
-
-
-def __create_results_error_log_context(user, ex):
-    """ Builds some logging context related to errors during creating/updating user events results. """
-
-    return {
-        'username': user.username,
-        'exception': {
-            'message': str(ex),
-            'stack': traceback.format_exc()
-        },
-    }

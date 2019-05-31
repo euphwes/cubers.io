@@ -35,7 +35,7 @@
         <div class="right_portion">
             <div class="scramble_wrapper">
                 <div class="scramble_area">
-                    <div class="scram flex_full_center text-center">{{scramble}}</div>
+                    <div class="scram flex_full_center text-center">{{scramble_text}}</div>
                 </div>
             </div>
             
@@ -72,7 +72,7 @@
 {% endassets %}
 <script>
     (function() {
-        window.app.scramble = {{scramble|tojson}};
+        window.app.scramble = {{scramble_text|tojson}};
         window.app.scrambleId = {{scramble_id|tojson}};
         window.app.eventName = {{event_name|tojson}};
         window.app.compEventId = {{comp_event_id|tojson}};

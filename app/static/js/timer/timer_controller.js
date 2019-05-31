@@ -361,7 +361,9 @@
             data: JSON.stringify(solve_data),
             contentType: "application/json",
             success: reload,
-            error: function(xhr) { alert(xhr.responseText); }
+            error: function(xhr) {
+                alert("Something unexpected happened: " + xhr.responseText);
+            }
         });
     };
 
