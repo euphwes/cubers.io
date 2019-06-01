@@ -35,6 +35,7 @@
         var confirm_msg = "Are you sure you want to delete your last solve? (" + window.app.lastResult + ")";
         bootbox.confirm({
             message: confirm_msg,
+            centerVertical: true,
             buttons: {
                 confirm: {
                     label: 'Yes',
@@ -97,6 +98,52 @@
             success: reload,
             error: function(xhr) {
                 alert("Something unexpected happened: " + xhr.responseText);
+            }
+        });
+    });
+
+    // Wire up the comment button
+    $('#BTN_COMMENT').click(function(){
+
+        // disable the timer so the key/space events here don't trigger the timer starting
+        window.app.timer._disable();
+
+        bootbox.prompt({
+            title: 'Enter your comment for ' + window.app.eventName + ' here!',
+            value: window.app.comment,
+            inputType: "textarea",
+            centerVertical: true,
+            buttons: {
+                confirm: {
+                    label: 'Update comment',
+                    // className: 'btn-success'
+                },
+                cancel: {
+                    label: 'Cancel',
+                    // className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                if (result == null) {
+                    // Dialog box was closed/canceled, so don't update comment, and re-enable the timer
+                    window.app.timer._enable();
+                    return;
+                }
+
+                var data = {};
+                data.comp_event_id = window.app.compEventId;
+                data.comment = result;
+
+                $.ajax({
+                    url: '/apply_comment',
+                    type: "POST",
+                    data: JSON.stringify(data),
+                    contentType: "application/json",
+                    success: reload,
+                    error: function(xhr) {
+                        alert("Something unexpected happened: " + xhr.responseText);
+                    }
+                });
             }
         });
     });

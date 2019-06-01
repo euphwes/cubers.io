@@ -74,10 +74,13 @@ def timer_page(comp_event_id):
     # Determine button states
     button_state_info = __determine_button_states(user_results, scramble_index)
 
+    # Grab the comment (if any) from the user results (if any), otherwise default to an empty string
+    comment = user_results.comment if user_results else ''
+
     return render_template(TIMER_TEMPLATE_MOBILE_MAP[request.MOBILE], scramble_text=scramble_text,
         scramble_id=scramble_id, comp_event_id=comp_event_id, event_name=comp_event.Event.name,
         alternative_title=alternative_title, user_solves=user_solves, button_states=button_state_info,
-        show_scramble_preview=show_scramble_preview, last_solve=last_solve)
+        show_scramble_preview=show_scramble_preview, last_solve=last_solve, comment=comment)
 
 # -------------------------------------------------------------------------------------------------
 

@@ -28,6 +28,8 @@ COMP_EVENT_ID = 'comp_event_id'
 CENTISECONDS  = 'elapsed_centiseconds'
 EXPECTED_FIELDS = (IS_DNF, IS_PLUS_TWO, SCRAMBLE_ID, COMP_EVENT_ID, CENTISECONDS)
 
+COMMENT = 'comment'
+
 ERR_MSG_MISSING_INFO = 'Some required information is missing from your solve.'
 ERR_MSG_NO_SUCH_EVENT = "Can't find a competition event with ID {}."
 ERR_MSG_INACTIVE_COMP = 'This event belongs to a competition which has ended.'
@@ -188,8 +190,6 @@ def delete_prev_solve():
 
     # Extract JSON solve data, deserialize to dict, and verify that all expected fields are present
     solve_data = json.loads(request.data)
-    import sys
-    print(solve_data, file=sys.stderr)
     if not all(key in solve_data for key in (COMP_EVENT_ID,)):
         return (ERR_MSG_MISSING_INFO, HTTPStatus.BAD_REQUEST)
 
@@ -228,6 +228,45 @@ def delete_prev_solve():
     else:
         process_event_results(user_event_results, comp_event, current_user)
         save_event_results(user_event_results)
+
+    # We don't need to return any info, just indicate intentionally empty.
+    return ('', HTTPStatus.NO_CONTENT)
+
+
+@app.route('/apply_comment', methods=['POST'])
+def apply_comment():
+    """ Applies the supplied comment to the desired competition event for this user. """
+
+    if not current_user.is_authenticated:
+        return abort(HTTPStatus.UNAUTHORIZED)
+
+    # Extract JSON solve data, deserialize to dict, and verify that all expected fields are present
+    solve_data = json.loads(request.data)
+    if not all(key in solve_data for key in (COMP_EVENT_ID, COMMENT)):
+        return (ERR_MSG_MISSING_INFO, HTTPStatus.BAD_REQUEST)
+
+    # Extract all the specific fields out of the solve data dictionary
+    comp_event_id = solve_data[COMP_EVENT_ID]
+    comment       = solve_data[COMMENT]
+
+    # Retrieve the specified competition event
+    comp_event = get_comp_event_by_id(comp_event_id)
+    if not comp_event:
+        return (ERR_MSG_NO_SUCH_EVENT.format(comp_event_id), HTTPStatus.NOT_FOUND)
+
+    # Verify that the competition event belongs to the active competition.
+    comp = comp_event.Competition
+    if not comp.active:
+        return (ERR_MSG_INACTIVE_COMP, HTTPStatus.BAD_REQUEST)
+
+    # Retrieve the user's results record for this event
+    user_event_results = get_event_results_for_user(comp_event_id, current_user)
+    if (not user_event_results) or (not user_event_results.solves):
+        return (ERR_MSG_NO_RESULTS.format(comp_event_id), HTTPStatus.NOT_FOUND)
+
+    # Apply the new comment and save the results
+    user_event_results.comment = comment
+    save_event_results(user_event_results)
 
     # We don't need to return any info, just indicate intentionally empty.
     return ('', HTTPStatus.NO_CONTENT)
