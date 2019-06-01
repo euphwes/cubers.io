@@ -94,7 +94,7 @@ def toggle_prev_dnf():
 
     # Extract JSON solve data, deserialize to dict, and verify that all expected fields are present
     solve_data = json.loads(request.data)
-    if not all(key in solve_data for key in (COMP_EVENT_ID)):
+    if not all(key in solve_data for key in (COMP_EVENT_ID,)):
         return (ERR_MSG_MISSING_INFO, HTTPStatus.BAD_REQUEST)
 
     # Extract all the specific fields out of the solve data dictionary
@@ -119,6 +119,10 @@ def toggle_prev_dnf():
     previous_solve = user_event_results.solves[-1]
     previous_solve.is_dnf = not previous_solve.is_dnf
 
+    # If the solve now has DNF, ensure it doesn't also have +2
+    if previous_solve.is_dnf:
+        previous_solve.is_plus_two = False
+
     # Process through the user's event results, ensuring PB flags, best single, average, overall
     # event result, etc are all up-to-date.
     process_event_results(user_event_results, comp_event, current_user)
@@ -137,7 +141,7 @@ def toggle_prev_plus_two():
 
     # Extract JSON solve data, deserialize to dict, and verify that all expected fields are present
     solve_data = json.loads(request.data)
-    if not all(key in solve_data for key in (COMP_EVENT_ID)):
+    if not all(key in solve_data for key in (COMP_EVENT_ID,)):
         return (ERR_MSG_MISSING_INFO, HTTPStatus.BAD_REQUEST)
 
     # Extract all the specific fields out of the solve data dictionary
@@ -161,6 +165,10 @@ def toggle_prev_plus_two():
     # Grab the last completed solve, and toggle +2 for it
     previous_solve = user_event_results.solves[-1]
     previous_solve.is_plus_two = not previous_solve.is_plus_two
+
+    # If the solve now has +2, ensure it doesn't also have DNF
+    if previous_solve.is_plus_two:
+        previous_solve.is_dnf = False
 
     # Process through the user's event results, ensuring PB flags, best single, average, overall
     # event result, etc are all up-to-date.

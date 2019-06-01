@@ -65,4 +65,40 @@
         });
     });
 
+    // Wire up the +2 button
+    $('#BTN_PLUS_TWO').click(function(){
+
+        var data = {};
+        data.comp_event_id = window.app.compEventId;
+
+        $.ajax({
+            url: '/toggle_prev_plus_two',
+            type: "POST",
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            success: reload,
+            error: function(xhr) {
+                alert("Something unexpected happened: " + xhr.responseText);
+            }
+        });
+    });
+
+    // Wire up the DNF button
+    $('#BTN_DNF').click(function(){
+
+        var data = {};
+        data.comp_event_id = window.app.compEventId;
+
+        $.ajax({
+            url: '/toggle_prev_dnf',
+            type: "POST",
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            success: reload,
+            error: function(xhr) {
+                alert("Something unexpected happened: " + xhr.responseText);
+            }
+        });
+    });
+
 })();
