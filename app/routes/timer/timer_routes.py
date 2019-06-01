@@ -80,11 +80,14 @@ def timer_page(comp_event_id):
     # Determine if the event has been completed by this user
     is_complete = user_results.is_complete if user_results else False
 
+    # Get the user's settings
+    settings = __get_user_settings(current_user)
+
     return render_template(TIMER_TEMPLATE_MOBILE_MAP[request.MOBILE], scramble_text=scramble_text,
         scramble_id=scramble_id, comp_event_id=comp_event_id, event_name=comp_event.Event.name,
         alternative_title=alternative_title, user_solves=user_solves, button_states=button_state_info,
         show_scramble_preview=show_scramble_preview, last_solve=last_solve, comment=comment,
-        is_complete=is_complete)
+        is_complete=is_complete, settings=settings)
 
 # -------------------------------------------------------------------------------------------------
 
@@ -236,7 +239,7 @@ SETTINGS_TO_POPULATE = [
     SettingCode.CUSTOM_MEGAMINX_COLOR_12,
 ]
 
-def get_user_settings(user):
+def __get_user_settings(user):
     """ Retrieves certain settings for use in the front-end. If there is no logged-in user, just
     retrieve default values for these settings. """
 

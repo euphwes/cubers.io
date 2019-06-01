@@ -70,8 +70,8 @@ def post_solve():
     # Retrieve the user's results record for this event if they exist, or else create a new record
     user_event_results = get_event_results_for_user(comp_event_id, current_user)
     if not user_event_results:
-        user_event_results = UserEventResults(comp_event_id=comp_event_id,
-                                              user_id=current_user.id)
+        user_event_results = UserEventResults(comp_event_id=comp_event_id, user_id=current_user.id,
+                                              comment='')
 
     # Create the record for this solve and associate it with the user's event results
     solve = UserSolve(time=centiseconds, is_dnf=is_dnf, is_plus_two=is_plus_two,

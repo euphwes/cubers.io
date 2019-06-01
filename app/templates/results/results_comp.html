@@ -92,9 +92,7 @@
                 success: function(response) {
                     $('.loading_event').addClass('hidden_icon');
                     $(target_tab_id).html(response);
-                    if (!Boolean(new MobileDetect(window.navigator.userAgent).mobile())) {
-                        $('[data-toggle="tooltip"]').tooltip();
-                    }
+                    $('[data-toggle="tooltip"]').tooltip();
                     wire_admin_buttons();
                     comp_event_ids_loaded.push(comp_event_id);
                 },

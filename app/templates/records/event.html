@@ -187,10 +187,7 @@
             return false;
         });
 
-        if (!Boolean(new MobileDetect(window.navigator.userAgent).mobile())) {
-            $('[data-toggle="tooltip"]').tooltip();
-        }
-
+        $('[data-toggle="tooltip"]').tooltip();
     })
 </script>
 {% endblock %}

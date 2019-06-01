@@ -51,10 +51,9 @@
      */
     TimerDisplayManager.prototype._handleTimerStart = function () {
         $('.timer_text').removeClass('armed');
-        // TODO check settings
-        // if (app.userSettingsManager.get_setting(app.Settings.HIDE_RUNNING_TIMER)) {
-        //     $('.timer_text').addClass('hidden');
-        // }
+        if (app.userSettingsManager.get_setting(app.Settings.HIDE_RUNNING_TIMER)) {
+            $('.timer_text').addClass('hidden');
+        }
     };
 
     /**
@@ -72,10 +71,9 @@
      */
     TimerDisplayManager.prototype._handleInspectionArmed = function () {
         $('.timer_text').addClass('armed');
-        // TODO: settings
-        // if (app.userSettingsManager.get_setting(app.Settings.HIDE_INSPECTION_TIME)) {
-        //     $('.timer_text').removeClass('hidden');
-        // }
+        if (app.userSettingsManager.get_setting(app.Settings.HIDE_INSPECTION_TIME)) {
+            $('.timer_text').removeClass('hidden');
+        }
     };
 
     /**
@@ -97,12 +95,11 @@
      */
     TimerDisplayManager.prototype._handleInspectionStarted = function(inspectionStartingSeconds) {
         $('.timer_text').removeClass('armed');
-        // TODO settings
-        // if (app.userSettingsManager.get_setting(app.Settings.HIDE_INSPECTION_TIME)) {
-            // $('.timer_text').addClass('hidden');
-        // } else {
+        if (app.userSettingsManager.get_setting(app.Settings.HIDE_INSPECTION_TIME)) {
+            $('.timer_text').addClass('hidden');
+        } else {
             this._displayTime(inspectionStartingSeconds, "", true);
-        // }
+        }
     };
 
     /**

@@ -78,9 +78,7 @@
         if (["2BLD", "3BLD", "4BLD", "5BLD"].includes(event_name)) {
             this.useInspectionTime = false;
         } else {
-            this.useInspectionTime = true;
-            // TODO: check settings for inspection
-            // this.useInspectionTime = app.userSettingsManager.get_setting(app.Settings.USE_INSPECTION_TIME);
+            this.useInspectionTime = app.userSettingsManager.get_setting(app.Settings.USE_INSPECTION_TIME);
         }
     };
 

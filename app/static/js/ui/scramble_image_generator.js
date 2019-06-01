@@ -12,7 +12,7 @@
     var TRANSPARENT = "rgba(255, 255, 255, 0)";
 
     var setColors = function() {
-        if (typeof window.app.userSettingsManager !== 'undefined' && window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_CUBE_COLORS)) {
+        if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_CUBE_COLORS)) {
             cube_colors = [
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_D),
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_L),
@@ -52,7 +52,7 @@
             };
         }
 
-        if (typeof window.app.userSettingsManager !== 'undefined' && window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_PYRAMINX_COLORS)) {
+        if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_PYRAMINX_COLORS)) {
             pyra_colors = [
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_PYRAMINX_COLOR_F),
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_PYRAMINX_COLOR_L),
@@ -63,7 +63,7 @@
             pyra_colors = ['#0f0', '#f00', '#00f', '#ff0'];
         }
 
-        if (typeof window.app.userSettingsManager !== 'undefined' && window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_MEGAMINX_COLORS)) {
+        if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_MEGAMINX_COLORS)) {
             mega_colors = [
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_1),
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_2),

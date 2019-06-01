@@ -61,6 +61,7 @@ ASSETS.register({
 
     'timer_timer_js': Bundle(
         'js/event_emitter.js',
+        'js/controller/user_settings_manager.js',
         'js/util/extensions_and_polyfill.js',
         'js/util/time_convert_format.js',
         'js/ui/scramble_image_generator.js',
@@ -87,6 +88,14 @@ ASSETS.register({
         'less/timer/mobile.less',
         filters="less,cssmin",
         output='gen/timer_mobile.css'),
+
+    # --------- user settings page static bundles ------------
+
+    'user_settings_js': Bundle(
+        'js/event_emitter.js',
+        filters="jsmin",
+        output='gen/user_settings.js'
+    ),
 
     # --------- the rest ------------
 
