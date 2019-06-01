@@ -192,29 +192,12 @@ class UserEventResults(Model):
             return value
 
         if self.is_fmc:
-            # TODO consolidate this with the jinja filter format for fmc function, and move into
-            # the time utils module
             converted_value = int(value) / 100
             if converted_value == int(converted_value):
                 converted_value = int(converted_value)
             return converted_value
 
         return convert_centiseconds_to_friendly_time(value)
-
-
-    def to_log_dict(self):
-        """ Converts this UserEventsResults to a dictionary representation useful in logging. """
-
-        return {
-            'solves': [s.to_log_dict() for s in self.solves],
-            'is_complete': self.is_complete,
-            'comment': self.comment,
-            'is_blacklisted': self.is_blacklisted,
-            'pb_flags': {
-                'single': self.was_pb_single,
-                'average': self.was_pb_average
-            }
-        }
 
 
 class CompetitionEvent(Model):
@@ -369,21 +352,18 @@ class UserSolve(Model):
 
 
     def get_friendly_time(self):
-        """ Utility method to return a friendly representation of the value passed in. Depends
-        on whether or not this UserEventResults is for an FMC event or not. """
+        """Returns a user-friendly representation of this solve's overall time, including penalties. """
 
         if not self.time:
             return ''
 
         # TODO: handle blind DNFs, which show "DNF(time here)"
-        if self.is_dnf == 'DNF':
+        if self.is_dnf:
             return 'DNF'
 
         total_time = self.get_total_time()
 
         if self.UserEventResults.is_fmc:
-            # TODO consolidate this with the jinja filter format for fmc function, and move into
-            # the time utils module
             converted_value = int(total_time) / 100
             if converted_value == int(converted_value):
                 converted_value = int(converted_value)
@@ -394,16 +374,6 @@ class UserSolve(Model):
             converted_to_friendly = converted_to_friendly + '+'
 
         return converted_to_friendly
-
-
-    def to_log_dict(self):
-        """ Converts this Solve to a dictionary representation useful in logging. """
-
-        return {
-            'time': convert_centiseconds_to_friendly_time(self.get_total_time()),
-            'is_dnf': self.is_dnf,
-            'is_plus_two': self.is_plus_two
-        }
 
 
 class UserSetting(Model):

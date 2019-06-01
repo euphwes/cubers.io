@@ -28,6 +28,7 @@ def process_event_results(results, comp_event, user):
     event_id            = comp_event.Event.id
     event_format        = comp_event.Event.eventFormat
     expected_num_solves = comp_event.Event.totalSolves
+    event_name          = comp_event.Event.name
 
     # Set the best single and overall average for this event
     __set_single_and_average(results, expected_num_solves, event_format)
@@ -45,7 +46,7 @@ def process_event_results(results, comp_event, user):
     # Store the "times string" so we don't have to recalculate this again later.
     # It's fairly expensive, so doing this for every UserEventResults in the competition slows
     # down the leaderboards noticeably.
-    results.times_string = __build_times_string(results, event_format)
+    results.times_string = __build_times_string(results, event_format, event_name == 'FMC')
 
     # Determine if these results need to be automatically blacklisted because either they have
     # suspect times, or if some other criteria is causing them to be blacklisted, and set the
@@ -91,10 +92,9 @@ def __set_single_and_average(user_event_results, expected_num_solves, event_form
         user_event_results.average = average
 
 
-def __build_times_string(results, event_format, want_list = False):
+def __build_times_string(results, event_format, is_fmc, want_list=False):
     """ Builds a list of individual times, with best and worst times in parentheses if appropriate
-    for the given event format. Note: this expects `is_fmc` to be explicitly set on the `results` if
-    these results are for FMC. """
+    for the given event format. """
 
     # Extract the solves out of the UserEventResults, since we'll be using them often
     solves = results.solves
@@ -108,7 +108,7 @@ def __build_times_string(results, event_format, want_list = False):
             return convert_centiseconds_to_friendly_time(first_solve.get_total_time())
 
     # Build a list which contains the user-friendly representation of the total solve time for each solve
-    if not results.is_fmc:
+    if not is_fmc:
         friendly_times = [convert_centiseconds_to_friendly_time(solve.get_total_time()) for solve in solves]
 
     # FMC is special, the 'time' is actually the number of moves, not number of centiseconds, so instead

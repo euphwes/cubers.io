@@ -1,6 +1,6 @@
-""" Routes related to displaying competition results. """
+""" Routes related to the timer page. """
 
-from flask import render_template, redirect, abort, request
+from flask import render_template, request
 from flask_login import current_user
 
 from app import app
@@ -19,11 +19,21 @@ TIMER_TEMPLATE_MOBILE_MAP = {
 NO_SCRAMBLE_PREVIEW_EVENTS = ["2BLD", "3BLD", "4BLD", "5BLD", "Kilominx", "3x3 Mirror Blocks/Bump",
                               "3x3x4", "3x3x5", "2-3-4 Relay", "3x3 Relay of 3", "PLL Time Attack"]
 
-ERR_MSG_NO_SUCH_EVENT = "Can't find a competition event with ID {}."
+ERR_MSG_NO_SUCH_EVENT = "Can't find a competition event with ID {comp_event_id}."
 ERR_MSG_INACTIVE_COMP = 'This event belongs to a competition which has ended.'
 
 NOT_YET_SOLVED = '—'
 NOT_YET_SOLVED_ARRAY = [NOT_YET_SOLVED]
+
+PAGE_TITLE_TEMPLATE = '{event_name} — {comp_title}'
+
+BTN_DNF      = 'btn_dnf'
+BTN_UNDO     = 'btn_undo'
+BTN_COMMENT  = 'btn_comment'
+BTN_PLUS_TWO = 'btn_plus_two'
+
+BTN_ACTIVE  = 'btn_active'
+BTN_ENABLED = 'btn_enabled'
 
 # -------------------------------------------------------------------------------------------------
 
@@ -34,7 +44,7 @@ def timer_page(comp_event_id):
     # Retrieve the specified competition event
     comp_event = get_comp_event_by_id(comp_event_id)
     if not comp_event:
-        return (ERR_MSG_NO_SUCH_EVENT.format(comp_event_id), 404)
+        return (ERR_MSG_NO_SUCH_EVENT.format(comp_event_id=comp_event_id), 404)
 
     # Verify it's for the actve competition
     comp = comp_event.Competition
@@ -48,49 +58,63 @@ def timer_page(comp_event_id):
     user_solves = __build_user_solves_list(user_results, comp_event.Event.totalSolves,
                                            comp_event.scrambles)
 
-    # Determine the scramble ID and scramble text for the next unsolved scramble.
+    # Determine the scramble ID, scramble text, and index for the next unsolved scramble.
     # If all solves are done, substitute in some sort of message in place of the scramble text
-    scramble_info = __determine_scramble_id_and_text(user_results, user_solves,
-                                                     comp_event.scrambles)
-    scramble_id, scramble_text = scramble_info
+    scramble_info = __determine_scramble_id_text_index(user_results, user_solves,
+                                                       comp_event.scrambles)
+    scramble_id, scramble_text, scramble_index = scramble_info
 
-    alternative_title = '{} — {}'.format(comp_event.Event.name, comp.title)
+    # Build up the page title, consisting of the event name and competition title
+    alternative_title = PAGE_TITLE_TEMPLATE.format(event_name=comp_event.Event.name,
+                                                   comp_title=comp.title)
 
+    # Determine if we should display a scramble preview for this event
     show_scramble_preview = comp_event.Event.name not in NO_SCRAMBLE_PREVIEW_EVENTS
+
+    # Determine button states
+    button_state_info = __determine_button_states(user_results, scramble_index)
 
     return render_template(TIMER_TEMPLATE_MOBILE_MAP[request.MOBILE], scramble_text=scramble_text,
         scramble_id=scramble_id, comp_event_id=comp_event_id, event_name=comp_event.Event.name,
-        alternative_title=alternative_title, user_solves=user_solves,
+        alternative_title=alternative_title, user_solves=user_solves, button_states=button_state_info,
         show_scramble_preview=show_scramble_preview)
 
 # -------------------------------------------------------------------------------------------------
 
-
 def __build_user_solves_list(user_results, event_total_solves, scrambles):
     """ Builds up a list in user-readable form of the user's current solve times. """
 
-    # TODO comment me
-
+    # Begin with an array of 'not yet solved' entries, with a length equal to the number of solves
+    # this event has.
     user_solves = NOT_YET_SOLVED_ARRAY * event_total_solves
 
-    if user_results:
-        for i, scramble in enumerate(scrambles):
-            for solve in user_results.solves:
-                if scramble.id == solve.scramble_id:
-                    user_solves[i] = solve.get_friendly_time()
+    # If the user doesn't have an event results record yet, they don't have any solves, so just
+    # return all 'not yet solved' entries
+    if not user_results:
+        return user_solves
+
+    # Otherwise, iterate over all the solves and scrambles, and if there is a solve for a given
+    # scramble, put the solve's user-friendly time in the corresponding slot in the array
+    for i, scramble in enumerate(scrambles):
+        for solve in user_results.solves:
+            if scramble.id == solve.scramble_id:
+                user_solves[i] = solve.get_friendly_time()
 
     return user_solves
 
 
-def __determine_scramble_id_and_text(user_results, user_solves_list, scrambles):
+def __determine_scramble_id_text_index(user_results, user_solves_list, scrambles):
     """ Based on the user's current results, and the list of scrambles for this competition event,
-    determine the "active" scramble ID and its text. TODO: if the event is complete, show a message
-    of some sort """
+    determine the "active" scramble ID and its text. """
 
-    # TODO comment me
-
+    # To hold the index within the event's scrambles of the first scramble not yet solved.
+    # The "default" state should be that the user doesn't yet have an event results record, and
+    # therefore doesn't have any solves, and therefore the first unsolved scramble is just the
+    # very first one
     first_unsolved_idx = 0
 
+    # If the user has results, iterate over the user solves list to find the the first "solve time"
+    # which is 'not yet solved' indicator. Remember that index.
     if user_results:
         first_unsolved_idx = -1
         for i, solve in enumerate(user_solves_list):
@@ -98,14 +122,66 @@ def __determine_scramble_id_and_text(user_results, user_solves_list, scrambles):
                 first_unsolved_idx = i
                 break
 
-    if first_unsolved_idx != -1:
-        scramble_text = scrambles[first_unsolved_idx].scramble
-        scramble_id = scrambles[first_unsolved_idx].id
-    else:
+    # If the first unsolved index is set to -1, it means all the solves are done.
+    # Instead of scramble text, return a message indicating they're done, possibly
+    # with some additional info about PBs or whatever.
+    if first_unsolved_idx == -1:
+        # TODO -- determine the right message to put here
         scramble_text = "Congrats! You're done."
         scramble_id = -1
 
-    return scramble_id, scramble_text
+    # Otherwise grab the scramble ID and text of the next unsolved scramble
+    else:
+        scramble_text = scrambles[first_unsolved_idx].scramble
+        scramble_id = scrambles[first_unsolved_idx].id
+
+    return scramble_id, scramble_text, first_unsolved_idx
+
+
+def __determine_button_states(user_results, scramble_index):
+    """ Determine the states (enabled/disabled, and active/inactive) of all control buttons
+    (undo, +2, DNF, comment) depending on the current state of the user's event results and the
+    individual solves. """
+
+    # Get a shorter variable to access the user's solves
+    solves = user_results.solves if user_results else None
+
+    previous_was_dnf      = False
+    previous_was_plus_two = False
+    if solves:
+        previous_was_dnf      = solves[scramble_index - 1].is_dnf
+        previous_was_plus_two = solves[scramble_index - 1].is_plus_two
+
+    # Let's determine the comment button's state
+    comment_btn_state = {
+        BTN_ENABLED: bool(user_results),  # can enter comments once they have a results record
+        BTN_ACTIVE:  False                # comment button isn't a toggle, no need to be active
+    }
+
+    # Let's determine the undo button's state
+    undo_btn_state = {
+        BTN_ENABLED: bool(solves),  # can undo when there's at least one solve
+        BTN_ACTIVE:  False          # undo button isn't a toggle, no need to be active
+    }
+
+    # Let's determine the DNF button's state
+    dnf_btn_state = {
+        BTN_ENABLED: bool(solves),      # can apply DNF when there's at least one solve
+        BTN_ACTIVE:  previous_was_dnf  # DNF button is toggled on if previous solve was DNF
+    }
+
+    # Let's determine the plus two button's state
+    plus_two_btn_state = {
+        BTN_ENABLED: bool(solves),           # can apply +2 when there's at least one solve
+        BTN_ACTIVE:  previous_was_plus_two  # +2 button is toggled on if previous solve was +2
+    }
+
+    return {
+        BTN_DNF:      dnf_btn_state,
+        BTN_UNDO:     undo_btn_state,
+        BTN_COMMENT:  comment_btn_state,
+        BTN_PLUS_TWO: plus_two_btn_state,
+    }
 
 # -------------------------------------------------------------------------------------------------
 

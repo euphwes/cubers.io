@@ -1,0 +1,33 @@
+<div class="mods_area">
+    <div class="controls_wrapper">
+
+        {% set BTN_DNF      = 'btn_dnf' %}
+        {% set BTN_UNDO     = 'btn_undo' %}
+        {% set BTN_COMMENT  = 'btn_comment' %}
+        {% set BTN_PLUS_TWO = 'btn_plus_two' %}
+
+        {% set BTN_ACTIVE  = 'btn_active' %}
+        {% set BTN_ENABLED = 'btn_enabled' %}
+
+        {% set disabled_val = '' if button_states[BTN_UNDO][BTN_ENABLED] else 'disabled' %}
+        {% set active_val   = 'active' if button_states[BTN_UNDO][BTN_ACTIVE] else '' %}
+
+        <div class="control_icon"><button class="btn btn-outline-light btn-timer-control {{active_val}}" {{disabled_val}}><i class="fas fa-undo"></i></button></div>
+
+        {% set disabled_val = '' if button_states[BTN_PLUS_TWO][BTN_ENABLED] else 'disabled' %}
+        {% set active_val   = 'active' if button_states[BTN_PLUS_TWO][BTN_ACTIVE] else '' %}
+
+        <div class="control_icon"><button class="btn btn-outline-light btn-timer-control {{active_val}}" {{disabled_val}}>+2</button></div>
+
+        {% set disabled_val = '' if button_states[BTN_DNF][BTN_ENABLED] else 'disabled' %}
+        {% set active_val   = 'active' if button_states[BTN_DNF][BTN_ACTIVE] else '' %}
+        
+        <div class="control_icon"><button class="btn btn-outline-light btn-timer-control {{active_val}}" {{disabled_val}}>DNF</button></div>
+
+        {% set disabled_val = '' if button_states[BTN_COMMENT][BTN_ENABLED] else 'disabled' %}
+        {% set active_val   = 'active' if button_states[BTN_COMMENT][BTN_ACTIVE] else '' %}
+
+        <div class="control_icon"><button class="btn btn-outline-light btn-timer-control {{active_val}}" {{disabled_val}}><i class="far fa-comment"></i></button></i></div>
+
+    </div>
+</div>
