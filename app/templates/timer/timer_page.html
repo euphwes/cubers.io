@@ -43,9 +43,14 @@
                 {% set timer_disabled = 'disabled' if is_complete else '' %}
                 <div id="the_timer" class="{{timer_disabled}}">
                     <div class="timer_text flex_full_center">
-                        <div id="seconds" class="timer-element">0</div>
-                        <div id="dot" class="timer-element">.</div>
-                        <div id="centiseconds" class="timer-element">00</div>
+                        <div id="seconds" class="timer-element">{{last_seconds}}</div>
+                        <div id="dot" class="timer-element">
+                            {% if hide_timer_dot %}
+                            {% else %}
+                                .
+                            {% endif %}
+                        </div>
+                        <div id="centiseconds" class="timer-element">{{last_centis}}</div>
                     </div>
                 </div>
                 {% include "timer/control_buttons.html" %}

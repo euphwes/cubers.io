@@ -58,6 +58,19 @@ def timer_page(comp_event_id):
     user_solves, last_solve = __build_user_solves_list(user_results, comp_event.Event.totalSolves,
                                                        comp_event.scrambles)
 
+    # Split last_solve into min/seconds and centiseconds
+    last_seconds   = '0'
+    last_centis    = '00'
+    hide_timer_dot = False
+    if last_solve:
+        if last_solve == 'DNF':
+            hide_timer_dot = True
+            last_seconds   = 'DNF'
+            last_centis    = ''
+        else:
+            last_seconds = last_solve.split('.')[0]
+            last_centis  = last_solve.split('.')[1]
+
     # Determine the scramble ID, scramble text, and index for the next unsolved scramble.
     # If all solves are done, substitute in some sort of message in place of the scramble text
     scramble_info = __determine_scramble_id_text_index(user_results, user_solves,
@@ -86,7 +99,8 @@ def timer_page(comp_event_id):
     return render_template(TIMER_TEMPLATE_MOBILE_MAP[request.MOBILE], scramble_text=scramble_text,
         scramble_id=scramble_id, comp_event_id=comp_event_id, event_name=comp_event.Event.name,
         alternative_title=alternative_title, user_solves=user_solves, button_states=button_state_info,
-        show_scramble_preview=show_scramble_preview, last_solve=last_solve, comment=comment,
+        show_scramble_preview=show_scramble_preview, last_solve=last_solve, last_seconds=last_seconds,
+        last_centis=last_centis, hide_timer_dot=hide_timer_dot, comment=comment,
         is_complete=is_complete, settings=settings)
 
 # -------------------------------------------------------------------------------------------------
