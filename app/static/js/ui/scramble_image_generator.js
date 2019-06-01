@@ -1849,8 +1849,7 @@
 
         // Find the correct scaling factor and remember that we've done so
         var targetWidth = $('.scramble_preview').width();
-        var targetHeight = $('.scramble_preview').height();
-        this.desktopScalingFactor = this.determineScalingFactorAndDraw(targetWidth, targetHeight);
+        this.desktopScalingFactor = this.determineScalingFactorAndDraw(targetWidth);
         this.haveEstablishedDesktopScalingFactor = true;
 
         // Finally draw the preview at the correct scaling factor
@@ -1872,8 +1871,7 @@
         // Target width & height is 20 less than device/browser width & height, so there's a ~10px buffer on either side
         // Find the correct scaling factor and remember that we've done so
         var targetWidth = $(window).width() - 20;
-        var targetHeight = $(window).height() - 20;
-        this.largeScalingFactor = this.determineScalingFactorAndDraw(targetWidth, targetHeight);
+        this.largeScalingFactor = this.determineScalingFactorAndDraw(targetWidth);
         this.haveEstablishedLargeScalingFactor = true;
 
         // Finally draw the preview at the correct scaling factor
@@ -1881,7 +1879,7 @@
         return image.draw([this.savedEventName, this.savedScramble]);
     };
 
-    ScrambleImageGenerator.prototype.determineScalingFactorAndDraw = function(targetWidth, targetHeight) {
+    ScrambleImageGenerator.prototype.determineScalingFactorAndDraw = function(targetWidth) {
         // Start at 10, that's pretty small
         var testScalingFactor = 10;
         while (true) {
@@ -1892,14 +1890,14 @@
             if (testScalingFactor >= 50) {
                 testScalingFactor = 50;
                 break;
-            } else if ((image.getCanvasWidth() >= targetWidth) || (image.getCanvasHeight() >= targetHeight)) {
+            } else if (Math.abs(image.getCanvasWidth() - targetWidth)/(targetWidth) < 0.025) {
                 // If the canvas width or height is finally larger than we want, then a scaling factor 1 less than current
                 // will be the largest scaling factor to where the canvas is smaller than the target dimensions
-                testScalingFactor -= 0.5;
+                testScalingFactor -= 1;
                 break;
             } else {
                 // Not big enough yet, pump it up
-                testScalingFactor += 0.5;
+                testScalingFactor += 1;
             }
         }
 
