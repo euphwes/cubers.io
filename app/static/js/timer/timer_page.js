@@ -25,8 +25,10 @@
 
     // Timer stuff
     // TODO comment better
-    window.app.timer = new window.app.Timer(window.app.eventName, window.app.scrambleId, window.app.compEventId);
-    window.app.timerDisplayManager = new window.app.TimerDisplayManager();
+    if (!window.app.isComplete) {
+        window.app.timer = new window.app.Timer(window.app.eventName, window.app.scrambleId, window.app.compEventId);
+        window.app.timerDisplayManager = new window.app.TimerDisplayManager();
+    }
 
     var reload = function () { setTimeout(function () { window.location.reload(); }, 250); };
 
@@ -106,10 +108,10 @@
     $('#BTN_COMMENT').click(function(){
 
         // disable the timer so the key/space events here don't trigger the timer starting
-        window.app.timer._disable();
+        if (!window.app.isComplete) { window.app.timer._disable(); }
 
         bootbox.prompt({
-            title: 'Enter your comment for ' + window.app.eventName + ' here!',
+            title: 'Comment for ' + window.app.eventName,
             value: window.app.comment,
             inputType: "textarea",
             centerVertical: true,
@@ -126,7 +128,7 @@
             callback: function (result) {
                 if (result == null) {
                     // Dialog box was closed/canceled, so don't update comment, and re-enable the timer
-                    window.app.timer._enable();
+                    if (!window.app.isComplete) { window.app.timer._enable(); }
                     return;
                 }
 

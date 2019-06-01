@@ -40,7 +40,8 @@
             </div>
             
             <div class="timer_controls_wrapper">
-                <div id="the_timer">
+                {% set timer_disabled = 'disabled' if is_complete else '' %}
+                <div id="the_timer" class="{{timer_disabled}}">
                     <div class="timer_text flex_full_center">
                         <div id="seconds" class="timer-element">0</div>
                         <div id="dot" class="timer-element">.</div>
@@ -72,6 +73,7 @@
         window.app.doShowScramble = {{show_scramble_preview|tojson}};
         window.app.lastResult = {{last_solve|tojson}};
         window.app.comment = {{comment|tojson}};
+        window.app.isComplete = {{is_complete|tojson}};
     })();
 </script>
 {% assets "timer_timer_js" %}
