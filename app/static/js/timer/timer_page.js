@@ -6,10 +6,10 @@
     fitText();
     $(window).resize(fitText);
 
-
     // If this event supports scramble previews:
     // 1. initialize the scramble image generator, which will render the small-size scramble preview
     // 2. dd a click/press handler on the preview to show the large scramble preview
+    // TODO: redraw scramble on window resize
     if (window.app.doShowScramble) {
         var imageGenerator = new window.app.ScrambleImageGenerator();
         $('.scramble_preview').click(function(){
@@ -24,7 +24,45 @@
     }
 
     // Timer stuff
+    // TODO comment better
     window.app.timer = new window.app.Timer(window.app.eventName, window.app.scrambleId, window.app.compEventId);
     window.app.timerDisplayManager = new window.app.TimerDisplayManager();
+
+    var reload = function () { setTimeout(function () { window.location.reload(); }, 250); };
+
+    // Wire up the undo button
+    $('#BTN_UNDO').click(function(){
+        var confirm_msg = "Are you sure you want to delete your last solve? (" + window.app.lastResult + ")";
+        bootbox.confirm({
+            message: confirm_msg,
+            buttons: {
+                confirm: {
+                    label: 'Yes',
+                    // className: 'btn-success'
+                },
+                cancel: {
+                    label: 'Cancel',
+                    // className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                if (!result) { return; }
+
+                var data = {};
+                data.comp_event_id = window.app.compEventId;
+
+                $.ajax({
+                    url: '/delete_prev_solve',
+                    type: "POST",
+                    data: JSON.stringify(data),
+                    contentType: "application/json",
+                    success: reload,
+                    error: function(xhr) {
+                        alert("Something unexpected happened: " + xhr.responseText);
+                    }
+                });
+            }
+        });
+    });
 
 })();

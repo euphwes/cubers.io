@@ -262,6 +262,20 @@ def save_event_results(comp_event_results):
     return comp_event_results
 
 
+def delete_event_results(comp_event_results):
+    """ Deletes a UserEventResults record. """
+
+    DB.session.delete(comp_event_results)
+    DB.session.commit()
+
+
+def delete_user_solve(user_solve):
+    """ Deletes a user solve. """
+
+    DB.session.delete(user_solve)
+    DB.session.commit()
+
+
 def bulk_save_event_results(results_list):
     """ Save a bunch of results at once. """
 

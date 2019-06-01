@@ -55,8 +55,8 @@ def timer_page(comp_event_id):
     user_results = get_event_results_for_user(comp_event_id, current_user)
 
     # Get a list of user-readable user solve times
-    user_solves = __build_user_solves_list(user_results, comp_event.Event.totalSolves,
-                                           comp_event.scrambles)
+    user_solves, last_solve = __build_user_solves_list(user_results, comp_event.Event.totalSolves,
+                                                       comp_event.scrambles)
 
     # Determine the scramble ID, scramble text, and index for the next unsolved scramble.
     # If all solves are done, substitute in some sort of message in place of the scramble text
@@ -77,7 +77,7 @@ def timer_page(comp_event_id):
     return render_template(TIMER_TEMPLATE_MOBILE_MAP[request.MOBILE], scramble_text=scramble_text,
         scramble_id=scramble_id, comp_event_id=comp_event_id, event_name=comp_event.Event.name,
         alternative_title=alternative_title, user_solves=user_solves, button_states=button_state_info,
-        show_scramble_preview=show_scramble_preview)
+        show_scramble_preview=show_scramble_preview, last_solve=last_solve)
 
 # -------------------------------------------------------------------------------------------------
 
@@ -91,7 +91,7 @@ def __build_user_solves_list(user_results, event_total_solves, scrambles):
     # If the user doesn't have an event results record yet, they don't have any solves, so just
     # return all 'not yet solved' entries
     if not user_results:
-        return user_solves
+        return user_solves, None
 
     # Otherwise, iterate over all the solves and scrambles, and if there is a solve for a given
     # scramble, put the solve's user-friendly time in the corresponding slot in the array
@@ -100,7 +100,7 @@ def __build_user_solves_list(user_results, event_total_solves, scrambles):
             if scramble.id == solve.scramble_id:
                 user_solves[i] = solve.get_friendly_time()
 
-    return user_solves
+    return user_solves, user_results.solves[-1].get_friendly_time()
 
 
 def __determine_scramble_id_text_index(user_results, user_solves_list, scrambles):
@@ -143,14 +143,25 @@ def __determine_button_states(user_results, scramble_index):
     (undo, +2, DNF, comment) depending on the current state of the user's event results and the
     individual solves. """
 
+    # Assume the previous solve (if any) had no penalties by default
+    previous_was_dnf      = False
+    previous_was_plus_two = False
+
     # Get a shorter variable to access the user's solves
     solves = user_results.solves if user_results else None
 
-    previous_was_dnf      = False
-    previous_was_plus_two = False
+    # If there are any solves, check the previous one for the actual penalties
     if solves:
-        previous_was_dnf      = solves[scramble_index - 1].is_dnf
-        previous_was_plus_two = solves[scramble_index - 1].is_plus_two
+        # If the current scramble index is -1, that means all solves are completed, so the
+        # "previous" solve is just the last one in the list (at -1, because it wraps backwards)
+        if scramble_index == -1:
+            previous_idx = -1
+        # Otherwise the previous solve is the one before the current scramble index
+        else:
+            previous_idx = scramble_index - 1
+
+        previous_was_dnf      = solves[previous_idx].is_dnf
+        previous_was_plus_two = solves[previous_idx].is_plus_two
 
     # Let's determine the comment button's state
     comment_btn_state = {

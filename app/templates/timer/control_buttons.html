@@ -12,22 +12,22 @@
         {% set disabled_val = '' if button_states[BTN_UNDO][BTN_ENABLED] else 'disabled' %}
         {% set active_val   = 'active' if button_states[BTN_UNDO][BTN_ACTIVE] else '' %}
 
-        <div class="control_icon"><button class="btn btn-outline-light btn-timer-control {{active_val}}" {{disabled_val}}><i class="fas fa-undo"></i></button></div>
+        <div class="control_icon"><button id="BTN_UNDO" class="btn btn-outline-light btn-timer-control {{active_val}}" {{disabled_val}}><i class="fas fa-undo"></i></button></div>
 
         {% set disabled_val = '' if button_states[BTN_PLUS_TWO][BTN_ENABLED] else 'disabled' %}
         {% set active_val   = 'active' if button_states[BTN_PLUS_TWO][BTN_ACTIVE] else '' %}
 
-        <div class="control_icon"><button class="btn btn-outline-light btn-timer-control {{active_val}}" {{disabled_val}}>+2</button></div>
+        <div class="control_icon"><button id="BTN_PLUS_TWO" class="btn btn-outline-light btn-timer-control {{active_val}}" {{disabled_val}}>+2</button></div>
 
         {% set disabled_val = '' if button_states[BTN_DNF][BTN_ENABLED] else 'disabled' %}
         {% set active_val   = 'active' if button_states[BTN_DNF][BTN_ACTIVE] else '' %}
         
-        <div class="control_icon"><button class="btn btn-outline-light btn-timer-control {{active_val}}" {{disabled_val}}>DNF</button></div>
+        <div class="control_icon"><button id="BTN_DNF" class="btn btn-outline-light btn-timer-control {{active_val}}" {{disabled_val}}>DNF</button></div>
 
         {% set disabled_val = '' if button_states[BTN_COMMENT][BTN_ENABLED] else 'disabled' %}
         {% set active_val   = 'active' if button_states[BTN_COMMENT][BTN_ACTIVE] else '' %}
 
-        <div class="control_icon"><button class="btn btn-outline-light btn-timer-control {{active_val}}" {{disabled_val}}><i class="far fa-comment"></i></button></i></div>
+        <div class="control_icon"><button id="BTN_COMMENT" class="btn btn-outline-light btn-timer-control {{active_val}}" {{disabled_val}}><i class="far fa-comment"></i></button></i></div>
 
     </div>
 </div>
