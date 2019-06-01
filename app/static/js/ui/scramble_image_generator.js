@@ -1818,6 +1818,15 @@
         setColors();
 
         this.prepareNewImage();
+
+        var resetImageScalingAndRenderAgain = function() {
+            this.largeScalingFactor = 10;
+            this.haveEstablishedLargeScalingFactor = false;
+            this.desktopScalingFactor = 10;
+            this.haveEstablishedDesktopScalingFactor = false;
+            this.showNormalImage();
+        };
+        $(window).resize(resetImageScalingAndRenderAgain.bind(this));
     }
 
     ScrambleImageGenerator.prototype.prepareNewImage = function() {
@@ -1890,10 +1899,10 @@
             if (testScalingFactor >= 50) {
                 testScalingFactor = 50;
                 break;
-            } else if (Math.abs(image.getCanvasWidth() - targetWidth)/(targetWidth) < 0.025) {
-                // If the canvas width or height is finally larger than we want, then a scaling factor 1 less than current
-                // will be the largest scaling factor to where the canvas is smaller than the target dimensions
-                testScalingFactor -= 1;
+            } else if (Math.abs(image.getCanvasWidth() - targetWidth)/(targetWidth) < 0.05) {
+                if (image.getCanvasWidth() >= targetWidth) {
+                    testScalingFactor -= 1;
+                }
                 break;
             } else {
                 // Not big enough yet, pump it up
