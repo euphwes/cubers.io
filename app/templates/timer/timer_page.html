@@ -35,7 +35,16 @@
         <div class="right_portion">
             <div class="scramble_wrapper">
                 <div class="scramble_area">
-                    <div class="scram flex_full_center text-center">{{scramble_text}}</div>
+                    <div class="scram flex_full_center text-center">
+                        {% if '\n' in scramble_text %}
+                            {% set part1, part2 = scramble_text.split('\n') %}
+                            {{part1}}
+                            <br>
+                            {{part2}}
+                        {% else %}
+                            {{scramble_text}}
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             

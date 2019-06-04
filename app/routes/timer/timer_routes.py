@@ -1,15 +1,23 @@
 """ Routes related to the timer page. """
 
+from random import choice as random_choice
+
 from flask import render_template, request
 from flask_login import current_user
 
 from app import app
+from app.persistence.models import EventFormat
 from app.persistence.comp_manager import get_comp_event_by_id
 from app.persistence.settings_manager import SettingCode, SettingType, TRUE_STR,\
     get_default_values_for_settings, get_bulk_settings_for_user_as_dict, get_setting_type
 from app.persistence.user_results_manager import get_event_results_for_user
 
 # -------------------------------------------------------------------------------------------------
+
+DNF = 'DNF'
+
+DEFAULT_SECONDS = '0'
+DEFAULT_CENTIS  = '00'
 
 TIMER_TEMPLATE_MOBILE_MAP = {
     True:  'timer/mobile/timer_page.html',
@@ -35,6 +43,32 @@ BTN_PLUS_TWO = 'btn_plus_two'
 BTN_ACTIVE  = 'btn_active'
 BTN_ENABLED = 'btn_enabled'
 
+# Just for fun, mix up the first part of the 'your event is complete' messaging
+EXCLAMATIONS = [
+    'Wow',
+    'Amazing',
+    'Incredible',
+    'Sweet',
+    'Awesome',
+    'Tubular',
+    'Phenomenal',
+    'Dude',
+    'Crazy',
+    'Nice'
+]
+
+MSG_RESULTS_COMPLETE            = "{excl}!\nYou've finished {event_name} with {result_type} of {result}."
+MSG_RESULTS_COMPLETE_TWO_PBS    = "{excl}!\nYou've finished {event_name} with a PB average of {average} and a PB single of {single}!"
+MSG_RESULTS_COMPLETE_PB_SINGLE  = "{excl}!\nYou've finished {event_name} with a PB single of {result}!"
+MSG_RESULTS_COMPLETE_PB_AVERAGE = "{excl}!\nYou've finished {event_name} with a PB average of {result}!"
+
+EVENT_FORMAT_RESULTS_TYPE_MAP = {
+    EventFormat.Bo3: 'a best single',
+    EventFormat.Bo1: 'a result',
+    EventFormat.Ao5: 'an average',
+    EventFormat.Mo3: 'a mean',
+}
+
 # -------------------------------------------------------------------------------------------------
 
 @app.route('/compete/<int:comp_event_id>')
@@ -59,13 +93,13 @@ def timer_page(comp_event_id):
                                                        comp_event.scrambles)
 
     # Split last_solve into min/seconds and centiseconds
-    last_seconds   = '0'
-    last_centis    = '00'
+    last_seconds   = DEFAULT_SECONDS
+    last_centis    = DEFAULT_CENTIS
     hide_timer_dot = False
     if last_solve:
-        if last_solve == 'DNF':
+        if last_solve == DNF:
             hide_timer_dot = True
-            last_seconds   = 'DNF'
+            last_seconds   = DNF
             last_centis    = ''
         else:
             last_seconds = last_solve.split('.')[0]
@@ -74,7 +108,8 @@ def timer_page(comp_event_id):
     # Determine the scramble ID, scramble text, and index for the next unsolved scramble.
     # If all solves are done, substitute in some sort of message in place of the scramble text
     scramble_info = __determine_scramble_id_text_index(user_results, user_solves,
-                                                       comp_event.scrambles)
+                                                       comp_event.scrambles, comp_event.Event.name,
+                                                       comp_event.Event.eventFormat)
     scramble_id, scramble_text, scramble_index = scramble_info
 
     # Build up the page title, consisting of the event name and competition title
@@ -127,7 +162,8 @@ def __build_user_solves_list(user_results, event_total_solves, scrambles):
     return user_solves, user_results.solves[-1].get_friendly_time()
 
 
-def __determine_scramble_id_text_index(user_results, user_solves_list, scrambles):
+def __determine_scramble_id_text_index(user_results, user_solves_list, scrambles, event_name,
+                                       event_format):
     """ Based on the user's current results, and the list of scrambles for this competition event,
     determine the "active" scramble ID and its text. """
 
@@ -151,7 +187,7 @@ def __determine_scramble_id_text_index(user_results, user_solves_list, scrambles
     # with some additional info about PBs or whatever.
     if first_unsolved_idx == -1:
         # TODO -- determine the right message to put here
-        scramble_text = "Congrats! You're done."
+        scramble_text = __build_done_message(user_results, event_name, event_format)
         scramble_id = -1
 
     # Otherwise grab the scramble ID and text of the next unsolved scramble
@@ -217,6 +253,39 @@ def __determine_button_states(user_results, scramble_index):
         BTN_COMMENT:  comment_btn_state,
         BTN_PLUS_TWO: plus_two_btn_state,
     }
+
+
+def __build_done_message(user_results, event_name, event_format):
+    """ Builds a message to display to the user about their complete results. Mention PBs if any. """
+
+    if user_results.was_pb_single and user_results.was_pb_average:
+        return MSG_RESULTS_COMPLETE_TWO_PBS.format(
+            excl=random_choice(EXCLAMATIONS),
+            event_name=event_name,
+            average=user_results.friendly_average(),
+            single=user_results.friendly_single()
+        )
+
+    if user_results.was_pb_single:
+        return MSG_RESULTS_COMPLETE_PB_SINGLE.format(
+            excl=random_choice(EXCLAMATIONS),
+            event_name=event_name,
+            result=user_results.friendly_single()
+        )
+
+    if user_results.was_pb_average:
+        return MSG_RESULTS_COMPLETE_PB_AVERAGE.format(
+            excl=random_choice(EXCLAMATIONS),
+            event_name=event_name,
+            result=user_results.friendly_average()
+        )
+
+    return MSG_RESULTS_COMPLETE.format(
+        excl=random_choice(EXCLAMATIONS),
+        event_name=event_name,
+        result_type=EVENT_FORMAT_RESULTS_TYPE_MAP[event_format],
+        result=user_results.friendly_result()
+    )
 
 # -------------------------------------------------------------------------------------------------
 
