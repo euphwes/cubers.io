@@ -27,6 +27,21 @@
 {% block additional_script %}
 <script>
     $(function () {
+
+        var disableThese = function(i, codeToDisable) {
+            var $groupToDisable = $("div[data-setting_code='" + codeToDisable + "']");
+            $groupToDisable.addClass('disabled-group');
+            $groupToDisable.find("[data-disable_me='true']").addClass('disabled');
+            $groupToDisable.find("[data-disable_me_as_group='true']").addClass('disabled');
+        };
+
+        var enableThese = function(i, codeToEnable) {
+            var $groupToEnable = $("div[data-setting_code='" + codeToEnable + "']");
+            $groupToEnable.removeClass('disabled-group');
+            $groupToEnable.find("[data-disable_me='true']").removeClass('disabled');
+            $groupToEnable.find("[data-disable_me_as_group='true']").removeClass('disabled');
+        }
+
         // Disable or enable other settings if this one becomes disabled
         var handleToggleEnabledForSetting = function($settingFormGroup) {
 
@@ -34,6 +49,8 @@
             // data-affects attribute, it doesn't affect other settings, so just bail.
             var affects = $settingFormGroup.data('affects');
             if (affects == 'None') { return; }
+
+            var oppositeAffects = $settingFormGroup.data('opposite_affects') == "True";
 
             // Build a list of settings that this one affects
             var affectedSettingsList = JSON.parse(affects.replace(/'/g, '"'));
@@ -43,23 +60,17 @@
             var radioValue = $("input[name='" + code + "']:checked").val();
 
             if (radioValue == "false") {
-                // If the radio value is false, disable the form groups and individual elements under them
-                // for each setting this one affects
-                $.each(affectedSettingsList, function(i, codeToDisable){
-                    var $groupToDisable = $("div[data-setting_code='" + codeToDisable + "']");
-                    $groupToDisable.addClass('disabled-group');
-                    $groupToDisable.find("[data-disable_me='true']").addClass('disabled');
-                    $groupToDisable.find("[data-disable_me_as_group='true']").addClass('disabled');
-                });
+                if (oppositeAffects) {
+                    $.each(affectedSettingsList, enableThese);
+                } else {
+                    $.each(affectedSettingsList, disableThese);
+                }
             } else {
-                // If the radio value is true, enable the form groups and individual elements under them
-                // for each setting this one affects
-                $.each(affectedSettingsList, function(i, codeToEnable){
-                    var $groupToEnable = $("div[data-setting_code='" + codeToEnable + "']");
-                    $groupToEnable.removeClass('disabled-group');
-                    $groupToEnable.find("[data-disable_me='true']").removeClass('disabled');
-                    $groupToEnable.find("[data-disable_me_as_group='true']").removeClass('disabled');
-                });
+                if (oppositeAffects) {
+                    $.each(affectedSettingsList, disableThese);
+                } else {
+                    $.each(affectedSettingsList, enableThese);
+                }
             }
         };
 

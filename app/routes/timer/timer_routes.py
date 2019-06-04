@@ -69,6 +69,10 @@ EVENT_FORMAT_RESULTS_TYPE_MAP = {
     EventFormat.Mo3: 'a mean',
 }
 
+SUBTYPE_TIMER  = 'subtype_timer'
+SUBTYPE_MANUAL = 'subtype_manual'
+SUBTYPE_MBLD   = 'subtype_mbld'
+
 # -------------------------------------------------------------------------------------------------
 
 @app.route('/compete/<int:comp_event_id>')
@@ -84,6 +88,9 @@ def timer_page(comp_event_id):
     comp = comp_event.Competition
     if not comp.active:
         return (ERR_MSG_INACTIVE_COMP, 400)
+
+    # Get the user's settings
+    settings = __get_user_settings(current_user)
 
     # Grab the user's event results (if any)
     user_results = get_event_results_for_user(comp_event_id, current_user)
@@ -128,15 +135,12 @@ def timer_page(comp_event_id):
     # Determine if the event has been completed by this user
     is_complete = user_results.is_complete if user_results else False
 
-    # Get the user's settings
-    settings = __get_user_settings(current_user)
-
     return render_template(TIMER_TEMPLATE_MOBILE_MAP[request.MOBILE], scramble_text=scramble_text,
         scramble_id=scramble_id, comp_event_id=comp_event_id, event_name=comp_event.Event.name,
         alternative_title=alternative_title, user_solves=user_solves, button_states=button_state_info,
         show_scramble_preview=show_scramble_preview, last_solve=last_solve, last_seconds=last_seconds,
         last_centis=last_centis, hide_timer_dot=hide_timer_dot, comment=comment,
-        is_complete=is_complete, settings=settings)
+        is_complete=is_complete, settings=settings, page_subtype=SUBTYPE_TIMER)
 
 # -------------------------------------------------------------------------------------------------
 

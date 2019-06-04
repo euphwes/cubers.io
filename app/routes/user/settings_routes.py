@@ -7,7 +7,7 @@ from flask_login import current_user
 
 from app import app
 from app.persistence.settings_manager import get_settings_for_user_for_edit,\
-    set_new_settings_for_user, SettingCode, SettingType, FALSE_STR, get_color_defaults
+    set_new_settings_for_user, SettingCode, SettingType, FALSE_STR, TRUE_STR, get_color_defaults
 from app.persistence.user_manager import get_user_by_username
 
 # -------------------------------------------------------------------------------------------------
@@ -20,10 +20,10 @@ LOG_USER_UPDATED_SETTINGS = '{} updated settings'
 # These are the settings we want the user to be able to see on the settings edit page
 
 TIMER_SETTINGS = [
+    SettingCode.DEFAULT_TO_MANUAL_TIME,
     SettingCode.USE_INSPECTION_TIME,
     SettingCode.HIDE_INSPECTION_TIME,
     SettingCode.HIDE_RUNNING_TIMER,
-    # SettingCode.DEFAULT_TO_MANUAL_TIME
 ]
 
 CUSTOM_CUBE_COLOR_SETTINGS = [
@@ -99,8 +99,11 @@ def __handle_get(user):
     for setting in all_settings:
         if setting.type != SettingType.BOOLEAN:
             continue
-        if setting.value == FALSE_STR and bool(setting.affects):
-            disabled_settings.extend(setting.affects)
+        if bool(setting.affects):
+            if setting.value == TRUE_STR and setting.opposite_affects:
+                disabled_settings.extend(setting.affects)
+            if setting.value == FALSE_STR:
+                disabled_settings.extend(setting.affects)
 
     default_colors = get_color_defaults()
 

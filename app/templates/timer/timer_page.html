@@ -9,6 +9,10 @@
     {% endblock %}
 {% endblock %}
 
+{% set SUBTYPE_TIMER  = 'subtype_timer' %}
+{% set SUBTYPE_MANUAL = 'subtype_manual' %}
+{% set SUBTYPE_MBLD   = 'subtype_mbld' %}
+
 {% block content %}
 <canvas id="shapes"></canvas>
 <div class="container-fluid timer-container">
@@ -47,23 +51,17 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="timer_controls_wrapper">
-                {% set timer_disabled = 'disabled' if is_complete else '' %}
-                <div id="the_timer" class="{{timer_disabled}}">
-                    <div class="timer_text flex_full_center">
-                        <div id="seconds" class="timer-element">{{last_seconds}}</div>
-                        <div id="dot" class="timer-element">
-                            {% if hide_timer_dot %}
-                            {% else %}
-                                .
-                            {% endif %}
-                        </div>
-                        <div id="centiseconds" class="timer-element">{{last_centis}}</div>
-                    </div>
-                </div>
-                {% include "timer/control_buttons.html" %}
-            </div>
+
+            {% if page_subtype == SUBTYPE_TIMER %}
+                {% include "timer/subtypes/timer.html" %}
+            {% endif %}
+            {% if page_subtype == SUBTYPE_MANUAL %}
+                <div>manual entry</div>
+            {% endif %}
+            {% if page_subtype == SUBTYPE_MBLD %}
+                <div>mbld entry</div>
+            {% endif %}
+
         </div>
     </div>
 </div>

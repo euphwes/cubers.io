@@ -57,12 +57,13 @@ class SettingType():
 
 # Encapsulates necessary information about each setting
 class SettingInfo():
-    def __init__(self, title, validator, setting_type, default_value, affects=None):
+    def __init__(self, title, validator, setting_type, default_value, affects=None, opposite_affects=False):
         self.title = title
         self.validator = validator
         self.setting_type = setting_type
         self.default_value = default_value
-        self.affects = affects  # an optional list of SettingCodes that this code enables/disables
+        self.affects = affects  # an optional list of SettingCodes this code disables if disabled
+        self.opposite_affects = opposite_affects # if this is True, the affects list is disabled if this setting is on
 
 # -------------------------------------------------------------------------------------------------
 
@@ -129,6 +130,16 @@ def hex_color_validator(value):
 # -------------------------------------------------------------------------------------------------
 
 SETTING_INFO_MAP = {
+    SettingCode.DEFAULT_TO_MANUAL_TIME : SettingInfo(
+        title         = "Use Manual Time Entry",
+        validator     = boolean_validator,
+        setting_type  = SettingType.BOOLEAN,
+        default_value = FALSE_STR,
+        affects       = [SettingCode.USE_INSPECTION_TIME, SettingCode.HIDE_INSPECTION_TIME,
+                         SettingCode.HIDE_RUNNING_TIMER],
+        opposite_affects = True
+    ),
+
     SettingCode.USE_INSPECTION_TIME : SettingInfo(
         title         = "Use\u00A0WCA\u00A015s\u00A0Inspection\u00A0Time (except\u00A0blind\u00A0events)",
         validator     = boolean_validator,
@@ -167,13 +178,6 @@ SETTING_INFO_MAP = {
 
     SettingCode.REDDIT_RESULTS_NOTIFY : SettingInfo(
         title         = "Receive Reddit PM with Weekly Competition Stats",
-        validator     = boolean_validator,
-        setting_type  = SettingType.BOOLEAN,
-        default_value = FALSE_STR
-    ),
-
-    SettingCode.DEFAULT_TO_MANUAL_TIME : SettingInfo(
-        title         = "Use Manual Time Entry",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
         default_value = FALSE_STR
@@ -366,7 +370,7 @@ SETTING_INFO_MAP = {
     ),
 }
 
-EDIT_TUPLE_FIELDS = ['code', 'title', 'value', 'type', 'affects', 'default']
+EDIT_TUPLE_FIELDS = ['code', 'title', 'value', 'type', 'affects', 'default', 'opposite_affects']
 SettingsEditTuple = namedtuple('SettingsEditTuple', EDIT_TUPLE_FIELDS)
 
 # -------------------------------------------------------------------------------------------------
@@ -472,6 +476,7 @@ def get_settings_for_user_for_edit(user_id, setting_codes):
             affects  = SETTING_INFO_MAP[setting.setting_code].affects,
             type     = SETTING_INFO_MAP[setting.setting_code].setting_type,
             default  = SETTING_INFO_MAP[setting.setting_code].default_value,
+            opposite_affects = SETTING_INFO_MAP[setting.setting_code].opposite_affects,
         )
         for setting in ordered_settings
     ]
