@@ -29,6 +29,14 @@ class EventResource:
 
 # -------------------------------------------------------------------------------------------------
 
+def mbld_scrambler():
+    """ Returns a 'scramble' for MBLD. """
+
+    scramble = 'Hand-scramble as many 3x3s as needed for your MBLD attempt.'
+    scramble += '\nYou have a time limit of 60 minutes.'
+    return scramble
+
+
 def redi_scrambler():
     """ Returns a scramble for a Redi cube in MoYu notation. """
 
@@ -113,7 +121,7 @@ def scrambler_333_relay():
 
 # -------------------------------------------------------------------------------------------------
 
-# Weekly event definitions (current count = 19)
+# Weekly event definitions (current count = 20)
 EVENT_2x2       = EventResource("2x2", scrambler222.get_WCA_scramble, 5, True, True)
 EVENT_3x3       = EventResource("3x3", scrambler333.get_WCA_scramble, 5, True, True)
 EVENT_4x4       = EventResource("4x4", scrambler444.get_random_state_scramble, 5, True, True)
@@ -133,6 +141,7 @@ EVENT_2GEN      = EventResource("2GEN", scrambler333.get_2genRU_scramble, 5, Tru
 EVENT_LSE       = EventResource("LSE", scrambler333.get_2genMU_scramble, 5, True, False)
 EVENT_4BLD      = EventResource("4BLD", scrambler444.get_4BLD_scramble, 3, True, True)
 EVENT_5BLD      = EventResource("5BLD", scrambler555.get_5BLD_scramble, 3, True, True)
+EVENT_MBLD      = EventResource("MBLD", mbld_scrambler, 3, True, True)
 
 # Bonus event definitions (current count = 14)
 EVENT_COLL      = EventResource("COLL", COLL_scrambler, 5, False, False, is_rotating=True)
