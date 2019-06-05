@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid cubers-container white-container settings-container">
+<div class="container-fluid cubers-container settings-container">
     <form method="POST">
     {% for section_header, section_settings in settings_sections.items() %}
         {% include 'user/settings_section.html' %}
