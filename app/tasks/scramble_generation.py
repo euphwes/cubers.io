@@ -17,10 +17,10 @@ from .admin_notification import notify_admin, AdminNotificationType
 
 ScramblePoolTopOffInfo = namedtuple('ScramblePoolTopOffInfo', ['event_id', 'event_name', 'num_scrambles'])
 
-# In dev environments, run the task to check the scramble pool every 5 minutes.
+# In dev environments, run the task to check the scramble pool every minute.
 # In prod, run it every 6 hours
 if app.config['IS_DEVO']:
-    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(minute="*/1")  # Once every 5 minutes
+    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(minute="*/1")  # Once every minute
 else:
     CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(hour="*/6", minute="0")   # Once every 6 hours
 

@@ -11,6 +11,9 @@ from app.persistence.comp_manager import get_comp_event_by_id
 from app.persistence.settings_manager import SettingCode, SettingType, TRUE_STR,\
     get_default_values_for_settings, get_bulk_settings_for_user_as_dict, get_setting_type
 from app.persistence.user_results_manager import get_event_results_for_user
+from app.util.events.resources import EVENT_FMC, EVENT_MBLD
+
+# TODO: fix relays rendering, and COLL rendering
 
 # -------------------------------------------------------------------------------------------------
 
@@ -71,6 +74,7 @@ EVENT_FORMAT_RESULTS_TYPE_MAP = {
 
 SUBTYPE_TIMER  = 'subtype_timer'
 SUBTYPE_MANUAL = 'subtype_manual'
+SUBTYPE_FMC    = 'subtype_fmc'
 SUBTYPE_MBLD   = 'subtype_mbld'
 
 # -------------------------------------------------------------------------------------------------
@@ -88,6 +92,8 @@ def timer_page(comp_event_id):
     comp = comp_event.Competition
     if not comp.active:
         return (ERR_MSG_INACTIVE_COMP, 400)
+
+    event_name = comp_event.Event.name
 
     # Get the user's settings
     settings = __get_user_settings(current_user)
@@ -115,16 +121,16 @@ def timer_page(comp_event_id):
     # Determine the scramble ID, scramble text, and index for the next unsolved scramble.
     # If all solves are done, substitute in some sort of message in place of the scramble text
     scramble_info = __determine_scramble_id_text_index(user_results, user_solves,
-                                                       comp_event.scrambles, comp_event.Event.name,
+                                                       comp_event.scrambles, event_name,
                                                        comp_event.Event.eventFormat)
     scramble_id, scramble_text, scramble_index = scramble_info
 
     # Build up the page title, consisting of the event name and competition title
-    alternative_title = PAGE_TITLE_TEMPLATE.format(event_name=comp_event.Event.name,
+    alternative_title = PAGE_TITLE_TEMPLATE.format(event_name=event_name,
                                                    comp_title=comp.title)
 
     # Determine if we should display a scramble preview for this event
-    show_scramble_preview = comp_event.Event.name not in NO_SCRAMBLE_PREVIEW_EVENTS
+    show_scramble_preview = event_name not in NO_SCRAMBLE_PREVIEW_EVENTS
 
     # Determine button states
     button_state_info = __determine_button_states(user_results, scramble_index)
@@ -135,12 +141,15 @@ def timer_page(comp_event_id):
     # Determine if the event has been completed by this user
     is_complete = user_results.is_complete if user_results else False
 
+    # Determine the timer page subtype (timer, manual time entry, FMC manual entry, or MBLD)
+    page_subtype = __determine_page_subtype(event_name, settings)
+
     return render_template(TIMER_TEMPLATE_MOBILE_MAP[request.MOBILE], scramble_text=scramble_text,
-        scramble_id=scramble_id, comp_event_id=comp_event_id, event_name=comp_event.Event.name,
+        scramble_id=scramble_id, comp_event_id=comp_event_id, event_name=event_name,
         alternative_title=alternative_title, user_solves=user_solves, button_states=button_state_info,
         show_scramble_preview=show_scramble_preview, last_solve=last_solve, last_seconds=last_seconds,
         last_centis=last_centis, hide_timer_dot=hide_timer_dot, comment=comment,
-        is_complete=is_complete, settings=settings, page_subtype=SUBTYPE_TIMER)
+        is_complete=is_complete, settings=settings, page_subtype=page_subtype)
 
 # -------------------------------------------------------------------------------------------------
 
@@ -257,6 +266,19 @@ def __determine_button_states(user_results, scramble_index):
         BTN_COMMENT:  comment_btn_state,
         BTN_PLUS_TWO: plus_two_btn_state,
     }
+
+
+def __determine_page_subtype(event_name, settings):
+    """ Determines the timer page sub-type (timer, manual time entry, FMC manual entry, or MBLD)
+    based on the current event and the user's settings. """
+
+    if event_name == EVENT_FMC.name:
+        return SUBTYPE_FMC
+
+    if event_name == EVENT_MBLD.name:
+        return SUBTYPE_MBLD
+
+    return SUBTYPE_MANUAL if settings[SettingCode.DEFAULT_TO_MANUAL_TIME] else SUBTYPE_TIMER
 
 
 def __build_done_message(user_results, event_name, event_format):

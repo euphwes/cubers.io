@@ -9,6 +9,11 @@
     {% endblock %}
 {% endblock %}
 
+{% set SUBTYPE_TIMER  = 'subtype_timer' %}
+{% set SUBTYPE_MANUAL = 'subtype_manual' %}
+{% set SUBTYPE_FMC    = 'subtype_fmc' %}
+{% set SUBTYPE_MBLD   = 'subtype_mbld' %}
+
 {% block content %}
 <canvas id="shapes"></canvas>
 <div class="container-fluid timer-container">
@@ -39,7 +44,10 @@
                 {% include "timer/subtypes/timer.html" %}
             {% endif %}
             {% if page_subtype == SUBTYPE_MANUAL %}
-                <div>manual entry</div>
+                {% include "timer/subtypes/manual_entry.html" %}
+            {% endif %}
+            {% if page_subtype == SUBTYPE_FMC %}
+                <div>FMC manual entry</div>
             {% endif %}
             {% if page_subtype == SUBTYPE_MBLD %}
                 <div>mbld entry</div>
