@@ -93,7 +93,23 @@
         window.app.settings_data = {{ settings|tojson }};
     })();
 </script>
+
+{% if page_subtype == SUBTYPE_TIMER %}
 {% assets "timer_timer_js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
+{% endif %}
+
+{% if page_subtype == SUBTYPE_MANUAL %}
+{% assets "timer_manual_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endif %}
+
+{% if page_subtype == SUBTYPE_FMC %}
+{% endif %}
+
+{% if page_subtype == SUBTYPE_MBLD %}
+{% endif %}
+
 {% endblock %}

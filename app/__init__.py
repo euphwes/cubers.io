@@ -66,11 +66,27 @@ ASSETS.register({
         'js/util/time_convert_format.js',
         'js/ui/scramble_image_generator.js',
         'js/ui/shapes.js',
+        'js/timer/timer_common.js',
         'js/timer/timer_controller.js',
         'js/timer/timer_display_manager.js',
         'js/timer/timer_page.js',
+        'js/timer/timer_control_buttons.js',
         filters="jsmin",
         output='gen/timer_timer.js'
+    ),
+
+    'timer_manual_js': Bundle(
+        'js/event_emitter.js',
+        'js/controller/user_settings_manager.js',
+        'js/util/extensions_and_polyfill.js',
+        'js/util/time_convert_format.js',
+        'js/ui/scramble_image_generator.js',
+        'js/ui/shapes.js',
+        'js/timer/timer_common.js',
+        'js/timer/timer_manual.js',
+        'js/timer/timer_control_buttons.js',
+        filters="jsmin",
+        output='gen/timer_manual.js'
     ),
 
     'timer_desktop_css': Bundle(

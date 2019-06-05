@@ -1,7 +1,7 @@
 <div class="timer_controls_wrapper">
     {% set timer_disabled = 'disabled' if is_complete else '' %}
     <div id="the_manual_entry" class="{{timer_disabled}} flex_full_center">
-        <form class="form-inline" autocomplete="off">
+        <form id="manualEntryForm" class="form-inline" autocomplete="off">
             <div class="form-group">
                 <input type="text" class="form-control form-control-lg" placeholder="00:00.00" id="timeEntry" value="">
             </div>
