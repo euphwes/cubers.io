@@ -1,0 +1,14 @@
+<div class="timer_controls_wrapper">
+    {% set timer_disabled = 'disabled' if is_complete else '' %}
+    <div id="the_manual_entry" class="{{timer_disabled}} flex_full_center">
+        <form id="manualEntryForm" class="form-inline" autocomplete="off">
+            <div class="form-group">
+                <input id="manualEntryInput" type="text" class="form-control form-control-lg" placeholder="# or DNF"
+                    id="timeEntry" value="">
+            </div>
+            <div class="control_icon"><button id="BTN_SUBMIT" class="btn btn-outline-light btn-timer-control"><i
+                        class="fas fa-arrow-right"></i></button></div>
+        </form>
+    </div>
+    {% include "timer/subtypes/control_buttons.html" %}
+</div>

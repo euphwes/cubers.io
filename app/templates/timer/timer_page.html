@@ -60,7 +60,7 @@
                 {% include "timer/subtypes/manual_entry.html" %}
             {% endif %}
             {% if page_subtype == SUBTYPE_FMC %}
-                <div>FMC manual entry</div>
+                {% include "timer/subtypes/fmc_entry.html" %}
             {% endif %}
             {% if page_subtype == SUBTYPE_MBLD %}
                 <div>mbld entry</div>
@@ -107,6 +107,9 @@
 {% endif %}
 
 {% if page_subtype == SUBTYPE_FMC %}
+{% assets "timer_fmc_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 {% endif %}
 
 {% if page_subtype == SUBTYPE_MBLD %}
