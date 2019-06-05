@@ -26,15 +26,23 @@
         return ("" + this % 1000).slice(0, -1).padStart(2, "0");
     };
 
-    /**
-     * Shows or hides the element via the ultra-hidden CSS class.
-     * This different than $('thing').hide() or $('thing').show, because that uses `visibility: visible/hidden`
-     * which still takes up space, whereas `.ultra-hidden` uses `display: none` which does not take up space
-     */
-    $.fn.extend({
-        ultraHide: function(){ $(this).addClass('ultra-hidden'); },
-        ultraShow: function(){ $(this).removeClass('ultra-hidden'); },
-    });
+    if (!String.prototype.splice) {
+        /**
+         * {JSDoc}
+         *
+         * The splice() method changes the content of a string by removing a range of
+         * characters and/or adding new characters.
+         *
+         * @this {String}
+         * @param {number} start Index at which to start changing the string.
+         * @param {number} delCount An integer indicating the number of old chars to remove.
+         * @param {string} newSubStr The String that is spliced in.
+         * @return {string} A new string with the spliced substring.
+         */
+        String.prototype.splice = function (start, delCount, newSubStr) {
+            return this.slice(0, start) + newSubStr + this.slice(start + Math.abs(delCount));
+        };
+    }
 
     // https://github.com/uxitten/polyfill/blob/master/string.polyfill.js
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart

@@ -360,7 +360,7 @@
             contentType: "application/json",
             success: reload,
             error: function(xhr) {
-                alert("Something unexpected happened: " + xhr.responseText);
+                bootbox.alert("Something unexpected happened: " + xhr.responseText);
             }
         });
     };
