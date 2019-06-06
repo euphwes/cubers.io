@@ -10,16 +10,11 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid cubers-container settings-container">
-    <form method="POST">
+<div class="container cubers-container settings-container">
+    <form id="settingsForm" method="POST">
     {% for section_header, section_settings in settings_sections.items() %}
         {% include 'user/settings_section.html' %}
     {% endfor %}
-    <div class="row">
-        <div class="col-12 col-md-8 offset-md-2">
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-    </div>
     </form>
 </div>
 {% endblock %}
@@ -112,6 +107,12 @@
         // Make sure user wants to navigate away without saving
         $(window).on("beforeunload", function(e) {
             if (anythingModified) { return true; }
+        });
+
+        // But if the user is submitting the form, then unbind the beforeunload so we
+        // don't prompt them
+        $('#settingsForm').submit(function() {
+            $(window).unbind('beforeunload');
         });
     })
 </script>
