@@ -5,11 +5,11 @@
                     <div style="width: 100%; height: 50%; display: flex; align-items: flex-end; justify-content: center;">
                         <form id="mbldEntryForm" class="form-inline" autocomplete="off">
                             <div class="form-group">
-                                <input id="successInput" type="text" class="form-control form-control-lg" placeholder="#">
+                                <input id="successInput" type="number" min="0" step="1" class="form-control form-control-lg" placeholder="#">
                             </div>
                             <div> successful, out of </div>
                             <div class="form-group">
-                                <input id="totalInput" type="text" class="form-control form-control-lg" placeholder="#">
+                                <input id="totalInput" type="number" min="2" step="1" class="form-control form-control-lg" placeholder="#">
                             </div>
                         </form>
                     </div>
@@ -17,7 +17,7 @@
                         <form id="mbldEntryForm2" class="form-inline" autocomplete="off">
                             <div> in </div>
                             <div class="form-group">
-                                <input id="" type="text" class="form-control form-control-lg" placeholder="0:00.00">
+                                <input id="timeInput" type="text" class="form-control form-control-lg" placeholder="0:00.00">
                             </div>
                             <div class="control_icon">
                                 <button id="BTN_SUBMIT" class="btn btn-outline-light btn-timer-control">
@@ -25,9 +25,6 @@
                                 </button>
                             </div>
                         </form>
-                    </div>
-                    <div style="display: none;">
-
                     </div>
             </div>
         </div>
