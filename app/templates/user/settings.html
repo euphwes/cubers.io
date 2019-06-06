@@ -28,6 +28,8 @@
 <script>
     $(function () {
 
+        var anythingModified = false;
+
         var disableThese = function(i, codeToDisable) {
             var $groupToDisable = $("div[data-setting_code='" + codeToDisable + "']");
             $groupToDisable.addClass('disabled-group');
@@ -44,6 +46,8 @@
 
         // Disable or enable other settings if this one becomes disabled
         var handleToggleEnabledForSetting = function($settingFormGroup) {
+
+            anythingModified = true;
 
             // If this setting in this form group does not have a list of setting codes in its
             // data-affects attribute, it doesn't affect other settings, so just bail.
@@ -103,6 +107,11 @@
                     }
                 }
             ]
+        });
+
+        // Make sure user wants to navigate away without saving
+        $(window).on("beforeunload", function(e) {
+            if (anythingModified) { return true; }
         });
     })
 </script>
