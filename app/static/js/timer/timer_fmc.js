@@ -9,25 +9,27 @@
 
         var currentValue = $('#manualEntryInput').val();
         var isDNF = false;
-        var asInt = 99999999;
+        var asInt = 99900;
 
-        // TODO wrap invalid time msg into small func to DRY
+        var showInvalid = function() {;
+            bootbox.alert('"' + currentValue + '" is not a valid result!<br>Please enter "DNF" or number of moves.');
+        }
 
-        if (currentValue == 'DNF') {
+        if (currentValue.toUpperCase() == 'DNF') {
             isDNF = true;
         } else {
             if (currentValue.includes('.') || currentValue.includes(':')) {
-                bootbox.alert('"' + currentValue + '" is not a valid result!<br>Please enter "DNF" or number of moves.');
+                showInvalid();
                 return false;
             }
             try {
                 asInt = parseInt(currentValue) * 100;
                 if (isNaN(asInt)) {
-                    bootbox.alert('"' + currentValue + '" is not a valid result!<br>Please enter "DNF" or number of moves.');
+                    showInvalid();
                     return false;
                 }
             } catch (error) {
-                bootbox.alert('"' + currentValue + '" is not a valid result!<br>Please enter "DNF" or number of moves.');
+                showInvalid();
                 return false;
             }
         }
@@ -39,9 +41,6 @@
         solve_data.is_plus_two = false;
 
         if (solve_data.is_dnf) {
-            // TODO hack around dnf toggle to check for this special number, and delete solve instead
-            // if dnf is toggled off
-            // Or better yet don't show DNF toggle? Or +2, and only delete or comment
             solve_data.elapsed_centiseconds = 99900;
         } else {
             solve_data.elapsed_centiseconds = asInt;
