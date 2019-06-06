@@ -203,7 +203,8 @@ __ALL_EVENTS = [
     EVENT_5BLD,
     EVENT_REDI,
     EVENT_8x8,
-    EVENT_9x9
+    EVENT_9x9,
+    EVENT_MBLD
 ]
 
 # Important! Don't change how these weekly and bonus lists are built, we rely on the order
@@ -239,6 +240,7 @@ __GLOBAL_SORT_ORDER = [
     EVENT_3BLD,
     EVENT_4BLD,
     EVENT_5BLD,
+    EVENT_MBLD,
 
     # Weekly 3x3 variations
     EVENT_3x3OH,
