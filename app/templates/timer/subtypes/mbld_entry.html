@@ -1,0 +1,35 @@
+<div class="timer_controls_wrapper">
+        {% set timer_disabled = 'disabled' if is_complete else '' %}
+        <div id="the_mbld_entry" class="{{timer_disabled}}">
+            <div style="height: 100%; width: 100%;">
+                    <div style="width: 100%; height: 50%; display: flex; align-items: flex-end; justify-content: center;">
+                        <form id="mbldEntryForm" class="form-inline" autocomplete="off">
+                            <div class="form-group">
+                                <input id="successInput" type="text" class="form-control form-control-lg" placeholder="#">
+                            </div>
+                            <div> successful, out of </div>
+                            <div class="form-group">
+                                <input id="totalInput" type="text" class="form-control form-control-lg" placeholder="#">
+                            </div>
+                        </form>
+                    </div>
+                    <div style="width: 100%; height: 50%; display: flex; align-items: flex-start; justify-content: center;">
+                        <form id="mbldEntryForm2" class="form-inline" autocomplete="off">
+                            <div> in </div>
+                            <div class="form-group">
+                                <input id="" type="text" class="form-control form-control-lg" placeholder="0:00.00">
+                            </div>
+                            <div class="control_icon">
+                                <button id="BTN_SUBMIT" class="btn btn-outline-light btn-timer-control">
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div style="display: none;">
+
+                    </div>
+            </div>
+        </div>
+        {% include "timer/subtypes/buttons_delete_comment.html" %}
+    </div>

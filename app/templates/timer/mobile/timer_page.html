@@ -50,7 +50,7 @@
                 {% include "timer/subtypes/fmc_entry.html" %}
             {% endif %}
             {% if page_subtype == SUBTYPE_MBLD %}
-                <div>mbld entry</div>
+                {% include "timer/subtypes/mbld_entry.html" %}
             {% endif %}
             
         </div>
@@ -109,6 +109,9 @@
 {% endif %}
 
 {% if page_subtype == SUBTYPE_MBLD %}
+{% assets "timer_mbld_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 {% endif %}
 
 {% endblock %}

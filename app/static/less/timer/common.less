@@ -53,6 +53,31 @@
     }
 }
 
+#the_mbld_entry {
+    height: 60%;
+    width: 100%;
+
+    font-family: 'Roboto', sans-serif;
+
+    color: white;
+
+    position: relative;
+    display: flex;
+
+    &.disabled {
+        opacity: 0.40;
+        pointer-events: none;
+    }
+
+    #mbldEntryForm, #mbldEntryForm2 {
+        .form-group {
+            margin: 15px;
+        }
+
+        margin-bottom: 0;
+    }
+}
+
 // The visible text inside the timer
 .timer_text {
     width: 100%;
@@ -132,14 +157,14 @@
 }
 
 input[type="text"]::-webkit-input-placeholder { /* WebKit browsers */
-    color:    #dddddd;
+    color:    #aaaaaa;
 }
 input[type="text"]:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-    color:    #dddddd;
+    color:    #aaaaaa;
 }
 input[type="text"]::-moz-placeholder { /* Mozilla Firefox 19+ */
-    color:    #dddddd;
+    color:    #aaaaaa;
 }
 input[type="text"]:-ms-input-placeholder { /* Internet Explorer 10+ */
-    color:    #dddddd;
+    color:    #aaaaaa;
 }
