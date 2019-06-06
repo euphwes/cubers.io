@@ -5,9 +5,14 @@
     var scrambleId = window.app.scrambleId;
     var compEventId = window.app.compEventId;
 
+    function isBlank(str) {
+        return (!str || /^\s*$/.test(str));
+    }
+
     function verifyAndProcessManualTime() {
 
         var currentValue = $('#manualEntryInput').val();
+        if (isBlank(currentValue)) { return false; }
 
         var solve_data = {};
         solve_data.scramble_id = scrambleId;
