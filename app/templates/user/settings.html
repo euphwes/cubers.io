@@ -72,6 +72,11 @@
                     $.each(affectedSettingsList, enableThese);
                 }
             }
+
+            $.each(affectedSettingsList, function(i, childCodeToCheck){
+                var $groupToCheck = $("div[data-setting_code='" + childCodeToCheck + "']");
+                handleToggleEnabledForSetting($groupToCheck);
+            });
         };
 
         // Add a click handler to form groups to automatically disable/enable other settings

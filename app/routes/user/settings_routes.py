@@ -102,7 +102,7 @@ def __handle_get(user):
         if bool(setting.affects):
             if setting.value == TRUE_STR and setting.opposite_affects:
                 disabled_settings.extend(setting.affects)
-            if setting.value == FALSE_STR:
+            if setting.value == FALSE_STR and not setting.opposite_affects:
                 disabled_settings.extend(setting.affects)
 
     default_colors = get_color_defaults()
