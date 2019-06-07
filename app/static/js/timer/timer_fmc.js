@@ -5,8 +5,20 @@
     var scrambleId = window.app.scrambleId;
     var compEventId = window.app.compEventId;
 
-    function verifyAndProcessFMCEntry() {
+    function disallowNonDigitsAndDNF(event) {
+        var regex = new RegExp("^[0-9DNFdnf]+$");
 
+        var rawCode = !event.charCode ? event.which : event.charCode;
+        if (rawCode == 13) { return true; }
+
+        var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+        if (!regex.test(key)) {
+           event.preventDefault();
+           return false;
+        }
+    };
+
+    function verifyAndProcessFMCEntry() {
         var currentValue = $('#manualEntryInput').val();
         var isDNF = false;
         var asInt = 99900;
@@ -62,6 +74,8 @@
 
         return false;
     }
+
+    $('#manualEntryInput').on('keypress', disallowNonDigitsAndDNF);
 
     $('#manualEntryForm').submit(verifyAndProcessFMCEntry);
     $('#manualEntryInput').focus();
