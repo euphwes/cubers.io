@@ -9,6 +9,10 @@ def build_mbld_results(coded_value):
     representation. """
 
     coded_result = str(coded_value)
+
+    if coded_result == 'DNF':
+        return 'DNF'
+
     while len(coded_result) < 8:
         coded_result = '0' + coded_result
 
