@@ -97,6 +97,13 @@
         var currentValue  = $('#timeInput').val();
         var valDigitsOnly = currentValue.replace(/[^0-9]/g, '');
 
+        while (valDigitsOnly.startsWith('0')) {
+            valDigitsOnly = valDigitsOnly.substring(1, valDigitsOnly.length);
+        }
+        if (valDigitsOnly.length <= 3) {
+            while (valDigitsOnly.length <= 3) { valDigitsOnly = '0' + valDigitsOnly; }
+        }
+
         var currLength = valDigitsOnly.length;
 
         if (currLength <= 2) {

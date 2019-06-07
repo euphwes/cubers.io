@@ -41,11 +41,16 @@
         var currentValue  = $('#manualEntryInput').val();
         var valDigitsOnly = currentValue.replace(/[^0-9]/g, '');
 
+        while (valDigitsOnly.startsWith('0')) {
+            valDigitsOnly = valDigitsOnly.substring(1, valDigitsOnly.length);
+        }
+        if (valDigitsOnly.length <= 3) {
+            while (valDigitsOnly.length <= 3) { valDigitsOnly = '0' + valDigitsOnly; }
+        }
+
         var currLength = valDigitsOnly.length;
 
-        if (currLength <= 2) {
-            $('#manualEntryInput').val(valDigitsOnly);
-        } else if (currLength > 2 && currLength <= 4) {
+        if (currLength > 2 && currLength <= 4) {
             var modified = valDigitsOnly.splice(currLength - 2, 0, '.');
             $('#manualEntryInput').val(modified);
         } else if (currLength > 4) {
