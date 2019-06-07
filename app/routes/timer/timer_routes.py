@@ -94,6 +94,7 @@ def timer_page(comp_event_id):
         return (ERR_MSG_INACTIVE_COMP, 400)
 
     event_name = comp_event.Event.name
+    event_format = comp_event.Event.eventFormat
 
     # Get the user's settings
     settings = __get_user_settings(current_user)
@@ -131,7 +132,7 @@ def timer_page(comp_event_id):
     # If all solves are done, substitute in some sort of message in place of the scramble text
     scramble_info = __determine_scramble_id_text_index(user_results, user_solves,
                                                        comp_event.scrambles, event_name,
-                                                       comp_event.Event.eventFormat)
+                                                       event_format)
     scramble_id, scramble_text, scramble_index = scramble_info
 
     # Build up the page title, consisting of the event name and competition title
@@ -148,7 +149,9 @@ def timer_page(comp_event_id):
     comment = user_results.comment if user_results else ''
 
     # Determine if the event has been completed by this user
-    is_complete = user_results.is_complete if user_results else False
+    is_complete_flag = user_results.is_complete if user_results else False
+    num_solves_done  = len(user_results.solves) if user_results else 0
+    is_complete = __determine_is_complete(is_complete_flag, event_format, num_solves_done)
 
     # Determine the timer page subtype (timer, manual time entry, FMC manual entry, or MBLD)
     page_subtype = __determine_page_subtype(event_name, settings)
@@ -182,6 +185,17 @@ def __build_user_solves_list(user_results, event_total_solves, scrambles):
                 user_solves[i] = solve.get_friendly_time()
 
     return user_solves, user_results.solves[-1].get_friendly_time()
+
+
+def __determine_is_complete(is_complete_flag, event_format, num_solves_completed):
+    """ Determine if the event is complete from the POV of the timer page; we don't want to disable
+    time entry, even if the user has 1 BLD solve out of 3 and we consider it complete for the purpose
+    of the leaderboards. """
+
+    if event_format == EventFormat.Bo3:
+        return num_solves_completed == 3
+
+    return is_complete_flag
 
 
 def __determine_scramble_id_text_index(user_results, user_solves_list, scrambles, event_name,
