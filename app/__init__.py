@@ -17,6 +17,8 @@ import logging
 
 from timber.formatter import TimberFormatter
 
+from app.util.events import build_mbld_results
+
 # -------------------------------------------------------------------------------------------------
 
 app = Flask(__name__)
@@ -224,3 +226,13 @@ def format_fmc_result(value):
         converted_value = int(converted_value)
 
     return converted_value
+
+
+@app.template_filter('format_mbld_result')
+def format_mbld_result(value):
+    """ Jinja custom filter to convert a fake 'centisecond' result to MBLD results. """
+
+    if not value:
+        return ''
+
+    return build_mbld_results(value)

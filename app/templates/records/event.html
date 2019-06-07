@@ -88,7 +88,11 @@
                                 {% if event_name == "FMC" %}
                                 <td>{{ record.personal_best | format_fmc_result }}</td>
                                 {% else %}
-                                <td>{{ record.personal_best | friendly_time }}</td>
+                                    {% if event_name == "MBLD" %}
+                                        <td>{{ record.personal_best | format_mbld_result }}</td>
+                                    {% else %}
+                                        <td>{{ record.personal_best | friendly_time }}</td>
+                                    {% endif %}
                                 {% endif %}
     
                                 <td class="d-none d-md-table-cell">
@@ -152,7 +156,11 @@
                                 {% if event_name == "FMC" %}
                                 <td>{{ record.personal_best | format_fmc_result }}</td>
                                 {% else %}
-                                <td>{{ record.personal_best | friendly_time }}</td>
+                                    {% if event_name == "MBLD" %}
+                                        <td>{{ record.personal_best | format_mbld_result }}</td>
+                                    {% else %}
+                                        <td>{{ record.personal_best | friendly_time }}</td>
+                                    {% endif %}
                                 {% endif %}
     
                                 <td class="d-none d-md-table-cell">

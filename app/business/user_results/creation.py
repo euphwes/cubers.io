@@ -3,6 +3,7 @@
 from sys import maxsize as MAX
 
 from app.persistence.models import EventFormat
+from app.util.events import build_mbld_results
 from app.util.times import convert_centiseconds_to_friendly_time
 from app.business.user_results import DNF, DNS
 from app.business.user_results.personal_bests import set_pb_flags
@@ -108,11 +109,17 @@ def __build_times_string(results, event_format, is_fmc, is_blind, is_mbld):
         if first_solve.is_dnf:
             return DNF
         else:
-            return convert_centiseconds_to_friendly_time(first_solve.get_total_time())
+            if is_mbld:
+                return build_mbld_results(first_solve.get_total_time())
+            else:
+                return convert_centiseconds_to_friendly_time(first_solve.get_total_time())
 
     # Build a list which contains the user-friendly representation of the total solve time for each solve
     if not is_fmc:
-        friendly_times = [convert_centiseconds_to_friendly_time(solve.get_total_time()) for solve in solves]
+        if is_mbld:
+            friendly_times = [build_mbld_results(solve.get_total_time()) for solve in solves]
+        else:
+            friendly_times = [convert_centiseconds_to_friendly_time(solve.get_total_time()) for solve in solves]
 
     # FMC is special, the 'time' is actually the number of moves, not number of centiseconds, so instead
     # interpret the time value here as "centimoves" and convert to integer number of moves represented as a string

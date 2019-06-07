@@ -7,6 +7,7 @@ from flask_login import LoginManager, UserMixin, AnonymousUserMixin
 from sqlalchemy.orm import relationship, reconstructor
 
 from app import DB, app
+from app.util.events import build_mbld_results
 from app.util.times import convert_centiseconds_to_friendly_time
 
 Text       = DB.Text
@@ -199,7 +200,7 @@ class UserEventResults(Model):
             return converted_value
 
         if self.is_mbld:
-            return __build_mbld_results(value)
+            return build_mbld_results(value)
 
         return convert_centiseconds_to_friendly_time(value)
 
@@ -374,7 +375,7 @@ class UserSolve(Model):
             return converted_value
 
         if self.UserEventResults.is_mbld:
-            return __build_mbld_results(total_time)
+            return build_mbld_results(total_time)
 
         converted_to_friendly = convert_centiseconds_to_friendly_time(total_time)
         if self.is_plus_two:
@@ -402,30 +403,3 @@ class WeeklyBlacklist(Model):
     id            = Column(Integer, primary_key=True)
     user_id       = Column(Integer, ForeignKey('users.id'))
     reason        = Column(String(256))
-
-# -------------------------------------------------------------------------------------------------
-
-def __build_mbld_results(coded_value):
-    """ Builds and returns a user-friendly representation of MBLD results from the coded integer
-    representation. """
-
-    coded_result = str(coded_value)
-    while len(coded_result) < 8:
-        coded_result = '0' + coded_result
-
-    # coded results format is XXYYYYZZ
-    # where XX   = (99 - number of points)
-    # where YYYY = elapsed seconds (4 digits, padded with insignificant zeros)
-    # where ZZ   = number missed (2 digits, padded with insignificant zeros)
-    xx   = int(coded_result[0:2])
-    yyyy = int(coded_result[2:6])
-    zz   = int(coded_result[6:])
-
-    # math. woohoo.
-    num_attempted  = 99 - xx + (2 * (zz))
-    num_successful = num_attempted - zz
-
-    time = convert_centiseconds_to_friendly_time(yyyy * 100)
-    time_no_fractions = time[:len(time) - 3]
-
-    return '{}/{} {}'.format(num_successful, num_attempted, time_no_fractions)

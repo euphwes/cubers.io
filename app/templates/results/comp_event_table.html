@@ -94,11 +94,19 @@
                         <td scope="col" class="d-none d-md-table-cell">{{ solve }}</td>
                         {% endfor %}
                     {% else %}
-                        <td scope="col" class="{{ avg_class }}">{{ result.average | friendly_time }}</td>
-                        <td scope="col" class="{{ single_class }}">{{ result.single | friendly_time }}</td>
-                        {% for solve in result.solves_helper %}
-                        <td scope="col" class="d-none d-md-table-cell">{{ solve }}</td>
-                        {% endfor %}
+                        {% if comp_event.Event.name == "MBLD" %}
+                            <td scope="col" class="font-weight-bold"></td>
+                            <td scope="col">{{ result.single | format_mbld_result }}</td>
+                            {% for solve in result.solves_helper %}
+                            <td scope="col" class="d-none d-md-table-cell">{{ solve }}</td>
+                            {% endfor %}
+                        {% else %}
+                            <td scope="col" class="{{ avg_class }}">{{ result.average | friendly_time }}</td>
+                            <td scope="col" class="{{ single_class }}">{{ result.single | friendly_time }}</td>
+                            {% for solve in result.solves_helper %}
+                            <td scope="col" class="d-none d-md-table-cell">{{ solve }}</td>
+                            {% endfor %}
+                        {% endif %}
                     {% endif %}
                     {% if show_admin %}
                         {% if result.is_blacklisted %}
