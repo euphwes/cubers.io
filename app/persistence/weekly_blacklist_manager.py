@@ -7,6 +7,9 @@ from app.persistence.models import WeeklyBlacklist, User
 
 # -------------------------------------------------------------------------------------------------
 
+# TODO: Remove all this crap, and the weekly blacklist model, and add DB migration to remove
+# weekly blacklist, after week of 6/9 - 6/15
+
 __LOG_CREATED_WEEKLY_BLACKLIST = 'Created WeeklyBlacklist record for {username}'
 __LOG_CLEARED_WEEKLY_BLACKLIST = 'Cleared all WeeklyBlacklist entries.'
 

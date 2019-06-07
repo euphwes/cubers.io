@@ -5,10 +5,7 @@ from arrow import now
 
 from app import app
 from app.persistence.models import UserEventResults, User
-from app.persistence.comp_manager import get_comp_event_name_by_id, get_comp_event_by_id
-from app.persistence.weekly_blacklist_manager import ensure_weekly_blacklist_for_user,\
-    get_weekly_blacklist_entry_by_user_id
-from app.tasks.results_management import blacklist_all_complete_results_for_user_and_comp
+from app.persistence.comp_manager import get_comp_event_name_by_id
 
 # -------------------------------------------------------------------------------------------------
 
@@ -22,17 +19,12 @@ __AUTO_BLACKLIST_NOTE_TEMPLATE += "less than the threshold for this event."
 __PERMA_BLACKLIST_NOTE_TEMPLATE = "Results automatically hidden on {date} because this user is flagged for "
 __PERMA_BLACKLIST_NOTE_TEMPLATE += "permanent blacklist."
 
-# Weekly blacklist note
-__WEEKLY_BLACKLIST_NOTE_TEMPLATE = "Results automatically hidden on {date} because this user has a "
-__WEEKLY_BLACKLIST_NOTE_TEMPLATE += "weekly blacklist flag set due to other unlikely results."
-
 # For retrieving blacklist threshold multiplicative factor from app config
 __KEY_AUTO_BL_FACTOR = 'AUTO_BL_FACTOR'
 
 # Log message templates
 __LOG_BLACKLIST_BASE = "blacklisted {username}'s results for {comp_event_name}"
 __LOG_PERFORMED_PERMA_BLACKLIST_ACTION = __LOG_BLACKLIST_BASE + " -- permanent blacklist"
-__LOG_PERFORMED_WEEKLY_BLACKLIST_ACTION = __LOG_BLACKLIST_BASE + " -- weekly blacklist"
 __LOG_PERFORMED_SINGLE_BLACKLIST_ACTION = __LOG_BLACKLIST_BASE + " -- single threshold"
 __LOG_PERFORMED_AVERAGE_BLACKLIST_ACTION = __LOG_BLACKLIST_BASE + " -- average threshold"
 
@@ -108,10 +100,6 @@ def take_blacklist_action_if_necessary(results: UserEventResults,
     if user.always_blacklist:
         return __perform_perma_blacklist_action(results, comp_event_name, user), True
 
-    # Check if the user is flagged to have all of their results just for this week blacklisted
-    if get_weekly_blacklist_entry_by_user_id(user.id):
-        return __perform_weekly_blacklist_action(results, comp_event_name, user), True
-
     # Get the auto-blacklist thresholds for the event these results are for.
     # If we don't have thresholds, leave without taking any blacklist action
     thresholds = __get_event_thresholds(comp_event_name)
@@ -154,17 +142,6 @@ def __perform_perma_blacklist_action(results: UserEventResults,
     return __blacklist_results_with_note(results, __PERMA_BLACKLIST_NOTE_TEMPLATE)
 
 
-def __perform_weekly_blacklist_action(results: UserEventResults,
-                                      comp_event_name: str,
-                                      user: User) -> UserEventResults:
-    """ Blacklists this specific UserEventResults and sets the note indicating it's because the
-    user has a weekly blacklist record set. """
-
-    app.logger.info(__LOG_PERFORMED_WEEKLY_BLACKLIST_ACTION.format(comp_event_name=comp_event_name,
-        username=user.username))
-    return __blacklist_results_with_note(results, __WEEKLY_BLACKLIST_NOTE_TEMPLATE)
-
-
 def __perform_single_results_blacklist_action(results: UserEventResults,
                                               comp_event_name: str,
                                               user: User) -> UserEventResults:
@@ -181,13 +158,6 @@ def __perform_average_results_blacklist_action(results: UserEventResults,
                                                user: User) -> UserEventResults:
     """ Blacklists this specific UserEventResults and sets the note indicating the results were
     blacklisted due to being lower than the single threshold. """
-
-    # Make sure any new result this week are auto-blacklisted
-    ensure_weekly_blacklist_for_user(user)
-
-    # Retroactively blacklisted any non-blacklisted results already submitted this week
-    comp_id = get_comp_event_by_id(results.comp_event_id).competition_id
-    blacklist_all_complete_results_for_user_and_comp(user.id, comp_id, user.username)
 
     app.logger.info(__LOG_PERFORMED_AVERAGE_BLACKLIST_ACTION.format(comp_event_name=comp_event_name,
         username=user.username))
