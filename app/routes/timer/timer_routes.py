@@ -114,6 +114,10 @@ def timer_page(comp_event_id):
             hide_timer_dot = True
             last_seconds   = last_solve
             last_centis    = ''
+        elif event_name == EVENT_MBLD.name:
+            hide_timer_dot = True
+            last_seconds   = ''
+            last_centis    = ''
         else:
             if last_solve == DNF:
                 hide_timer_dot = True

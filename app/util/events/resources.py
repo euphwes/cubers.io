@@ -32,8 +32,9 @@ class EventResource:
 def mbld_scrambler():
     """ Returns a 'scramble' for MBLD. """
 
-    scramble = 'Hand-scramble as many 3x3s as needed for your MBLD attempt.'
-    scramble += '\nYou have a time limit of 60 minutes.'
+    scramble = 'Scramble as many 3x3s as needed for your MBLD attempt.'
+    scramble += '\nPlease limit your attempt to 60 minutes,'
+    scramble += '\nand account for +2s manually.'
     return scramble
 
 

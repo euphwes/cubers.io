@@ -55,14 +55,14 @@
         solve_data.is_dnf = isDnf;
         solve_data.is_plus_two = false;
 
-        // coded results format is XXYYZZ
-        // where XX = (99 - number of points)
-        // where YY = elapsed seconds (4 digits, padded with insignificant zeros)
-        // where ZZ = number missed (2 digits, padded with insignificant zeros)
+        // coded results format is XXYYYYZZ
+        // where XX   = (99 - number of points)
+        // where YYYY = elapsed seconds (4 digits, padded with insignificant zeros)
+        // where ZZ   = number missed (2 digits, padded with insignificant zeros)
         var XX = ('' + (99 - numPoints));
-        var YY = ('' + elapsedSeconds).padStart(4, '0');
+        var YYYY = ('' + elapsedSeconds).padStart(4, '0');
         var ZZ = ('' + (numAttempted - numSuccessful)).padStart(2, '0');
-        var coded_integer_results = parseInt(XX + YY + ZZ);
+        var coded_integer_results = parseInt(XX + YYYY + ZZ);
 
         // We're hijacking this value, since MBLD can be represented in "coded integer" form and then results
         // just sorted by integer value

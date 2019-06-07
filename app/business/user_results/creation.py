@@ -46,7 +46,10 @@ def process_event_results(results, comp_event, user):
     # Store the "times string" so we don't have to recalculate this again later.
     # It's fairly expensive, so doing this for every UserEventResults in the competition slows
     # down the leaderboards noticeably.
-    results.times_string = __build_times_string(results, event_format, event_name == 'FMC')
+    is_fmc = event_name == 'FMC'
+    is_mbld = event_name == 'MBLD'
+    is_blind = event_name in ('2BLD', '3BLD', '4BLD', '5BLD')
+    results.times_string = __build_times_string(results, event_format, is_fmc, is_blind, is_mbld)
 
     # Determine if these results need to be automatically blacklisted because either they have
     # suspect times, or if some other criteria is causing them to be blacklisted, and set the
@@ -92,7 +95,7 @@ def __set_single_and_average(user_event_results, expected_num_solves, event_form
         user_event_results.average = average
 
 
-def __build_times_string(results, event_format, is_fmc, want_list=False):
+def __build_times_string(results, event_format, is_fmc, is_blind, is_mbld):
     """ Builds a list of individual times, with best and worst times in parentheses if appropriate
     for the given event format. """
 
@@ -153,7 +156,7 @@ def __build_times_string(results, event_format, is_fmc, want_list=False):
     # For all DNFs in the solve, replace the corresponding user-friendly time with "DNF",
     # or wrap the time with "DNF(<time>)" for blind events
     for i in dnf_indicies:
-        if results.is_blind:
+        if is_blind:
             friendly_times[i] = BLIND_EVENT_DNF_SOLVE_TEMPLATE.format(solve_time=friendly_times[i])
         else:
             friendly_times[i] = DNF
@@ -169,7 +172,7 @@ def __build_times_string(results, event_format, is_fmc, want_list=False):
     # Return the list of times if a list is requested, otherwise join each time with a comma and
     # return the final result.
     if event_format in [EventFormat.Bo3, EventFormat.Mo3]:
-        return friendly_times if want_list else ', '.join(friendly_times)
+        return SOLVE_TIMES_SEPARATOR.join(friendly_times)
 
     # For other event formats, we enclose the best and worst times in parentheses.
     friendly_times[best_index]  = SOLVE_PARENS_TEMPLATE.format(solve_time=friendly_times[best_index])
@@ -177,7 +180,7 @@ def __build_times_string(results, event_format, is_fmc, want_list=False):
 
     # Return the list of times if a list is requested, otherwise join each time with a comma and
     # return the final result.
-    return friendly_times if want_list else SOLVE_TIMES_SEPARATOR.join(friendly_times)
+    return SOLVE_TIMES_SEPARATOR.join(friendly_times)
 
 # -------------------------------------------------------------------------------------------------
 #    Logic for determining best single and average from a set of solves, for a given EventFormat

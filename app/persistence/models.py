@@ -155,6 +155,7 @@ class UserEventResults(Model):
         event_name = self.CompetitionEvent.Event.name
         self.is_fmc   = event_name == 'FMC'
         self.is_blind = event_name in ('2BLD', '3BLD', '4BLD', '5BLD')
+        self.is_mbld  = event_name == 'MBLD'
 
 
     def set_solves(self, incoming_solves):
@@ -196,6 +197,9 @@ class UserEventResults(Model):
             if converted_value == int(converted_value):
                 converted_value = int(converted_value)
             return converted_value
+
+        if self.is_mbld:
+            return __build_mbld_results(value)
 
         return convert_centiseconds_to_friendly_time(value)
 
@@ -369,6 +373,9 @@ class UserSolve(Model):
                 converted_value = int(converted_value)
             return converted_value
 
+        if self.UserEventResults.is_mbld:
+            return __build_mbld_results(total_time)
+
         converted_to_friendly = convert_centiseconds_to_friendly_time(total_time)
         if self.is_plus_two:
             converted_to_friendly = converted_to_friendly + '+'
@@ -395,3 +402,30 @@ class WeeklyBlacklist(Model):
     id            = Column(Integer, primary_key=True)
     user_id       = Column(Integer, ForeignKey('users.id'))
     reason        = Column(String(256))
+
+# -------------------------------------------------------------------------------------------------
+
+def __build_mbld_results(coded_value):
+    """ Builds and returns a user-friendly representation of MBLD results from the coded integer
+    representation. """
+
+    coded_result = str(coded_value)
+    while len(coded_result) < 8:
+        coded_result = '0' + coded_result
+
+    # coded results format is XXYYYYZZ
+    # where XX   = (99 - number of points)
+    # where YYYY = elapsed seconds (4 digits, padded with insignificant zeros)
+    # where ZZ   = number missed (2 digits, padded with insignificant zeros)
+    xx   = int(coded_result[0:2])
+    yyyy = int(coded_result[2:6])
+    zz   = int(coded_result[6:])
+
+    # math. woohoo.
+    num_attempted  = 99 - xx + (2 * (zz))
+    num_successful = num_attempted - zz
+
+    time = convert_centiseconds_to_friendly_time(yyyy * 100)
+    time_no_fractions = time[:len(time) - 3]
+
+    return '{}/{} {}'.format(num_successful, num_attempted, time_no_fractions)
