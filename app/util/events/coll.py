@@ -16,7 +16,7 @@ def get_coll_scramble(coll):
     coll_wiki_link = '<a href="https://www.speedsolving.com/wiki/index.php/COLL" target="_blank"><span class="far fa-question-circle"></span></a>'
 
     message_components = [
-        "This week we're doing {} — {}".format(href_tag, coll_wiki_link),
+        "This week we're doing {} {}".format(href_tag, coll_wiki_link),
         "Perform the algorithm below to setup the case.",
         __scramble(coll)
     ]

@@ -38,6 +38,16 @@ def mbld_scrambler():
     return scramble
 
 
+def attack_scrambler():
+    """ Returns a 'scramble' for PLL Time Attack. """
+
+    scramble = 'Do all the PLLs!'
+    scramble += "\nOrder doesn't matter, and the cube"
+    scramble += "\ndoesn't need to be solved when finished."
+
+    return scramble
+
+
 def redi_scrambler():
     """ Returns a scramble for a Redi cube in MoYu notation. """
 
@@ -156,7 +166,7 @@ EVENT_3x3x4     = EventResource("3x3x4", cuboidsScrambler.get_3x3x4_scramble, 5,
 EVENT_3x3x5     = EventResource("3x3x5", cuboidsScrambler.get_3x3x5_scramble, 5, False, False, is_rotating=True)
 EVENT_234Relay  = EventResource("2-3-4 Relay", scrambler_234_relay, 1, False, False, is_rotating=True)
 EVENT_333Relay  = EventResource("3x3 Relay of 3", scrambler_333_relay, 1, False, False, is_rotating=True)
-EVENT_PLLAttack = EventResource("PLL Time Attack", lambda: 'Do all the PLLs!', 1, False, False, is_rotating=True)
+EVENT_PLLAttack = EventResource("PLL Time Attack", attack_scrambler, 1, False, False, is_rotating=True)
 EVENT_2BLD      = EventResource("2BLD", scrambler222.get_WCA_scramble, 3, False, False, is_rotating=True)
 EVENT_REDI      = EventResource("Redi Cube", redi_scrambler, 5, False, False, is_rotating=True)
 

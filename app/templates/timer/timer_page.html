@@ -41,13 +41,18 @@
             <div class="scramble_wrapper">
                 <div class="scramble_area">
                     <div class="scram flex_full_center text-center">
-                        {% if '\n' in scramble_text %}
-                            {% set part1, part2 = scramble_text.split('\n') %}
-                            {{part1}}
-                            <br>
-                            {{part2}}
+                        {% if event_name == "COLL" %}
+                            {{ scramble_text|safe }}
                         {% else %}
-                            {{scramble_text}}
+                            {% if '\n' in scramble_text %}
+                                {% set parts = scramble_text.split('\n') %}
+                                {% for part in parts %}
+                                    {{part}}
+                                    <br>
+                                {% endfor %}
+                            {% else %}
+                                {{scramble_text}}
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>
