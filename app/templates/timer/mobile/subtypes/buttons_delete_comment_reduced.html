@@ -1,0 +1,21 @@
+<div class="mods_area reduced">
+    <div class="controls_wrapper">
+
+        {% set BTN_UNDO     = 'btn_undo' %}
+        {% set BTN_COMMENT  = 'btn_comment' %}
+
+        {% set BTN_ACTIVE  = 'btn_active' %}
+        {% set BTN_ENABLED = 'btn_enabled' %}
+
+        {% set disabled_val = '' if button_states[BTN_UNDO][BTN_ENABLED] else 'disabled' %}
+        {% set active_val   = 'active' if button_states[BTN_UNDO][BTN_ACTIVE] else '' %}
+
+        <div class="control_icon"><button id="BTN_UNDO" class="btn btn-outline-light btn-timer-control {{active_val}}" {{disabled_val}}><i class="fas fa-undo"></i></button></div>
+
+        {% set disabled_val = '' if button_states[BTN_COMMENT][BTN_ENABLED] else 'disabled' %}
+        {% set active_val   = 'active' if button_states[BTN_COMMENT][BTN_ACTIVE] else '' %}
+
+        <div class="control_icon"><button id="BTN_COMMENT" class="btn btn-outline-light btn-timer-control {{active_val}}" {{disabled_val}}><i class="far fa-comment"></i></button></i></div>
+
+    </div>
+</div>
