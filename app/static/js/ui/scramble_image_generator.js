@@ -1900,6 +1900,9 @@
                 testScalingFactor = 50;
                 break;
             } else if (Math.abs(image.getCanvasWidth() - targetWidth)/(targetWidth) < 0.05) {
+                if (window.app.isMobile) {
+                    testScalingFactor -= 2;
+                }
                 if (image.getCanvasWidth() >= targetWidth) {
                     testScalingFactor -= 1;
                 }
@@ -1909,7 +1912,6 @@
                 testScalingFactor += 1;
             }
         }
-
         return testScalingFactor;
     };
 
