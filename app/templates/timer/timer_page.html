@@ -29,21 +29,30 @@
                         {% endfor %}
                     </div>
                     {% if show_scramble_preview %}
-                    {% if hide_scramble_preview %}
-                        {% set preview_no_pointer = 'no_pointer' %}
-                    {% endif %}
-                    <div class="scramble_preview {{preview_no_pointer}} flex_full_center">
                         {% if hide_scramble_preview %}
+                            {% set preview_no_pointer = 'no_pointer' %}
+                        {% endif %}
+                        <div class="scramble_preview {{preview_no_pointer}} flex_full_center">
+                            {% if hide_scramble_preview %}
+                            <div class="flex_full_center">
+                                <button class="btn btn-outline-secondary btn_scramble_preview">
+                                    Show<br>Scramble Preview
+                                </button>
+                            </div>
+                            {% else %}
+                            <canvas id="normal_scramble_image"></canvas>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                    <div class="scramble_preview no_pointer flex_full_center"></div>
+                    {% endif %}
+                    <div class="return_btn_area">
                         <div class="flex_full_center">
-                            <button class="btn btn-outline-secondary btn_scramble_preview">
-                                Show<br>Scramble Preview
+                            <button class="btn btn-outline-secondary btn_return_home">
+                                Return To Events
                             </button>
                         </div>
-                        {% else %}
-                        <canvas id="normal_scramble_image"></canvas>
-                        {% endif %}
                     </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
