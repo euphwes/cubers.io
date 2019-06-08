@@ -3,6 +3,12 @@
     var scrambleId = window.app.scrambleId;
     var compEventId = window.app.compEventId;
 
+    if (window.app.isMobile) {
+        $('.lower_portion').hide();
+        $('.upper_portion').height('100%');
+        $('.single_time').width('25%');
+    }
+
     function isBlank(str) {
         return (!str || /^\s*$/.test(str));
     }
