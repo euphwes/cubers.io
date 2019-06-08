@@ -96,8 +96,10 @@ def timer_page(comp_event_id):
     event_name = comp_event.Event.name
     event_format = comp_event.Event.eventFormat
 
-    # Get the user's settings
+    # Get the user's settings, and specifically pull the setting to determine
+    # whether or not to hide the scramble preview
     settings = __get_user_settings(current_user)
+    hide_scramble_preview = settings[SettingCode.HIDE_SCRAMBLE_PREVIEW]
 
     # Grab the user's event results (if any)
     user_results = get_event_results_for_user(comp_event_id, current_user)
@@ -107,6 +109,7 @@ def timer_page(comp_event_id):
                                                        comp_event.scrambles)
 
     # Split last_solve into min/seconds and centiseconds
+    # TODO: comment this more thoroughly, and put into its own function
     last_seconds   = DEFAULT_SECONDS
     last_centis    = DEFAULT_CENTIS
     hide_timer_dot = False
@@ -116,9 +119,7 @@ def timer_page(comp_event_id):
             last_seconds   = last_solve
             last_centis    = ''
         elif event_name == EVENT_MBLD.name:
-            hide_timer_dot = True
-            last_seconds   = ''
-            last_centis    = ''
+            pass
         else:
             if last_solve == DNF:
                 hide_timer_dot = True
@@ -161,7 +162,8 @@ def timer_page(comp_event_id):
         alternative_title=alternative_title, user_solves=user_solves, button_states=button_state_info,
         show_scramble_preview=show_scramble_preview, last_solve=last_solve, last_seconds=last_seconds,
         last_centis=last_centis, hide_timer_dot=hide_timer_dot, comment=comment,
-        is_complete=is_complete, settings=settings, page_subtype=page_subtype)
+        is_complete=is_complete, settings=settings, page_subtype=page_subtype,
+        hide_scramble_preview=hide_scramble_preview)
 
 # -------------------------------------------------------------------------------------------------
 
@@ -344,6 +346,7 @@ SETTINGS_TO_POPULATE = [
     SettingCode.HIDE_RUNNING_TIMER,
     SettingCode.HIDE_INSPECTION_TIME,
     SettingCode.USE_INSPECTION_TIME,
+    SettingCode.HIDE_SCRAMBLE_PREVIEW,
     SettingCode.USE_CUSTOM_CUBE_COLORS,
     SettingCode.CUSTOM_CUBE_COLOR_U,
     SettingCode.CUSTOM_CUBE_COLOR_F,

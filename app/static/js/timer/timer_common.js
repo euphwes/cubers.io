@@ -15,7 +15,7 @@
     // TODO: redraw scramble on window resize
     if (window.app.doShowScramble) {
         var imageGenerator = new window.app.ScrambleImageGenerator();
-        $('.scramble_preview').click(function () {
+        $('.scramble_preview:not(.no_pointer),.btn_scramble_preview').click(function () {
             imageGenerator.showLargeImage();
             $('#fade-wrapper').fadeIn().addClass('shown');
             $('#fade-wrapper').click(function () {

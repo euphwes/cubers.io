@@ -12,7 +12,7 @@ from app.persistence.user_manager import get_user_by_username
 
 # -------------------------------------------------------------------------------------------------
 
-LOG_USER_VIEWED_SETTINGS = '{} viewed settings page'
+LOG_USER_VIEWED_SETTINGS  = '{} viewed settings page'
 LOG_USER_UPDATED_SETTINGS = '{} updated settings'
 
 # -------------------------------------------------------------------------------------------------
@@ -24,6 +24,7 @@ TIMER_SETTINGS = [
     SettingCode.USE_INSPECTION_TIME,
     SettingCode.HIDE_INSPECTION_TIME,
     SettingCode.HIDE_RUNNING_TIMER,
+    SettingCode.HIDE_SCRAMBLE_PREVIEW,
 ]
 
 CUSTOM_CUBE_COLOR_SETTINGS = [
@@ -88,7 +89,7 @@ def __handle_get(user):
 
     # pylint: disable=line-too-long
     settings_sections = OrderedDict([
-        ("Timer Preferences",           [s for s in all_settings if s.code in set(TIMER_SETTINGS)]),
+        ("Timer Page Preferences",      [s for s in all_settings if s.code in set(TIMER_SETTINGS)]),
         ("Reddit Preferences",          [s for s in all_settings if s.code in set(REDDIT_SETTINGS)]),
         ("Cube Color Preferences",      [s for s in all_settings if s.code in set(CUSTOM_CUBE_COLOR_SETTINGS)]),
         ("Pyraminx Color Preferences",  [s for s in all_settings if s.code in set(CUSTOM_PYRAMINX_COLOR_SETTINGS)]),

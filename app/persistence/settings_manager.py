@@ -14,6 +14,7 @@ class SettingCode():
     HIDE_INSPECTION_TIME   = 'hide_inspection_time'
     HIDE_RUNNING_TIMER     = 'hide_running_timer'
     DEFAULT_TO_MANUAL_TIME = 'manual_time_entry_by_default'
+    HIDE_SCRAMBLE_PREVIEW  = 'hide_scramble_preview'
 
     # Reddit related settings
     REDDIT_COMP_NOTIFY     = 'reddit_comp_notify'
@@ -63,7 +64,7 @@ class SettingInfo():
         self.setting_type = setting_type
         self.default_value = default_value
         self.affects = affects  # an optional list of SettingCodes this code disables if disabled
-        self.opposite_affects = opposite_affects # if this is True, the affects list is disabled if this setting is on
+        self.opposite_affects = opposite_affects  # if this is True, the affects list is disabled if this setting is on
 
 # -------------------------------------------------------------------------------------------------
 
@@ -130,17 +131,24 @@ def hex_color_validator(value):
 # -------------------------------------------------------------------------------------------------
 
 SETTING_INFO_MAP = {
-    SettingCode.DEFAULT_TO_MANUAL_TIME : SettingInfo(
-        title         = "Use Manual Time Entry",
+    SettingCode.HIDE_SCRAMBLE_PREVIEW: SettingInfo(
+        title         = "Hide Scramble Preview",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
-        default_value = FALSE_STR,
-        affects       = [SettingCode.USE_INSPECTION_TIME, SettingCode.HIDE_INSPECTION_TIME,
-                         SettingCode.HIDE_RUNNING_TIMER],
+        default_value = FALSE_STR
+    ),
+
+    SettingCode.DEFAULT_TO_MANUAL_TIME: SettingInfo(
+        title            = "Use Manual Time Entry",
+        validator        = boolean_validator,
+        setting_type     = SettingType.BOOLEAN,
+        default_value    = FALSE_STR,
+        affects          = [SettingCode.USE_INSPECTION_TIME, SettingCode.HIDE_INSPECTION_TIME,
+                            SettingCode.HIDE_RUNNING_TIMER],
         opposite_affects = True
     ),
 
-    SettingCode.USE_INSPECTION_TIME : SettingInfo(
+    SettingCode.USE_INSPECTION_TIME: SettingInfo(
         title         = "Use\u00A0WCA\u00A015s\u00A0Inspection\u00A0Time (except\u00A0blind\u00A0events)",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
@@ -148,42 +156,42 @@ SETTING_INFO_MAP = {
         affects       = [SettingCode.HIDE_INSPECTION_TIME]
     ),
 
-    SettingCode.HIDE_INSPECTION_TIME : SettingInfo(
+    SettingCode.HIDE_INSPECTION_TIME: SettingInfo(
         title         = "Hide Inspection Time Countdown",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
         default_value = FALSE_STR
     ),
 
-    SettingCode.HIDE_RUNNING_TIMER : SettingInfo(
+    SettingCode.HIDE_RUNNING_TIMER: SettingInfo(
         title         = "Hide Timer While Running",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
         default_value = FALSE_STR
     ),
 
-    SettingCode.REDDIT_RESULTS_NOTIFY : SettingInfo(
+    SettingCode.REDDIT_RESULTS_NOTIFY: SettingInfo(
         title         = "Receive Reddit PM with Competition Stats",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
         default_value = FALSE_STR
     ),
 
-    SettingCode.REDDIT_COMP_NOTIFY : SettingInfo(
+    SettingCode.REDDIT_COMP_NOTIFY: SettingInfo(
         title         = "Receive Reddit PM for New Competitions",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
         default_value = FALSE_STR
     ),
 
-    SettingCode.REDDIT_RESULTS_NOTIFY : SettingInfo(
+    SettingCode.REDDIT_RESULTS_NOTIFY: SettingInfo(
         title         = "Receive Reddit PM with Weekly Competition Stats",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
         default_value = FALSE_STR
     ),
 
-    SettingCode.USE_CUSTOM_CUBE_COLORS : SettingInfo(
+    SettingCode.USE_CUSTOM_CUBE_COLORS: SettingInfo(
         title         = "Use Custom Cube Colors",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
@@ -193,49 +201,49 @@ SETTING_INFO_MAP = {
                          SettingCode.CUSTOM_CUBE_COLOR_R, SettingCode.CUSTOM_CUBE_COLOR_U]
     ),
 
-    SettingCode.CUSTOM_CUBE_COLOR_U : SettingInfo(
+    SettingCode.CUSTOM_CUBE_COLOR_U: SettingInfo(
         title         = "U Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_CUBE_COLORS["U"]
     ),
 
-    SettingCode.CUSTOM_CUBE_COLOR_F : SettingInfo(
+    SettingCode.CUSTOM_CUBE_COLOR_F: SettingInfo(
         title         = "F Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_CUBE_COLORS["F"]
     ),
 
-    SettingCode.CUSTOM_CUBE_COLOR_R : SettingInfo(
+    SettingCode.CUSTOM_CUBE_COLOR_R: SettingInfo(
         title         = "R Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_CUBE_COLORS["R"]
     ),
 
-    SettingCode.CUSTOM_CUBE_COLOR_D : SettingInfo(
+    SettingCode.CUSTOM_CUBE_COLOR_D: SettingInfo(
         title         = "D Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_CUBE_COLORS["D"]
     ),
 
-    SettingCode.CUSTOM_CUBE_COLOR_B : SettingInfo(
+    SettingCode.CUSTOM_CUBE_COLOR_B: SettingInfo(
         title         = "B Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_CUBE_COLORS["B"]
     ),
 
-    SettingCode.CUSTOM_CUBE_COLOR_L : SettingInfo(
+    SettingCode.CUSTOM_CUBE_COLOR_L: SettingInfo(
         title         = "L Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_CUBE_COLORS["L"]
     ),
 
-    SettingCode.USE_CUSTOM_PYRAMINX_COLORS : SettingInfo(
+    SettingCode.USE_CUSTOM_PYRAMINX_COLORS: SettingInfo(
         title         = "Use Custom Pyraminx Colors",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
@@ -244,35 +252,35 @@ SETTING_INFO_MAP = {
                          SettingCode.CUSTOM_PYRAMINX_COLOR_R, SettingCode.CUSTOM_PYRAMINX_COLOR_D]
     ),
 
-    SettingCode.CUSTOM_PYRAMINX_COLOR_F : SettingInfo(
+    SettingCode.CUSTOM_PYRAMINX_COLOR_F: SettingInfo(
         title         = "F Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_PYRA_COLORS["F"]
     ),
 
-    SettingCode.CUSTOM_PYRAMINX_COLOR_L : SettingInfo(
+    SettingCode.CUSTOM_PYRAMINX_COLOR_L: SettingInfo(
         title         = "L Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_PYRA_COLORS["L"]
     ),
 
-    SettingCode.CUSTOM_PYRAMINX_COLOR_R : SettingInfo(
+    SettingCode.CUSTOM_PYRAMINX_COLOR_R: SettingInfo(
         title         = "R Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_PYRA_COLORS["R"]
     ),
 
-    SettingCode.CUSTOM_PYRAMINX_COLOR_D : SettingInfo(
+    SettingCode.CUSTOM_PYRAMINX_COLOR_D: SettingInfo(
         title         = "D Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_PYRA_COLORS["D"]
     ),
 
-    SettingCode.USE_CUSTOM_MEGAMINX_COLORS : SettingInfo(
+    SettingCode.USE_CUSTOM_MEGAMINX_COLORS: SettingInfo(
         title         = "Use Custom Megaminx Colors",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
@@ -285,84 +293,84 @@ SETTING_INFO_MAP = {
                          SettingCode.CUSTOM_MEGAMINX_COLOR_11, SettingCode.CUSTOM_MEGAMINX_COLOR_12]
     ),
 
-    SettingCode.CUSTOM_MEGAMINX_COLOR_1 : SettingInfo(
+    SettingCode.CUSTOM_MEGAMINX_COLOR_1: SettingInfo(
         title         = "Face 1",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_MEGA_COLORS["1"]
     ),
 
-    SettingCode.CUSTOM_MEGAMINX_COLOR_2 : SettingInfo(
+    SettingCode.CUSTOM_MEGAMINX_COLOR_2: SettingInfo(
         title         = "Face 2",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_MEGA_COLORS["2"]
     ),
 
-    SettingCode.CUSTOM_MEGAMINX_COLOR_3 : SettingInfo(
+    SettingCode.CUSTOM_MEGAMINX_COLOR_3: SettingInfo(
         title         = "Face 3",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_MEGA_COLORS["3"]
     ),
 
-    SettingCode.CUSTOM_MEGAMINX_COLOR_4 : SettingInfo(
+    SettingCode.CUSTOM_MEGAMINX_COLOR_4: SettingInfo(
         title         = "Face 4",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_MEGA_COLORS["4"]
     ),
 
-    SettingCode.CUSTOM_MEGAMINX_COLOR_5 : SettingInfo(
+    SettingCode.CUSTOM_MEGAMINX_COLOR_5: SettingInfo(
         title         = "Face 5",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_MEGA_COLORS["5"]
     ),
 
-    SettingCode.CUSTOM_MEGAMINX_COLOR_6 : SettingInfo(
+    SettingCode.CUSTOM_MEGAMINX_COLOR_6: SettingInfo(
         title         = "Face 6",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_MEGA_COLORS["6"]
     ),
 
-    SettingCode.CUSTOM_MEGAMINX_COLOR_7 : SettingInfo(
+    SettingCode.CUSTOM_MEGAMINX_COLOR_7: SettingInfo(
         title         = "Face 7",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_MEGA_COLORS["7"]
     ),
 
-    SettingCode.CUSTOM_MEGAMINX_COLOR_8 : SettingInfo(
+    SettingCode.CUSTOM_MEGAMINX_COLOR_8: SettingInfo(
         title         = "Face 8",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_MEGA_COLORS["8"]
     ),
 
-    SettingCode.CUSTOM_MEGAMINX_COLOR_9 : SettingInfo(
+    SettingCode.CUSTOM_MEGAMINX_COLOR_9: SettingInfo(
         title         = "Face 9",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_MEGA_COLORS["9"]
     ),
 
-    SettingCode.CUSTOM_MEGAMINX_COLOR_10 : SettingInfo(
+    SettingCode.CUSTOM_MEGAMINX_COLOR_10: SettingInfo(
         title         = "Face 10",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_MEGA_COLORS["10"]
     ),
 
-    SettingCode.CUSTOM_MEGAMINX_COLOR_11 : SettingInfo(
+    SettingCode.CUSTOM_MEGAMINX_COLOR_11: SettingInfo(
         title         = "Face 11",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_MEGA_COLORS["11"]
     ),
 
-    SettingCode.CUSTOM_MEGAMINX_COLOR_12 : SettingInfo(
+    SettingCode.CUSTOM_MEGAMINX_COLOR_12: SettingInfo(
         title         = "Face 12",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
@@ -394,7 +402,7 @@ def __create_unset_setting(user_id, setting_code):
 def get_default_values_for_settings(setting_codes):
     """ Retrieves the default values for specified setting codes. """
 
-    return { setting_code : SETTING_INFO_MAP[setting_code].default_value \
+    return { setting_code: SETTING_INFO_MAP[setting_code].default_value \
         for setting_code in setting_codes }
 
 
@@ -439,7 +447,7 @@ def get_bulk_settings_for_user_as_dict(user_id, setting_codes):
         __ensure_all_settings_desired_exist(user_id, setting_codes)
         return get_bulk_settings_for_user_as_dict(user_id, setting_codes)
 
-    return { setting.setting_code : setting.setting_value for setting in settings }
+    return { setting.setting_code: setting.setting_value for setting in settings }
 
 
 def get_settings_for_user_for_edit(user_id, setting_codes):
