@@ -112,7 +112,7 @@ def __handle_get(user):
 
     return render_template("user/settings.html", settings_sections=settings_sections,
                            disabled_settings=disabled_settings, default_colors=default_colors,
-                           alternative_title="Preferences")
+                           alternative_title="Preferences", is_mobile=request.MOBILE)
 
 
 def __handle_post(user, form):

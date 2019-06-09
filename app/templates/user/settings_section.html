@@ -13,8 +13,11 @@
     </div>
 </div>
 <div class="row">
+    {% if is_mobile %}
+        {% set mobile_class = 'mobile_settings' %}
+    {% endif %}
     <div class="col-12 col-md-8 offset-md-2">
-        <button type="submit" class="btn btn-primary btn-settings-submit">Submit</button>
+        <button type="submit" class="btn btn-primary btn-settings-submit {{mobile_class}}">Submit</button>
     </div>
 </div>
 <div class="row">
