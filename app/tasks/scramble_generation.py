@@ -44,7 +44,7 @@ def check_scramble_pool():
         # Determine if the scramble pool is too low for this event. If so, enqueue a task to
         # generate enough scrambles for this event to bring the pool up to (2 * number of solves)
         # for that event
-        num_missing = (5 * event.totalSolves) - len(event.scramble_pool)
+        num_missing = (2 * event.totalSolves) - len(event.scramble_pool)
         if num_missing > 0:
             top_off_scramble_pool(ScramblePoolTopOffInfo(event.id, event.name, num_missing))
             event_scramble_msgs.append('{} for {}'.format(num_missing, event.name))

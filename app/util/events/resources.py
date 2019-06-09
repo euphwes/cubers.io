@@ -35,6 +35,7 @@ def mbld_scrambler():
     scramble = 'Scramble as many 3x3s as needed for your MBLD attempt.'
     scramble += '\nPlease limit your attempt to 60 minutes,'
     scramble += '\nand account for +2s manually.'
+    scramble += '\nWe will be providing scrambles soon.'
     return scramble
 
 
