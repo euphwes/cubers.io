@@ -6,7 +6,7 @@
     border-radius: 0;
     background-color: @navbar-color;
 
-    height: @navbar-height;
+    min-height: @navbar-height;
 
     a, .nav-link {
         color: @off-white !important;
@@ -48,5 +48,13 @@
 
     .nav-settings {
         font-size: 20px;
+    }
+}
+
+.navbar-collapse.show {
+    .nav-item {
+        font-size: 18px;
+        margin-top: 3px;
+        margin-bottom: 3px;
     }
 }
