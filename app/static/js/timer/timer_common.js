@@ -69,7 +69,6 @@
     // Function to re-render the timer page based on new event data after a successful
     // solve save, modification, delete, or comment change
     window.app.reRenderTimer = function(eventData) {
-        //             'user_solves': user_solves,
         //                 'last_seconds': last_seconds,
         //                     'last_centis': last_centis,
         //                         'hide_timer_dot': hide_timer_dot,
@@ -96,6 +95,12 @@
             imageGenerator.prepareNewImage();
         }
 
+        // Update the user solves text display in the sidebar / under the scramble text
+        var userSolveDivs = $('.single_time').toArray();
+        $.each(eventData['user_solves'], function(i, timeValue){
+            $(userSolveDivs[i]).html(timeValue);
+        });
+
         // Refresh timer or manual inputs
         if (window.app.timer !== undefined) {
             // Reset and re-enable the timer controller, if we are using the timer
@@ -103,7 +108,7 @@
             window.app.timer._enable();
         } else {
             // Otherwise clear the inputs for manual entry, MBLD, FMC
-            $('#manualEntryInput, #successInput, #totalInput, timeInput').val('');
+            $('#manualEntryInput, #successInput, #totalInput, #timeInput').val('');
         }
         
         // Update all the control button states
