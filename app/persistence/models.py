@@ -135,7 +135,7 @@ class UserEventResults(Model):
     average           = Column(String(10))
     result            = Column(String(10))
     comment           = Column(Text)
-    solves            = relationship('UserSolve')
+    solves            = relationship('UserSolve', order_by=lambda: UserSolve.scramble_id)
     reddit_comment    = Column(String(10))
     is_complete       = Column(Boolean)
     times_string      = Column(Text)
@@ -214,7 +214,7 @@ class CompetitionEvent(Model):
     competition_id = Column(Integer, ForeignKey('competitions.id'), index=True)
     event_id       = Column(Integer, ForeignKey('events.id'), index=True)
     scrambles      = relationship('Scramble', backref='CompetitionEvent',
-                                  primaryjoin=id == Scramble.competition_event_id)
+                                  primaryjoin=id == Scramble.competition_event_id, order_by=lambda: Scramble.id)
     user_results   = relationship('UserEventResults', backref='CompetitionEvent',
                                   primaryjoin=id == UserEventResults.comp_event_id)
 
