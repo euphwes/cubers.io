@@ -170,6 +170,7 @@ def timer_page(comp_event_id, gather_info_for_live_refresh=False):
             'hide_timer_dot':    hide_timer_dot,
             'is_complete':       is_complete,
             'comment':           comment,
+            'last_solve':        last_solve
         }
         return json.dumps(timer_page_render_info)
 

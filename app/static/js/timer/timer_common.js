@@ -69,14 +69,14 @@
     // Function to re-render the timer page based on new event data after a successful
     // solve save, modification, delete, or comment change
     window.app.reRenderTimer = function(eventData) {
-        //                 'last_seconds': last_seconds,
-        //                     'last_centis': last_centis,
-        //                         'hide_timer_dot': hide_timer_dot,
         eventData = JSON.parse(eventData);
 
         // Update scramble ID and scramble text fields in window.app data holder
         window.app.scrambleId = eventData['scramble_id'];
         window.app.scramble = eventData['scramble_text'];
+
+        // Update the 'last solve' text stored locally, for delete confirmation
+        window.app.lastResult = eventData['last_solve'];
 
         // Update the comment
         window.app.comment = eventData['comment'];
@@ -100,6 +100,15 @@
         $.each(eventData['user_solves'], function(i, timeValue){
             $(userSolveDivs[i]).html(timeValue);
         });
+
+        // Update the displayed time to match what's coming back from the server
+        // for the most recent solve
+        if (window.app.timerDisplayManager !== undefined) {
+            var s = eventData['last_seconds'];
+            var cs = eventData['last_centis'];
+            var hideDot = eventData['hide_timer_dot'];
+            window.app.timerDisplayManager._displayTime(s, cs, hideDot);
+        }
 
         // Refresh timer or manual inputs
         if (window.app.timer !== undefined) {

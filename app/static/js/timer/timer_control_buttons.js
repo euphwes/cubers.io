@@ -29,7 +29,7 @@
                     contentType: "application/json",
                     success: window.app.reRenderTimer,
                     error: function (xhr) {
-                        alert("Something unexpected happened: " + xhr.responseText);
+                        bootbox.alert("Something unexpected happened: " + xhr.responseText);
                     }
                 });
             }
@@ -49,7 +49,7 @@
             contentType: "application/json",
             success: window.app.reRenderTimer,
             error: function (xhr) {
-                alert("Something unexpected happened: " + xhr.responseText);
+                bootbox.alert("Something unexpected happened: " + xhr.responseText);
             }
         });
     });
@@ -67,7 +67,7 @@
             contentType: "application/json",
             success: window.app.reRenderTimer,
             error: function (xhr) {
-                alert("Something unexpected happened: " + xhr.responseText);
+                bootbox.alert("Something unexpected happened: " + xhr.responseText);
             }
         });
     });
@@ -119,7 +119,7 @@
                     contentType: "application/json",
                     success: window.app.reRenderTimer,
                     error: function (xhr) {
-                        alert("Something unexpected happened: " + xhr.responseText);
+                        bootbox.alert("Something unexpected happened: " + xhr.responseText);
                     }
                 });
             }
