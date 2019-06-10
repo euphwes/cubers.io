@@ -73,13 +73,22 @@
         //                 'last_seconds': last_seconds,
         //                     'last_centis': last_centis,
         //                         'hide_timer_dot': hide_timer_dot,
-        //                             'is_complete': is_complete,
-        //                                 'comment': comment,
         eventData = JSON.parse(eventData);
 
         // Update scramble ID and scramble text fields in window.app data holder
         window.app.scrambleId = eventData['scramble_id'];
         window.app.scramble = eventData['scramble_text'];
+
+        // Update the comment
+        window.app.comment = eventData['comment'];
+
+        // Update the isComplete flag and enable/disable visual elements as necessary
+        window.app.isComplete = eventData['is_complete'];
+        if (window.app.isComplete) {
+            $('#the_manual_entry, #the_timer, #the_mbld_entry').addClass('disabled');
+        } else {
+            $('#the_manual_entry, #the_timer, #the_mbld_entry').removeClass('disabled');
+        }
 
         // Render new scramble text and new scramble preview
         updateScramble(window.app.scramble);
