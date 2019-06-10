@@ -258,6 +258,7 @@ def save_event_results(comp_event_results):
 
     DB.session.add(comp_event_results)
     DB.session.commit()
+    DB.session.expunge(comp_event_results)
 
     return comp_event_results
 

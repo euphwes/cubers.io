@@ -44,6 +44,7 @@
         } else {
             this._displayTime(timerStopData.friendly_seconds, timerStopData.friendly_centiseconds);
         }
+        this._revertTimerModifications();
     };
 
     /**
@@ -103,6 +104,15 @@
     };
 
     /**
+     * Utility method to revert timer display back to standard, no additional class modification
+     */
+    TimerDisplayManager.prototype._revertTimerModifications = function() {
+        $('.timer_text').removeClass('fullscreen');
+        $('.timer_text').removeClass('hidden');
+        $('.controls_wrapper').removeClass('disabled');
+    };
+
+    /**
      * Register handlers for timer events.
      */
     TimerDisplayManager.prototype._registerTimerEventHandlers = function() {
@@ -115,9 +125,7 @@
         app.timer.on(app.EVENT_INSPECTION_STARTED, this._handleInspectionStarted.bind(this));
         app.timer.on(app.EVENT_TIMER_CANCELLED, function() {
             this._showZero.bind(this)();
-            $('.timer_text').removeClass('fullscreen');
-            $('.timer_text').removeClass('hidden');
-            $('.controls_wrapper').removeClass('disabled');
+            this._revertTimerModifications();
         }.bind(this) );
     };
     app.TimerDisplayManager = TimerDisplayManager;

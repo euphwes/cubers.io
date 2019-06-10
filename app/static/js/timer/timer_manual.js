@@ -2,9 +2,6 @@
 
     // TODO: comment me plz
 
-    var scrambleId = window.app.scrambleId;
-    var compEventId = window.app.compEventId;
-
     function isBlank(str) {
         return (!str || /^\s*$/.test(str));
     }
@@ -15,8 +12,8 @@
         if (isBlank(currentValue)) { return false; }
 
         var solve_data = {};
-        solve_data.scramble_id = scrambleId;
-        solve_data.comp_event_id = compEventId;
+        solve_data.scramble_id = window.app.scrambleId;
+        solve_data.comp_event_id = window.app.compEventId;
         solve_data.is_dnf = false;
         solve_data.is_plus_two = false;
         solve_data.elapsed_centiseconds = window.app.hmsToCentiseconds(currentValue);
@@ -28,7 +25,7 @@
             type: "POST",
             data: JSON.stringify(solve_data),
             contentType: "application/json",
-            success: reload,
+            success: window.app.reRenderTimer,
             error: function (xhr) {
                 bootbox.alert("Something unexpected happened: " + xhr.responseText);
             }

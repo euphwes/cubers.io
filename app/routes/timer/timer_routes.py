@@ -1,5 +1,6 @@
 """ Routes related to the timer page. """
 
+import json
 from random import choice as random_choice
 
 from flask import render_template, request
@@ -12,8 +13,6 @@ from app.persistence.settings_manager import SettingCode, SettingType, TRUE_STR,
     get_default_values_for_settings, get_bulk_settings_for_user_as_dict, get_setting_type
 from app.persistence.user_results_manager import get_event_results_for_user
 from app.util.events.resources import EVENT_FMC, EVENT_MBLD
-
-# TODO: fix relays rendering, and COLL rendering
 
 # -------------------------------------------------------------------------------------------------
 
@@ -80,7 +79,7 @@ SUBTYPE_MBLD   = 'subtype_mbld'
 # -------------------------------------------------------------------------------------------------
 
 @app.route('/compete/<int:comp_event_id>')
-def timer_page(comp_event_id):
+def timer_page(comp_event_id, gather_info_for_live_refresh=False):
     """ It's the freakin' timer page. """
 
     # Retrieve the specified competition event
@@ -156,6 +155,23 @@ def timer_page(comp_event_id):
 
     # Determine the timer page subtype (timer, manual time entry, FMC manual entry, or MBLD)
     page_subtype = __determine_page_subtype(event_name, settings)
+
+    if gather_info_for_live_refresh:
+        # Only a caller coming from one of the persistence routes should go through this path.
+        # Build up a dictionary of relevant information so the timer page can be re-rendered
+        # with up-to-date information about the state of the timer page
+        timer_page_render_info = {
+            'button_state_info': button_state_info,
+            'scramble_text':     scramble_text,
+            'scramble_id':       scramble_id,
+            'user_solves':       user_solves,
+            'last_seconds':      last_seconds,
+            'last_centis':       last_centis,
+            'hide_timer_dot':    hide_timer_dot,
+            'is_complete':       is_complete,
+            'comment':           comment,
+        }
+        return json.dumps(timer_page_render_info)
 
     return render_template(TIMER_TEMPLATE_MOBILE_MAP[request.MOBILE], scramble_text=scramble_text,
         scramble_id=scramble_id, comp_event_id=comp_event_id, event_name=event_name,

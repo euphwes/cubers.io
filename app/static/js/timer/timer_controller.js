@@ -33,7 +33,7 @@
     /**
      * The solve timer which tracks elapsed time.
      */
-    function Timer(event_name, scramble_id, comp_event_id) {
+    function Timer(event_name) {
         app.EventEmitter.call(this);
 
         this.start_time = 0;
@@ -54,9 +54,6 @@
         this.apply_auto_plus_two = false;
 
         this._determineIfUsingInspectionBasedOnEvent(event_name);
-
-        this.scramble_id = scramble_id;
-        this.comp_event_id = comp_event_id;
 
         // keydrown.js's keyboard state manager is tick-based
         // this is boilerplate to make sure the kd namespace has a recurring tick
@@ -323,8 +320,8 @@
         var cs = elapsed_millis.getTwoDigitCentisecondsFromMs();
 
         var solve_data = {};
-        solve_data.scramble_id = this.scramble_id;
-        solve_data.comp_event_id = this.comp_event_id;
+        solve_data.scramble_id = window.app.scrambleId;
+        solve_data.comp_event_id = window.app.compEventId;
         solve_data.is_dnf = false;
         solve_data.is_plus_two = false;
 
@@ -351,14 +348,12 @@
             is_dnf: solve_data.is_dnf
         });
 
-        var reload = function () { setTimeout(function () { window.location.reload(); }, 250); };
-
         $.ajax({
             url: '/post_solve',
             type: "POST",
             data: JSON.stringify(solve_data),
             contentType: "application/json",
-            success: reload,
+            success: window.app.reRenderTimer,
             error: function(xhr) {
                 bootbox.alert("Something unexpected happened: " + xhr.responseText);
             }

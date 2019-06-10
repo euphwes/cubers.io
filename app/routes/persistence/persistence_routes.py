@@ -13,6 +13,7 @@ from app.persistence.models import UserSolve, UserEventResults
 from app.persistence.comp_manager import get_comp_event_by_id
 from app.persistence.user_results_manager import save_event_results, get_event_results_for_user,\
     delete_user_solve, delete_event_results
+from app.routes.timer import timer_page
 
 # -------------------------------------------------------------------------------------------------
 
@@ -83,8 +84,7 @@ def post_solve():
     process_event_results(user_event_results, comp_event, current_user)
     save_event_results(user_event_results)
 
-    # We don't need to return any info, just indicate intentionally empty.
-    return ('', HTTPStatus.NO_CONTENT)
+    return timer_page(comp_event_id, gather_info_for_live_refresh=True)
 
 
 @app.route('/toggle_prev_dnf', methods=['POST'])
@@ -130,8 +130,7 @@ def toggle_prev_dnf():
     process_event_results(user_event_results, comp_event, current_user)
     save_event_results(user_event_results)
 
-    # We don't need to return any info, just indicate intentionally empty.
-    return ('', HTTPStatus.NO_CONTENT)
+    return timer_page(comp_event_id, gather_info_for_live_refresh=True)
 
 
 @app.route('/toggle_prev_plus_two', methods=['POST'])
@@ -177,8 +176,7 @@ def toggle_prev_plus_two():
     process_event_results(user_event_results, comp_event, current_user)
     save_event_results(user_event_results)
 
-    # We don't need to return any info, just indicate intentionally empty.
-    return ('', HTTPStatus.NO_CONTENT)
+    return timer_page(comp_event_id, gather_info_for_live_refresh=True)
 
 
 @app.route('/delete_prev_solve', methods=['POST'])
@@ -229,8 +227,7 @@ def delete_prev_solve():
         process_event_results(user_event_results, comp_event, current_user)
         save_event_results(user_event_results)
 
-    # We don't need to return any info, just indicate intentionally empty.
-    return ('', HTTPStatus.NO_CONTENT)
+    return timer_page(comp_event_id, gather_info_for_live_refresh=True)
 
 
 @app.route('/apply_comment', methods=['POST'])
@@ -268,5 +265,4 @@ def apply_comment():
     user_event_results.comment = comment
     save_event_results(user_event_results)
 
-    # We don't need to return any info, just indicate intentionally empty.
-    return ('', HTTPStatus.NO_CONTENT)
+    return timer_page(comp_event_id, gather_info_for_live_refresh=True)

@@ -1,7 +1,5 @@
 (function () {
 
-    var reload = function () { setTimeout(function () { window.location.reload(); }, 250); };
-
     // Wire up the undo button
     $('#BTN_UNDO').click(function () {
         var confirm_msg = "Are you sure you want to delete your last solve? (" + window.app.lastResult + ")";
@@ -29,7 +27,7 @@
                     type: "POST",
                     data: JSON.stringify(data),
                     contentType: "application/json",
-                    success: reload,
+                    success: window.app.reRenderTimer,
                     error: function (xhr) {
                         alert("Something unexpected happened: " + xhr.responseText);
                     }
@@ -49,7 +47,7 @@
             type: "POST",
             data: JSON.stringify(data),
             contentType: "application/json",
-            success: reload,
+            success: window.app.reRenderTimer,
             error: function (xhr) {
                 alert("Something unexpected happened: " + xhr.responseText);
             }
@@ -67,7 +65,7 @@
             type: "POST",
             data: JSON.stringify(data),
             contentType: "application/json",
-            success: reload,
+            success: window.app.reRenderTimer,
             error: function (xhr) {
                 alert("Something unexpected happened: " + xhr.responseText);
             }
@@ -119,7 +117,7 @@
                     type: "POST",
                     data: JSON.stringify(data),
                     contentType: "application/json",
-                    success: reload,
+                    success: window.app.reRenderTimer,
                     error: function (xhr) {
                         alert("Something unexpected happened: " + xhr.responseText);
                     }

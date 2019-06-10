@@ -2,9 +2,6 @@
 
     // TODO: comment me plz
 
-    var scrambleId = window.app.scrambleId;
-    var compEventId = window.app.compEventId;
-
     function disallowNonDigitsAndDNF(event) {
         var regex = new RegExp("^[0-9DNFdnf]+$");
 
@@ -47,8 +44,8 @@
         }
 
         var solve_data = {};
-        solve_data.scramble_id = scrambleId;
-        solve_data.comp_event_id = compEventId;
+        solve_data.scramble_id = window.app.scrambleId;
+        solve_data.comp_event_id = window.app.compEventId;
         solve_data.is_dnf = isDNF;
         solve_data.is_plus_two = false;
 
@@ -58,15 +55,12 @@
             solve_data.elapsed_centiseconds = asInt;
         }
 
-
-        var reload = function () { setTimeout(function () { window.location.reload(); }, 250); };
-
         $.ajax({
             url: '/post_solve',
             type: "POST",
             data: JSON.stringify(solve_data),
             contentType: "application/json",
-            success: reload,
+            success: window.app.reRenderTimer,
             error: function (xhr) {
                 bootbox.alert("Something unexpected happened: " + xhr.responseText);
             }

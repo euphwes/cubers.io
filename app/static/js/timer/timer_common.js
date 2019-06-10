@@ -31,6 +31,41 @@
         window.location.href = '/';
     });
 
+    var updateButtonState = function(btnId, btnKey, buttonStateInfo) {
+        if (buttonStateInfo[btnKey]['btn_active']) {
+            $(btnId).addClass('active');
+        } else {
+            $(btnId).removeClass('active');
+        }
+        if (buttonStateInfo[btnKey]['btn_enabled']) {
+            $(btnId).removeAttr("disabled");
+        } else {
+            $(btnId).attr('disabled', 'disabled');
+        }
+    };
+
+    // Function to re-render the timer page based on new event data after a successful
+    // solve save, modification, delete, or comment change
+    window.app.reRenderTimer = function(eventData) {
+        // 'button_state_info': button_state_info,
+        //     'scramble_text': scramble_text,
+        //         'scramble_id': scramble_id,
+        //             'user_solves': user_solves,
+        //                 'last_seconds': last_seconds,
+        //                     'last_centis': last_centis,
+        //                         'hide_timer_dot': hide_timer_dot,
+        //                             'is_complete': is_complete,
+        //                                 'comment': comment,
+        eventData = JSON.parse(eventData);
+        
+        var buttonStateInfo = eventData['button_state_info'];
+        updateButtonState('#BTN_DNF', 'btn_dnf', buttonStateInfo);
+        updateButtonState('#BTN_UNDO', 'btn_undo', buttonStateInfo);
+        updateButtonState('#BTN_COMMENT', 'btn_comment', buttonStateInfo);
+        updateButtonState('#BTN_PLUS_TWO', 'btn_plus_two', buttonStateInfo);
+        
+    }
+
     // A helper function to auto-format times in text input fields to the following format
     // 0:00.00 placeholder for empty times
     // 00.12   for fractional seconds
