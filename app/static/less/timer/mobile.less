@@ -1,3 +1,4 @@
+@import (reference) "../common.less";
 
 // In case the mobile view doesn't want to listen to my declaration
 // about fitting everything in 100% vw, make sure it doesn't scroll
@@ -55,6 +56,11 @@
         top: 0;
         z-index: 100;
         background-color: #65bcd4;
+    }
+
+    &.hidden {
+        color: @highlight-color;
+        display: inherit;
     }
 }
 
