@@ -9,12 +9,14 @@
     fitText();
     $(window).resize(fitText);
 
+    var imageGenerator = null;
+
     // If this event supports scramble previews:
     // 1. initialize the scramble image generator, which will render the small-size scramble preview
     // 2. dd a click/press handler on the preview to show the large scramble preview
     // TODO: redraw scramble on window resize
     if (window.app.doShowScramble) {
-        var imageGenerator = new window.app.ScrambleImageGenerator();
+        imageGenerator = new window.app.ScrambleImageGenerator();
         $('.scramble_preview:not(.no_pointer),.btn_scramble_preview').click(function () {
             imageGenerator.showLargeImage();
             $('#fade-wrapper').fadeIn().addClass('shown');
@@ -77,10 +79,13 @@
 
         // Update scramble ID and scramble text fields in window.app data holder
         window.app.scrambleId = eventData['scramble_id'];
-        window.app.scrambleText = eventData['scramble_text'];
+        window.app.scramble = eventData['scramble_text'];
 
-        // Render new scramble
-        updateScramble(window.app.scrambleText);
+        // Render new scramble text and new scramble preview
+        updateScramble(window.app.scramble);
+        if (imageGenerator != null) {
+            imageGenerator.prepareNewImage();
+        }
 
         // Refresh timer or manual inputs
         if (window.app.timer !== undefined) {
