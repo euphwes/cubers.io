@@ -31,6 +31,7 @@
         window.location.href = '/';
     });
 
+    // Update a button's state based on the button state info dict returned from the front end
     var updateButtonState = function(btnId, btnKey, buttonStateInfo) {
         if (buttonStateInfo[btnKey]['btn_active']) {
             $(btnId).addClass('active');
@@ -44,12 +45,28 @@
         }
     };
 
+    // Update the scramble text
+    var updateScramble = function(scrambleText) {
+        if (window.app.eventName == 'COLL') {
+            $('.scram').html(scrambleText);
+        } else {
+            if (scrambleText.includes('\n')) {
+                var parsedScramble = '';
+                $.each(scrambleText.split('\n'), function (i, part) {
+                    parsedScramble += part;
+                    parsedScramble += '<br>';
+                });
+                $('.scram').html(parsedScramble);
+            } else {
+                $('.scram').html(scrambleText);
+            }
+        }
+        fitText();
+    };
+
     // Function to re-render the timer page based on new event data after a successful
     // solve save, modification, delete, or comment change
     window.app.reRenderTimer = function(eventData) {
-        // 'button_state_info': button_state_info,
-        //     'scramble_text': scramble_text,
-        //         'scramble_id': scramble_id,
         //             'user_solves': user_solves,
         //                 'last_seconds': last_seconds,
         //                     'last_centis': last_centis,
@@ -57,7 +74,25 @@
         //                             'is_complete': is_complete,
         //                                 'comment': comment,
         eventData = JSON.parse(eventData);
+
+        // Update scramble ID and scramble text fields in window.app data holder
+        window.app.scrambleId = eventData['scramble_id'];
+        window.app.scrambleText = eventData['scramble_text'];
+
+        // Render new scramble
+        updateScramble(window.app.scrambleText);
+
+        // Refresh timer or manual inputs
+        if (window.app.timer !== undefined) {
+            // Reset and re-enable the timer controller, if we are using the timer
+            window.app.timer._reset();
+            window.app.timer._enable();
+        } else {
+            // Otherwise clear the inputs for manual entry, MBLD, FMC
+            $('#manualEntryInput, #successInput, #totalInput, timeInput').val('');
+        }
         
+        // Update all the control button states
         var buttonStateInfo = eventData['button_state_info'];
         updateButtonState('#BTN_DNF', 'btn_dnf', buttonStateInfo);
         updateButtonState('#BTN_UNDO', 'btn_undo', buttonStateInfo);

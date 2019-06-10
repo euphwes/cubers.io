@@ -36,6 +36,27 @@
     function Timer(event_name) {
         app.EventEmitter.call(this);
 
+        this._reset();
+
+        this._determineIfUsingInspectionBasedOnEvent(event_name);
+
+        // keydrown.js's keyboard state manager is tick-based
+        // this is boilerplate to make sure the kd namespace has a recurring tick
+        kd.run(function () { kd.tick(); });
+
+        // TODO: flesh this comment out, handle back button to instead cancel timer
+        history.pushState({}, '', '');
+        $(window).on('popstate', this._handleNavigationStateChange.bind(this));
+
+        this._enable();
+    }
+    Timer.prototype = Object.create(app.EventEmitter.prototype);
+
+
+    /**
+     * Resets all the flags and metadata associated with a specific solve
+     */
+    Timer.prototype._reset = function() {
         this.start_time = 0;
         this.elapsed_time = 0;
         this.timer_interval = null;
@@ -52,20 +73,7 @@
         this.AUTO_PLUS_TWO_THRESHOLD = 0;
         this.apply_auto_dnf = false;
         this.apply_auto_plus_two = false;
-
-        this._determineIfUsingInspectionBasedOnEvent(event_name);
-
-        // keydrown.js's keyboard state manager is tick-based
-        // this is boilerplate to make sure the kd namespace has a recurring tick
-        kd.run(function () { kd.tick(); });
-
-        // TODO: flesh this comment out, handle back button to instead cancel timer
-        history.pushState({}, '', '');
-        $(window).on('popstate', this._handleNavigationStateChange.bind(this));
-
-        this._enable();
-    }
-    Timer.prototype = Object.create(app.EventEmitter.prototype);
+    };
 
     /**
      * If the event is a blind event, there is no inspection time. Otherwise check the setting
