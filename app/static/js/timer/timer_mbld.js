@@ -112,11 +112,13 @@
 
         var currLength = valDigitsOnly.length;
 
-        if (currLength <= 2) {
-            $('#timeInput').val(valDigitsOnly);
-        } else if (currLength > 2 && currLength <= 4) {
+        if (currLength > 2 && currLength <= 4) {
             var modified = valDigitsOnly.splice(currLength - 2, 0, '.');
-            $('#timeInput').val(modified);
+            if (modified == '00.00') {
+                $('#timeInput').val('');
+            } else {
+                $('#timeInput').val(modified);
+            }
         } else if (currLength > 4) {
             var modified = valDigitsOnly.splice(currLength - 2, 0, '.');
             modified = modified.splice(modified.length - 5, 0, ':');
@@ -128,7 +130,7 @@
         $(e.target).val('' + parseInt($(e.target).val()));
     }
 
-    $('#timeInput').on('input', modifyTimeToProperFormat);
+    $('#timeInput').on('input', function() { window.app.modifyTimeToProperFormat('#timeInput'); });
     $('#totalInput, #successInput').on('input', modifyNumbersToProperFormat);
     $('#totalInput, #successInput').on('keypress', disallowNonDigits);
 

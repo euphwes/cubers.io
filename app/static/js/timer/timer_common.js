@@ -26,8 +26,52 @@
         });
     }
 
+    // Arrange for the 'return to events' button to navigate back to the main page
     $('.btn_return_home').click(function(){
         window.location.href = '/';
     });
 
+    // A helper function to auto-format times in text input fields to the following format
+    // 0:00.00 placeholder for empty times
+    // 00.12   for fractional seconds
+    // 12.34   for seconds and fractions
+    // 1:23.45 for minutes and seconds
+    window.app.modifyTimeToProperFormat = function(inputId) {
+
+        // Get the current value out of the input, and strip all characters except for digits out
+        var currentValue = $(inputId).val();
+        var valDigitsOnly = currentValue.replace(/[^0-9]/g, '');
+
+        // Strips leading zeros to ensure a clean slate of user-entered time digits
+        while (valDigitsOnly.startsWith('0')) {
+            valDigitsOnly = valDigitsOnly.substring(1, valDigitsOnly.length);
+        }
+
+        // If the number of digits is less than or equal to 3, left-pad with 0 until the total
+        // string is four digits long (so sub-minute times will fit into 00.00 format)
+        if (valDigitsOnly.length <= 3) {
+            while (valDigitsOnly.length <= 3) { valDigitsOnly = '0' + valDigitsOnly; }
+        }
+
+        var currLength = valDigitsOnly.length;
+        var modified   = '';
+
+        if (currLength <= 4) {
+            // If the raw time digits are less than four digits long, insert a decimal
+            // to properly separate seconds from centiseconds.
+            modified = valDigitsOnly.splice(currLength - 2, 0, '.');
+            if (modified == '00.00') {
+                // If the modified input value is 00.00 exactly, the user has deleted all digits,
+                // so let's just empty the input so the placeholder is displayed.
+                modified = '';
+            }
+        } else if (currLength > 4) {
+            // If the raw time has more than four digits, insert both the colon and decimal into
+            // the appropriate locations so the time reads as <min>:<sec>.<centis>
+            modified = valDigitsOnly.splice(currLength - 2, 0, '.');
+            modified = modified.splice(modified.length - 5, 0, ':');
+        }
+
+        $(inputId).val(modified);
+    }
 })();
