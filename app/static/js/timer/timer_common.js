@@ -110,11 +110,16 @@
             window.app.timerDisplayManager._displayTime(s, cs, hideDot);
         }
 
-        // Refresh timer or manual inputs
         if (window.app.timer !== undefined) {
-            // Reset and re-enable the timer controller, if we are using the timer
+            // Reset the timer controller, if we are using the timer
+            // and ensure the timer is either enabled or disabled depending
+            // on whether the event is complete or not
             window.app.timer._reset();
-            window.app.timer._enable();
+            if (window.app.isComplete) {
+                window.app.timer._disable();
+            } else {
+                window.app.timer._enable();
+            }
         } else {
             // Otherwise clear the inputs for manual entry, MBLD, FMC
             $('#manualEntryInput, #successInput, #totalInput, #timeInput').val('');

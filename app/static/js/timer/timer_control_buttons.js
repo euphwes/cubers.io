@@ -76,10 +76,8 @@
     $('#BTN_COMMENT').click(function () {
 
         // disable the timer so the key/space events here don't trigger the timer starting
-        if (!window.app.isComplete) {
-            if (window.app.timer !== undefined) {
-                window.app.timer._disable();
-            }
+        if (window.app.timer !== undefined) {
+            window.app.timer._disable();
         }
 
         bootbox.prompt({
@@ -98,16 +96,18 @@
                 }
             },
             callback: function (result) {
+                // In any case (cancel or submit comment), re-enable the timer
+                // if the event isn't already complete
+                if (window.app.timer !== undefined && !window.app.isComplete) {
+                    window.app.timer._enable();
+                }
+
+                // Dialog box was closed/canceled, so don't update comment, 
                 if (result == null) {
-                    // Dialog box was closed/canceled, so don't update comment, and re-enable the timer
-                    if (!window.app.isComplete) {
-                        if (window.app.timer !== undefined) {
-                            window.app.timer._enable();
-                        } 
-                    }
                     return;
                 }
 
+                // Otherwise update the comment
                 var data = {};
                 data.comp_event_id = window.app.compEventId;
                 data.comment = result;
