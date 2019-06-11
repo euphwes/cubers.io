@@ -15,7 +15,9 @@
 {% set SUBTYPE_MBLD   = 'subtype_mbld' %}
 
 {% block content %}
+{% if show_shapes_background %}
 <canvas id="shapes"></canvas>
+{% endif %}
 <div class="container-fluid timer-container">
     <div class="row" style="height: 100%;">
 

@@ -10,11 +10,12 @@ from app.persistence.models import UserSetting
 # Constants which correspond to a `setting_code` in the UserSettings database table
 # pylint: disable=R0903,C0111
 class SettingCode():
-    USE_INSPECTION_TIME    = 'use_inspection_time'
-    HIDE_INSPECTION_TIME   = 'hide_inspection_time'
-    HIDE_RUNNING_TIMER     = 'hide_running_timer'
-    DEFAULT_TO_MANUAL_TIME = 'manual_time_entry_by_default'
-    HIDE_SCRAMBLE_PREVIEW  = 'hide_scramble_preview'
+    USE_INSPECTION_TIME     = 'use_inspection_time'
+    HIDE_INSPECTION_TIME    = 'hide_inspection_time'
+    HIDE_RUNNING_TIMER      = 'hide_running_timer'
+    DEFAULT_TO_MANUAL_TIME  = 'manual_time_entry_by_default'
+    HIDE_SCRAMBLE_PREVIEW   = 'hide_scramble_preview'
+    ENABLE_MOVING_SHAPES_BG = 'enable_moving_shapes_bg'
 
     # Reddit related settings
     REDDIT_COMP_NOTIFY     = 'reddit_comp_notify'
@@ -168,6 +169,13 @@ SETTING_INFO_MAP = {
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
         default_value = FALSE_STR
+    ),
+
+    SettingCode.ENABLE_MOVING_SHAPES_BG: SettingInfo(
+        title         = "Enable Animated Background",
+        validator     = boolean_validator,
+        setting_type  = SettingType.BOOLEAN,
+        default_value = TRUE_STR
     ),
 
     SettingCode.REDDIT_RESULTS_NOTIFY: SettingInfo(

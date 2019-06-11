@@ -99,6 +99,7 @@ def timer_page(comp_event_id, gather_info_for_live_refresh=False):
     # whether or not to hide the scramble preview
     settings = __get_user_settings(current_user)
     hide_scramble_preview = settings[SettingCode.HIDE_SCRAMBLE_PREVIEW]
+    show_shapes_background = settings[SettingCode.ENABLE_MOVING_SHAPES_BG]
 
     # Grab the user's event results (if any)
     user_results = get_event_results_for_user(comp_event_id, current_user)
@@ -180,7 +181,7 @@ def timer_page(comp_event_id, gather_info_for_live_refresh=False):
         show_scramble_preview=show_scramble_preview, last_solve=last_solve, last_seconds=last_seconds,
         last_centis=last_centis, hide_timer_dot=hide_timer_dot, comment=comment,
         is_complete=is_complete, settings=settings, page_subtype=page_subtype,
-        hide_scramble_preview=hide_scramble_preview)
+        hide_scramble_preview=hide_scramble_preview, show_shapes_background=show_shapes_background)
 
 # -------------------------------------------------------------------------------------------------
 
@@ -364,6 +365,7 @@ SETTINGS_TO_POPULATE = [
     SettingCode.HIDE_INSPECTION_TIME,
     SettingCode.USE_INSPECTION_TIME,
     SettingCode.HIDE_SCRAMBLE_PREVIEW,
+    SettingCode.ENABLE_MOVING_SHAPES_BG,
     SettingCode.USE_CUSTOM_CUBE_COLORS,
     SettingCode.CUSTOM_CUBE_COLOR_U,
     SettingCode.CUSTOM_CUBE_COLOR_F,

@@ -10,7 +10,9 @@
 {% endblock %}
 
 {% block content %}
+{% if show_shapes_background %}
 <canvas id="shapes"></canvas>
+{% endif %}
 <div class="cubers-container">
     {% include 'events/events_container.html' %}
 </div>
