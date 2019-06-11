@@ -1,6 +1,6 @@
 """ SQLAlchemy models for all database entries. """
 
-from collections import namedtuple, OrderedDict
+from collections import namedtuple
 import json
 
 from flask_login import LoginManager, UserMixin, AnonymousUserMixin
@@ -9,6 +9,7 @@ from sqlalchemy.orm import relationship, reconstructor
 from app import DB, app
 from app.util.events import build_mbld_results
 from app.util.times import convert_centiseconds_to_friendly_time
+from app.util.events.resources import sort_site_rankings_by_global_sort_order
 
 Text       = DB.Text
 Enum       = DB.Enum
@@ -301,19 +302,21 @@ class UserSiteRankings(Model):
             # The keys (event ID) get converted to strings when serializing to json.
             # We need them as ints, so iterate through the deserialized dict, building a new
             # one with ints as keys instead of strings. Return that.
-            site_rankings = OrderedDict()
-            for key, value in json.loads(self.data, object_pairs_hook=OrderedDict).items():
+            site_rankings = dict()
+            for key, value in json.loads(self.data, object_pairs_hook=dict).items():
                 site_rankings[int(key)] = value
+
             self.__data_as_dict = site_rankings
 
         return self.__data_as_dict
 
 
-    def get_site_rankings_and_pbs(self):
+    def get_site_rankings_and_pbs(self, event_id_name_map):
         """ Returns just the site rankings and PBs information in dictionary format, without the
         sum of ranks information. """
 
-        return self.__get_site_rankings_data_as_dict()
+        site_rankings = self.__get_site_rankings_data_as_dict()
+        return sort_site_rankings_by_global_sort_order(site_rankings, event_id_name_map)
 
 
     def get_combined_sum_of_ranks(self):

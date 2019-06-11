@@ -1,5 +1,6 @@
 """ Resources for data related to events. """
 
+from collections import OrderedDict
 from random import choice
 
 from pyTwistyScrambler import scrambler333, scrambler222, scrambler444, scrambler555,\
@@ -284,9 +285,9 @@ __GLOBAL_SORT_ORDER = [
     EVENT_PLLAttack,
     EVENT_COLL,
     EVENT_F2L,
+    EVENT_REDI,
     EVENT_8x8,
     EVENT_9x9,
-    EVENT_REDI
 ]
 
 def sort_comp_events_by_global_sort_order(comp_events):
@@ -301,8 +302,38 @@ def sort_comp_events_by_global_sort_order(comp_events):
         if event.name in comp_event_names:
             ordered_comp_events.append(event_name_comp_event_map[event.name])
 
-    assert len(ordered_comp_events) == len(comp_events)
     return ordered_comp_events
+
+
+def sort_events_by_global_sort_order(events):
+    """ Sorts a list of events by the global event order defined above. """
+
+    ordered_events = list()
+
+    event_name_event_map = {e.name: e for e in events}
+    comp_event_names = set(event_name_event_map.keys())
+
+    for event in __GLOBAL_SORT_ORDER:
+        if event.name in comp_event_names:
+            ordered_events.append(event_name_event_map[event.name])
+
+    return ordered_events
+
+
+def sort_site_rankings_by_global_sort_order(site_rankings, event_id_name_map):
+    """ Sorts a list of site rankings by the global event order defined above. """
+
+    ordered_rankings = OrderedDict()
+
+    event_name_rankings_map = {event_id_name_map[r[0]]: r for r in site_rankings.items()}
+    comp_event_names = set(event_name_rankings_map.keys())
+
+    for event in __GLOBAL_SORT_ORDER:
+        if event.name in comp_event_names:
+            k, v = event_name_rankings_map[event.name]
+            ordered_rankings[k] = v
+
+    return ordered_rankings
 
 # -------------------------------------------------------------------------------------------------
 

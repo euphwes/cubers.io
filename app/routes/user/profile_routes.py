@@ -59,7 +59,7 @@ def profile(username):
     # can build their site ranking table
     site_rankings_record = get_site_rankings_for_user(user.id)
     if site_rankings_record:
-        site_rankings = site_rankings_record.get_site_rankings_and_pbs()
+        site_rankings = site_rankings_record.get_site_rankings_and_pbs(event_id_name_map)
 
         # Get sum of ranks
         sor_all     = site_rankings_record.get_combined_sum_of_ranks()

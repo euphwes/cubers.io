@@ -123,8 +123,13 @@
                         {% set single_val = rank_info[0] | format_fmc_result %}
                         {% set average_val = rank_info[2] | format_fmc_result %}
                     {% else %}
-                        {% set single_val = rank_info[0] | friendly_time %}
-                        {% set average_val = rank_info[2] | friendly_time %}
+                        {% if event_id_name_map[event_id] == "MBLD" %}
+                            {% set single_val = rank_info[0] | format_mbld_result %}
+                            {% set average_val = rank_info[2] | format_mbld_result %}
+                        {% else %}
+                            {% set single_val = rank_info[0] | friendly_time %}
+                            {% set average_val = rank_info[2] | friendly_time %}
+                        {% endif %}
                     {% endif %}
                     <tr>
                         <td>
@@ -221,8 +226,13 @@
                                     {% set single_val = results.single | format_fmc_result %}
                                     {% set average_val = results.average | format_fmc_result %}
                                 {% else %}
-                                    {% set single_val = results.single | friendly_time %}
-                                    {% set average_val = results.average | friendly_time %}
+                                    {% if event_item.name == "MBLD" %}
+                                        {% set single_val = results.single | format_mbld_result %}
+                                        {% set average_val = results.average | format_mbld_result %}
+                                    {% else %}
+                                        {% set single_val = results.single | friendly_time %}
+                                        {% set average_val = results.average | friendly_time %}
+                                    {% endif %}
                                 {% endif %}
                                 {% if results.was_pb_single %}
                                     {% set single_class = "pb-indicator" %}

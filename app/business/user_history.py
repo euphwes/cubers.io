@@ -5,6 +5,7 @@ from collections import OrderedDict
 from app.persistence.comp_manager import get_all_competitions_user_has_participated_in
 from app.persistence.events_manager import get_all_events_user_has_participated_in
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp_and_user
+from app.util.events.resources import sort_events_by_global_sort_order
 
 # -------------------------------------------------------------------------------------------------
 
@@ -16,6 +17,7 @@ def get_user_competition_history(user, include_blacklisted=False):
     id_to_events = dict()
 
     all_events = get_all_events_user_has_participated_in(user.id)
+    all_events = sort_events_by_global_sort_order(all_events)
 
     # Iterate over all competitions checking for results for this user. Reverse the order of
     # the comps so they are displayed in the user profile page with most recent comps first
