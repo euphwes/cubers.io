@@ -1899,7 +1899,7 @@
             if (testScalingFactor >= 50) {
                 testScalingFactor = 50;
                 break;
-            } else if (Math.abs(image.getCanvasWidth() - targetWidth)/(targetWidth) < 0.05) {
+            } else if (Math.abs(image.getCanvasWidth() - targetWidth)/(targetWidth) < 0.10) {
                 if (window.app.isMobile) {
                     testScalingFactor -= 2;
                 }
