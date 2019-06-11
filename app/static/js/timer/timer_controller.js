@@ -230,9 +230,16 @@
         // Just bail, don't handle it here.
         if (code == 32) { return; }
 
-        // Key code 27 is ESC, which should cancel the timer. Everything else should just stop it
-        var shouldCancelTimer = (code == 27);
-        this._stop(shouldCancelTimer);
+        if (this.state == STATE_RUNNING) {
+            // ESC should cancel the timer.
+            // Everything else should just stop the timer (finish the solve)
+            var shouldCancelTimer = (code == 27);
+            this._stop(shouldCancelTimer);
+        } else {
+            // If it's the inspection that's running, anything other than spacebar
+            // cancels inspection
+            this._stop(true);
+        }
         e.preventDefault();
     };
 
