@@ -9,6 +9,10 @@ from app.persistence.user_results_manager import get_pb_single_event_results_exc
 from app.business.user_results import DNF
 
 # -------------------------------------------------------------------------------------------------
+
+EVENTS_TO_SKIP_PB_AVERAGE_CHECK = [EventFormat.Bo1, EventFormat.Bo3]
+
+# -------------------------------------------------------------------------------------------------
 # Functions and types below are intended to be used directly.
 # -------------------------------------------------------------------------------------------------
 
@@ -24,14 +28,14 @@ def set_pb_flags(user_id, event_result, event_id, event_format):
     else:
         event_result.was_pb_single = __pb_representation(event_result.single) <= pb_single
 
-    # PB average flag for Bo1 isn't valid, so don't bother checking
-    if event_format != EventFormat.Bo1:
+    # PB average flag isn't valid for Bo1 and Bo3, so don't bother checking
+    if event_format in EVENTS_TO_SKIP_PB_AVERAGE_CHECK:
+        event_result.was_pb_average = False
+    else:
         if pb_average == __DNF_AS_PB and __pb_representation(event_result.average) == pb_average:
             event_result.was_pb_average = False  # Don't count DNFs beyond the first one as PBs
         else:
             event_result.was_pb_average = __pb_representation(event_result.average) <= pb_average
-    else:
-        event_result.was_pb_average = False
 
     return event_result
 

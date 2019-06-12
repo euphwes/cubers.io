@@ -250,9 +250,10 @@ def __determine_bests_bo1(solves):
 
 
 def __determine_bests_bo3(solves):
-    """ Returns the best single for these 3 solves, and 'N/A' for the average. """
+    """ Returns the best single for these 3 solves, and no average. """
 
-    return __determine_bests_mo3(solves)
+    # fall back onto the single as determined by the Mo3 calculation, and then no average
+    return __determine_bests_mo3(solves)[0], ''
 
 
 def __determine_bests_mo3(solves):
