@@ -8,6 +8,7 @@ from app.util.times import convert_centiseconds_to_friendly_time
 from app.business.user_results import DNF, DNS
 from app.business.user_results.personal_bests import set_pb_flags
 from app.business.user_results.blacklisting import take_blacklist_action_if_necessary
+from app.util.events.resources import EVENT_FMC, EVENT_MBLD, EVENT_2BLD, EVENT_3BLD, EVENT_4BLD, EVENT_5BLD
 
 # -------------------------------------------------------------------------------------------------
 
@@ -23,8 +24,7 @@ SOLVE_TIMES_SEPARATOR          = ', '
 # -------------------------------------------------------------------------------------------------
 
 def process_event_results(results, comp_event, user):
-    """ Builds a UserEventsResult object from a dictionary coming in from the front-end, which
-    contains the competition event ID and the user's solves paired with the scrambles. """
+    """ Processes a UserEventsResult object to determine best single, averages, is_complete flag, etc. """
 
     event_id            = comp_event.Event.id
     event_format        = comp_event.Event.eventFormat
@@ -41,15 +41,21 @@ def process_event_results(results, comp_event, user):
     if not results.is_complete:
         return results
 
+    # A couple of "is_<thisThing>" flags to facilitate some one-off logic
+    is_fmc = event_name == EVENT_FMC.name
+    is_mbld = event_name == EVENT_MBLD.name
+    is_blind = event_name in (EVENT_2BLD.name, EVENT_3BLD.name, EVENT_4BLD.name, EVENT_5BLD.name)
+
+    # Specifically MBLD doesn't have means, even though other Bo3 events do
+    if is_mbld:
+        results.average = ''
+
     # Set the result (either best single, mean, or average) depending on event format
     results.result = __determine_event_result(results.single, results.average, event_format)
 
     # Store the "times string" so we don't have to recalculate this again later.
     # It's fairly expensive, so doing this for every UserEventResults in the competition slows
     # down the leaderboards noticeably.
-    is_fmc = event_name == 'FMC'
-    is_mbld = event_name == 'MBLD'
-    is_blind = event_name in ('2BLD', '3BLD', '4BLD', '5BLD')
     results.times_string = __build_times_string(results, event_format, is_fmc, is_blind, is_mbld)
 
     # Determine if these results need to be automatically blacklisted because either they have
@@ -252,8 +258,7 @@ def __determine_bests_bo1(solves):
 def __determine_bests_bo3(solves):
     """ Returns the best single for these 3 solves, and no average. """
 
-    # fall back onto the single as determined by the Mo3 calculation, and then no average
-    return __determine_bests_mo3(solves)[0], ''
+    return __determine_bests_mo3(solves)
 
 
 def __determine_bests_mo3(solves):

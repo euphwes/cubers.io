@@ -1,16 +1,18 @@
 """ Stuff related to handling user PBs (personal bests) in user event results. """
 
 from app.persistence.models import EventFormat
-from app.persistence.events_manager import get_event_format_for_event
+from app.persistence.events_manager import get_event_format_for_event, get_events_name_id_mapping
 from app.persistence.user_results_manager import get_pb_single_event_results_except_current_comp,\
     bulk_save_event_results, get_pb_average_event_results_except_current_comp,\
     get_all_complete_user_results_for_user_and_event
+from app.util.events.resources import EVENT_MBLD
 
 from app.business.user_results import DNF
 
 # -------------------------------------------------------------------------------------------------
 
-EVENTS_TO_SKIP_PB_AVERAGE_CHECK = [EventFormat.Bo1, EventFormat.Bo3]
+EVENT_FORMATS_TO_SKIP_PB_AVERAGE_CHECK = [EventFormat.Bo1]
+EVENT_IDS_TO_SKIP_PB_AVERAGE_CHECK = [get_events_name_id_mapping()[EVENT_MBLD.name]]
 
 # -------------------------------------------------------------------------------------------------
 # Functions and types below are intended to be used directly.
@@ -28,8 +30,9 @@ def set_pb_flags(user_id, event_result, event_id, event_format):
     else:
         event_result.was_pb_single = __pb_representation(event_result.single) <= pb_single
 
-    # PB average flag isn't valid for Bo1 and Bo3, so don't bother checking
-    if event_format in EVENTS_TO_SKIP_PB_AVERAGE_CHECK:
+    # PB average flag isn't valid for Bo1, so don't bother checking
+    # PB average flag isn't valid for MBLD, so don't bother checking
+    if (event_format in EVENT_FORMATS_TO_SKIP_PB_AVERAGE_CHECK) or (event_id in EVENT_IDS_TO_SKIP_PB_AVERAGE_CHECK):
         event_result.was_pb_average = False
     else:
         if pb_average == __DNF_AS_PB and __pb_representation(event_result.average) == pb_average:

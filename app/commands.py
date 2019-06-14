@@ -5,11 +5,14 @@ import click
 from app import app
 from app.business.user_results.personal_bests import recalculate_user_pbs_for_event
 from app.persistence.comp_manager import get_complete_competitions, get_all_comp_events_for_comp,\
-    get_competition, override_title_for_next_comp, set_all_events_flag_for_next_comp
+    get_competition, override_title_for_next_comp, set_all_events_flag_for_next_comp, get_comp_event_by_id
 from app.persistence.events_manager import get_all_events
+from app.persistence.user_results_manager import get_event_results_for_user, save_event_results
 from app.persistence.user_manager import get_all_users, get_all_admins, set_user_as_admin,\
-    unset_user_as_admin, UserDoesNotExistException, set_user_as_results_moderator, unset_user_as_results_moderator
+    unset_user_as_admin, UserDoesNotExistException, set_user_as_results_moderator, unset_user_as_results_moderator,\
+    get_user_by_username
 from app.business.user_results import set_medals_on_best_event_results
+from app.business.user_results.creation import process_event_results
 from app.tasks.competition_management import post_results_thread_task,\
     generate_new_competition_task, wrap_weekly_competition, run_user_site_rankings
 
@@ -167,3 +170,22 @@ def backfill_results_medals():
     for i, comp in enumerate(all_comps):
         print('Backfilling for comp {} ({}/{})'.format(comp.id, i + 1, total_num))
         set_medals_on_best_event_results(get_all_comp_events_for_comp(comp.id))
+
+
+@app.cli.command()
+@click.option('--username', '-u', type=str)
+@click.option('--comp_event_id', '-i', type=int)
+def reprocess_results_for_user_and_comp_event(username, comp_event_id):
+    """ Reprocesses the event results for the specified user and competition event. """
+
+    user = get_user_by_username(username)
+    if not user:
+        print("Oops, that user doesn't exist.")
+
+    comp_event = get_comp_event_by_id(comp_event_id)
+    if not comp_event:
+        print("Oops, that comp event doesn't exist.")
+
+    results = get_event_results_for_user(comp_event_id, user)
+    results = process_event_results(results, comp_event, user)
+    save_event_results(results)
