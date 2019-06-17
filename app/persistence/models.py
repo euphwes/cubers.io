@@ -85,8 +85,8 @@ class Event(Model):
     id             = Column(Integer, primary_key=True)
     name           = Column(String(64), index=True, unique=True)
     totalSolves    = Column(Integer)
+    description    = Column(String(2048))
     eventFormat    = Column(Enum("Ao5", "Mo3", "Bo3", "Bo1", name="eventFormat"), default="Ao5")
-    description    = Column(String(128))
     CompEvents     = relationship("CompetitionEvent", backref="Event")
 
 
