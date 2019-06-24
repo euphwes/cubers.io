@@ -6,7 +6,6 @@ from app.persistence.comp_manager import get_competition, save_competition
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp_event
 from app.util.reddit import submit_post, update_post
 from app.util.sorting import sort_user_event_results
-from app.util.times import convert_centiseconds_to_friendly_time, convert_fmc_centimoves_to_moves
 from app.util.events.resources import sort_comp_events_by_global_sort_order
 
 # -------------------------------------------------------------------------------------------------
@@ -34,8 +33,6 @@ __RESULTS_POINTS_SECTION_HEADER = '\n\n---\n\n**Total points this week**'
 __RESULTS_POINTS_SECTION_HEADER += '\n\nEach event gives `# of participants - place + 1` points\n\n'
 
 __LEADERBOARDS_URL_TEMPLATE = app.config['APP_URL'] + 'leaderboards/{comp_id}/'
-
-__FMC = 'FMC'
 
 # -------------------------------------------------------------------------------------------------
 
@@ -70,11 +67,7 @@ def post_results_thread(competition_id, is_rerun=False):
             user_points[username] += (total_participants - i)
 
             if i < __USER_PER_EVENT_LIMIT:
-                if result.CompetitionEvent.Event.name == __FMC:
-                    time = convert_fmc_centimoves_to_moves(result.result)
-                else:
-                    time = convert_centiseconds_to_friendly_time(result.result)
-                post_body += __RESULTS_USER_LINE_TEMPLATE.format(username=username, result=time)
+                post_body += __RESULTS_USER_LINE_TEMPLATE.format(username=username, result=result.friendly_result())
 
     user_points = [(username, points) for username, points in user_points.items()]
     user_points.sort(key=lambda x: x[1], reverse=True)
