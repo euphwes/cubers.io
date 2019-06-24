@@ -29,9 +29,18 @@
     }
 
     // Arrange for the 'return to events' button to navigate back to the main page
-    $('.btn_return_home').click(function(){
+    $('.btn_return_home').click(function() {
         window.location.href = '/';
     });
+
+    // Arrange for modal for event info
+    $('.event_description').click(function() {
+        bootbox.alert({
+            message: $(this).data('description'),
+            centerVertical: true,
+            closeButton: false,
+        });
+    })
 
     // Update a button's state based on the button state info dict returned from the front end
     var updateButtonState = function(btnId, btnKey, buttonStateInfo) {

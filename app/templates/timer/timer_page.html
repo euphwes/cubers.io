@@ -96,6 +96,11 @@
         </div>
     </div>
 </div>
+{% if event_description %}
+<div class="event_description" data-description="{{event_description}}">
+    <i class="far fa-question-circle"></i>
+</div>
+{% endif %}
 <div id="fade-wrapper">
     <div>
         <canvas id="big_scramble_image"></canvas>
