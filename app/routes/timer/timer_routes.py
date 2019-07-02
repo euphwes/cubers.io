@@ -94,6 +94,7 @@ def timer_page(comp_event_id, gather_info_for_live_refresh=False):
 
     event_name = comp_event.Event.name
     event_format = comp_event.Event.eventFormat
+    event_description = comp_event.Event.description
 
     # Get the user's settings, and specifically pull the setting to determine
     # whether or not to hide the scramble preview
@@ -181,7 +182,8 @@ def timer_page(comp_event_id, gather_info_for_live_refresh=False):
         show_scramble_preview=show_scramble_preview, last_solve=last_solve, last_seconds=last_seconds,
         last_centis=last_centis, hide_timer_dot=hide_timer_dot, comment=comment,
         is_complete=is_complete, settings=settings, page_subtype=page_subtype,
-        hide_scramble_preview=hide_scramble_preview, show_shapes_background=show_shapes_background)
+        hide_scramble_preview=hide_scramble_preview, show_shapes_background=show_shapes_background,
+        event_description=event_description)
 
 # -------------------------------------------------------------------------------------------------
 
