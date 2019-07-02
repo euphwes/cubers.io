@@ -34,11 +34,14 @@ def set_medals_on_best_event_results(comp_events):
 
         results_with_rankings = sort_user_results_with_rankings(unblacklisted_results, comp_event.Event.eventFormat)
 
+        raw_available_ranks = set(r for r, _, _ in results_with_rankings)
+        ranking_thresholds = sorted(list(raw_available_ranks))[:3]
+
         # 1st is gold medal, 2nd is silver, 3rd is bronze, everything else has no medal
         for ranking, _, result in results_with_rankings:
-            result.was_gold_medal   = (ranking == 1) and result.result != 'DNF'
-            result.was_silver_medal = (ranking == 2) and result.result != 'DNF'
-            result.was_bronze_medal = (ranking == 3) and result.result != 'DNF'
+            result.was_gold_medal   = (ranking == ranking_thresholds[0]) and result.result != 'DNF'
+            result.was_silver_medal = (ranking == ranking_thresholds[1]) and result.result != 'DNF'
+            result.was_bronze_medal = (ranking == ranking_thresholds[2]) and result.result != 'DNF'
 
         # Save all event results with their updated medal flags
         bulk_save_event_results(results)
