@@ -34,14 +34,20 @@ def set_medals_on_best_event_results(comp_events):
 
         results_with_rankings = sort_user_results_with_rankings(unblacklisted_results, comp_event.Event.eventFormat)
 
+        # Since identically-ranked results get the same podium (if they get a podium), it may be
+        # that the silver and bronze raw rankings aren't "2" and "3". If there are 3 users with a
+        # gold podium, then silver will be 4 and bronze will be 5, and so on.
         raw_available_ranks = set(r for r, _, _ in results_with_rankings)
         ranking_thresholds = sorted(list(raw_available_ranks))[:3]
+        gold_rank   = ranking_thresholds[0] if len(ranking_thresholds) > 0 else -1
+        silver_rank = ranking_thresholds[1] if len(ranking_thresholds) > 1 else -1
+        bronze_rank = ranking_thresholds[2] if len(ranking_thresholds) > 2 else -1
 
-        # 1st is gold medal, 2nd is silver, 3rd is bronze, everything else has no medal
+        # Apply medals based on rankings
         for ranking, _, result in results_with_rankings:
-            result.was_gold_medal   = (ranking == ranking_thresholds[0]) and result.result != 'DNF'
-            result.was_silver_medal = (ranking == ranking_thresholds[1]) and result.result != 'DNF'
-            result.was_bronze_medal = (ranking == ranking_thresholds[2]) and result.result != 'DNF'
+            result.was_gold_medal   = (ranking == gold_rank) and result.result != 'DNF'
+            result.was_silver_medal = (ranking == silver_rank) and result.result != 'DNF'
+            result.was_bronze_medal = (ranking == bronze_rank) and result.result != 'DNF'
 
         # Save all event results with their updated medal flags
         bulk_save_event_results(results)
