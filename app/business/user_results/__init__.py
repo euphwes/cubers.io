@@ -32,6 +32,11 @@ def set_medals_on_best_event_results(comp_events):
             else:
                 unblacklisted_results.append(result)
 
+        # Handle the case where nobody participated in an event. The Ranking(...) mechanism used
+        # in sort_user_results_with_rankings chokes on empty iterables.
+        if not unblacklisted_results:
+            return
+
         results_with_rankings = sort_user_results_with_rankings(unblacklisted_results, comp_event.Event.eventFormat)
 
         # Since identically-ranked results get the same podium (if they get a podium), it may be
