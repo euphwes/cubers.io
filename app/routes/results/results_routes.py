@@ -6,6 +6,7 @@ from flask import render_template, redirect
 from flask_login import current_user
 
 from app import app
+from app.business.user_results import set_medals_on_best_event_results
 from app.business.user_results.personal_bests import recalculate_user_pbs_for_event
 from app.persistence.comp_manager import get_active_competition, get_complete_competitions,\
     get_previous_competition, get_competition, get_all_comp_events_for_comp, get_comp_event_by_id
@@ -172,6 +173,10 @@ def blacklist(results_id):
         # Recalculate PBs just for the affected user and event
         recalculate_user_pbs_for_event(results.user_id, results.CompetitionEvent.event_id)
 
+        # Recalculate podiums for this comp and event if the competition isn't active
+        if not results.CompetitionEvent.Competition.active:
+            set_medals_on_best_event_results([results.CompetitionEvent])
+
         return ('', 204)
 
     except UserEventResultsDoesNotExistException as ex:
@@ -197,6 +202,10 @@ def unblacklist(results_id):
 
         # Recalculate PBs just for the affected user and event
         recalculate_user_pbs_for_event(results.user_id, results.CompetitionEvent.event_id)
+
+        # Recalculate podiums for this comp and event if the competition isn't active
+        if not results.CompetitionEvent.Competition.active:
+            set_medals_on_best_event_results([results.CompetitionEvent])
 
         return ('', 204)
 
