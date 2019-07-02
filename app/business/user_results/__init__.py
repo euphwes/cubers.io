@@ -1,7 +1,7 @@
 """ A package for creating and managing user event results. """
 
 from app.persistence.user_results_manager import bulk_save_event_results, get_results_for_comp_event
-from app.util.sorting import sort_user_event_results
+from app.util.sorting import sort_user_results_with_rankings
 
 # -------------------------------------------------------------------------------------------------
 
@@ -32,14 +32,13 @@ def set_medals_on_best_event_results(comp_events):
             else:
                 unblacklisted_results.append(result)
 
-        # Sort the unblacklisted results by their result value
-        unblacklisted_results.sort(key=sort_user_event_results)
+        results_with_rankings = sort_user_results_with_rankings(unblacklisted_results, comp_event.Event.eventFormat)
 
         # 1st is gold medal, 2nd is silver, 3rd is bronze, everything else has no medal
-        for i, result in enumerate(unblacklisted_results):
-            result.was_gold_medal   = (i == 0) and result.result != 'DNF'
-            result.was_silver_medal = (i == 1) and result.result != 'DNF'
-            result.was_bronze_medal = (i == 2) and result.result != 'DNF'
+        for ranking, _, result in results_with_rankings:
+            result.was_gold_medal   = (ranking == 1) and result.result != 'DNF'
+            result.was_silver_medal = (ranking == 2) and result.result != 'DNF'
+            result.was_bronze_medal = (ranking == 3) and result.result != 'DNF'
 
         # Save all event results with their updated medal flags
         bulk_save_event_results(results)

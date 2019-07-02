@@ -12,7 +12,7 @@ from app.persistence.comp_manager import get_active_competition, get_complete_co
     get_previous_competition, get_competition, get_all_comp_events_for_comp, get_comp_event_by_id
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp_event,\
     blacklist_results, unblacklist_results, UserEventResultsDoesNotExistException
-from app.util.sorting import sort_user_event_results
+from app.util.sorting import sort_user_results_with_rankings
 from app.util.events.resources import sort_comp_events_by_global_sort_order
 
 # -------------------------------------------------------------------------------------------------
@@ -95,9 +95,9 @@ def comp_event_results(comp_event_id):
         setattr(result, 'solves_helper', solves_helper)
 
     # Sort the results
-    results.sort(key=sort_user_event_results)
+    results_with_ranks = sort_user_results_with_rankings(results, comp_event.Event.eventFormat)
 
-    return render_template("results/comp_event_table.html", results=results,
+    return render_template("results/comp_event_table.html", results=results_with_ranks,
         comp_event=comp_event, show_admin=show_admin, scrambles=scrambles)
 
 
@@ -109,10 +109,10 @@ def get_overall_performance_data(comp_id):
     for comp_event in get_all_comp_events_for_comp(comp_id):
         results = get_all_complete_user_results_for_comp_event(comp_event.id)
         results = list(results)
-        results.sort(key=sort_user_event_results)
+        results_with_ranks = sort_user_results_with_rankings(results, comp_event.Event.eventFormat)
 
         total_participants = len(results)
-        for i, result in enumerate(results):
+        for i, _, result in results_with_ranks:
             username = result.User.username
             if username not in user_points.keys():
                 user_points[username] = 0

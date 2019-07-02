@@ -36,7 +36,10 @@
                 </tr>
             </thead>
             <tbody>
-                {% for result in results %}
+                {% for rank_and_result in results %}
+
+                {% set i = rank_and_result[1] %}
+                {% set result = rank_and_result[2] %}
 
                 {% if current_user.is_authenticated and current_user.username == result.User.username %}
                     {% set its_me = 'hey-its-me' %}
@@ -65,7 +68,7 @@
                 <tr class="{{ its_me }} {{ blacklist_class }}">
                     <td scope="row">
                         {% if medal_class == 'medal_none' %}
-                            {{ loop.index }}
+                            {{ i }}
                         {% else %}
                             <span class="fas fa-medal {{medal_class}} spacer"></span>
                         {% endif %}

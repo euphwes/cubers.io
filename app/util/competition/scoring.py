@@ -5,7 +5,7 @@ from app import app
 from app.persistence.comp_manager import get_competition, save_competition
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp_event
 from app.util.reddit import submit_post, update_post
-from app.util.sorting import sort_user_event_results
+from app.util.sorting import sort_user_results_with_rankings
 from app.util.events.resources import sort_comp_events_by_global_sort_order
 
 # -------------------------------------------------------------------------------------------------
@@ -55,12 +55,12 @@ def post_results_thread(competition_id, is_rerun=False):
         if not results:
             continue
 
-        results.sort(key=sort_user_event_results)
+        results_with_ranks = sort_user_results_with_rankings(results, comp_event.Event.eventFormat)
 
         post_body += __RESULTS_EVENT_HEADER_TEMPLATE.format(event_name=comp_event.Event.name)
 
         total_participants = len(results)
-        for i, result in enumerate(results):
+        for i, _, result in results_with_ranks:
             username = result.User.username
             if username not in user_points.keys():
                 user_points[username] = 0
