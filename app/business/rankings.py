@@ -229,8 +229,14 @@ def _determine_ranks(personal_bests):
     ranked_times = list(Ranking(times_values, start=1, reverse=True))
 
     # Give each PersonalBestRecord its rank from the corresponding element in ranked_times
+    ranks_seen = set()
     for i, personal_best in enumerate(personal_bests):
-        personal_best.rank = ranked_times[i][0]
+        rank = ranked_times[i][0]
+        if rank not in ranks_seen:
+            ranks_seen.add(rank)
+        else:
+            rank = ''
+        personal_best.rank = rank
 
     return personal_bests
 
