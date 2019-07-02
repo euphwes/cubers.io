@@ -12,7 +12,7 @@ from app.business.user_results.creation import process_event_results
 from app.persistence.models import UserSolve, UserEventResults
 from app.persistence.comp_manager import get_comp_event_by_id
 from app.persistence.user_results_manager import save_event_results, get_event_results_for_user,\
-    delete_user_solve, delete_event_results
+    delete_user_solve, delete_event_results, get_user_solve_for_scramble_id
 from app.routes.timer import timer_page
 
 # -------------------------------------------------------------------------------------------------
@@ -57,6 +57,12 @@ def post_solve():
     scramble_id   = solve_data[SCRAMBLE_ID]
     comp_event_id = solve_data[COMP_EVENT_ID]
     centiseconds  = solve_data[CENTISECONDS]
+
+    # If the submitted solve is for a scramble the user already has a solve for,
+    # don't take any further action to persist a solve, just return. User probably
+    # is user manual time entry and pressed enter twice accidentally in quick succession
+    if get_user_solve_for_scramble_id(current_user.id, scramble_id):
+        return timer_page(comp_event_id, gather_info_for_live_refresh=True)
 
     # Retrieve the specified competition event
     comp_event = get_comp_event_by_id(comp_event_id)

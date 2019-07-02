@@ -74,6 +74,17 @@ def get_user_completed_solves_count(user_id):
         count()
 
 
+def get_user_solve_for_scramble_id(user_id, scramble_id):
+    """ Returns a specific user solve for the given user ID and scramble ID. """
+
+    return DB.session.\
+        query(UserSolve).\
+        join(UserEventResults).\
+        filter(UserEventResults.user_id == user_id).\
+        filter(UserSolve.scramble_id == scramble_id).\
+        count()
+
+
 def get_event_results_for_user(comp_event_id, user):
     """ Retrieves a UserEventResults for a specific user and competition event. """
 
