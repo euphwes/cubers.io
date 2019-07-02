@@ -1,10 +1,7 @@
 
-from typing import Tuple, Optional
-
 from arrow import now
 
 from app import app
-from app.persistence.models import UserEventResults, User
 from app.persistence.comp_manager import get_comp_event_name_by_id
 
 # -------------------------------------------------------------------------------------------------
@@ -84,15 +81,14 @@ __AUTO_BLACKLIST_THRESHOLDS = {
 # Functions and types below are intended to be used directly.
 # -------------------------------------------------------------------------------------------------
 
-def take_blacklist_action_if_necessary(results: UserEventResults,
-                                       user: User) -> Tuple[UserEventResults, bool]:
+def take_blacklist_action_if_necessary(results, user):
     """ Determines if this UserEventResults should be auto-blacklisted because of an absurdly low
     time. Uses a multiplicative factor of the current world records as a threshold, which is
     adjustable by environment variable. """
 
     # If the results aren't complete, return early since we don't need to blacklist yet
     if not results.is_complete:
-        return results, False
+        return __ensure_clean_unblacklisted(results), False
 
     comp_event_name = get_comp_event_name_by_id(results.comp_event_id)
 
@@ -124,16 +120,22 @@ def take_blacklist_action_if_necessary(results: UserEventResults,
         return __perform_single_results_blacklist_action(results, comp_event_name, user), True
 
     # Everything's legit! Let those results through without blacklisting anything
-    return results, False
+    return __ensure_clean_unblacklisted(results), False
 
 # -------------------------------------------------------------------------------------------------
 # Functions and types below are not meant to be used directly; instead these are just dependencies
 # of the publicly-visible functions above.
 # -------------------------------------------------------------------------------------------------
 
-def __perform_perma_blacklist_action(results: UserEventResults,
-                                     comp_event_name: str,
-                                     user: User) -> UserEventResults:
+def __ensure_clean_unblacklisted(results):
+    """ Makes sure the blacklisted flag is explicitly false with an empty blacklisting note. """
+
+    results.is_blacklisted = False
+    results.blacklist_note = ''
+    return results
+
+
+def __perform_perma_blacklist_action(results, comp_event_name, user):
     """ Blacklists this specific UserEventResults and sets the note indicating the user was flagged
     for permanent blacklist. """
 
@@ -142,9 +144,7 @@ def __perform_perma_blacklist_action(results: UserEventResults,
     return __blacklist_results_with_note(results, __PERMA_BLACKLIST_NOTE_TEMPLATE)
 
 
-def __perform_single_results_blacklist_action(results: UserEventResults,
-                                              comp_event_name: str,
-                                              user: User) -> UserEventResults:
+def __perform_single_results_blacklist_action(results, comp_event_name, user):
     """ Blacklists this specific UserEventResults and sets the note indicating the results were
     blacklisted due to being lower than the single threshold. """
 
@@ -153,9 +153,7 @@ def __perform_single_results_blacklist_action(results: UserEventResults,
     return __blacklist_results_with_note(results, __AUTO_BLACKLIST_NOTE_TEMPLATE, type=__SINGLE)
 
 
-def __perform_average_results_blacklist_action(results: UserEventResults,
-                                               comp_event_name: str,
-                                               user: User) -> UserEventResults:
+def __perform_average_results_blacklist_action(results, comp_event_name, user):
     """ Blacklists this specific UserEventResults and sets the note indicating the results were
     blacklisted due to being lower than the single threshold. """
 
@@ -166,9 +164,7 @@ def __perform_average_results_blacklist_action(results: UserEventResults,
     return __blacklist_results_with_note(results, __AUTO_BLACKLIST_NOTE_TEMPLATE, type=__AVERAGE)
 
 
-def __blacklist_results_with_note(results: UserEventResults,
-                                  note_template: str,
-                                  **kwargs) -> UserEventResults:
+def __blacklist_results_with_note(results, note_template, **kwargs):
     """ Blacklists a UserEventResults and applies the provided blacklist note, which is assumed to be a
     template string. The keyword args provided to this function are formatted into the note as keyword args. """
 
@@ -179,7 +175,7 @@ def __blacklist_results_with_note(results: UserEventResults,
     return results
 
 
-def __get_event_thresholds(comp_event_name: str) -> Optional[Tuple[float, float]]:
+def __get_event_thresholds(comp_event_name):
     """ Retrieves the thresholds for single and average for the specified event, adjusted by an
     optional multiplicative factor from app config. """
 
@@ -196,22 +192,19 @@ def __get_event_thresholds(comp_event_name: str) -> Optional[Tuple[float, float]
     return (threshold_factor * entry for entry in event_thresholds)
 
 
-def __check_event_single_threshold_breached(results: UserEventResults,
-                                            single_threshold: float) -> bool:
+def __check_event_single_threshold_breached(results, single_threshold):
     """ Checks if the results best single breaches the autoblacklist threshold for this event. """
 
     return __check_if_threshold_breached(results.single, single_threshold)
 
 
-def __check_event_average_threshold_breached(results: UserEventResults,
-                                             average_threshold: float) -> bool:
+def __check_event_average_threshold_breached(results, average_threshold):
     """ Checks if the results average breaches the autoblacklist threshold for this event. """
 
     return __check_if_threshold_breached(results.average, average_threshold)
 
 
-def __check_if_threshold_breached(results_value: str,
-                                  threshold_value: float) -> bool:
+def __check_if_threshold_breached(results_value, threshold_value):
     """ Checks if the given results value breaches the supplied threshold. """
 
     # Return if the results value breaches the threshold

@@ -37,7 +37,7 @@ def process_event_results(results, comp_event, user):
     # Determine if the user has completed their results for this event
     __set_is_complete(results, event_format, expected_num_solves)
 
-    # If the results are not yet complete, go ahead and return now
+    # If the results are not yet complete, go ahead and return now.
     if not results.is_complete:
         return results
 
