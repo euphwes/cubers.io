@@ -44,7 +44,7 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = environ.get('DATABASE_URL')
     if not SQLALCHEMY_DATABASE_URI:
         basedir = abspath(dirname(__file__))
-        SQLALCHEMY_DATABASE_URI =  'sqlite:///' + path_join(basedir, 'cube_competitions.sqlite')
+        SQLALCHEMY_DATABASE_URI = 'sqlite:///' + path_join(basedir, 'cube_competitions.sqlite')
 
     # ------------------------------------------------------
     # Other config

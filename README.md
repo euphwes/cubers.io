@@ -4,6 +4,10 @@
 
 Each weekly competition holds every WCA event, as well as a rotating selection of bonus events which you can't find in any official competition.
 
+## Contributing to cubers.io
+
+Are you both a software developer **and** a cuber, and would like to contribute to [cubers.io](https//www.cubers.io)? If so, please checkout the [contribution readme](https://github.com/euphwes/cubers.io/blob/master/contributing.md).
+
 ## Features
 
 ### Visually pleasing UI
