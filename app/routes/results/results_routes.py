@@ -107,8 +107,13 @@ def get_overall_performance_data(comp_id):
     user_points = dict()
 
     for comp_event in get_all_comp_events_for_comp(comp_id):
-        results = get_all_complete_user_results_for_comp_event(comp_event.id)
-        results = list(results)
+        results = list(get_all_complete_user_results_for_comp_event(comp_event.id))
+
+        # If nobody has participated in this particular comp event, skip performing the sorting
+        # and ranking. Ranking package doesn't like empty iterables.
+        if not results:
+            continue
+
         results_with_ranks = sort_user_results_with_rankings(results, comp_event.Event.eventFormat)
 
         total_participants = len(results)
