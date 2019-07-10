@@ -10,12 +10,35 @@ from app.persistence.user_results_manager import get_all_user_results_for_comp_a
 from app.util.events.resources import sort_comp_events_by_global_sort_order
 from app.persistence.settings_manager import get_setting_for_user, SettingCode, TRUE_STR
 
+from .constants import *
+
 # -------------------------------------------------------------------------------------------------
 
-@app.route("/api")
-def get_general_info():
+@app.route("/api/header-info")
+def get_header_info():
+    """ Api endpoint for retrieving header information """
+
+    wca_events = list(map(lambda event: {
+        'url': url_for('event_results', event_name=event),
+        'name': event
+    }, WCA_EVENTS))
+    non_wca_events = list(map(lambda event: {
+        'url': url_for('event_results', event_name=event),
+        'name': event
+    }, NON_WCA_EVENTS))
+
+    comp = comp_manager.get_active_competition()
+
+    title = None
+    if(comp.title):
+        title = comp.title
+
     header_info = {
-        'title': 'example'
+        'title': title,
+        'records': {
+            'wca': wca_events,
+            'nonWca': non_wca_events
+        }
     }
 
     return jsonify(header_info)
