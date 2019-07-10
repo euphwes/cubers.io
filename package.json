@@ -1,5 +1,23 @@
 {
-    "dependencies" : {
-        "less" : "3.8.1"
-    }
+  "name": "cubers.io",
+  "version": "1.0.0",
+  "description": "[cubers.io](https//www.cubers.io) is a web app where you can participate in [WCA](https://www.worldcubeassociation.org)-style speedcubing competitions every week!",
+  "main": "index.js",
+  "dependencies": {
+    "less": "3.8.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/euphwes/cubers.io.git"
+  },
+  "author": "",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/euphwes/cubers.io/issues"
+  },
+  "homepage": "https://github.com/euphwes/cubers.io#readme"
 }
