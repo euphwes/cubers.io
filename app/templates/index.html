@@ -19,7 +19,8 @@
 {% endblock %}
 
 {% block additional_script %}
-{% assets "index_js" %}
+{% assets "site_js" %}
+<div id="application"></div>
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endblock %}

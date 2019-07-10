@@ -51,6 +51,12 @@ ASSETS.register({
         output='gen/index.js'
     ),
 
+    'site_js': Bundle(
+        'js/site.js',
+        filters="jsmin",
+        output='gen/site.js'
+    ),
+
     'index_css': Bundle(
         'less/common.less',
         'less/navbar.less',
