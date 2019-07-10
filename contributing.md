@@ -14,10 +14,9 @@ It's handy to work in sandboxed Python environments called *virtual environments
 
 Once you have a Python environment setup, create a directory on your computer where you'd like to work on the app. Create a fork of this repository on GitHub, pull down the code locally, and get ready to get your hands dirty.
 
-### 3rd-party dependencies
+### 3rd-party Python dependencies
 
 This app leverages several great 3rd party libraries for some of the heavy lifting. *Activate* your virtual environment you created above using the appropriate steps for your operating system. Usually this involves running a script, something like this:
-
 
 ```shell
 . <path to your virtualenv>/scripts/activate
@@ -31,6 +30,16 @@ After your virtualenv is activated, install all of the app's dependencies using 
 
 ```shell
 pip install -r requirements.txt
+```
+
+### Node.js and LESS
+
+cubers.io relies on [pyTwistyScrambler](https://github.com/euphwes/pyTwistyScrambler) for generating puzzle scrambles, which in turn requires a Javascript runtime available to do the heavy lifting. [Download and install Node.js](https://nodejs.org/en/download/) for your system.
+
+The app also compiles LESS style sheets down to CSS using `lessc`, which is available as a Node.js package via NPM (Node Package Manager). Install LESS using the following command:
+
+```
+npm install -g less
 ```
 
 ### Database setup
