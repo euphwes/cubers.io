@@ -37,7 +37,7 @@ def upgrade():
     sa.Column('name', sa.String(length=64), nullable=True),
     sa.Column('totalSolves', sa.Integer(), nullable=True),
     sa.Column('eventFormat', sa.Enum('Ao5', 'Mo3', 'Bo3', 'Bo1', name='eventFormat'), nullable=True),
-    sa.Column('description', sa.String(length=128), nullable=True),
+    sa.Column('description', sa.String(length=2048), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('events', schema=None) as batch_op:

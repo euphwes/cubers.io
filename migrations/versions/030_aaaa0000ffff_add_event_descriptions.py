@@ -1,7 +1,7 @@
 """add event descriptions
 
 Revision ID: aaaa0000ffff
-Revises: 50644721ac4e
+Revises: adad00000000
 Create Date: 2019-06-17 17:05:04.276404
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = 'aaaa0000ffff'
-down_revision = '50644721ac4e'
+down_revision = 'adad00000000'
 branch_labels = None
 depends_on = None
 
