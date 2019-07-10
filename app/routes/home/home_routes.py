@@ -19,8 +19,12 @@ def index():
     if not current_user.is_authenticated:
         return redirect(url_for("prompt_login"))
 
-    # Get the current competition, and all events' results for the logged in user
+    # Get the current competition
     comp = comp_manager.get_active_competition()
+    if not comp:
+        return "There are no competitions created yet. Go make one!"
+
+    # Get all event results for the logged-in user
     user_results = get_all_user_results_for_comp_and_user(comp.id, current_user.id)
 
     # Get a dict of comp ID to result for all complete events
@@ -28,8 +32,8 @@ def index():
 
     # Build a function which determines if a result is incomplete (solves are recorded, but enough yet to be complete)
     # Then build up a set of comp event IDs for incomplete events
-    is_incomplete = __build_is_incomplete_func(set(complete_events.keys()))
-    incomplete_event_ids = set(r.CompetitionEvent.id for r in user_results if is_incomplete(r))
+    is_incomplete_func = __build_is_incomplete_func(set(complete_events.keys()))
+    incomplete_event_ids = set(r.CompetitionEvent.id for r in user_results if is_incomplete_func(r))
 
     # Build a list of competition events in this comp. Initially order them by event ID, but then sort and group them
     # by WCA events first, non-WCA weekly events next, and then bonus events last. This ordering ensures events are

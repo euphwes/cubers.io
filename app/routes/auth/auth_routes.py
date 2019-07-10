@@ -59,7 +59,10 @@ def authorize():
 
     login_user(user, True)
 
-    return redirect(url_for('index'))
+    if comp_manager.get_active_competition():
+        return redirect(url_for('index'))
+
+    return "Successfully logged in as {}. There are no competitions created yet. Go make one!".format(username)
 
 
 @app.route('/denied')
