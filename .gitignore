@@ -203,3 +203,7 @@ typings/
 
 # DynamoDB Local files
 .dynamodb/
+
+### Custom ignores ###
+*/**/site.js
+*/**/site.js.map
