@@ -38,3 +38,18 @@ NON_WCA_EVENTS = [
     '8x8',
     '9x9',
 ]
+
+SUM_OF_RANKS = [
+    {
+        'sort': 'all',
+        'name': 'Combined'
+    },
+    {
+        'sort': 'wca',
+        'name': 'WCA Events Only'
+    },
+    {
+        'sort': 'non_wca',
+        'name': 'Non-WCA Events Only'
+    }
+]

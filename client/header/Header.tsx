@@ -11,6 +11,7 @@ type HeaderState = {
     recordsItems: {
         wca: { url: string, name: string }[]
         nonWca: { url: string, name: string }[]
+        sum: { url: string, name: string }[]
     } | "loading"
 }
 
@@ -30,9 +31,20 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
                 title: info.title,
                 recordsItems: {
                     wca: info.records.wca,
-                    nonWca: info.records.nonWca
+                    nonWca: info.records.nonWca,
+                    sum: info.records.sum
                 }
             }))
+    }
+
+    renderRecordItem(items: { url: string, name: string }[]) {
+        return items.map((item, id) =>
+            <Link
+                key={id}
+                className="dropdown-item slim-nav-item"
+                to={item.url}
+            >{item.name}</Link>
+        )
     }
 
     renderRecords() {
@@ -43,13 +55,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
                     <button className="dropdown-item dropdown-toggle" type="button">WCA Events</button>
                     <div className="dropdown-menu">
                         {this.state.recordsItems === "loading" ? null :
-                            this.state.recordsItems.wca.map((item, id) =>
-                                <Link
-                                    key={id}
-                                    className="dropdown-item slim-nav-item"
-                                    to={item.url}
-                                >{item.name}</Link>
-                            )
+                            this.renderRecordItem(this.state.recordsItems.wca)
                         }
                     </div>
                 </div>
@@ -57,25 +63,19 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
                     <button className="dropdown-item dropdown-toggle" type="button">Non-WCA Events</button>
                     <div className="dropdown-menu">
                         {this.state.recordsItems === "loading" ? null :
-                            this.state.recordsItems.nonWca.map((item, id) =>
-                                <Link
-                                    key={id}
-                                    className="dropdown-item slim-nav-item"
-                                    to={item.url}
-                                >{item.name}</Link>
-                            )
+                            this.renderRecordItem(this.state.recordsItems.nonWca)
                         }
                     </div>
                 </div>
-                {/* <div className="dropdown-divider"></div>
+                <div className="dropdown-divider"></div>
                 <div className="dropdown dropright dropdown-submenu">
                     <button className="dropdown-item dropdown-toggle" type="button">Sum of Ranks</button>
                     <div className="dropdown-menu">
-                        <a className="dropdown-item slim-nav-item" href="{{ url_for('sum_of_ranks', sor_type='all') }}">Combined</a>
-                        <a className="dropdown-item slim-nav-item" href="{{ url_for('sum_of_ranks', sor_type='wca') }}">WCA Events Only</a>
-                        <a className="dropdown-item slim-nav-item" href="{{ url_for('sum_of_ranks', sor_type='non_wca') }}">Non-WCA Events Only</a>
+                        {this.state.recordsItems === "loading" ? null :
+                            this.renderRecordItem(this.state.recordsItems.sum)
+                        }
                     </div>
-                </div> */}
+                </div>
             </div>
         </>
     }

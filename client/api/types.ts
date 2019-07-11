@@ -9,5 +9,9 @@ export type HeaderInfo = {
             url: string
             name: string
         }[]
+        sum: {
+            url: string
+            name: string
+        }[]
     }
 }
