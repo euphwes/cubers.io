@@ -14,6 +14,7 @@ from .constants import *
 
 # -------------------------------------------------------------------------------------------------
 
+
 @app.route("/api/header-info")
 def get_header_info():
     """ Api endpoint for retrieving header information """
@@ -36,6 +37,15 @@ def get_header_info():
         'url': url_for('sum_of_ranks', sor_type=sort['sort']),
         'name': sort['name']
     }, SUM_OF_RANKS))
+
+    user = "none"
+    if current_user:
+        user = {
+            'name': current_user.username,
+            'profile_url': url_for('profile', username=current_user.username),
+            'logout_url': url_for('logout'),
+            'settings_url': url_for('edit_settings')
+        }
 
     header_info = {
         'compId': comp.id,
@@ -67,7 +77,8 @@ def get_header_info():
                 'name': 'All competitions',
                 'url': url_for('results_list')
             }
-        }
+        },
+        'current_user': user
     }
 
     return jsonify(header_info)

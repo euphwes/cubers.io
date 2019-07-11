@@ -9,16 +9,9 @@ type HeaderProps = {
 
 type HeaderState = {
     title: string
-    recordsItems: {
-        wca: Types.HeaderItem
-        nonWca: Types.HeaderItem
-        sum: Types.HeaderItem
-    } | "loading"
-    leaderboardItems: {
-        current: Types.DetailedUrl
-        previous: Types.DetailedUrl
-        all: Types.DetailedUrl
-    } | "loading"
+    recordsItems: Types.Record | "loading"
+    leaderboardItems: Types.Leaderboard | "loading",
+    current_user: Types.CurrentUser
 }
 
 export class Header extends React.Component<HeaderProps, HeaderState> {
@@ -28,7 +21,8 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
         this.state = {
             title: "cubers.io",
             recordsItems: "loading",
-            leaderboardItems: "loading"
+            leaderboardItems: "loading",
+            current_user: "none"
         }
     }
 
@@ -36,8 +30,9 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
         Api.getHeaderInfo()
             .then(info => this.setState({
                 title: info.title,
-                recordsItems: { ...info.recordsItems },
-                leaderboardItems: { ...info.leaderboardItems }
+                recordsItems: info.recordsItems,
+                leaderboardItems: info.leaderboardItems,
+                current_user: info.current_user
             }))
     }
 
@@ -53,7 +48,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
 
     renderRecords() {
         return <>
-            <a className="nav-link dropdown-toggle py-0" role="button" data-toggle="dropdown" data-submenu href="#">Records</a>
+            <Link className="nav-link dropdown-toggle py-0" role="button" data-toggle="dropdown" data-submenu to="#">Records</Link>
             <div className="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                 <div className="dropdown dropright dropdown-submenu">
                     <button className="dropdown-item dropdown-toggle" type="button">
@@ -92,7 +87,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
         if (leaderboard === "loading") return null
 
         return <>
-            <a className="nav-link dropdown-toggle py-0" role="button" data-toggle="dropdown" href="#">Leaderboards</a>
+            <Link className="nav-link dropdown-toggle py-0" role="button" data-toggle="dropdown" to="#">Leaderboards</Link>
             <div className="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                 <Link className="dropdown-item" to={leaderboard.current.url}>{leaderboard.current.name}</Link>
                 <Link className="dropdown-item" to={leaderboard.previous.url}>{leaderboard.previous.name}</Link>
@@ -103,50 +98,48 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
     }
 
     renderUser() {
+        if (this.state.current_user === "none")
+            return <Link className="nav-link py-0" to="/login">Login with Reddit</Link>
+
         return <>
-            {/* <a className="nav-link dropdown-toggle py-0" role="button" data-toggle="dropdown" href="#">
-                {{ current_user.username }}
-        </a>
+            <Link className="nav-link dropdown-toggle py-0" role="button" data-toggle="dropdown" to="#">
+                {this.state.current_user.name}
+            </Link>
             <div className="dropdown-menu dropdown-menu-right">
-                <a className="dropdown-item" href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
+                <Link className="dropdown-item" to={this.state.current_user.profile_url}>Profile</Link>
                 <div className="dropdown-divider"></div>
-                <a className="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
-            </div> */}
+                <Link className="dropdown-item" to="/logout">Logout</Link>
+            </div>
         </>
     }
 
+    renderSettings() {
+        if (this.state.current_user === "none") return null
+        return <Link className="nav-link py-0" to={this.state.current_user.settings_url}>
+            <i className="fas fa-cog"></i>
+        </Link>
+    }
+
     render() {
-        return <div className="navbar navbar-expand-md navbar-dark cubers-navbar">
-            <div className="container-fluid">
-                <Link to="/" className="navbar-brand py-0">{this.state.title}</Link>
+        return <div>
+            <div className="navbar navbar-expand-md navbar-dark cubers-navbar"></div>
+            <div className="navbar navbar-expand-md fixed-top navbar-dark cubers-navbar">
+                <div className="container-fluid">
+                    <Link to="/" className="navbar-brand py-0">{this.state.title}</Link>
 
-                <button className="navbar-toggler py-0" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span className="navbar-toggler-icon"></span>
-                </button>
+                    <button className="navbar-toggler py-0" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span className="navbar-toggler-icon"></span>
+                    </button>
 
-
-                <div id="navbarCollapse" className="collapse navbar-collapse py-0">
-                    <ul className="navbar-nav ml-auto py-0">
-                        <li className="nav-item dropdown">{this.renderRecords()}</li>
-                        <li className="nav-item dropdown">{this.renderLeaderboards()}</li>
-                        <li className="nav-item dropdown">{this.renderUser()}</li>
-
-                        {/* {% if current_user.is_authenticated %} */}
-
-                        <li className="nav-item nav-settings">
-                            <a className="nav-link py-0" href="{{ url_for('edit_settings')}}">
-                                <i className="fas fa-cog"></i>
-                            </a>
-                        </li>
-                        {/* {% else %} */}
-                        {/* <li className="nav-item">
-                    <a className="nav-link py-0" href="{{ url_for('login') }}">Login with Reddit</a>
-                </li> */}
-                        {/* {% endif %} */}
-                    </ul>
+                    <div id="navbarCollapse" className="collapse navbar-collapse py-0">
+                        <ul className="navbar-nav ml-auto py-0">
+                            <li className="nav-item dropdown">{this.renderRecords()}</li>
+                            <li className="nav-item dropdown">{this.renderLeaderboards()}</li>
+                            <li className="nav-item dropdown">{this.renderUser()}</li>
+                            <li className="nav-item nav-settings">{this.renderSettings()}</li>
+                        </ul>
+                    </div>
                 </div>
-
-
             </div>
         </div>
     }
