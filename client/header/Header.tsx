@@ -14,6 +14,11 @@ type HeaderState = {
         nonWca: Types.HeaderItem
         sum: Types.HeaderItem
     } | "loading"
+    leaderboardItems: {
+        current: Types.DetailedUrl
+        previous: Types.DetailedUrl
+        all: Types.DetailedUrl
+    } | "loading"
 }
 
 export class Header extends React.Component<HeaderProps, HeaderState> {
@@ -22,7 +27,8 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
 
         this.state = {
             title: "cubers.io",
-            recordsItems: "loading"
+            recordsItems: "loading",
+            leaderboardItems: "loading"
         }
     }
 
@@ -30,11 +36,8 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
         Api.getHeaderInfo()
             .then(info => this.setState({
                 title: info.title,
-                recordsItems: {
-                    wca: info.recordsItems.wca,
-                    nonWca: info.recordsItems.nonWca,
-                    sum: info.recordsItems.sum
-                }
+                recordsItems: { ...info.recordsItems },
+                leaderboardItems: { ...info.leaderboardItems }
             }))
     }
 
@@ -85,14 +88,17 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
     }
 
     renderLeaderboards() {
+        let leaderboard = this.state.leaderboardItems
+        if (leaderboard === "loading") return null
+
         return <>
-            {/* <a className="nav-link dropdown-toggle py-0" role="button" data-toggle="dropdown" href="#">Leaderboards</a>
+            <a className="nav-link dropdown-toggle py-0" role="button" data-toggle="dropdown" href="#">Leaderboards</a>
             <div className="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                <a className="dropdown-item" href="{{ url_for('curr_leaders') }}">Current Competition</a>
-                <a className="dropdown-item" href="{{ url_for('prev_leaders') }}">Last Week's Competition</a>
+                <Link className="dropdown-item" to={leaderboard.current.url}>{leaderboard.current.name}</Link>
+                <Link className="dropdown-item" to={leaderboard.previous.url}>{leaderboard.previous.name}</Link>
                 <div className="dropdown-divider"></div>
-                <a className="dropdown-item" href="{{ url_for('results_list') }}">All competitions</a>
-            </div> */}
+                <Link className="dropdown-item" to={leaderboard.all.url}>{leaderboard.all.name}</Link>
+            </div>
         </>
     }
 

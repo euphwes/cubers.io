@@ -5,6 +5,11 @@ export type HeaderInfo = {
         nonWca: HeaderItem
         sum: HeaderItem
     }
+    leaderboardItems: {
+        current: DetailedUrl
+        previous: DetailedUrl
+        all: DetailedUrl
+    }
 }
 
 export type HeaderItem = {
@@ -12,7 +17,7 @@ export type HeaderItem = {
     urls: DetailedUrl[]
 }
 
-type DetailedUrl = {
+export type DetailedUrl = {
     url: string
     name: string
 }

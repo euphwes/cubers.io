@@ -18,6 +18,11 @@ from .constants import *
 def get_header_info():
     """ Api endpoint for retrieving header information """
 
+    comp = comp_manager.get_active_competition()
+    title = None
+    if comp.title:
+        title = comp.title
+
     wca_events = list(map(lambda event: {
         'url': url_for('event_results', event_name=event),
         'name': event
@@ -32,13 +37,8 @@ def get_header_info():
         'name': sort['name']
     }, SUM_OF_RANKS))
 
-    comp = comp_manager.get_active_competition()
-
-    title = None
-    if comp.title:
-        title = comp.title
-
     header_info = {
+        'compId': comp.id,
         'title': title,
         'recordsItems': {
             'wca': {
@@ -52,6 +52,20 @@ def get_header_info():
             'sum': {
                 'urls': sum_of_ranks,
                 'title': 'Sum of Ranks'
+            }
+        },
+        'leaderboardItems': {
+            'current': {
+                'name': 'Current Competition',
+                'url': '/leaderboards/{}'.format(comp.id)
+            },
+            'previous': {
+                'name': 'Last Week\'s Competition',
+                'url': '/leaderboards/{}'.format(comp.id - 1)
+            },
+            'all': {
+                'name': 'All competitions',
+                'url': url_for('results_list')
             }
         }
     }
