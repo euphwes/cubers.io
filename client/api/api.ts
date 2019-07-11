@@ -9,3 +9,7 @@ function fetchResources<T>(url: string): Promise<T> {
 export function getHeaderInfo(): Promise<types.HeaderInfo> {
     return fetchResources("/api/header-info")
 }
+
+export function getCompetitionEvents(): Promise<types.CompetitionEvent[]> {
+    return fetchResources("/api/competition-events")
+}
