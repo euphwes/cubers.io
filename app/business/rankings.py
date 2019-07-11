@@ -108,7 +108,7 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
         for personal_best in ranked_singles:
             if personal_best.user_id == user_id:
                 pb_single   = personal_best.personal_best
-                single_rank = personal_best.rank
+                single_rank = personal_best.numerical_rank
                 break
 
         # If our user has no single for this event, their site ranking is
@@ -176,6 +176,7 @@ class PersonalBestRecord():
         self.comment          = kwargs.get('comment')
         self.user_is_verified = kwargs.get('user_is_verified')
         self.rank             = '-1'
+        self.numerical_rank   = '-1'
 
 
 def _build_PersonalBestRecord(query_tuple):
@@ -234,9 +235,11 @@ def _determine_ranks(personal_bests):
         rank = ranked_times[i][0]
         if rank not in ranks_seen:
             ranks_seen.add(rank)
+            personal_best.rank = rank
+            personal_best.numerical_rank = rank
         else:
-            rank = ''
-        personal_best.rank = rank
+            personal_best.rank = ''
+            personal_best.numerical_rank = rank
 
     return personal_bests
 
