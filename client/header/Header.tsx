@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { Link } from 'react-router-dom'
 import * as Api from '../api/api'
+import * as Types from '../api/types'
 
 type HeaderProps = {
 
@@ -9,9 +10,9 @@ type HeaderProps = {
 type HeaderState = {
     title: string
     recordsItems: {
-        wca: { url: string, name: string }[]
-        nonWca: { url: string, name: string }[]
-        sum: { url: string, name: string }[]
+        wca: Types.HeaderItem
+        nonWca: Types.HeaderItem
+        sum: Types.HeaderItem
     } | "loading"
 }
 
@@ -30,15 +31,15 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
             .then(info => this.setState({
                 title: info.title,
                 recordsItems: {
-                    wca: info.records.wca,
-                    nonWca: info.records.nonWca,
-                    sum: info.records.sum
+                    wca: info.recordsItems.wca,
+                    nonWca: info.recordsItems.nonWca,
+                    sum: info.recordsItems.sum
                 }
             }))
     }
 
-    renderRecordItem(items: { url: string, name: string }[]) {
-        return items.map((item, id) =>
+    renderRecordItem(item: Types.HeaderItem, loading: boolean) {
+        return item.urls.map((item, id) =>
             <Link
                 key={id}
                 className="dropdown-item slim-nav-item"
@@ -52,28 +53,31 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
             <a className="nav-link dropdown-toggle py-0" role="button" data-toggle="dropdown" data-submenu href="#">Records</a>
             <div className="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                 <div className="dropdown dropright dropdown-submenu">
-                    <button className="dropdown-item dropdown-toggle" type="button">WCA Events</button>
+                    <button className="dropdown-item dropdown-toggle" type="button">
+                        {this.state.recordsItems !== "loading" ? this.state.recordsItems.wca.title : "Loading..."}
+                    </button>
                     <div className="dropdown-menu">
-                        {this.state.recordsItems === "loading" ? null :
-                            this.renderRecordItem(this.state.recordsItems.wca)
-                        }
+                        {this.state.recordsItems !== "loading" ?
+                            this.renderRecordItem(this.state.recordsItems.wca, false) : null}
                     </div>
                 </div>
                 <div className="dropdown dropright dropdown-submenu">
-                    <button className="dropdown-item dropdown-toggle" type="button">Non-WCA Events</button>
+                    <button className="dropdown-item dropdown-toggle" type="button">
+                        {this.state.recordsItems !== "loading" ? this.state.recordsItems.nonWca.title : "Loading..."}
+                    </button>
                     <div className="dropdown-menu">
-                        {this.state.recordsItems === "loading" ? null :
-                            this.renderRecordItem(this.state.recordsItems.nonWca)
-                        }
+                        {this.state.recordsItems !== "loading" ?
+                            this.renderRecordItem(this.state.recordsItems.nonWca, false) : null}
                     </div>
                 </div>
-                <div className="dropdown-divider"></div>
+                <div className="dropdown-divider" />
                 <div className="dropdown dropright dropdown-submenu">
-                    <button className="dropdown-item dropdown-toggle" type="button">Sum of Ranks</button>
+                    <button className="dropdown-item dropdown-toggle" type="button">
+                        {this.state.recordsItems !== "loading" ? this.state.recordsItems.sum.title : "Loading..."}
+                    </button>
                     <div className="dropdown-menu">
-                        {this.state.recordsItems === "loading" ? null :
-                            this.renderRecordItem(this.state.recordsItems.sum)
-                        }
+                        {this.state.recordsItems !== "loading" ?
+                            this.renderRecordItem(this.state.recordsItems.sum, false) : null}
                     </div>
                 </div>
             </div>

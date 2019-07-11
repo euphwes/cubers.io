@@ -30,20 +30,29 @@ def get_header_info():
     sum_of_ranks = list(map(lambda sort: {
         'url': url_for('sum_of_ranks', sor_type=sort['sort']),
         'name': sort['name']
-    }, SUM_OF_RANKS ))
+    }, SUM_OF_RANKS))
 
     comp = comp_manager.get_active_competition()
 
     title = None
-    if(comp.title):
+    if comp.title:
         title = comp.title
 
     header_info = {
         'title': title,
-        'records': {
-            'wca': wca_events,
-            'nonWca': non_wca_events,
-            'sum': sum_of_ranks
+        'recordsItems': {
+            'wca': {
+                'urls': wca_events,
+                'title': 'WCA Events'
+            },
+            'nonWca': {
+                'urls': non_wca_events,
+                'title': 'Non-WCA Events'
+            },
+            'sum': {
+                'urls': sum_of_ranks,
+                'title': 'Sum of Ranks'
+            }
         }
     }
 

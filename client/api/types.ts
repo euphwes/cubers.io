@@ -1,17 +1,18 @@
 export type HeaderInfo = {
     title: string
-    records: {
-        wca: {
-            url: string
-            name: string
-        }[]
-        nonWca: {
-            url: string
-            name: string
-        }[]
-        sum: {
-            url: string
-            name: string
-        }[]
+    recordsItems: {
+        wca: HeaderItem
+        nonWca: HeaderItem
+        sum: HeaderItem
     }
+}
+
+export type HeaderItem = {
+    title: string
+    urls: DetailedUrl[]
+}
+
+type DetailedUrl = {
+    url: string
+    name: string
 }
