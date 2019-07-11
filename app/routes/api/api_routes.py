@@ -10,6 +10,8 @@ from app.persistence.user_results_manager import get_all_user_results_for_comp_a
 from app.util.events.resources import sort_comp_events_by_global_sort_order
 from app.persistence.settings_manager import get_setting_for_user, SettingCode, TRUE_STR
 
+from app.routes.home.home_routes import __build_is_incomplete_func
+
 from .constants import *
 
 # -------------------------------------------------------------------------------------------------
@@ -82,3 +84,53 @@ def get_header_info():
     }
 
     return jsonify(header_info)
+
+@app.route("/api/competition-events")
+def competition_events():
+    """ Endpoint for retrieving the events of the current competition """
+
+    comp = comp_manager.get_active_competition()
+    comp_events = sort_comp_events_by_global_sort_order(comp.events)
+
+    user_results = get_all_user_results_for_comp_and_user(comp.id, current_user.id)
+    complete_events = { r.CompetitionEvent.id: r.friendly_result() for r in user_results if r.is_complete }
+
+    is_incomplete_func = __build_is_incomplete_func(set(complete_events.keys()))
+    incomplete_event_ids = set(r.CompetitionEvent.id for r in user_results if is_incomplete_func(r))
+
+    bonus_event_names = set(get_all_bonus_events_names())
+    bonus_events_ids = set(c.id for c in comp_events if c.Event.name in bonus_event_names)
+
+    events = map(lambda event: api_event(event, complete_events, incomplete_event_ids, bonus_events_ids), comp_events)
+    return jsonify(list(events))
+
+def api_event(event, complete_events, incomplete_events, bonus_events):
+    """ Method for getting detailed event information """
+
+    name = event.Event.name
+    if name == "3x3 Mirror Blocks/Bump":
+        name = "Mirror Blocks"
+
+    comp_id = event.Event.id
+
+    complete = event.id in complete_events.keys()
+    incomplete = event.id in incomplete_events
+
+    status = "not_started"
+    if complete:
+        status = "complete"
+    elif incomplete:
+        status = "incomplete"
+
+    bonus_event = event.id in bonus_events
+
+    summary = complete_events.get(event.id, '')
+
+    return {
+        'name': name,
+        'compId': comp_id,
+        'competeLocation': url_for('timer_page', comp_event_id=event.id),
+        'status': status,
+        'bonusEvent': bonus_event,
+        'summary': summary
+    }
