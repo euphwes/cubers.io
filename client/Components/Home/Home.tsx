@@ -40,9 +40,11 @@ export class Home extends React.Component<HomeProps, HomeState>{
 
     renderOverlay(status: "not_started" | "incomplete" | "complete") {
         if (status === "not_started") return null
+        let cssClass = status === "complete" ? "fas fa-check" : "far fa-clock"
+
         return <div className={`overlay ${status}-overlay`}>
             <span className="icon">
-                <i className="fas fa-check"></i>
+                <i className={cssClass}></i>
             </span>
         </div>
     }
