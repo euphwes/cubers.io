@@ -9,8 +9,11 @@ from app.persistence.events_manager import get_all_bonus_events_names
 from app.persistence.user_results_manager import get_all_user_results_for_comp_and_user
 from app.util.events.resources import sort_comp_events_by_global_sort_order
 from app.persistence.settings_manager import get_setting_for_user, SettingCode, TRUE_STR
+from app.persistence.user_results_manager import get_event_results_for_user
+from app.persistence.comp_manager import get_comp_event_by_id
 
 from app.routes.home.home_routes import __build_is_incomplete_func
+from app.routes.timer.timer_routes import __build_user_solves_list, __determine_scramble_id_text_index, __get_user_settings
 
 from .constants import *
 
@@ -134,3 +137,61 @@ def api_event(event, complete_events, incomplete_events, bonus_events):
         'bonusEvent': bonus_event,
         'summary': summary
     }
+
+@app.route('/api/get-event/<int:event_id>')
+def get_event(event_id):
+    # Retrieve the specified competition event
+    comp_event = get_comp_event_by_id(event_id)
+    if not comp_event:
+        return ('',404)
+
+    # Verify it's for the actve competition
+    comp = comp_event.Competition
+    if not comp.active:
+        return ('', 400)
+
+    event_name = comp_event.Event.name
+    event_format = comp_event.Event.eventFormat
+    event_description = comp_event.Event.description
+
+    settings = __get_user_settings(current_user)
+
+    user_results = get_event_results_for_user(event_id, current_user)
+
+    user_solves, _ = __build_user_solves_list(
+        user_results, 
+        comp_event.Event.totalSolves,
+        comp_event.scrambles
+    )
+
+    # Determine the scramble ID, scramble text, and index for the next unsolved scramble.
+    # If all solves are done, substitute in some sort of message in place of the scramble text
+    scramble_id, scramble_text, scramble_index = __determine_scramble_id_text_index(
+        user_results, 
+        user_solves,
+        comp_event.scrambles, 
+        event_name,
+        event_format
+    )
+
+    return jsonify({
+        'currentScramble': {
+            'text': scramble_text,
+            'id': scramble_id,
+            'index': scramble_index
+        },
+        'event': {
+            'id': event_id,
+            'name': event_name,
+            'format': event_format,
+            'description': event_description,
+            'solves': user_solves,
+        },
+        'userSettings': settings
+    })
+
+
+@app.route('/api/submit-solve', methods=['POST'])
+def update_methods():
+    s = request.json['solve']
+    return jsonify(s)
