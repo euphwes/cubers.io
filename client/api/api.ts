@@ -13,3 +13,7 @@ export function getHeaderInfo(): Promise<types.HeaderInfo> {
 export function getCompetitionEvents(): Promise<types.CompetitionEvent[]> {
     return fetchResources("/api/competition-events")
 }
+
+export function getEventInfo(eventId: number): Promise<types.Event> {
+    return fetchResources(`/api/get-event/${eventId}`)
+}
