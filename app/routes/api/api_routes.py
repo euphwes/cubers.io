@@ -154,8 +154,6 @@ def get_event(event_id):
     event_format = comp_event.Event.eventFormat
     event_description = comp_event.Event.description
 
-    settings = __get_user_settings(current_user)
-
     user_results = get_event_results_for_user(event_id, current_user)
 
     user_solves, _ = __build_user_solves_list(
@@ -186,10 +184,15 @@ def get_event(event_id):
             'format': event_format,
             'description': event_description,
             'solves': user_solves,
-        },
-        'userSettings': settings
+        }
     })
 
+@app.route('/api/user-settings')
+def get_user_settings():
+    settings = __get_user_settings(current_user)
+    return jsonify({
+        'userSettings': settings
+    })
 
 @app.route('/api/submit-solve', methods=['POST'])
 def update_methods():
