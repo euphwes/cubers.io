@@ -189,6 +189,9 @@ def get_event(event_id):
 
 @app.route('/api/user-settings')
 def get_user_settings():
+    if not current_user:
+        return ('', 401)
+
     settings = __get_user_settings(current_user)
     return jsonify({
         'userSettings': settings
