@@ -35,7 +35,7 @@
 {% endblock %}
 
 <body>
-    <input type="hidden" name="Anti-Forgery-Token" value="{{session['token']}}" >
+    <input type="hidden" name="Anti-Forgery-Token" value="{{session['csrf-token']}}" >
     {% include 'common/navbar.html' %}
     {% block content %}
     {% endblock %}

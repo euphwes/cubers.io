@@ -1,6 +1,6 @@
 """ Routes related to the main page. """
 
-from flask import render_template, redirect, url_for, jsonify
+from flask import render_template, redirect, url_for, jsonify, request, session
 from flask_login import current_user
 
 from app import app
@@ -16,6 +16,7 @@ from app.routes.home.home_routes import __build_is_incomplete_func
 from app.routes.timer.timer_routes import __build_user_solves_list, __determine_scramble_id_text_index, __get_user_settings
 
 from .constants import *
+from app.util.token import valid_token
 
 # -------------------------------------------------------------------------------------------------
 
@@ -199,5 +200,7 @@ def get_user_settings():
 
 @app.route('/api/submit-solve', methods=['POST'])
 def update_methods():
+    if not valid_token(request.headers.get('X_CSRF_TOKEN')):
+        return ('', 400)
     s = request.json['solve']
     return jsonify(s)

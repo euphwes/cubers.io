@@ -7,8 +7,8 @@ def generate_token():
     token_chars = string.ascii_letters + string.digits + '!@#$%^&*()_+-=~[]'
     token = ''.join(random.choices(token_chars, k=128))
 
-    session['token'] = token
+    session['csrf-token'] = token
 
 def valid_token(input_token):
     """ Compares the token in the session """
-    return session['token'] == input_token
+    return session['csrf-token'] == input_token

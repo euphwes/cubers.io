@@ -7,9 +7,10 @@ function fetchResources<T>(url: string): Promise<T> {
 }
 
 function postResources<T>(url: string, data: any) {
+    let token = document.getElementsByName('Anti-Forgery-Token')[0].getAttribute('value')
     let headers = new Headers()
     headers.append('Content-Type', 'application/json')
-
+    headers.append('X_CSRF_TOKEN', token)
     let request: RequestInit = {
         method: "POST",
         headers: headers,
