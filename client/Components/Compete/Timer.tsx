@@ -5,8 +5,12 @@ import * as Types from '../../api/types'
 import * as Helpers from '../../api/helpers'
 
 type TimerProps = {
-    solve: { time: string } | "none"
-    postTime: (time: number, penalty: "none" | "+2" | "DNF") => void
+    solve: {
+        id: number
+        time: string
+    } | "none"
+    postTime: (time: number, penalty: Penalty) => void
+    postPenalty: (penalty: Penalty) => void
 }
 
 type TimerState = {
@@ -15,10 +19,11 @@ type TimerState = {
     timerEnd: number | "none"
     timerDelta: number | "none"
     timerStartKey: string
-    timerPenalty: "none" | "+2" | "DNF"
+    timerPenalty: Penalty
 }
 
 type TimeState = "idle" | "timing" | "ready" | "starting" | "finished"
+type Penalty = "none" | "+2" | "DNF"
 
 export class Timer extends React.Component<TimerProps, TimerState>{
     constructor(props: TimerProps) {
@@ -91,9 +96,12 @@ export class Timer extends React.Component<TimerProps, TimerState>{
         window.removeEventListener('keyup', this.onKeyUp)
     }
 
-    getTime(time: number | "none") {
-        if (time === "none") return "0.00"
-        return Helpers.toReadableTime(time)
+    getTime() {
+        if (this.state.timerState === "starting" || this.state.timerState === "ready") return "0.00"
+        if (this.state.timerState === "timing") return Helpers.toReadableTime(this.state.timerDelta as number)
+        if (this.state.timerDelta !== "none") return Helpers.toReadableTime(this.state.timerDelta)
+        if (this.props.solve !== "none") return this.props.solve.time
+        return "0.00"
     }
 
     getTimerState(state: TimeState) {
@@ -107,10 +115,7 @@ export class Timer extends React.Component<TimerProps, TimerState>{
 
         return <div className="timer-wrapper">
             <div className={`timer-time ${this.getTimerState(this.state.timerState)}`}>
-                {this.props.solve === "none" ?
-                    this.getTime(this.state.timerDelta) :
-                    this.props.solve.time
-                }
+                {this.getTime()}
             </div>
             <div className="timer-buttons">
                 <button className="timer-modifier-button" disabled={disabled}>
