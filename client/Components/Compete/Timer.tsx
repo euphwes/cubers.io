@@ -5,10 +5,8 @@ import * as Types from '../../api/types'
 import * as Helpers from '../../api/helpers'
 
 type TimerProps = {
-    solve: {
-        id: number
-        time: string
-    } | "none"
+    previousSolve: { time: string } | "none"
+    currentScrambleId: { id: number } | "none"
     postTime: (time: number, penalty: Penalty) => void
     postPenalty: (penalty: Penalty) => void
 }
@@ -87,11 +85,13 @@ export class Timer extends React.Component<TimerProps, TimerState>{
     }
 
     componentDidMount() {
+        if (this.props.currentScrambleId === "none") return
         window.addEventListener('keydown', this.onKeyDown)
         window.addEventListener('keyup', this.onKeyUp)
     }
 
     componentWillUnmount() {
+        if (this.props.currentScrambleId === "none") return
         window.removeEventListener('keydown', this.onKeyDown)
         window.removeEventListener('keyup', this.onKeyUp)
     }
@@ -100,7 +100,7 @@ export class Timer extends React.Component<TimerProps, TimerState>{
         if (this.state.timerState === "starting" || this.state.timerState === "ready") return "0.00"
         if (this.state.timerState === "timing") return Helpers.toReadableTime(this.state.timerDelta as number)
         if (this.state.timerDelta !== "none") return Helpers.toReadableTime(this.state.timerDelta)
-        if (this.props.solve !== "none") return this.props.solve.time
+        if (this.props.previousSolve !== "none") return this.props.previousSolve.time
         return "0.00"
     }
 
@@ -111,7 +111,7 @@ export class Timer extends React.Component<TimerProps, TimerState>{
     }
 
     render() {
-        let disabled = this.props.solve === "none"
+        let disabled = this.props.previousSolve === "none"
 
         return <div className="timer-wrapper">
             <div className={`timer-time ${this.getTimerState(this.state.timerState)}`}>
@@ -121,10 +121,10 @@ export class Timer extends React.Component<TimerProps, TimerState>{
                 <button className="timer-modifier-button" disabled={disabled}>
                     <i className="fas fa-undo"></i>
                 </button>
-                <button className="timer-modifier-button" disabled={disabled}>
+                <button className="timer-modifier-button" disabled={disabled} onClick={() => this.updateTime("+2")}>
                     <span>+2</span>
                 </button>
-                <button className="timer-modifier-button" disabled={disabled}>
+                <button className="timer-modifier-button" disabled={disabled} onClick={() => this.updateTime("DNF")}>
                     <span>DNF</span>
                 </button>
                 <button className="timer-modifier-button" disabled={disabled}>

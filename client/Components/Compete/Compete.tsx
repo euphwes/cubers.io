@@ -52,8 +52,13 @@ export class Compete extends React.Component<CompeteProps, CompeteState>{
                     {this.state.event.currentScramble.text}
                 </div>
                 <Timer
-                    solve={!latestSolve ? "none" : { time: latestSolve }}
+                    previousSolve={!latestSolve ? "none" : { time: latestSolve }}
+                    currentScrambleId={this.state.event.currentScramble.id === -1 ?
+                        "none" :
+                        { id: this.state.event.currentScramble.id }
+                    }
                     postTime={() => { }}
+                    postPenalty={() => { }}
                 />
             </div>
         </div>
