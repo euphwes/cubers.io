@@ -57,8 +57,19 @@ export class Compete extends React.Component<CompeteProps, CompeteState>{
                         "none" :
                         { id: this.state.event.currentScramble.id }
                     }
-                    postTime={() => { }}
-                    postPenalty={() => { }}
+                    postTime={(time) => {
+                        let event = this.state.event as Types.Event
+                        Api.postSolve({
+                            comp_event_id: event.event.id,
+                            elapsed_centiseconds: parseInt(`${time / 10}`),
+                            is_dnf: false,
+                            is_plus_two: false,
+                            scramble_id: event.currentScramble.id
+                        }).then(newEvent => this.setState({ event: newEvent }))
+                    }}
+                    postPenalty={(penalty) => {
+
+                    }}
                 />
             </div>
         </div>

@@ -43,7 +43,9 @@ export class Timer extends React.Component<TimerProps, TimerState>{
 
             let time = Date.now()
             let delta = time - this.state.timerStart
-            this.setState({ timerState: "finished", timerEnd: time, timerDelta: delta })
+            this.setState({ timerState: "finished", timerEnd: time, timerDelta: delta }, () => {
+                this.props.postTime(delta, "none")
+            })
         }
 
         if (event.key !== " ") return
@@ -108,6 +110,10 @@ export class Timer extends React.Component<TimerProps, TimerState>{
         if (state === "ready" || state === "timing")
             return state
         return ""
+    }
+
+    updateTime(penalty: Penalty) {
+        this.props.postPenalty(penalty)
     }
 
     render() {
