@@ -10,6 +10,8 @@ from app.persistence.user_results_manager import get_all_user_results_for_comp_a
 from app.util.events.resources import sort_comp_events_by_global_sort_order
 from app.persistence.settings_manager import get_setting_for_user, SettingCode, TRUE_STR
 
+from app.util.token import generate_token
+
 # -------------------------------------------------------------------------------------------------
 
 @app.route('/')
@@ -47,6 +49,8 @@ def index():
     # Determine whether to show moving shapes background
     show_shapes_background = get_setting_for_user(current_user.id, SettingCode.ENABLE_MOVING_SHAPES_BG)
     show_shapes_background = show_shapes_background == TRUE_STR
+
+    generate_token()
 
     # Phew, finally we can render the page
     return render_template('index.html', current_competition=comp, comp_events=comp_events,

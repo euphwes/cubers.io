@@ -35,6 +35,7 @@
 {% endblock %}
 
 <body>
+    <input type="hidden" name="Anti-Forgery-Token" value="{{session['token']}}" >
     {% include 'common/navbar.html' %}
     {% block content %}
     {% endblock %}
