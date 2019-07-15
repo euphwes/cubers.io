@@ -133,7 +133,7 @@ def api_event(event, complete_events, incomplete_events, bonus_events):
     return {
         'name': name,
         'compId': comp_id,
-        'competeLocation': url_for('timer_page', comp_event_id=event.id),
+        'competeLocation': '/compete/{}'.format(event.id),
         'status': status,
         'bonusEvent': bonus_event,
         'summary': summary
@@ -198,9 +198,3 @@ def get_user_settings():
         'userSettings': settings
     })
 
-@app.route('/api/submit-solve', methods=['POST'])
-def update_methods():
-    if not valid_token(request.headers.get('X_CSRF_TOKEN')):
-        return ('', 400)
-    s = request.json['solve']
-    return jsonify(s)
