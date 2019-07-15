@@ -6,7 +6,7 @@ import * as Helpers from '../../api/helpers'
 
 type TimerProps = {
     solve: { time: string } | "none"
-    postTime: (time: number) => void
+    postTime: (time: number, penalty: "none" | "+2" | "DNF") => void
 }
 
 type TimerState = {
@@ -35,12 +35,11 @@ export class Timer extends React.Component<TimerProps, TimerState>{
     }
 
     onKeyDown = (event: KeyboardEvent) => {
-        if (this.state.timerState === "timing"){
+        if (this.state.timerState === "timing") {
             if (this.state.timerStart === "none") throw "impossible"
 
             let time = Date.now()
             let delta = time - this.state.timerStart
-            console.log(delta)
             this.setState({ timerState: "finished", timerEnd: time, timerDelta: delta })
         }
 
