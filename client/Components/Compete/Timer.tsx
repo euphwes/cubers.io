@@ -103,6 +103,8 @@ export class Timer extends React.Component<TimerProps, TimerState>{
     }
 
     render() {
+        let disabled = this.props.solve === "none"
+
         return <div className="timer-wrapper">
             <div className={`timer-time ${this.getTimerState(this.state.timerState)}`}>
                 {this.props.solve === "none" ?
@@ -111,10 +113,18 @@ export class Timer extends React.Component<TimerProps, TimerState>{
                 }
             </div>
             <div className="timer-buttons">
-                <button className="timer-modifier-button"></button>
-                <button className="timer-modifier-button"></button>
-                <button className="timer-modifier-button"></button>
-                <button className="timer-modifier-button"></button>
+                <button className="timer-modifier-button" disabled={disabled}>
+                    <i className="fas fa-undo"></i>
+                </button>
+                <button className="timer-modifier-button" disabled={disabled}>
+                    <span>+2</span>
+                </button>
+                <button className="timer-modifier-button" disabled={disabled}>
+                    <span>DNF</span>
+                </button>
+                <button className="timer-modifier-button" disabled={disabled}>
+                    <i className="far fa-comment"></i>
+                </button>
             </div>
         </div>
     }
