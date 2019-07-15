@@ -15,6 +15,10 @@ from app.persistence.user_results_manager import save_event_results, get_event_r
     delete_user_solve, delete_event_results, get_user_solve_for_scramble_id
 from app.routes.timer import timer_page
 
+from app.routes.api.api_routes import get_event
+
+from app.util.token import valid_token
+
 # -------------------------------------------------------------------------------------------------
 
 LOG_EVENT_RESULTS_TEMPLATE = "{}: submitted {} results"
@@ -40,9 +44,13 @@ ERR_MSG_NO_RESULTS    = "Can't find user results for competition event with ID {
 # -------------------------------------------------------------------------------------------------
 
 @app.route('/post_solve', methods=['POST'])
+@app.route('/api/submit-solve', methods=['POST'])
 def post_solve():
     """ Saves a solve. Ensures the user has UserEventResults for this event, associated this solve
     with those results, and processes the results to make sure all relevant data is up-to-date. """
+
+    if not valid_token(request.headers.get('X_CSRF_TOKEN')):
+        return ('', 400)
 
     if not current_user.is_authenticated:
         return abort(HTTPStatus.UNAUTHORIZED)
@@ -92,12 +100,16 @@ def post_solve():
     process_event_results(user_event_results, comp_event, current_user)
     save_event_results(user_event_results)
 
-    return timer_page(comp_event_id, gather_info_for_live_refresh=True)
+    return get_event(comp_event_id)#timer_page(comp_event_id, gather_info_for_live_refresh=True)
 
 
 @app.route('/toggle_prev_dnf', methods=['POST'])
+@app.route('/api/toggle-dnf', methods=['PUT'])
 def toggle_prev_dnf():
     """ Toggles the DNF status of the last solve for the specified user and competition event. """
+
+    if not valid_token(request.headers.get('X_CSRF_TOKEN')):
+        return ('', 400)
 
     if not current_user.is_authenticated:
         return abort(HTTPStatus.UNAUTHORIZED)
@@ -138,12 +150,16 @@ def toggle_prev_dnf():
     process_event_results(user_event_results, comp_event, current_user)
     save_event_results(user_event_results)
 
-    return timer_page(comp_event_id, gather_info_for_live_refresh=True)
+    return get_event(comp_event_id)#timer_page(comp_event_id, gather_info_for_live_refresh=True)
 
 
 @app.route('/toggle_prev_plus_two', methods=['POST'])
+@app.route('/api/toggle-plus-two', methods=['PUT'])
 def toggle_prev_plus_two():
     """ Toggles the +2 status of the last solve for the specified user and competition event. """
+
+    if not valid_token(request.headers.get('X_CSRF_TOKEN')):
+        return ('', 400)
 
     if not current_user.is_authenticated:
         return abort(HTTPStatus.UNAUTHORIZED)
@@ -184,12 +200,16 @@ def toggle_prev_plus_two():
     process_event_results(user_event_results, comp_event, current_user)
     save_event_results(user_event_results)
 
-    return timer_page(comp_event_id, gather_info_for_live_refresh=True)
+    return get_event(comp_event_id) #timer_page(comp_event_id, gather_info_for_live_refresh=True)
 
 
 @app.route('/delete_prev_solve', methods=['POST'])
+@app.route('/api/delete-solve', methods=['DELETE'])
 def delete_prev_solve():
     """ Deletes the last completed solve of the specified competition event for this user. """
+
+    if not valid_token(request.headers.get('X_CSRF_TOKEN')):
+        return ('', 400)
 
     if not current_user.is_authenticated:
         return abort(HTTPStatus.UNAUTHORIZED)
@@ -235,12 +255,16 @@ def delete_prev_solve():
         process_event_results(user_event_results, comp_event, current_user)
         save_event_results(user_event_results)
 
-    return timer_page(comp_event_id, gather_info_for_live_refresh=True)
+    return get_event(comp_event_id) #timer_page(comp_event_id, gather_info_for_live_refresh=True)
 
 
 @app.route('/apply_comment', methods=['POST'])
+@app.route('/api/submit-comment', methods=['PUT'])
 def apply_comment():
     """ Applies the supplied comment to the desired competition event for this user. """
+
+    if not valid_token(request.headers.get('X_CSRF_TOKEN')):
+        return ('', 400)
 
     if not current_user.is_authenticated:
         return abort(HTTPStatus.UNAUTHORIZED)
@@ -273,4 +297,4 @@ def apply_comment():
     user_event_results.comment = comment
     save_event_results(user_event_results)
 
-    return timer_page(comp_event_id, gather_info_for_live_refresh=True)
+    return get_event(comp_event_id) #timer_page(comp_event_id, gather_info_for_live_refresh=True)
