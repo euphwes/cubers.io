@@ -39,7 +39,10 @@ export class Compete extends React.Component<CompeteProps, CompeteState>{
                 <span className="sidebar-title"></span>
                 <div className="sidebar-times">
                     {this.state.event.event.solves.map((solve, count) =>
-                        <div key={`solve_${count}`}>{solve}</div>
+                        <div
+                            key={`solve_${count}`}
+                            className="time"
+                        >{solve}</div>
                     )}
                 </div>
                 <div className="sidebar-scramble-preview">
@@ -68,7 +71,22 @@ export class Compete extends React.Component<CompeteProps, CompeteState>{
                         }).then(newEvent => this.setState({ event: newEvent }))
                     }}
                     postPenalty={(penalty) => {
-
+                        let event = this.state.event as Types.Event
+                        if (penalty === "+2") {
+                            Api.putPlusTwo(event.event.id)
+                                .then(newEvent => this.setState({ event: newEvent }))
+                            return
+                        }
+                        if (penalty === "DNF") {
+                            Api.putDnf(event.event.id)
+                                .then(newEvent => this.setState({ event: newEvent }))
+                            return
+                        }
+                    }}
+                    deleteTime={() => {
+                        let event = this.state.event as Types.Event
+                        Api.deleteSolve(event.event.id)
+                            .then(newEvent => this.setState({ event: newEvent }))
                     }}
                 />
             </div>

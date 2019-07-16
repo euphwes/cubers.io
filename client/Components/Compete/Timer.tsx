@@ -9,6 +9,7 @@ type TimerProps = {
     currentScrambleId: { id: number } | "none"
     postTime: (time: number, penalty: Penalty) => void
     postPenalty: (penalty: Penalty) => void
+    deleteTime: () => void
 }
 
 type TimerState = {
@@ -124,13 +125,22 @@ export class Timer extends React.Component<TimerProps, TimerState>{
                 {this.getTime()}
             </div>
             <div className="timer-buttons">
-                <button className="timer-modifier-button" disabled={disabled}>
+                <button className="timer-modifier-button" disabled={disabled} onClick={e => {
+                    this.props.deleteTime()
+                    e.currentTarget.blur();
+                }}>
                     <i className="fas fa-undo"></i>
                 </button>
-                <button className="timer-modifier-button" disabled={disabled} onClick={() => this.updateTime("+2")}>
+                <button className="timer-modifier-button" disabled={disabled} onClick={e => {
+                    this.updateTime("+2")
+                    e.currentTarget.blur();
+                }}>
                     <span>+2</span>
                 </button>
-                <button className="timer-modifier-button" disabled={disabled} onClick={() => this.updateTime("DNF")}>
+                <button className="timer-modifier-button" disabled={disabled} onClick={e => {
+                    this.updateTime("DNF")
+                    e.currentTarget.blur();
+                }}>
                     <span>DNF</span>
                 </button>
                 <button className="timer-modifier-button" disabled={disabled}>
