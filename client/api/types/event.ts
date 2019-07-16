@@ -9,6 +9,7 @@ export type Event = {
         format: "Ao5" | "Mo3" | "Bo3" | "Bo1",
         id: number,
         name: string,
-        solves: string[]
+        solves: string[],
+        comment: string
     }
 }

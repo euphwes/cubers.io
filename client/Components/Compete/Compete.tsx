@@ -34,9 +34,9 @@ export class Compete extends React.Component<CompeteProps, CompeteState>{
             .filter(solve => !Number.isNaN(Number(solve)))
             .reverse()[0]
 
-        return <div className="container-fluid timer-container">
+        return <div className="compete-container">
             <div className="sidebar">
-                <span className="sidebar-title"></span>
+                <div className="sidebar-title">Solves</div>
                 <div className="sidebar-times">
                     {this.state.event.event.solves.map((solve, count) =>
                         <div
@@ -60,6 +60,8 @@ export class Compete extends React.Component<CompeteProps, CompeteState>{
                         "none" :
                         { id: this.state.event.currentScramble.id }
                     }
+                    eventName={this.state.event.event.name}
+                    comment={this.state.event.event.comment}
                     postTime={(time) => {
                         let event = this.state.event as Types.Event
                         Api.postSolve({
@@ -86,6 +88,11 @@ export class Compete extends React.Component<CompeteProps, CompeteState>{
                     deleteTime={() => {
                         let event = this.state.event as Types.Event
                         Api.deleteSolve(event.event.id)
+                            .then(newEvent => this.setState({ event: newEvent }))
+                    }}
+                    updateComment={(text: string) => {
+                        let event = this.state.event as Types.Event
+                        Api.submitComment(event.event.id, text)
                             .then(newEvent => this.setState({ event: newEvent }))
                     }}
                 />

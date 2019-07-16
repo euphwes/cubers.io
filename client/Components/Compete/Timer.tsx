@@ -7,9 +7,12 @@ import * as Helpers from '../../api/helpers'
 type TimerProps = {
     previousSolve: { time: string } | "none"
     currentScrambleId: { id: number } | "none"
+    eventName: string
+    comment: string
     postTime: (time: number, penalty: Penalty) => void
     postPenalty: (penalty: Penalty) => void
     deleteTime: () => void
+    updateComment: (text: string) => void
 }
 
 type TimerState = {
@@ -19,6 +22,8 @@ type TimerState = {
     timerDelta: number | "none"
     timerStartKey: string
     timerPenalty: Penalty
+    prompt: "delete" | "comment" | "none"
+    comment: string
 }
 
 type TimeState = "idle" | "timing" | "ready" | "starting" | "finished"
@@ -34,8 +39,20 @@ export class Timer extends React.Component<TimerProps, TimerState>{
             timerEnd: "none",
             timerDelta: "none",
             timerStartKey: "",
-            timerPenalty: "none"
+            timerPenalty: "none",
+            prompt: "none",
+            comment: props.comment
         }
+    }
+
+    componentDidMount() {
+        window.addEventListener('keydown', this.onKeyDown)
+        window.addEventListener('keyup', this.onKeyUp)
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('keydown', this.onKeyDown)
+        window.removeEventListener('keyup', this.onKeyUp)
     }
 
     onKeyDown = (event: KeyboardEvent) => {
@@ -89,16 +106,6 @@ export class Timer extends React.Component<TimerProps, TimerState>{
         }
     }
 
-    componentDidMount() {
-        window.addEventListener('keydown', this.onKeyDown)
-        window.addEventListener('keyup', this.onKeyUp)
-    }
-
-    componentWillUnmount() {
-        window.removeEventListener('keydown', this.onKeyDown)
-        window.removeEventListener('keyup', this.onKeyUp)
-    }
-
     getTime() {
         if (this.state.timerState === "starting" || this.state.timerState === "ready") return "0.00"
         if (this.state.timerState === "timing") return Helpers.toReadableTime(this.state.timerDelta as number)
@@ -117,33 +124,89 @@ export class Timer extends React.Component<TimerProps, TimerState>{
         this.props.postPenalty(penalty)
     }
 
+    renderPrompt() {
+        if (this.props.previousSolve === "none") return
+        if (this.state.prompt === "delete") {
+            return <div className="prompt-background">
+                <div className="timer-prompt">
+                    <div className="prompt-message-bar">
+                        <span className="prompt-message">Are you sure you want to delete your last solve? ({this.props.previousSolve.time})</span>
+                        <button className="prompt-blank" onClick={() => this.setState({ prompt: "none" })}>×</button>
+                    </div>
+                    <div className="prompt-buttons">
+                        <button className="prompt-button cancel" onClick={() => this.setState({ prompt: "none" })}>
+                            Cancel
+                        </button>
+                        <button className="prompt-button" onClick={() =>
+                            this.setState({ prompt: "none" }, () => {
+                                this.props.deleteTime()
+                            })
+                        }>Yes</button>
+                    </div>
+                </div>
+            </div>
+        }
+
+        if (this.state.prompt === "comment") {
+            return <div className="prompt-background">
+                <div className="timer-prompt">
+                    <div className="prompt-message-bar">
+                        <span className="prompt-message">Comment for {this.props.eventName}</span>
+                        <button className="prompt-blank" onClick={() => this.setState({ prompt: "none" })}>×</button>
+                    </div>
+                    <div className="prompt-textbox">
+                        <textarea
+                            className="prompt-textbox-input"
+                            onChange={e => this.setState({ comment: e.target.value })}
+                            value={this.state.comment}
+                            autoFocus={true}
+                        />
+                    </div>
+                    <div className="prompt-buttons">
+                        <button className="prompt-button cancel" onClick={() => this.setState({ prompt: "none", comment: this.props.comment })}>Cancel</button>
+                        <button className="prompt-button" onClick={() =>
+                            this.setState({ prompt: "none" }, () => {
+                                this.props.updateComment(this.state.comment)
+                            })
+                        }>Update Comment</button>
+                    </div>
+                </div>
+            </div>
+        }
+
+        return <div className="prompt-background invisible"></div>
+    }
+
     render() {
         let disabled = this.props.previousSolve === "none"
+        let buttonStyle = disabled ? "disabled" : "enabled"
 
         return <div className="timer-wrapper">
-            <div className={`timer-time ${this.getTimerState(this.state.timerState)}`}>
+            {this.renderPrompt()}
+            <span className={`timer-time ${this.getTimerState(this.state.timerState)}`}>
                 {this.getTime()}
-            </div>
+            </span>
             <div className="timer-buttons">
-                <button className="timer-modifier-button" disabled={disabled} onClick={e => {
-                    this.props.deleteTime()
-                    e.currentTarget.blur();
+                <button className={`timer-modifier-button ${buttonStyle}`} disabled={disabled} onClick={e => {
+                    this.setState({ prompt: "delete" })
                 }}>
                     <i className="fas fa-undo"></i>
                 </button>
-                <button className="timer-modifier-button" disabled={disabled} onClick={e => {
+                <button className={`timer-modifier-button ${buttonStyle}`} disabled={disabled} onClick={e => {
                     this.updateTime("+2")
-                    e.currentTarget.blur();
+                    e.currentTarget.blur()
                 }}>
                     <span>+2</span>
                 </button>
-                <button className="timer-modifier-button" disabled={disabled} onClick={e => {
+                <button className={`timer-modifier-button ${buttonStyle}`} disabled={disabled} onClick={e => {
                     this.updateTime("DNF")
-                    e.currentTarget.blur();
+                    e.currentTarget.blur()
                 }}>
                     <span>DNF</span>
                 </button>
-                <button className="timer-modifier-button" disabled={disabled}>
+                <button className={`timer-modifier-button ${buttonStyle}`} disabled={disabled} onClick={e => {
+                    this.setState({ prompt: "comment" })
+                }}>
                     <i className="far fa-comment"></i>
                 </button>
             </div>
