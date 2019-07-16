@@ -31,7 +31,7 @@ export class Compete extends React.Component<CompeteProps, CompeteState>{
 
 
         let latestSolve = this.state.event.event.solves
-            .filter(solve => !Number.isNaN(Number(solve)))
+            .filter(solve => solve !== "—")
             .reverse()[0]
 
         return <div className="compete-container">
@@ -62,7 +62,7 @@ export class Compete extends React.Component<CompeteProps, CompeteState>{
                     }
                     eventName={this.state.event.event.name}
                     comment={this.state.event.event.comment}
-                    postTime={(time) => {
+                    postTime={(time, callback) => {
                         let event = this.state.event as Types.Event
                         Api.postSolve({
                             comp_event_id: event.event.id,
@@ -70,7 +70,7 @@ export class Compete extends React.Component<CompeteProps, CompeteState>{
                             is_dnf: false,
                             is_plus_two: false,
                             scramble_id: event.currentScramble.id
-                        }).then(newEvent => this.setState({ event: newEvent }))
+                        }).then(newEvent => this.setState({ event: newEvent }, () => callback()))
                     }}
                     postPenalty={(penalty) => {
                         let event = this.state.event as Types.Event

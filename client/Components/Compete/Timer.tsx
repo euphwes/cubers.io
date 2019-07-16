@@ -9,37 +9,44 @@ type TimerProps = {
     currentScrambleId: { id: number } | "none"
     eventName: string
     comment: string
-    postTime: (time: number, penalty: Penalty) => void
+    postTime: (time: number, callback: () => void) => void
     postPenalty: (penalty: Penalty) => void
     deleteTime: () => void
     updateComment: (text: string) => void
 }
 
 type TimerState = {
-    timerState: TimeState
-    timerStart: number | "none"
-    timerEnd: number | "none"
-    timerDelta: number | "none"
-    timerStartKey: string
-    timerPenalty: Penalty
+    timer: TimerInfo
     prompt: "delete" | "comment" | "none"
     comment: string
 }
 
-type TimeState = "idle" | "timing" | "ready" | "starting" | "finished"
+type TimeState = "idle" | "starting" | "ready" | "timing" | "finished"
 type Penalty = "none" | "+2" | "DNF"
+type TimerInfo = {
+    state: TimeState
+    start: number | "none"
+    end: number | "none"
+    delta: number | "none"
+    startKey: string
+    penalty: Penalty
+}
+
+let initialTimerInfo: TimerInfo = {
+    state: "idle",
+    start: "none",
+    end: "none",
+    delta: "none",
+    startKey: "",
+    penalty: "none"
+}
 
 export class Timer extends React.Component<TimerProps, TimerState>{
     constructor(props: TimerProps) {
         super(props)
 
         this.state = {
-            timerState: "idle",
-            timerStart: "none",
-            timerEnd: "none",
-            timerDelta: "none",
-            timerStartKey: "",
-            timerPenalty: "none",
+            timer: initialTimerInfo,
             prompt: "none",
             comment: props.comment
         }
@@ -56,60 +63,63 @@ export class Timer extends React.Component<TimerProps, TimerState>{
     }
 
     onKeyDown = (event: KeyboardEvent) => {
+        if (this.state.prompt !== "none") return
         if (this.props.currentScrambleId === "none") return
-        if (this.state.timerState === "timing") {
-            if (this.state.timerStart === "none") throw "impossible"
+        if (this.state.timer.state === "timing") {
+            if (this.state.timer.start === "none") throw "impossible"
 
             let time = Date.now()
-            let delta = time - this.state.timerStart
-            this.setState({ timerState: "finished", timerEnd: time, timerDelta: delta }, () => {
-                this.props.postTime(delta, "none")
+            let delta = time - this.state.timer.start
+            this.setState({ timer: { ...this.state.timer, state: "finished", end: time, delta: delta } }, () => {
+                this.props.postTime(delta, () => {
+                    this.setState({ timer: initialTimerInfo })
+                })
             })
         }
 
         if (event.key !== " ") return
 
-        if (this.state.timerState === "idle") {
+        if (this.state.timer.state === "idle") {
             let startKey = Math.random().toString()
-            this.setState({ timerState: "starting", timerStartKey: startKey }, () => {
+            this.setState({ timer: { ...this.state.timer, state: "starting", startKey: startKey } }, () => {
                 setTimeout(() => {
-                    if (startKey !== this.state.timerStartKey) return
+                    if (startKey !== this.state.timer.startKey) return
 
-                    if (this.state.timerState === "starting") {
-                        this.setState({ timerState: "ready" })
+                    if (this.state.timer.state === "starting") {
+                        this.setState({ timer: { ...this.state.timer, state: "ready" } })
                     }
-                }, 500)
+                }, 400)
             })
         }
     }
     onKeyUp = () => {
-        if (this.props.currentScrambleId === "none") return
-        if (this.state.timerState === "starting") {
-            this.setState({ timerState: "idle" })
+        if (this.state.timer.state === "finished") {
+            this.setState({ timer: { ...this.state.timer, state: "idle" } })
         }
 
-        if (this.state.timerState === "ready") {
+        if (this.props.currentScrambleId === "none") return
+        if (this.state.timer.state === "starting") {
+            this.setState({ timer: { ...this.state.timer, state: "idle" } })
+        }
+
+        if (this.state.timer.state === "ready") {
             let interval = setInterval(() => {
-                if (this.state.timerState === "timing") {
-                    if (this.state.timerStart !== "none")
-                        this.setState({ timerDelta: Date.now() - this.state.timerStart })
+                if (this.state.timer.state === "timing") {
+                    if (this.state.timer.start !== "none")
+                        this.setState({ timer: { ...this.state.timer, delta: Date.now() - this.state.timer.start } })
                 } else {
                     clearInterval(interval)
                 }
             }, 16)
             let time = Date.now()
-            this.setState({ timerState: "timing", timerStart: time })
-        }
-
-        if (this.state.timerState === "finished") {
-            this.setState({ timerState: "idle" })
+            this.setState({ timer: { ...this.state.timer, state: "timing", start: time } })
         }
     }
 
     getTime() {
-        if (this.state.timerState === "starting" || this.state.timerState === "ready") return "0.00"
-        if (this.state.timerState === "timing") return Helpers.toReadableTime(this.state.timerDelta as number)
-        if (this.state.timerDelta !== "none") return Helpers.toReadableTime(this.state.timerDelta)
+        if (this.state.timer.state === "starting" || this.state.timer.state === "ready") return "0.00"
+        if (this.state.timer.state === "timing") return Helpers.toReadableTime(this.state.timer.delta as number)
+        if (this.state.timer.delta !== "none") return Helpers.toReadableTime(this.state.timer.delta)
         if (this.props.previousSolve !== "none") return this.props.previousSolve.time
         return "0.00"
     }
@@ -138,7 +148,7 @@ export class Timer extends React.Component<TimerProps, TimerState>{
                             Cancel
                         </button>
                         <button className="prompt-button" onClick={() =>
-                            this.setState({ prompt: "none" }, () => {
+                            this.setState({ prompt: "none", timer: initialTimerInfo }, () => {
                                 this.props.deleteTime()
                             })
                         }>Yes</button>
@@ -178,12 +188,14 @@ export class Timer extends React.Component<TimerProps, TimerState>{
     }
 
     render() {
-        let disabled = this.props.previousSolve === "none"
+        console.log(this.props.previousSolve)
+        console.log(this.state.timer.state)
+        let disabled = this.props.previousSolve === "none" || this.state.timer.state !== "idle"
         let buttonStyle = disabled ? "disabled" : "enabled"
 
         return <div className="timer-wrapper">
             {this.renderPrompt()}
-            <span className={`timer-time ${this.getTimerState(this.state.timerState)}`}>
+            <span className={`timer-time ${this.getTimerState(this.state.timer.state)}`}>
                 {this.getTime()}
             </span>
             <div className="timer-buttons">
