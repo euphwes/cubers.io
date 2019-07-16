@@ -58,10 +58,8 @@ ASSETS.register({
     ),
 
     'index_css': Bundle(
-        'less/common.less',
-        'less/navbar.less',
-        'less/events_page.less',
-        'less/home/common.less',
+        'less/*.less',
+        'less/**/*.less',
         filters="less,cssmin",
         output='gen/index.css'),
 
