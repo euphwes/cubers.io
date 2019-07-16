@@ -1,0 +1,67 @@
+@import (reference) "common.less";
+
+.timer-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.scramble-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin: 25px;
+    border: 3px solid white;
+    border-radius: 3px;
+
+    height: 28%;
+    color: white;
+}
+
+.timer-wrapper{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+
+    justify-content: center;
+    align-items: center;
+
+    .timer-time{
+        font-size: 100pt;
+        color: white;
+    }
+
+    .timer-buttons {
+        .timer-modifier-button {
+            margin: 20px;
+            width: 75px;
+            height: 50px;
+            border-radius: 4px;
+            font-weight: 600;
+            background: transparent;
+
+            &.enabled {
+                color: white;
+                border: 2px solid white;
+                
+                &:hover {
+                    background: white;
+                    color: #363636;
+                }
+                
+                &:active {
+                    background: #36363644;
+                    color: white;
+                }
+            }
+
+            &.disabled {
+                color: #fefefe88;
+                border: 2px solid #fefefe88;
+            }
+
+            transition: 0.25s;
+        }
+    }
+}

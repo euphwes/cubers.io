@@ -1,0 +1,99 @@
+@import (reference) "common.less";
+
+.prompt-background {
+    position: absolute;
+    display: flex;
+    width: 100%;
+    height: 100%;
+
+    justify-content: center;
+    align-items: center;
+
+    top: 0;
+    left: 0;
+
+    background: #010101bb;
+}
+
+.invisible {
+    width: 0;
+    height: 0;
+    display: none;
+    background: #01010100;
+}
+
+.timer-prompt {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 5px;
+}
+.prompt-message-bar {
+    display: flex;
+    flex: 1;
+    justify-content: space-between;
+    padding: 15px 15px 15px 15px;
+    border-bottom: 1px solid #dddddd;
+    font-size: 14pt;
+    
+    .prompt-message {
+        display: inline-flex;
+    }
+    .prompt-blank{
+        display: inline-flex;
+        margin: 0 0 0 45px;
+        background: transparent;
+        border: 0;
+    }
+}
+
+.prompt-textbox {
+    display: flex;
+    width: 500px;
+    padding: 15px;
+    border-bottom: 1px solid #dddddd;
+
+    .prompt-textbox-input {
+        flex: 1;
+        min-height: 100px;
+        max-height: 500px;
+        border-radius: 5px;
+
+        &:focus {
+            box-shadow: 0 0 2pt 2pt #3696bbaa;
+            outline: none;
+        }
+    }
+}
+
+.prompt-buttons {
+    margin: 0 0 0 auto;
+    padding: 5px;
+
+    .prompt-button {
+        height: 40px;
+        padding: 5px 10px;
+        margin: 10px 10px 10px 0;
+        background: #007bff;
+        color: white;
+        border: 0;
+        border-radius: 5px;
+
+        &:hover {
+            background: darken(#007bff, 10%)
+        }
+        &:active {
+            background: darken(#007bff, 15%)
+        }
+    }
+    .cancel {
+        background: #6c757d;
+
+        &:hover {
+            background: darken(#6c757d, 10%)
+        }
+        &:active {
+            background: darken(#6c757d, 15%)
+        }
+    }
+}
