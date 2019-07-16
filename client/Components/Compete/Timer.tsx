@@ -38,6 +38,7 @@ export class Timer extends React.Component<TimerProps, TimerState>{
     }
 
     onKeyDown = (event: KeyboardEvent) => {
+        if (this.props.currentScrambleId === "none") return
         if (this.state.timerState === "timing") {
             if (this.state.timerStart === "none") throw "impossible"
 
@@ -64,6 +65,7 @@ export class Timer extends React.Component<TimerProps, TimerState>{
         }
     }
     onKeyUp = () => {
+        if (this.props.currentScrambleId === "none") return
         if (this.state.timerState === "starting") {
             this.setState({ timerState: "idle" })
         }
@@ -87,13 +89,11 @@ export class Timer extends React.Component<TimerProps, TimerState>{
     }
 
     componentDidMount() {
-        if (this.props.currentScrambleId === "none") return
         window.addEventListener('keydown', this.onKeyDown)
         window.addEventListener('keyup', this.onKeyUp)
     }
 
     componentWillUnmount() {
-        if (this.props.currentScrambleId === "none") return
         window.removeEventListener('keydown', this.onKeyDown)
         window.removeEventListener('keyup', this.onKeyUp)
     }
