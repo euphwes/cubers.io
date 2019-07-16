@@ -173,6 +173,10 @@ def get_event(event_id):
         event_format
     )
 
+    comment = ''
+    if user_results: 
+        comment = user_results.comment
+
     return jsonify({
         'currentScramble': {
             'text': scramble_text,
@@ -185,6 +189,7 @@ def get_event(event_id):
             'format': event_format,
             'description': event_description,
             'solves': user_solves,
+            'comment': comment
         }
     })
 
