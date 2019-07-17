@@ -6,6 +6,7 @@ type FitTextProps = {
 
 type FitTextState = {
     fontSize: string
+    lines: number
 }
 
 export class FitText extends React.Component<FitTextProps, FitTextState>{
@@ -15,7 +16,8 @@ export class FitText extends React.Component<FitTextProps, FitTextState>{
         super(props)
 
         this.state = {
-            fontSize: ""
+            fontSize: "",
+            lines: props.text.split("\n").length
         }
 
         this.scrambleRef = React.createRef()
@@ -29,6 +31,9 @@ export class FitText extends React.Component<FitTextProps, FitTextState>{
         let height = target.clientHeight
 
         let viewsize = Math.sqrt((width * height) / length)
+        let characterPerLine = width / viewsize
+        viewsize = Math.sqrt((width * height) / (length + (this.state.lines - 1) * characterPerLine))
+
         let size = Math.min(viewsize, 50);
 
         this.setState({ fontSize: `${size}px` })
@@ -44,8 +49,12 @@ export class FitText extends React.Component<FitTextProps, FitTextState>{
     }
 
     render() {
-        return <div className="fit-text-wrapper" ref={this.scrambleRef} style={{ fontSize: this.state.fontSize }}>
-            {this.props.text}
+        return <div className="fit-text-wrapper">
+            <div className="fit-text-inner" ref={this.scrambleRef} style={{ fontSize: this.state.fontSize }}>
+                {this.props.text.split("\n").map((line, count) => <span key={`fit-text-${count}`}>
+                    {line}
+                </span>)}
+            </div>
         </div>
     }
 }
