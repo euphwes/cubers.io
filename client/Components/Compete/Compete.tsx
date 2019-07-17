@@ -3,6 +3,7 @@ import * as React from 'react'
 import * as Api from '../../api/api'
 import * as Types from '../../api/types'
 import { Timer } from './Timer';
+import { FitText } from '../Helper/FitText';
 
 type CompeteProps = {
     eventType: number
@@ -13,12 +14,16 @@ type CompeteState = {
 }
 
 export class Compete extends React.Component<CompeteProps, CompeteState>{
+    scrambleRef: React.RefObject<HTMLDivElement>
+
     constructor(props: CompeteProps) {
         super(props)
 
         this.state = {
             event: "loading"
         }
+
+        this.scrambleRef = React.createRef()
     }
 
     componentDidMount() {
@@ -28,7 +33,6 @@ export class Compete extends React.Component<CompeteProps, CompeteState>{
 
     render() {
         if (this.state.event === "loading") return null
-
 
         let latestSolve = this.state.event.event.solves
             .filter(solve => solve !== "—")
@@ -51,9 +55,7 @@ export class Compete extends React.Component<CompeteProps, CompeteState>{
             </div>
 
             <div className="timer-container">
-                <div className="scramble-wrapper">
-                    {this.state.event.currentScramble.text}
-                </div>
+                <FitText text={this.state.event.currentScramble.text} />
                 <Timer
                     previousSolve={!latestSolve ? "none" : { time: latestSolve }}
                     currentScrambleId={this.state.event.currentScramble.id === -1 ?
