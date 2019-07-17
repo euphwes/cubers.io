@@ -112,7 +112,7 @@ export class Timer extends React.Component<TimerProps, TimerState>{
                 }
             }, 16)
             let time = Date.now()
-            this.setState({ timer: { ...this.state.timer, state: "timing", start: time } })
+            this.setState({ timer: { ...this.state.timer, state: "timing", start: time, delta: 0 } })
         }
     }
 
@@ -188,8 +188,6 @@ export class Timer extends React.Component<TimerProps, TimerState>{
     }
 
     render() {
-        console.log(this.props.previousSolve)
-        console.log(this.state.timer.state)
         let disabled = this.props.previousSolve === "none" || this.state.timer.state !== "idle"
         let buttonStyle = disabled ? "disabled" : "enabled"
 
