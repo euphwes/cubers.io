@@ -262,8 +262,9 @@ def __determine_button_states(user_results, scramble_index):
     individual solves. """
 
     # Assume the previous solve (if any) had no penalties by default
-    previous_was_dnf      = False
-    previous_was_plus_two = False
+    previous_was_dnf            = False
+    previous_was_plus_two       = False
+    previous_was_inspection_dnf = False
 
     # Get a shorter variable to access the user's solves
     solves = user_results.solves if user_results else None
@@ -278,8 +279,9 @@ def __determine_button_states(user_results, scramble_index):
         else:
             previous_idx = scramble_index - 1
 
-        previous_was_dnf      = solves[previous_idx].is_dnf
-        previous_was_plus_two = solves[previous_idx].is_plus_two
+        previous_was_dnf            = solves[previous_idx].is_dnf
+        previous_was_plus_two       = solves[previous_idx].is_plus_two
+        previous_was_inspection_dnf = solves[previous_idx].is_inspection_dnf
 
     # Let's determine the comment button's state
     comment_btn_state = {
@@ -295,13 +297,15 @@ def __determine_button_states(user_results, scramble_index):
 
     # Let's determine the DNF button's state
     dnf_btn_state = {
-        BTN_ENABLED: bool(solves),      # can apply DNF when there's at least one solve
+        # can apply DNF when there's at least one solve, and the previous wasn't an inspection DNF
+        BTN_ENABLED: bool(solves) and (not previous_was_inspection_dnf),
         BTN_ACTIVE:  previous_was_dnf  # DNF button is toggled on if previous solve was DNF
     }
 
     # Let's determine the plus two button's state
     plus_two_btn_state = {
-        BTN_ENABLED: bool(solves),           # can apply +2 when there's at least one solve
+        # can apply +2 when there's at least one solve, and the previous wasn't an inspection DNF
+        BTN_ENABLED: bool(solves) and (not previous_was_inspection_dnf),
         BTN_ACTIVE:  previous_was_plus_two  # +2 button is toggled on if previous solve was +2
     }
 
