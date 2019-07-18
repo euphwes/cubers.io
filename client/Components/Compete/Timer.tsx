@@ -134,6 +134,12 @@ export class Timer extends React.Component<TimerProps, TimerState>{
         this.props.postPenalty(penalty)
     }
 
+    getPenaltyState(): Penalty {
+        if (this.props.previousSolve === "none") return
+        if (this.props.previousSolve.time === "DNF") return "DNF"
+        if (Number.isNaN(Number(this.props.previousSolve.time))) return "+2"
+    }
+
     renderPrompt() {
         if (this.props.previousSolve === "none") return
         if (this.state.prompt === "delete") {
@@ -202,13 +208,13 @@ export class Timer extends React.Component<TimerProps, TimerState>{
                 }}>
                     <i className="fas fa-undo"></i>
                 </button>
-                <button className={`timer-modifier-button ${buttonStyle}`} disabled={disabled} onClick={e => {
+                <button className={`timer-modifier-button ${buttonStyle} ${this.getPenaltyState() === "+2" ? "active" : ""}`} disabled={disabled} onClick={e => {
                     this.updateTime("+2")
                     e.currentTarget.blur()
                 }}>
                     <span>+2</span>
                 </button>
-                <button className={`timer-modifier-button ${buttonStyle}`} disabled={disabled} onClick={e => {
+                <button className={`timer-modifier-button ${buttonStyle} ${this.getPenaltyState() === "DNF" ? "active" : ""}`} disabled={disabled} onClick={e => {
                     this.updateTime("DNF")
                     e.currentTarget.blur()
                 }}>
