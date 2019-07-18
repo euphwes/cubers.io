@@ -201,6 +201,25 @@ export class Timer extends React.Component<TimerProps, TimerState>{
         if (Number.isNaN(Number(this.props.previousSolve.time))) return "+2"
     }
 
+    renderManualEntry() {
+        return <form onSubmit={e => {
+            e.preventDefault()
+        }}>
+            <input type="text" />
+            <button type="submit">
+                <i className="fas fa-arrow-right" />
+            </button>
+        </form>
+    }
+
+    renderTime() {
+        if (this.props.settings.manual_time_entry_by_default) return this.renderManualEntry()
+
+        return <span className={`timer-time ${this.getTimerState(this.state.timer.state)} ${this.getInspectionState()}`}>
+            {this.getTime()}
+        </span>
+    }
+
     renderPrompt() {
         if (this.props.previousSolve === "none") return
         if (this.state.prompt === "delete") {
@@ -260,9 +279,7 @@ export class Timer extends React.Component<TimerProps, TimerState>{
 
         return <div className="timer-wrapper">
             {this.renderPrompt()}
-            <span className={`timer-time ${this.getTimerState(this.state.timer.state)} ${this.getInspectionState()}`}>
-                {this.getTime()}
-            </span>
+            {this.renderTime()}
             <div className="timer-buttons">
                 <button className={`timer-modifier-button ${buttonStyle}`} disabled={disabled} onClick={e => {
                     this.setState({ prompt: "delete" })
