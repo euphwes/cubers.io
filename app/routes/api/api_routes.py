@@ -199,7 +199,5 @@ def get_user_settings():
         return ('', 401)
 
     settings = __get_user_settings(current_user)
-    return jsonify({
-        'userSettings': settings
-    })
+    return jsonify(settings)
 
