@@ -160,6 +160,7 @@ export class Timer extends React.Component<TimerProps, TimerState>{
 
     getTime() {
         if (this.state.timer.state === "inspecting") {
+            if (this.props.settings.hide_inspection_time) return "Inspect"
             if (this.state.timer.inspectionTime <= -2) return "DNF"
             if (this.state.timer.inspectionTime <= 0) return "+2"
             return this.state.timer.inspectionTime
@@ -184,8 +185,6 @@ export class Timer extends React.Component<TimerProps, TimerState>{
         if (this.state.timer.inspectionTime <= -2) return "dnf"
         if (this.state.timer.state === "timing") return ""
         if (this.state.timer.inspectionTime <= 0) return "penalty"
-        if (this.state.timer.inspectionTime <= 15 - 12) return "warning-critical"
-        if (this.state.timer.inspectionTime <= 15 - 8) return "warning"
         return ""
     }
 
