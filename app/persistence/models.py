@@ -348,6 +348,7 @@ class UserSolve(Model):
     id                    = Column(Integer, primary_key=True)
     time                  = Column(Integer)
     is_dnf                = Column(Boolean, default=False)
+    is_inspection_dnf     = Column(Boolean, default=False)
     is_plus_two           = Column(Boolean, default=False)
     scramble_id           = Column(Integer, ForeignKey('scrambles.id'))
     user_event_results_id = Column(Integer, ForeignKey('user_event_results.id'))
