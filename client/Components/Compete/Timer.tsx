@@ -165,7 +165,10 @@ export class Timer extends React.Component<TimerProps, TimerState>{
             return this.state.timer.inspectionTime
         }
         if (this.state.timer.state === "starting" || this.state.timer.state === "ready") return "0.00"
-        if (this.state.timer.state === "timing") return Helpers.toReadableTime(this.state.timer.delta as number)
+        if (this.state.timer.state === "timing") {
+            if (this.props.settings.hide_running_timer) return "Solve"
+            return Helpers.toReadableTime(this.state.timer.delta as number)
+        }
         if (this.state.timer.delta !== "none") return Helpers.toReadableTime(this.state.timer.delta)
         if (this.props.previousSolve !== "none") return this.props.previousSolve.time
         return "0.00"
