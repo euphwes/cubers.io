@@ -30,16 +30,17 @@ export class MainRouter extends React.Component<RouterProps, RouterState> {
 
     render() {
         if (this.state.settings === "loading") return null
-        
+
         return <BrowserRouter>
             <Header />
 
             <Switch>
                 <Route exact path="/" component={() => <Home />} />
 
-                <Route path="/compete/:eventType" component={({ match }: any) =>
-                    <Compete eventType={Number(match.params.eventType)} />
-                } />
+                <Route path="/compete/:eventType" component={({ match }: any) => {
+                    let settings = this.state.settings as Types.UserSettings
+                    return <Compete eventType={Number(match.params.eventType)} settings={settings} />
+                }} />
                 <Route path="/event" component={() => <div>Event</div>} />
             </Switch>
         </BrowserRouter>

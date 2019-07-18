@@ -7,6 +7,7 @@ import { FitText } from '../Helper/FitText';
 
 type CompeteProps = {
     eventType: number
+    settings: Types.UserSettings
 }
 
 type CompeteState = {
@@ -57,6 +58,7 @@ export class Compete extends React.Component<CompeteProps, CompeteState>{
             <div className="timer-container">
                 <FitText text={this.state.event.currentScramble.text} />
                 <Timer
+                    settings={this.props.settings}
                     previousSolve={!latestSolve ? "none" : { time: latestSolve }}
                     currentScrambleId={this.state.event.currentScramble.id === -1 ?
                         "none" :

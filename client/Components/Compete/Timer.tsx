@@ -5,6 +5,7 @@ import * as Types from '../../api/types'
 import * as Helpers from '../../api/helpers'
 
 type TimerProps = {
+    settings: Types.UserSettings
     previousSolve: { time: string } | "none"
     currentScrambleId: { id: number } | "none"
     eventName: string
@@ -86,22 +87,31 @@ export class Timer extends React.Component<TimerProps, TimerState>{
         if (event.key !== " ") return
 
         if (this.state.timer.state === "idle") {
-            this.setState({ timer: { ...this.state.timer, state: "starting-inspection" } })
+            if (this.props.settings.use_inspection_time) {
+                this.setState({ timer: { ...this.state.timer, state: "starting-inspection" } })
+            } else {
+                this.prepareStart()
+            }
         }
 
         if (this.state.timer.state === "inspecting") {
-            let startKey = Math.random().toString()
-            this.setState({ timer: { ...this.state.timer, state: "starting", startKey: startKey } }, () => {
-                setTimeout(() => {
-                    if (startKey !== this.state.timer.startKey) return
-
-                    if (this.state.timer.state === "starting") {
-                        this.setState({ timer: { ...this.state.timer, state: "ready" } })
-                    }
-                }, 400)
-            })
+            this.prepareStart()
         }
     }
+
+    prepareStart() {
+        let startKey = Math.random().toString()
+        this.setState({ timer: { ...this.state.timer, state: "starting", startKey: startKey } }, () => {
+            setTimeout(() => {
+                if (startKey !== this.state.timer.startKey) return
+
+                if (this.state.timer.state === "starting") {
+                    this.setState({ timer: { ...this.state.timer, state: "ready" } })
+                }
+            }, 400)
+        })
+    }
+
     onKeyUp = () => {
         if (this.state.timer.state === "finished") {
             this.setState({ timer: { ...this.state.timer, state: "idle" } })
@@ -130,7 +140,8 @@ export class Timer extends React.Component<TimerProps, TimerState>{
         }
 
         if (this.state.timer.state === "starting") {
-            this.setState({ timer: { ...this.state.timer, state: "inspecting" } })
+            let previousState: "inspecting" | "idle" = this.props.settings.use_inspection_time ? "inspecting" : "idle"
+            this.setState({ timer: { ...this.state.timer, state: previousState } })
         }
 
         if (this.state.timer.state === "ready") {
