@@ -87,7 +87,10 @@ export class Timer extends React.Component<TimerProps, TimerState>{
         if (event.key !== " ") return
 
         if (this.state.timer.state === "idle") {
-            if (this.props.settings.use_inspection_time) {
+            let isBlind = this.props.eventName.toLowerCase().includes("bld")
+            let inspection = this.props.settings.use_inspection_time
+
+            if (inspection && !isBlind) {
                 this.setState({ timer: { ...this.state.timer, state: "starting-inspection" } })
             } else {
                 this.prepareStart()
