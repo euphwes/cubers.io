@@ -343,6 +343,7 @@
         // Check auto-penalty flags if we did inspection time
         if (this.useInspectionTime) {
             solve_data.is_dnf = this.apply_auto_dnf;
+            solve_data.is_inspection_dnf = this.apply_auto_dnf;
             solve_data.is_plus_two = this.apply_auto_plus_two;
         }
 

@@ -22,11 +22,12 @@ LOG_RESULTS_ERROR_TEMPLATE = "{}: error creating or saving {} results"
 LOG_SAVED_RESULTS_TEMPLATE = "{}: saved {} results"
 
 # Solve data dictionary keys
-IS_DNF        = 'is_dnf'
-IS_PLUS_TWO   = 'is_plus_two'
-SCRAMBLE_ID   = 'scramble_id'
-COMP_EVENT_ID = 'comp_event_id'
-CENTISECONDS  = 'elapsed_centiseconds'
+IS_DNF            = 'is_dnf'
+IS_PLUS_TWO       = 'is_plus_two'
+SCRAMBLE_ID       = 'scramble_id'
+COMP_EVENT_ID     = 'comp_event_id'
+CENTISECONDS      = 'elapsed_centiseconds'
+IS_INSPECTION_DNF = 'is_inspection_dnf'
 EXPECTED_FIELDS = (IS_DNF, IS_PLUS_TWO, SCRAMBLE_ID, COMP_EVENT_ID, CENTISECONDS)
 
 COMMENT = 'comment'
@@ -52,11 +53,12 @@ def post_solve():
         return (ERR_MSG_MISSING_INFO, HTTPStatus.BAD_REQUEST)
 
     # Extract all the specific fields out of the solve data dictionary
-    is_dnf        = solve_data[IS_DNF]
-    is_plus_two   = solve_data[IS_PLUS_TWO]
-    scramble_id   = solve_data[SCRAMBLE_ID]
-    comp_event_id = solve_data[COMP_EVENT_ID]
-    centiseconds  = solve_data[CENTISECONDS]
+    is_dnf            = solve_data[IS_DNF]
+    is_plus_two       = solve_data[IS_PLUS_TWO]
+    scramble_id       = solve_data[SCRAMBLE_ID]
+    comp_event_id     = solve_data[COMP_EVENT_ID]
+    centiseconds      = solve_data[CENTISECONDS]
+    is_inspection_dnf = solve_data.get(IS_INSPECTION_DNF, False)
 
     # If the submitted solve is for a scramble the user already has a solve for,
     # don't take any further action to persist a solve, just return. User probably
@@ -82,7 +84,7 @@ def post_solve():
 
     # Create the record for this solve and associate it with the user's event results
     solve = UserSolve(time=centiseconds, is_dnf=is_dnf, is_plus_two=is_plus_two,
-                      scramble_id=scramble_id)
+                      scramble_id=scramble_id, is_inspection_dnf=is_inspection_dnf)
     user_event_results.solves.append(solve)
 
     # Process through the user's event results, ensuring PB flags, best single, average, overall
