@@ -7,6 +7,7 @@ type FitTextProps = {
 type FitTextState = {
     fontSize: string
     lines: number
+    text: string
 }
 
 export class FitText extends React.Component<FitTextProps, FitTextState>{
@@ -17,10 +18,18 @@ export class FitText extends React.Component<FitTextProps, FitTextState>{
 
         this.state = {
             fontSize: "",
-            lines: props.text.split("\n").length
+            lines: props.text.split("\n").length,
+            text: props.text
         }
 
         this.scrambleRef = React.createRef()
+    }
+
+    componentDidUpdate() {
+        if (this.props.text === this.state.text) return
+        this.setState({ text: this.props.text, lines: this.props.text.split("\n").length }, () => {
+            this.updateFontSize(null)
+        })
     }
 
     updateFontSize = (e: UIEvent) => {
