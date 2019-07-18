@@ -9,7 +9,7 @@ type TimerProps = {
     currentScrambleId: { id: number } | "none"
     eventName: string
     comment: string
-    postTime: (time: number, callback: () => void) => void
+    postTime: (time: number, penalty: Penalty, callback: () => void) => void
     postPenalty: (penalty: Penalty) => void
     deleteTime: () => void
     updateComment: (text: string) => void
@@ -21,7 +21,7 @@ type TimerState = {
     comment: string
 }
 
-type TimeState = "idle" | "starting" | "ready" | "timing" | "finished"
+type TimeState = "idle" | "starting-inspection" | "inspecting" | "starting" | "ready" | "timing" | "finished"
 type Penalty = "none" | "+2" | "DNF"
 type TimerInfo = {
     state: TimeState
@@ -30,6 +30,9 @@ type TimerInfo = {
     delta: number | "none"
     startKey: string
     penalty: Penalty
+    inspectionTime: number
+    inspectionStart: number | "none"
+    inspectionPenalty: Penalty
 }
 
 let initialTimerInfo: TimerInfo = {
@@ -38,7 +41,10 @@ let initialTimerInfo: TimerInfo = {
     end: "none",
     delta: "none",
     startKey: "",
-    penalty: "none"
+    penalty: "none",
+    inspectionTime: 15,
+    inspectionStart: "none",
+    inspectionPenalty: "none"
 }
 
 export class Timer extends React.Component<TimerProps, TimerState>{
@@ -71,7 +77,7 @@ export class Timer extends React.Component<TimerProps, TimerState>{
             let time = Date.now()
             let delta = time - this.state.timer.start
             this.setState({ timer: { ...this.state.timer, state: "finished", end: time, delta: delta } }, () => {
-                this.props.postTime(delta, () => {
+                this.props.postTime(delta, this.state.timer.inspectionPenalty, () => {
                     this.setState({ timer: initialTimerInfo })
                 })
             })
@@ -80,6 +86,10 @@ export class Timer extends React.Component<TimerProps, TimerState>{
         if (event.key !== " ") return
 
         if (this.state.timer.state === "idle") {
+            this.setState({ timer: { ...this.state.timer, state: "starting-inspection" } })
+        }
+
+        if (this.state.timer.state === "inspecting") {
             let startKey = Math.random().toString()
             this.setState({ timer: { ...this.state.timer, state: "starting", startKey: startKey } }, () => {
                 setTimeout(() => {
@@ -98,8 +108,29 @@ export class Timer extends React.Component<TimerProps, TimerState>{
         }
 
         if (this.props.currentScrambleId === "none") return
+
+        if (this.state.timer.state === "starting-inspection") {
+            this.setState({ timer: { ...this.state.timer, state: "inspecting", inspectionStart: Date.now() } }, () => {
+                let interval = setInterval(() => {
+                    let inspec = this.state.timer.inspectionStart as number
+                    let inst = parseInt(`${(Date.now() - inspec) / 1000}`)
+
+                    if (this.state.timer.state === "inspecting" || this.state.timer.state === "starting" || this.state.timer.state === "ready") {
+                        this.setState({ timer: { ...this.state.timer, inspectionTime: 15 - inst } }, () => {
+                            if (this.state.timer.inspectionTime <= 0)
+                                this.setState({ timer: { ...this.state.timer, inspectionPenalty: "+2" } })
+                            if (this.state.timer.inspectionTime <= -2)
+                                this.setState({ timer: { ...this.state.timer, inspectionPenalty: "DNF" } })
+                        })
+                    } else {
+                        clearInterval(interval)
+                    }
+                }, 16)
+            })
+        }
+
         if (this.state.timer.state === "starting") {
-            this.setState({ timer: { ...this.state.timer, state: "idle" } })
+            this.setState({ timer: { ...this.state.timer, state: "inspecting" } })
         }
 
         if (this.state.timer.state === "ready") {
@@ -117,6 +148,11 @@ export class Timer extends React.Component<TimerProps, TimerState>{
     }
 
     getTime() {
+        if (this.state.timer.state === "inspecting") {
+            if (this.state.timer.inspectionTime <= -2) return "DNF"
+            if (this.state.timer.inspectionTime <= 0) return "+2"
+            return this.state.timer.inspectionTime
+        }
         if (this.state.timer.state === "starting" || this.state.timer.state === "ready") return "0.00"
         if (this.state.timer.state === "timing") return Helpers.toReadableTime(this.state.timer.delta as number)
         if (this.state.timer.delta !== "none") return Helpers.toReadableTime(this.state.timer.delta)
@@ -127,6 +163,15 @@ export class Timer extends React.Component<TimerProps, TimerState>{
     getTimerState(state: TimeState) {
         if (state === "ready" || state === "timing")
             return state
+        return ""
+    }
+
+    getInspectionState() {
+        if (this.state.timer.inspectionTime <= -2) return "dnf"
+        if (this.state.timer.state === "timing") return ""
+        if (this.state.timer.inspectionTime <= 0) return "penalty"
+        if (this.state.timer.inspectionTime <= 15 - 12) return "warning-critical"
+        if (this.state.timer.inspectionTime <= 15 - 8) return "warning"
         return ""
     }
 
@@ -199,7 +244,7 @@ export class Timer extends React.Component<TimerProps, TimerState>{
 
         return <div className="timer-wrapper">
             {this.renderPrompt()}
-            <span className={`timer-time ${this.getTimerState(this.state.timer.state)}`}>
+            <span className={`timer-time ${this.getTimerState(this.state.timer.state)} ${this.getInspectionState()}`}>
                 {this.getTime()}
             </span>
             <div className="timer-buttons">

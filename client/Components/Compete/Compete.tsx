@@ -64,13 +64,13 @@ export class Compete extends React.Component<CompeteProps, CompeteState>{
                     }
                     eventName={this.state.event.event.name}
                     comment={this.state.event.event.comment}
-                    postTime={(time, callback) => {
+                    postTime={(time, penalty, callback) => {
                         let event = this.state.event as Types.Event
                         Api.postSolve({
                             comp_event_id: event.event.id,
                             elapsed_centiseconds: parseInt(`${time / 10}`),
-                            is_dnf: false,
-                            is_plus_two: false,
+                            is_dnf: penalty === "DNF",
+                            is_plus_two: penalty === "+2",
                             scramble_id: event.currentScramble.id
                         }).then(newEvent => this.setState({ event: newEvent }, () => callback()))
                     }}
