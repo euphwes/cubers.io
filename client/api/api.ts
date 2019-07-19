@@ -57,6 +57,7 @@ export function getEventInfo(eventId: number): Promise<types.Event> {
 }
 
 export function postSolve(time: {
+    is_inspection_dnf: boolean
     is_dnf: boolean
     is_plus_two: boolean
     scramble_id: number

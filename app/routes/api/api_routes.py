@@ -173,6 +173,29 @@ def get_event(event_id):
         event_format
     )
 
+    previous_solve = None
+    if user_results:
+        solves = user_results.solves
+        # If the current scramble index is -1, that means all solves are completed, so the
+        # "previous" solve is just the last one in the list (at -1, because it wraps backwards)
+        if scramble_index == -1:
+            previous_idx = -1
+        # Otherwise the previous solve is the one before the current scramble index
+        else:
+            previous_idx = scramble_index - 1
+
+        previous_time               = solves[previous_idx].get_friendly_time()
+        previous_was_dnf            = solves[previous_idx].is_dnf
+        previous_was_plus_two       = solves[previous_idx].is_plus_two
+        previous_was_inspection_dnf = solves[previous_idx].is_inspection_dnf
+
+        previous_solve = {
+            'time': previous_time,
+            'is_plus_2': previous_was_plus_two,
+            'is_dnf': previous_was_dnf,
+            'is_inspection_dnf': previous_was_inspection_dnf
+        }
+
     comment = ''
     if user_results: 
         comment = user_results.comment
@@ -183,6 +206,7 @@ def get_event(event_id):
             'id': scramble_id,
             'index': scramble_index
         },
+        'previousSolve': previous_solve,
         'event': {
             'id': event_id,
             'name': event_name,

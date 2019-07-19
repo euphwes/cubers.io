@@ -6,7 +6,7 @@ import * as Helpers from '../../api/helpers'
 
 type TimerProps = {
     settings: Types.UserSettings
-    previousSolve: { time: string } | "none"
+    previousSolve: Types.PreviousSolve | "none"
     currentScrambleId: { id: number } | "none"
     eventName: string
     comment: string
@@ -133,7 +133,11 @@ export class Timer extends React.Component<TimerProps, TimerState>{
                             if (this.state.timer.inspectionTime <= 0)
                                 this.setState({ timer: { ...this.state.timer, inspectionPenalty: "+2" } })
                             if (this.state.timer.inspectionTime <= -2)
-                                this.setState({ timer: { ...this.state.timer, inspectionPenalty: "DNF" } })
+                                this.setState({ timer: { ...this.state.timer, state: "idle", inspectionPenalty: "DNF" } }, () => {
+                                    this.props.postTime(-10, "DNF", () => {
+                                        this.setState({ timer: initialTimerInfo })
+                                    })
+                                })
                         })
                     } else {
                         clearInterval(interval)
@@ -197,8 +201,8 @@ export class Timer extends React.Component<TimerProps, TimerState>{
 
     getPenaltyState(): Penalty {
         if (this.props.previousSolve === "none") return
-        if (this.props.previousSolve.time === "DNF") return "DNF"
-        if (Number.isNaN(Number(this.props.previousSolve.time))) return "+2"
+        if (this.props.previousSolve.is_dnf) return "DNF"
+        if (this.props.previousSolve.is_plus_2) return "+2"
     }
 
     renderManualEntry() {
@@ -275,7 +279,9 @@ export class Timer extends React.Component<TimerProps, TimerState>{
 
     render() {
         let disabled = this.props.previousSolve === "none" || this.state.timer.state !== "idle"
+        let penaltyDisabled = this.props.previousSolve === "none" || this.state.timer.state !== "idle" || this.props.previousSolve.is_inspection_dnf
         let buttonStyle = disabled ? "disabled" : "enabled"
+        let penaltyButtonStyle = penaltyDisabled ? "disabled" : "enabled"
 
         return <div className="timer-wrapper">
             {this.renderPrompt()}
@@ -286,13 +292,13 @@ export class Timer extends React.Component<TimerProps, TimerState>{
                 }}>
                     <i className="fas fa-undo"></i>
                 </button>
-                <button className={`timer-modifier-button ${buttonStyle} ${this.getPenaltyState() === "+2" ? "active" : ""}`} disabled={disabled} onClick={e => {
+                <button className={`timer-modifier-button ${penaltyButtonStyle} ${this.getPenaltyState() === "+2" ? "active" : ""}`} disabled={penaltyDisabled} onClick={e => {
                     this.updateTime("+2")
                     e.currentTarget.blur()
                 }}>
                     <span>+2</span>
                 </button>
-                <button className={`timer-modifier-button ${buttonStyle} ${this.getPenaltyState() === "DNF" ? "active" : ""}`} disabled={disabled} onClick={e => {
+                <button className={`timer-modifier-button ${penaltyButtonStyle} ${this.getPenaltyState() === "DNF" ? "active" : ""}`} disabled={penaltyDisabled} onClick={e => {
                     this.updateTime("DNF")
                     e.currentTarget.blur()
                 }}>

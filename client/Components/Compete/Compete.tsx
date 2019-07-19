@@ -35,9 +35,7 @@ export class Compete extends React.Component<CompeteProps, CompeteState>{
     render() {
         if (this.state.event === "loading") return null
 
-        let latestSolve = this.state.event.event.solves
-            .filter(solve => solve !== "—")
-            .reverse()[0]
+        let previousSolve = this.state.event.previousSolve
 
         return <div className="compete-container">
             <div className="sidebar">
@@ -59,7 +57,7 @@ export class Compete extends React.Component<CompeteProps, CompeteState>{
                 <FitText text={this.state.event.currentScramble.text} />
                 <Timer
                     settings={this.props.settings}
-                    previousSolve={!latestSolve ? "none" : { time: latestSolve }}
+                    previousSolve={!previousSolve ? "none" : previousSolve}
                     currentScrambleId={this.state.event.currentScramble.id === -1 ?
                         "none" :
                         { id: this.state.event.currentScramble.id }
@@ -71,6 +69,7 @@ export class Compete extends React.Component<CompeteProps, CompeteState>{
                         Api.postSolve({
                             comp_event_id: event.event.id,
                             elapsed_centiseconds: parseInt(`${time / 10}`),
+                            is_inspection_dnf: penalty === "DNF",
                             is_dnf: penalty === "DNF",
                             is_plus_two: penalty === "+2",
                             scramble_id: event.currentScramble.id
