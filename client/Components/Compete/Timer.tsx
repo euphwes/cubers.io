@@ -206,12 +206,9 @@ export class Timer extends React.Component<TimerProps, TimerState>{
         if (this.props.previousSolve.is_plus_2) return "+2"
     }
 
-    renderManualEntry() {
-        return <ManualEntry submit={(value) => this.props.postTime(value, "none", () => { })} />
-    }
-
     renderTime() {
-        if (this.props.settings.manual_time_entry_by_default) return this.renderManualEntry()
+        if (this.props.settings.manual_time_entry_by_default)
+            return <ManualEntry submit={(value) => this.props.postTime(value, "none", () => { })} />
 
         return <span className={`timer-time ${this.getTimerState(this.state.timer.state)} ${this.getInspectionState()}`}>
             {this.getTime()}
