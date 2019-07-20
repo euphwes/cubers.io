@@ -1,6 +1,7 @@
 import * as React from 'react'
 
 type ManualEntryProps = {
+    disabled: boolean
     submit: (value: number) => void
 }
 type ManualEntryState = {
@@ -45,21 +46,24 @@ export class ManualEntry extends React.Component<ManualEntryProps, ManualEntrySt
     }
 
     render() {
-        return <form className="timer-manual-entry" onSubmit={e => {
-            e.preventDefault()
-            if (this.state.value === "") return
-            this.props.submit(this.convertToMilliseconds(this.state.value))
-        }}>
-            <input
-                className="timer-manual-input"
-                type="text"
-                value={this.state.value}
-                onChange={e => this.processChange(e.target.value)}
-                placeholder="00:00.00"
-            />
-            <button className="timer-manual-submit" type="submit">
-                <i className="fas fa-arrow-right" />
-            </button>
-        </form>
+        return <div className="timer-manual-entry">
+            <form className="timer-manual-form" onSubmit={e => {
+                e.preventDefault()
+                if (this.state.value === "") return
+                this.props.submit(this.convertToMilliseconds(this.state.value))
+            }}>
+                <input
+                    className="timer-manual-input"
+                    type="text"
+                    value={this.state.value}
+                    onChange={e => this.processChange(e.target.value)}
+                    placeholder="00:00.00"
+                    disabled={this.props.disabled}
+                />
+                <button className="timer-manual-submit" type="submit" disabled={this.props.disabled}>
+                    <i className="fas fa-arrow-right" />
+                </button>
+            </form>
+        </div>
     }
 }

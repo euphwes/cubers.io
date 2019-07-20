@@ -207,8 +207,9 @@ export class Timer extends React.Component<TimerProps, TimerState>{
     }
 
     renderTime() {
+        let timeEntryDisabled = this.props.currentScrambleId === "none"
         if (this.props.settings.manual_time_entry_by_default)
-            return <ManualEntry submit={(value) => this.props.postTime(value, "none", () => { })} />
+            return <ManualEntry disabled={timeEntryDisabled} submit={(value) => this.props.postTime(value, "none", () => { })} />
 
         return <span className={`timer-time ${this.getTimerState(this.state.timer.state)} ${this.getInspectionState()}`}>
             {this.getTime()}

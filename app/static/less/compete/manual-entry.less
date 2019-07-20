@@ -2,8 +2,14 @@
 
 .timer-manual-entry {
     display: flex;
-    height: 45px;
+    flex: 3;
+}
+
+.timer-manual-form {
+    display: flex;
+    height: 50px;
     width: 375px;
+    margin: auto;
 
     .timer-manual-input {
         flex: 1;
@@ -26,6 +32,17 @@
         &::placeholder{
             color: #9f9f9f;
         }
+
+        &:disabled {
+            color: #9f9f9f7f;
+            border: #bfbfbf7f;
+            background: #fefefe7f;
+            &::placeholder{
+                color: #7f7f7f7f;
+            }
+        }
+
+        transition: 0.25s;
     }
     .timer-manual-submit {
         width: 75px;
@@ -47,6 +64,12 @@
             background: #36363644;
             color: white;
             transition: 0.1s;
+        }
+
+        &:disabled {
+            background: transparent;
+            color: #fefefe7f;
+            border: 2px solid #fefefe7f;
         }
 
         transition: 0.25s;
