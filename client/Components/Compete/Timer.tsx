@@ -3,6 +3,7 @@ import * as React from 'react'
 import * as Api from '../../api/api'
 import * as Types from '../../api/types'
 import * as Helpers from '../../api/helpers'
+import { ManualEntry } from '../Helper/ManualEntry';
 
 type TimerProps = {
     settings: Types.UserSettings
@@ -206,14 +207,7 @@ export class Timer extends React.Component<TimerProps, TimerState>{
     }
 
     renderManualEntry() {
-        return <form onSubmit={e => {
-            e.preventDefault()
-        }}>
-            <input type="text" />
-            <button type="submit">
-                <i className="fas fa-arrow-right" />
-            </button>
-        </form>
+        return <ManualEntry submit={(value) => this.props.postTime(value, "none", () => { })} />
     }
 
     renderTime() {
