@@ -61,11 +61,13 @@ export class Timer extends React.Component<TimerProps, TimerState>{
     }
 
     componentDidMount() {
+        if (this.props.settings.manual_time_entry_by_default) return
         window.addEventListener('keydown', this.onKeyDown)
         window.addEventListener('keyup', this.onKeyUp)
     }
-
+    
     componentWillUnmount() {
+        if (this.props.settings.manual_time_entry_by_default) return
         window.removeEventListener('keydown', this.onKeyDown)
         window.removeEventListener('keyup', this.onKeyUp)
     }
