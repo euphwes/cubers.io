@@ -4,6 +4,7 @@ import * as Api from '../../api/api'
 import * as Types from '../../api/types'
 import { Timer } from './Timer';
 import { FitText } from '../Helper/FitText';
+import { ScrambleViewer } from '../Helper/ScrambleViewer'
 
 type CompeteProps = {
     eventType: number
@@ -48,9 +49,10 @@ export class Compete extends React.Component<CompeteProps, CompeteState>{
                         >{solve}</div>
                     )}
                 </div>
-                <div className="sidebar-scramble-preview">
-                    {/* Scramble Preview */}
-                </div>
+                <ScrambleViewer
+                    event={this.state.event}
+                    settings={this.props.settings}
+                />
             </div>
 
             <div className="timer-container">
