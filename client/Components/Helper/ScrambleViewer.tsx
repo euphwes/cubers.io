@@ -31,9 +31,12 @@ export class ScrambleViewer extends React.Component<ScrambleViewerProps, Scrambl
         this.canvasRef.current.width = 1500
         this.canvasRef.current.height = 300
 
-        // thing._clearImage()
         window.addEventListener('resize', this.handleResize)
         this.handleResize(null)
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.handleResize)
     }
 
     handleResize = (e: UIEvent) => {
@@ -65,13 +68,11 @@ export class ScrambleViewer extends React.Component<ScrambleViewerProps, Scrambl
         </span>
     }
 
-    componentWillUnmount() {
-        window.removeEventListener('resize', this.handleResize)
-    }
-
     render() {
+        let hide = this.props.settings.hide_scramble_preview
+
         return <div className="sidebar-scramble-preview">
-            <button className="scramble-preview-button" onClick={() => {
+            <button className={`scramble-preview-button${hide ? "-hide" : ""}`} onClick={() => {
                 this.setState({ showBigScramble: true }, () => {
                     this.handleResize(null)
                 })
@@ -79,12 +80,11 @@ export class ScrambleViewer extends React.Component<ScrambleViewerProps, Scrambl
                 <canvas
                     ref={this.canvasRef}
                     id="normal_scramble_image"
-                    className="scramble-preview"
+                    className={`scramble-preview ${hide ? "invisible" : ""}`}
                 />
+                {hide ? "Show Preview" : null}
             </button>
-            {/* Scramble Preview */}
             {this.showScrambleFullscreen()}
-
         </div>
     }
 }

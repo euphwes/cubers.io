@@ -9,6 +9,15 @@
     background: transparent;
     border: 0;
     margin: auto 0;
+    flex: 1;
+
+    &-hide {
+        background: transparent;
+        border: 1px solid #565656;
+        border-radius: 4px;
+        margin: auto;
+        padding: 20px;
+    }
 }
 
 .scramble-preview {
@@ -17,6 +26,10 @@
     width: 100%;
     padding: 10px;
     margin: auto 0;
+
+    &.invisible { 
+        display: none;
+    }
 }
 
 .fullscreen-scramble-preview {
