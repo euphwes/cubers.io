@@ -11,15 +11,20 @@
 
     top: 0;
     left: 0;
+    opacity: 1;
 
     background: #010101bb;
-}
 
-.invisible {
-    width: 0;
-    height: 0;
-    display: none;
-    background: #01010100;
+    &.invisible { 
+        visibility: hidden;
+    }
+    
+    &.hide {
+        opacity: 0;
+        padding: 0 0 100px 0;
+    }
+
+    transition: 0.5s;
 }
 
 .timer-prompt {
@@ -34,7 +39,8 @@
     justify-content: space-between;
     padding: 15px 15px 15px 15px;
     border-bottom: 1px solid #dddddd;
-    font-size: 14pt;
+    font-family: 'Roboto';
+    font-size: 12pt;
     
     .prompt-message {
         display: inline-flex;
@@ -44,6 +50,8 @@
         margin: 0 0 0 45px;
         background: transparent;
         border: 0;
+        font-family: 'Roboto';
+        font-size: 14pt;    
     }
 }
 
@@ -52,12 +60,16 @@
     width: 500px;
     padding: 15px;
     border-bottom: 1px solid #dddddd;
-
+    
     .prompt-textbox-input {
         flex: 1;
         min-height: 100px;
         max-height: 500px;
         border-radius: 5px;
+        border: 1px solid #cfcfcf;
+        padding: 10px;
+        font-family: 'Roboto';
+        font-size: 11pt;
 
         &:focus {
             box-shadow: 0 0 2pt 2pt #3696bbaa;
@@ -69,7 +81,7 @@
 .prompt-buttons {
     margin: 0 0 0 auto;
     padding: 5px;
-
+    
     .prompt-button {
         height: 40px;
         padding: 5px 10px;
@@ -78,7 +90,9 @@
         color: white;
         border: 0;
         border-radius: 5px;
-
+        font-size: 11pt;
+        font-family: 'Roboto';
+        
         &:hover {
             background: darken(#007bff, 10%)
         }
