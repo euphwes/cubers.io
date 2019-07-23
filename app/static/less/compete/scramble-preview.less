@@ -12,11 +12,14 @@
     flex: 1;
 
     &-hide {
+        position: relative;
+        width: 75%;
         background: transparent;
-        border: 1px solid #565656;
+        border: 1px solid #6c757d;
+        color: #6c757d;
         border-radius: 4px;
         margin: auto;
-        padding: 20px;
+        padding: 10px;
 
         &:hover {
             background: #6c757d;
@@ -51,6 +54,14 @@
     width: 100%;
     height: 100%;
     background: #010101df;
+    opacity: 1;
+
+    &.hide { 
+        visibility: hidden;
+        opacity: 0;
+    }
+    
+    transition: 0.5s;
 }
 
 .scramble-preview-button-big {

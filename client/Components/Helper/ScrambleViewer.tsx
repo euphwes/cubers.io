@@ -53,9 +53,9 @@ export class ScrambleViewer extends React.Component<ScrambleViewerProps, Scrambl
     }
 
     showScrambleFullscreen() {
-        if (!this.state.showBigScramble) return null
+        if (!this.state.showBigScramble) return <span className="fullscreen-scramble-preview hide"></span>
 
-        return <span className="fullscreen-scramble-preview" >
+        return <span className="fullscreen-scramble-preview">
             <button className="scramble-preview-button-big" onClick={() => {
                 this.setState({ showBigScramble: false })
             }}>
@@ -82,7 +82,7 @@ export class ScrambleViewer extends React.Component<ScrambleViewerProps, Scrambl
                     id="normal_scramble_image"
                     className={`scramble-preview ${hide ? "invisible" : ""}`}
                 />
-                {hide ? "Show Preview" : null}
+                {hide ? "Show Scramble Preview" : null}
             </button>
             {this.showScrambleFullscreen()}
         </div>
