@@ -122,7 +122,7 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
         for personal_best in ranked_averages:
             if personal_best.user_id == user_id:
                 pb_average   = personal_best.personal_best
-                average_rank = personal_best.rank
+                average_rank = personal_best.numerical_rank
                 break
 
         # If our user has no average for this event, their site ranking is
