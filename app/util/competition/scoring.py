@@ -1,6 +1,8 @@
 """ Business logic for reading comments in a competition's Reddit thread, parsing submissions,
 scoring users, and posting the results. """
 
+from os import environ
+
 from app import app
 from app.persistence.comp_manager import get_competition, save_competition
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp_event
@@ -15,8 +17,8 @@ __USER_LIMIT_IN_POINTS = 50
 
 __RESULTS_TITLE_TEMPLATE = 'Results for {comp_title}'
 __RESULTS_EVENT_HEADER_TEMPLATE = '\n\n---\n\n**{event_name}**\n\n'
-__RESULTS_USER_LINE_TEMPLATE = '1. {username}: {result}\n\n'
-__RESULTS_USER_POINTS_TEMPLATE = '1. {username}: {points}\n\n'
+__RESULTS_USER_LINE_TEMPLATE = '1. [{username}]({profile_url}): {result}\n\n'
+__RESULTS_USER_POINTS_TEMPLATE = '1. [{username}]({profile_url}): {points}\n\n'
 
 __RESULTS_BODY_START_TEMPLATE = """
 Thanks for checking out the results for [{comp_title}]({leaderboards_url})!
@@ -33,6 +35,9 @@ __RESULTS_POINTS_SECTION_HEADER = '\n\n---\n\n**Total points this week**'
 __RESULTS_POINTS_SECTION_HEADER += '\n\nEach event gives `# of participants - place + 1` points\n\n'
 
 __LEADERBOARDS_URL_TEMPLATE = app.config['APP_URL'] + 'leaderboards/{comp_id}/'
+
+__URL_ROOT = environ.get('APP_URL', 'http://fake.url.com/')
+__PROFILE_URL = __URL_ROOT + 'u/{username}'
 
 # -------------------------------------------------------------------------------------------------
 
@@ -67,14 +72,16 @@ def post_results_thread(competition_id, is_rerun=False):
             user_points[username] += (total_participants - i)
 
             if i < __USER_PER_EVENT_LIMIT:
-                post_body += __RESULTS_USER_LINE_TEMPLATE.format(username=username, result=result.friendly_result())
+                post_body += __RESULTS_USER_LINE_TEMPLATE.format(username=__escape_username(username),
+                    profile_url=__profile_for(username), result=result.friendly_result())
 
     user_points = [(username, points) for username, points in user_points.items()]
     user_points.sort(key=lambda x: x[1], reverse=True)
 
     post_body += __RESULTS_POINTS_SECTION_HEADER
     for username, points in user_points[:__USER_LIMIT_IN_POINTS]:
-        post_body += __RESULTS_USER_POINTS_TEMPLATE.format(username=username, points=points)
+        post_body += __RESULTS_USER_POINTS_TEMPLATE.format(username=__escape_username(username),
+            profile_url=__profile_for(username), points=points)
 
     if not is_rerun:
         new_post_id = submit_post(title, post_body)
@@ -83,3 +90,20 @@ def post_results_thread(competition_id, is_rerun=False):
     else:
         results_thread_id = comp.result_thread_id
         update_post(post_body, results_thread_id)
+
+# -------------------------------------------------------------------------------------------------
+
+def __escape_username(username):
+    """ Escapes a username so certain character combinations don't show up with Markdown formatting
+    in the Reddit post. """
+
+    username = username.replace('_', r'\_')
+    return username
+
+
+def __profile_for(username):
+    """ Returns the URL to the specified user's cubers.io profile. The "right" way to do this would
+    generally be to do a `url_for(...)` but that only works when an app context is loaded, and this
+    scoring script is run outside of the app context. """
+
+    return __PROFILE_URL.format(username=username)
