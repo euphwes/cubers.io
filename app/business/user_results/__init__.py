@@ -35,9 +35,11 @@ def set_medals_on_best_event_results(comp_events):
         # Handle the case where nobody participated in an event. The Ranking(...) mechanism used
         # in sort_user_results_with_rankings chokes on empty iterables.
         if not unblacklisted_results:
-            return
+            print('Skipping {}, no results to process'.format(comp_event.Event.name))
+            continue
 
         results_with_rankings = sort_user_results_with_rankings(unblacklisted_results, comp_event.Event.eventFormat)
+        print('Processed {} with {} total results'.format(comp_event.Event.name, len(results_with_rankings)))
 
         # Since identically-ranked results get the same podium (if they get a podium), it may be
         # that the silver and bronze raw rankings aren't "2" and "3". If there are 3 users with a

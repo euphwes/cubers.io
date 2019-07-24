@@ -161,6 +161,15 @@ def recalculate_pbs():
 # -------------------------------------------------------------------------------------------------
 
 @app.cli.command()
+@click.option('--comp_id', '-i', type=int)
+def rerun_podiums_for_comp(comp_id):
+    """ Utility command to backfill all UserEventResults for a specific past competitions with
+    gold, silver, bronze medal flags. """
+
+    set_medals_on_best_event_results(get_all_comp_events_for_comp(comp_id))
+
+
+@app.cli.command()
 def backfill_results_medals():
     """ Utility command to backfill all UserEventResults for past competitions with
     gold, silver, bronze medal flags. """
@@ -168,7 +177,7 @@ def backfill_results_medals():
     all_comps = get_complete_competitions()
     total_num = len(all_comps)
     for i, comp in enumerate(all_comps):
-        print('Backfilling for comp {} ({}/{})'.format(comp.id, i + 1, total_num))
+        print('\nBackfilling for comp {} ({}/{})'.format(comp.id, i + 1, total_num))
         set_medals_on_best_event_results(get_all_comp_events_for_comp(comp.id))
 
 
