@@ -71,7 +71,7 @@ def post_results_thread(competition_id, is_rerun=False):
                 user_points[username] = 0
             user_points[username] += (total_participants - i)
 
-            if i < __USER_PER_EVENT_LIMIT:
+            if i <= __USER_PER_EVENT_LIMIT:
                 post_body += __RESULTS_USER_LINE_TEMPLATE.format(username=__escape_username(username),
                     profile_url=__profile_for(username), result=result.friendly_result())
 
