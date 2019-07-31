@@ -2,6 +2,8 @@
 
     // Wire up the undo button
     $('#BTN_UNDO').click(function () {
+        $('#BTN_UNDO').blur();
+
         var confirm_msg = "Are you sure you want to delete your last solve? (" + window.app.lastResult + ")";
         bootbox.confirm({
             message: confirm_msg,
@@ -38,6 +40,7 @@
 
     // Wire up the +2 button
     $('#BTN_PLUS_TWO').click(function () {
+        $('#BTN_PLUS_TWO').blur();
 
         var data = {};
         data.comp_event_id = window.app.compEventId;
@@ -56,6 +59,7 @@
 
     // Wire up the DNF button
     $('#BTN_DNF').click(function () {
+        $('#BTN_DNF').blur();
 
         var data = {};
         data.comp_event_id = window.app.compEventId;
@@ -74,6 +78,7 @@
 
     // Wire up the comment button
     $('#BTN_COMMENT').click(function () {
+        $('#BTN_COMMENT').blur();
 
         // disable the timer so the key/space events here don't trigger the timer starting
         if (window.app.timer !== undefined) {
