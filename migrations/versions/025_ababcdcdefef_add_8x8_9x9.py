@@ -6,7 +6,6 @@ Create Date: 2019-03-11 16:39:00.123969
 
 """
 from alembic import op
-import sqlalchemy as sa
 from app.persistence.models import EventFormat, Event
 
 # revision identifiers, used by Alembic.

@@ -50,13 +50,13 @@ def attack_scrambler():
     return scramble
 
 
-def redi_scrambler():
+def redi_scrambler(total_faces=7):
     """ Returns a scramble for a Redi cube in MoYu notation. """
 
     scramble = list()
     possible_moves = [["R", "R'"], ["L", "L'"]]
 
-    for _ in range(7):
+    for _ in range(total_faces):
         i = choice([0, 1])  # start each chunk with either R-moves or L-moves at random
         for n in range(choice([3, 4, 5])):  # either 3, 4, or 5 moves between each 'x'
             ix = (i + n) % 2  # alternate between R-moves and L-moves each time
@@ -171,6 +171,7 @@ EVENT_333Relay  = EventResource("3x3 Relay of 3", scrambler_333_relay, 1, False,
 EVENT_PLLAttack = EventResource("PLL Time Attack", attack_scrambler, 1, False, False, is_rotating=True)
 EVENT_2BLD      = EventResource("2BLD", scrambler222.get_WCA_scramble, 3, False, False, is_rotating=True)
 EVENT_REDI      = EventResource("Redi Cube", redi_scrambler, 5, False, False, is_rotating=True)
+EVENT_DINO      = EventResource("Dino Cube", lambda: redi_scrambler(5), 5, False, False, is_rotating=True)
 
 # Special event definitions, like bonus except they don't rotate over the weeks, they only
 # come up when it's an "all events" competition
@@ -217,7 +218,8 @@ __ALL_EVENTS = [
     EVENT_REDI,
     EVENT_8x8,
     EVENT_9x9,
-    EVENT_MBLD
+    EVENT_MBLD,
+    EVENT_DINO
 ]
 
 # Important! Don't change how these weekly and bonus lists are built, we rely on the order
@@ -286,6 +288,7 @@ __GLOBAL_SORT_ORDER = [
     EVENT_COLL,
     EVENT_F2L,
     EVENT_REDI,
+    EVENT_DINO,
     EVENT_8x8,
     EVENT_9x9,
 ]
