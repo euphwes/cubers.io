@@ -1526,6 +1526,132 @@
             }
         })();
 
+        var dinoImage = (function() {
+            var width = 30;
+            var posit = [];
+            var colors = null;
+            var DINO_EDGE_INDICES = [1,3,5,7,10,12,14,16,19,21,23,25,28,30,32,34,37,39,41,43,46,48,50,52];
+
+            function doMove(move) {
+                if (move == 'R') {
+                    mathlib.circle(posit, 34, 37, 50); // edges half
+                    mathlib.circle(posit, 46, 32, 39); // edges half
+                }
+                if (move == "R'") {
+                    mathlib.circle(posit, 34, 50, 37); // edges half
+                    mathlib.circle(posit, 46, 39, 32); // edges half
+                }
+                if (move == 'L') {
+                    mathlib.circle(posit, 30, 46, 12); // edges half
+                    mathlib.circle(posit, 10, 34, 48); // edges half
+                }
+                if (move == "L'") {
+                    mathlib.circle(posit, 30, 12, 46); // edges half
+                    mathlib.circle(posit, 10, 48, 34); // edges half
+                }
+                if (move == 'x') {
+                    mathlib.circle(posit, 37, 41, 43, 39); // R face edge cubelets
+                    mathlib.circle(posit, 10, 14, 16, 12); // L face edge cubelets
+                    mathlib.circle(posit, 28, 25, 7, 46); // 'A' edge vertical line around cube
+                    mathlib.circle(posit, 32, 23, 5, 50); // 'B' edge vertical line around cube
+                    mathlib.circle(posit, 34, 19, 1, 52); // 'C' edge vertical line around cube
+                    mathlib.circle(posit, 30, 21, 3, 48); // 'D' edge vertical line around cube
+                }
+            }
+
+            function face(f) {
+
+                size = 3;
+
+                if (!colors) {
+                    setColors();
+                    colors = cube_colors;
+                }
+
+                var offx = 10 / 9,
+                    offy = 10 / 9;
+                if (f == 0) { //D
+                    offx *= size;
+                    offy *= size * 2;
+                } else if (f == 1) { //L
+                    offx *= 0;
+                    offy *= size;
+                } else if (f == 2) { //B
+                    offx *= size * 3;
+                    offy *= size;
+                } else if (f == 3) { //U
+                    offx *= size;
+                    offy *= 0;
+                } else if (f == 4) { //R
+                    offx *= size * 2;
+                    offy *= size;
+                } else if (f == 5) { //F
+                    offx *= size;
+                    offy *= size;
+                }
+
+                for (var i = 0; i < size; i++) {
+                    var x = (f == 1 || f == 2) ? size - 1 - i : i;
+                    for (var j = 0; j < size; j++) {
+                        var y = (f == 0) ? size - 1 - j : j;
+                        if ((i == 1) && (j == 1)) { continue; }
+
+                        var posit_index = (f * size + y) * size + x;
+                        var color = colors[posit[posit_index]];
+
+                        if (DINO_EDGE_INDICES.includes(posit_index)) {
+                            if (i == 0 && j == 1) {
+                                drawPolygon(ctx, color, [
+                                    [i,     i + 1.5, i],
+                                    [j - 1, j + 0.5, j + 2]
+                                ], [width, offx, offy]);
+                            } else if (i == 1 && j == 0) {
+                                drawPolygon(ctx, color, [
+                                    [i - 1, i + 0.5, i + 2],
+                                    [j,     j + 1.5, j]
+                                ], [width, offx, offy]);
+                            } else if (i == 2 && j == 1) {
+                                drawPolygon(ctx, color, [
+                                    [i + 1 , i + 1 , i - 0.5],
+                                    [j - 1 , j + 2 , j + 0.5]
+                                ], [width, offx, offy]);
+                            } else {
+                                drawPolygon(ctx, color, [
+                                    [i + 0.5, i + 2, i - 1],
+                                    [j - 0.5, j + 1, j + 1]
+                                ], [width, offx, offy]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return function(moveseq) {
+                var cnt = 0;
+                for (var i = 0; i < 6; i++) {
+                    for (var f = 0; f < 9; f++) {
+                        posit[cnt++] = i;
+                    }
+                }
+
+                var scramble = moveseq.split(' ');
+                for (var i = 0; i < scramble.length; i++) {
+                    doMove(scramble[i]);
+                }
+
+                var imgSize = scalingFactor / 50;
+                canvas.width(39 * imgSize + 'em');
+                canvas.height(29 * imgSize + 'em');
+
+                canvas.attr('width', 39 * 3 / 9 * width + 1);
+                canvas.attr('height', 29 * 3 / 9 * width + 1);
+
+                for (var i = 0; i < 6; i++) {
+                    face(i);
+                }
+            }
+        })();
+
         var nnnImage = (function() {
             var width = 30;
 
@@ -1736,6 +1862,10 @@
             }
             if (type == "Redi Cube") {
                 rediImage(scramble[1]);
+                return true;
+            }
+            if (type == "Dino Cube") {
+                dinoImage(scramble[1]);
                 return true;
             }
             if (type == "4x4 OH") {
