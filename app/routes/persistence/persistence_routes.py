@@ -13,6 +13,7 @@ from app.persistence.models import UserSolve, UserEventResults
 from app.persistence.comp_manager import get_comp_event_by_id
 from app.persistence.user_results_manager import save_event_results, get_event_results_for_user,\
     delete_user_solve, delete_event_results, get_user_solve_for_scramble_id
+from app.util.events import get_mbld_successful_and_attempted
 from app.routes.timer import timer_page
 
 # -------------------------------------------------------------------------------------------------
@@ -36,6 +37,7 @@ ERR_MSG_MISSING_INFO = 'Some required information is missing from your solve.'
 ERR_MSG_NO_SUCH_EVENT = "Can't find a competition event with ID {}."
 ERR_MSG_INACTIVE_COMP = 'This event belongs to a competition which has ended.'
 ERR_MSG_NO_RESULTS    = "Can't find user results for competition event with ID {}."
+ERR_MSG_MBLD_TOO_FEW_ATTEMPTED = "You must attempt at least 2 cubes for MBLD!"
 
 # -------------------------------------------------------------------------------------------------
 
@@ -75,6 +77,12 @@ def post_solve():
     comp = comp_event.Competition
     if not comp.active:
         return (ERR_MSG_INACTIVE_COMP, HTTPStatus.BAD_REQUEST)
+
+    # Double-check that if the solve is MBLD, the number of attempted cubes is > 1
+    if comp_event.Event.name == "MBLD":
+        _, num_attempted = get_mbld_successful_and_attempted(centiseconds)
+        if num_attempted < 2:
+            return (ERR_MSG_MBLD_TOO_FEW_ATTEMPTED, HTTPStatus.BAD_REQUEST)
 
     # Retrieve the user's results record for this event if they exist, or else create a new record
     user_event_results = get_event_results_for_user(comp_event_id, current_user)

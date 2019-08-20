@@ -36,6 +36,11 @@
             return false;
         }
 
+        if (numAttempted < 2) {
+            bootbox.alert("You must attempt at least 2 cubes for MBLD!");
+            return false;
+        }
+
         if (numSuccessful > numAttempted) {
             bootbox.alert("Oops! Successes higher than total attempted.<br>Check your numbers.");
             return false;
@@ -78,7 +83,7 @@
             contentType: "application/json",
             success: window.app.reRenderTimer,
             error: function (xhr) {
-                bootbox.alert("Something unexpected happened: " + xhr.responseText);
+                bootbox.alert(xhr.responseText);
             }
         });
 
