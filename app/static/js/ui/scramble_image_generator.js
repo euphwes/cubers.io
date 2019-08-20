@@ -812,11 +812,17 @@
         }
 
         // trans: [size, offx, offy] == [size, 0, offx * size, 0, size, offy * size] or [a11 a12 a13 a21 a22 a23]
-        function drawPolygon(ctx, color, arr, trans, text) {
+        function drawPolygon(ctx, color, arr, trans, text, is334) {
             if (!ctx) {
                 return;
             }
             trans = trans || [1, 0, 0, 0, 1, 0];
+            is334 = is334 || false;
+
+            if (is334) {
+                trans[0] = trans[0] * 0.80;
+            }
+
             arr = Transform(arr, trans);
             ctx.beginPath();
 
@@ -1652,6 +1658,133 @@
             }
         })();
 
+        var image334 = (function() {
+            var width = 30;
+            var posit = [];
+            var colors = null;
+
+            function doMove(move) {
+                if (move == 'R') {
+                    mathlib.circle(posit, 34, 37, 50); // edges half
+                    mathlib.circle(posit, 46, 32, 39); // edges half
+                }
+                if (move == "R'") {
+                    mathlib.circle(posit, 34, 50, 37); // edges half
+                    mathlib.circle(posit, 46, 39, 32); // edges half
+                }
+                if (move == 'L') {
+                    mathlib.circle(posit, 30, 46, 12); // edges half
+                    mathlib.circle(posit, 10, 34, 48); // edges half
+                }
+                if (move == "L'") {
+                    mathlib.circle(posit, 30, 12, 46); // edges half
+                    mathlib.circle(posit, 10, 48, 34); // edges half
+                }
+                if (move == 'x') {
+                    mathlib.circle(posit, 37, 41, 43, 39); // R face edge cubelets
+                    mathlib.circle(posit, 10, 14, 16, 12); // L face edge cubelets
+                    mathlib.circle(posit, 28, 25, 7, 46); // 'A' edge vertical line around cube
+                    mathlib.circle(posit, 32, 23, 5, 50); // 'B' edge vertical line around cube
+                    mathlib.circle(posit, 34, 19, 1, 52); // 'C' edge vertical line around cube
+                    mathlib.circle(posit, 30, 21, 3, 48); // 'D' edge vertical line around cube
+                }
+            }
+
+            function face(f) {
+
+                size = 3;
+                longSize = 4;
+
+                if (!colors) {
+                    setColors();
+                    colors = cube_colors;
+                }
+
+                var offx = 10 / 9,
+                    offy = 10 / 9;
+                if (f == 0) { //D
+                    offx *= size;
+                    offy *= size * 2.33;
+                } else if (f == 1) { //L
+                    offx *= 0;
+                    offy *= size;
+                } else if (f == 2) { //B
+                    offx *= size * 3;
+                    offy *= size;
+                } else if (f == 3) { //U
+                    offx *= size;
+                    offy *= 0;
+                } else if (f == 4) { //R
+                    offx *= size * 2;
+                    offy *= size;
+                } else if (f == 5) { //F
+                    offx *= size;
+                    offy *= size;
+                }
+
+                if (f == 3 || f == 0) {
+                    for (var i = 0; i < size; i++) {
+                        var x = (f == 1 || f == 2) ? size - 1 - i : i;
+                        for (var j = 0; j < size; j++) {
+                            var y = (f == 0) ? size - 1 - j : j;
+                            if ((i == 1) && (j == 1)) { continue; }
+    
+                            var posit_index = (f * size + y) * size + x;
+                            // var color = colors[posit[posit_index]];
+                            var color = colors[0];
+
+                            drawPolygon(ctx, color, [
+                                [i, i, i + 1, i + 1],
+                                [j, j + 1, j + 1, j]
+                            ], [width, offx, offy]);
+                        }
+                    }
+                } else {
+                    for (var i = 0; i < size; i++) {
+                        var x = (f == 1 || f == 2) ? size - 1 - i : i;
+                        for (var j = 0; j < longSize; j++) {
+                            var y = (f == 0) ? size - 1 - j : j;
+                            if ((i == 1) && (j == 1)) { continue; }
+    
+                            var posit_index = (f * size + y) * size + x;
+                            var color = colors[0];
+                            // var color = colors[posit[posit_index]];
+    
+                            drawPolygon(ctx, color, [
+                                [i, i, i + 1, i + 1],
+                                [j, j + 1, j + 1, j]
+                            ], [width, offx, offy]);
+                        }
+                    }
+                }
+            }
+
+            return function(moveseq) {
+                var cnt = 0;
+                for (var i = 0; i < 6; i++) {
+                    for (var f = 0; f < 9; f++) {
+                        posit[cnt++] = i;
+                    }
+                }
+
+                var scramble = moveseq.split(' ');
+                for (var i = 0; i < scramble.length; i++) {
+                    doMove(scramble[i]);
+                }
+
+                var imgSize = scalingFactor / 50;
+                canvas.width(39 * imgSize + 'em');
+                canvas.height((29 * imgSize)*1.33 + 'em');
+
+                canvas.attr('width', 39 * 3 / 9 * width + 1);
+                canvas.attr('height', 29 * 4 / 9 * width + 1);
+
+                for (var i = 0; i < 6; i++) {
+                    face(i);
+                }
+            }
+        })();
+
         var nnnImage = (function() {
             var width = 30;
 
@@ -1866,6 +1999,10 @@
             }
             if (type == "Dino Cube") {
                 dinoImage(scramble[1]);
+                return true;
+            }
+            if (type == "3x3x4") {
+                image334(scramble[1]);
                 return true;
             }
             if (type == "4x4 OH") {

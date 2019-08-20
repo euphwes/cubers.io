@@ -27,7 +27,7 @@ TIMER_TEMPLATE_MOBILE_MAP = {
 }
 
 NO_SCRAMBLE_PREVIEW_EVENTS = ["2BLD", "3BLD", "4BLD", "5BLD", "MBLD", "Kilominx", "3x3 Mirror Blocks/Bump",
-                              "3x3x4", "3x3x5", "2-3-4 Relay", "3x3 Relay of 3", "PLL Time Attack"]
+                              "3x3x5", "2-3-4 Relay", "3x3 Relay of 3", "PLL Time Attack"]
 
 ERR_MSG_NO_SUCH_EVENT = "Can't find a competition event with ID {comp_event_id}."
 ERR_MSG_INACTIVE_COMP = 'This event belongs to a competition which has ended.'
