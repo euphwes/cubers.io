@@ -1664,29 +1664,153 @@
             var colors = null;
 
             function doMove(move) {
-                if (move == 'R') {
-                    mathlib.circle(posit, 34, 37, 50); // edges half
-                    mathlib.circle(posit, 46, 32, 39); // edges half
+                if (move == 'M2') {
+                    mathlib.circle(posit, 37, 4); // U -> D center
+                    mathlib.circle(posit, 36, 3); // U -> D edges top
+                    mathlib.circle(posit, 38, 5); // U -> D edges bottom
+                    mathlib.circle(posit, 58, 28); // F -> B top
+                    mathlib.circle(posit, 59, 27); // F -> B top edges
+                    mathlib.circle(posit, 60, 26); // F -> B bottom edges
+                    mathlib.circle(posit, 61, 25); // F -> B bottom
                 }
-                if (move == "R'") {
-                    mathlib.circle(posit, 34, 50, 37); // edges half
-                    mathlib.circle(posit, 46, 39, 32); // edges half
+                if (move == 'S2') {
+                    mathlib.circle(posit, 37, 4); // U -> D center
+                    mathlib.circle(posit, 34, 7); // U -> D edges left
+                    mathlib.circle(posit, 40, 1); // U -> D edges right
+                    mathlib.circle(posit, 13, 49); // L -> R top
+                    mathlib.circle(posit, 14, 48); // L -> R top edges
+                    mathlib.circle(posit, 15, 47); // L -> R bottom edges
+                    mathlib.circle(posit, 16, 46); // L -> R bottom
+                    
                 }
-                if (move == 'L') {
-                    mathlib.circle(posit, 30, 46, 12); // edges half
-                    mathlib.circle(posit, 10, 34, 48); // edges half
+                if (move == 'U') {
+                    mathlib.circle(posit, 36, 40, 38, 34); // U edges
+                    mathlib.circle(posit, 33, 39, 41, 35); // U corners
+                    mathlib.circle(posit, 13, 25, 46, 58); // U-adjacent edges
+                    mathlib.circle(posit, 9, 21, 42, 54); // U-adjacent left corners
+                    mathlib.circle(posit, 17, 29, 50, 62); // U-adjacent right corners
                 }
-                if (move == "L'") {
-                    mathlib.circle(posit, 30, 12, 46); // edges half
-                    mathlib.circle(posit, 10, 48, 34); // edges half
+                if (move == 'U2') {
+                    for (var v = 0; v < 2; v++) {
+                        mathlib.circle(posit, 36, 40, 38, 34); // U edges
+                        mathlib.circle(posit, 33, 39, 41, 35); // U corners
+                        mathlib.circle(posit, 13, 25, 46, 58); // U-adjacent edges
+                        mathlib.circle(posit, 9, 21, 42, 54); // U-adjacent left corners
+                        mathlib.circle(posit, 17, 29, 50, 62); // U-adjacent right corners
+                    }
                 }
-                if (move == 'x') {
-                    mathlib.circle(posit, 37, 41, 43, 39); // R face edge cubelets
-                    mathlib.circle(posit, 10, 14, 16, 12); // L face edge cubelets
-                    mathlib.circle(posit, 28, 25, 7, 46); // 'A' edge vertical line around cube
-                    mathlib.circle(posit, 32, 23, 5, 50); // 'B' edge vertical line around cube
-                    mathlib.circle(posit, 34, 19, 1, 52); // 'C' edge vertical line around cube
-                    mathlib.circle(posit, 30, 21, 3, 48); // 'D' edge vertical line around cube
+                if (move == "U'") {
+                    for (var v = 0; v < 3; v++) {
+                        mathlib.circle(posit, 36, 40, 38, 34); // U edges
+                        mathlib.circle(posit, 33, 39, 41, 35); // U corners
+                        mathlib.circle(posit, 13, 25, 46, 58); // U-adjacent edges
+                        mathlib.circle(posit, 9, 21, 42, 54); // U-adjacent left corners
+                        mathlib.circle(posit, 17, 29, 50, 62); // U-adjacent right corners
+                    }
+                }
+                if (move == 'u') {
+                    mathlib.circle(posit, 59, 14, 26, 47); // u centers
+                    mathlib.circle(posit, 55, 10, 22, 43); // u left edges
+                    mathlib.circle(posit, 63, 18, 30, 51); // u right edges
+                }
+                if (move == 'u2') {
+                    for (var v = 0; v < 2; v++) {
+                        mathlib.circle(posit, 59, 14, 26, 47); // u centers
+                        mathlib.circle(posit, 55, 10, 22, 43); // u left edges
+                        mathlib.circle(posit, 63, 18, 30, 51); // u right edges
+                    }
+                }
+                if (move == "u'") {
+                    for (var v = 0; v < 3; v++) {
+                        mathlib.circle(posit, 59, 14, 26, 47); // u centers
+                        mathlib.circle(posit, 55, 10, 22, 43); // u left edges
+                        mathlib.circle(posit, 63, 18, 30, 51); // u right edges
+                    }
+                }
+                if (move == 'D') {
+                    mathlib.circle(posit, 3, 7, 5, 1); // D edges
+                    mathlib.circle(posit, 0, 6, 8, 2); // D corners
+                    mathlib.circle(posit, 61, 49, 28, 16); // D-adjacent edges
+                    mathlib.circle(posit, 57, 45, 24, 12); // D-adjacent left corners
+                    mathlib.circle(posit, 65, 53, 32, 20); // D-adjacent right corners
+                }
+                if (move == 'D2') {
+                    for (var v = 0; v < 2; v++) {
+                        mathlib.circle(posit, 3, 7, 5, 1); // D edges
+                        mathlib.circle(posit, 0, 6, 8, 2); // D corners
+                        mathlib.circle(posit, 61, 49, 28, 16); // D-adjacent edges
+                        mathlib.circle(posit, 57, 45, 24, 12); // D-adjacent left corners
+                        mathlib.circle(posit, 65, 53, 32, 20); // D-adjacent right corners
+                    }
+                }
+                if (move == "D'") {
+                    for (var v = 0; v < 3; v++) {
+                        mathlib.circle(posit, 3, 7, 5, 1); // D edges
+                        mathlib.circle(posit, 0, 6, 8, 2); // D corners
+                        mathlib.circle(posit, 61, 49, 28, 16); // D-adjacent edges
+                        mathlib.circle(posit, 57, 45, 24, 12); // D-adjacent left corners
+                        mathlib.circle(posit, 65, 53, 32, 20); // D-adjacent right corners
+                    }
+                }
+                if (move == 'R2') {
+                    mathlib.circle(posit, 40, 7); // U -> D edges
+                    mathlib.circle(posit, 39, 6); // U -> D corners top
+                    mathlib.circle(posit, 41, 8); // U -> D corners bottom
+                    mathlib.circle(posit, 62, 24); // F -> B top corners
+                    mathlib.circle(posit, 65, 21); // F -> B bottom corners
+                    mathlib.circle(posit, 63, 23); // F -> B top edges
+                    mathlib.circle(posit, 64, 22); // F -> B bottom edges
+                    mathlib.circle(posit, 42, 53); // R corners top-left to bottom-right
+                    mathlib.circle(posit, 50, 45); // R corners top-right to bottom-left
+                    mathlib.circle(posit, 46, 49); // R top/bottom edges
+                    mathlib.circle(posit, 43, 52); // R edges #1
+                    mathlib.circle(posit, 51, 44); // R edges #2
+                    mathlib.circle(posit, 47, 48); // R centers
+                }
+                if (move == 'L2') {
+                    mathlib.circle(posit, 34, 1); // U -> D edges
+                    mathlib.circle(posit, 33, 0); // U -> D corners top
+                    mathlib.circle(posit, 35, 2); // U -> D corners bottom
+                    mathlib.circle(posit, 54, 32); // F -> B top corners
+                    mathlib.circle(posit, 57, 29); // F -> B bottom corners
+                    mathlib.circle(posit, 55, 31); // F -> B top edges
+                    mathlib.circle(posit, 56, 30); // F -> B bottom edges
+                    mathlib.circle(posit, 9, 20); // L corners top-left to bottom-right
+                    mathlib.circle(posit, 17, 12); // L corners top-right to bottom-left
+                    mathlib.circle(posit, 13, 16); // L top/bottom edges
+                    mathlib.circle(posit, 10, 19); // L edges #1
+                    mathlib.circle(posit, 11, 18); // L edges #2
+                    mathlib.circle(posit, 14, 15); // L centers
+                }
+                if (move == 'F2') {
+                    mathlib.circle(posit, 38, 3); // U -> D edges
+                    mathlib.circle(posit, 35, 6); // U -> D corners left
+                    mathlib.circle(posit, 41, 0); // U -> D corners right
+                    mathlib.circle(posit, 17, 45); // L -> R top corners
+                    mathlib.circle(posit, 20, 42); // L -> R bottom corners
+                    mathlib.circle(posit, 18, 44); // L -> R top edges
+                    mathlib.circle(posit, 19, 43); // L -> R bottom edges
+                    mathlib.circle(posit, 54, 65); // F corners top-left to bottom-right
+                    mathlib.circle(posit, 57, 62); // F corners top-right to bottom-left
+                    mathlib.circle(posit, 58, 61); // F top/bottom edges
+                    mathlib.circle(posit, 55, 64); // F edges #1
+                    mathlib.circle(posit, 56, 63); // F edges #2
+                    mathlib.circle(posit, 59, 60); // F centers
+                }
+                if (move == 'B2') {
+                    mathlib.circle(posit, 36, 5); // U -> D edges
+                    mathlib.circle(posit, 33, 8); // U -> D corners left
+                    mathlib.circle(posit, 39, 2); // U -> D corners right
+                    mathlib.circle(posit, 9, 53); // L -> R top corners
+                    mathlib.circle(posit, 12, 50); // L -> R bottom corners
+                    mathlib.circle(posit, 10, 52); // L -> R top edges
+                    mathlib.circle(posit, 11, 51); // L -> R bottom edges
+                    mathlib.circle(posit, 21, 32); // B corners top-left to bottom-right
+                    mathlib.circle(posit, 29, 24); // B corners top-right to bottom-left
+                    mathlib.circle(posit, 25, 28); // B top/bottom edges
+                    mathlib.circle(posit, 22, 31); // B edges #1
+                    mathlib.circle(posit, 23, 30); // B edges #2
+                    mathlib.circle(posit, 26, 27); // B centers
                 }
             }
 
@@ -1723,37 +1847,51 @@
                 }
 
                 if (f == 3 || f == 0) {
+
+                    var cnt = 0;
+                    if (f == 3) {
+                        cnt = 33;
+                    } else {
+                        cnt = 0;
+                    }
+
                     for (var i = 0; i < size; i++) {
-                        var x = (f == 1 || f == 2) ? size - 1 - i : i;
                         for (var j = 0; j < size; j++) {
-                            var y = (f == 0) ? size - 1 - j : j;
-                            if ((i == 1) && (j == 1)) { continue; }
-    
-                            var posit_index = (f * size + y) * size + x;
-                            // var color = colors[posit[posit_index]];
-                            var color = colors[0];
+
+                            var color = colors[posit[cnt]];
 
                             drawPolygon(ctx, color, [
                                 [i, i, i + 1, i + 1],
                                 [j, j + 1, j + 1, j]
                             ], [width, offx, offy]);
+
+                            cnt += 1;
                         }
                     }
                 } else {
+
+                    var cnt = 0;
+                    if (f == 1) {
+                        cnt = 9;
+                    } else if (f == 5) {
+                        cnt = 54;
+                    } else if (f == 4) {
+                        cnt = 42;
+                    } else {
+                        cnt = 21;
+                    }
+
                     for (var i = 0; i < size; i++) {
-                        var x = (f == 1 || f == 2) ? size - 1 - i : i;
                         for (var j = 0; j < longSize; j++) {
-                            var y = (f == 0) ? size - 1 - j : j;
-                            if ((i == 1) && (j == 1)) { continue; }
     
-                            var posit_index = (f * size + y) * size + x;
-                            var color = colors[0];
-                            // var color = colors[posit[posit_index]];
+                            var color = colors[posit[cnt]];
     
                             drawPolygon(ctx, color, [
                                 [i, i, i + 1, i + 1],
                                 [j, j + 1, j + 1, j]
                             ], [width, offx, offy]);
+
+                            cnt += 1;
                         }
                     }
                 }
@@ -1762,7 +1900,8 @@
             return function(moveseq) {
                 var cnt = 0;
                 for (var i = 0; i < 6; i++) {
-                    for (var f = 0; f < 9; f++) {
+                    var faceSize = (i == 3 || i == 0) ? 9 : 12;
+                    for (var f = 0; f < faceSize; f++) {
                         posit[cnt++] = i;
                     }
                 }
