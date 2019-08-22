@@ -30,6 +30,7 @@ COMP_EVENT_ID     = 'comp_event_id'
 CENTISECONDS      = 'elapsed_centiseconds'
 IS_INSPECTION_DNF = 'is_inspection_dnf'
 EXPECTED_FIELDS = (IS_DNF, IS_PLUS_TWO, SCRAMBLE_ID, COMP_EVENT_ID, CENTISECONDS)
+SOLVE_ID          = 'solve_id'
 
 COMMENT = 'comment'
 
@@ -37,6 +38,7 @@ ERR_MSG_MISSING_INFO = 'Some required information is missing from your solve.'
 ERR_MSG_NO_SUCH_EVENT = "Can't find a competition event with ID {}."
 ERR_MSG_INACTIVE_COMP = 'This event belongs to a competition which has ended.'
 ERR_MSG_NO_RESULTS    = "Can't find user results for competition event with ID {}."
+ERR_MSG_NO_SOLVE      = "Can't find solve with ID {} that belongs to {}."
 ERR_MSG_MBLD_TOO_FEW_ATTEMPTED = "You must attempt at least 2 cubes for MBLD!"
 
 # -------------------------------------------------------------------------------------------------
@@ -191,6 +193,66 @@ def toggle_prev_plus_two():
     # event result, etc are all up-to-date.
     process_event_results(user_event_results, comp_event, current_user)
     save_event_results(user_event_results)
+
+    return timer_page(comp_event_id, gather_info_for_live_refresh=True)
+
+
+@app.route('/delete_solve', methods=['POST'])
+def delete_solve():
+    """ Deletes the specified solve. """
+
+    if not current_user.is_authenticated:
+        return abort(HTTPStatus.UNAUTHORIZED)
+
+    # Extract JSON solve data, deserialize to dict, and verify that all expected fields are present
+    solve_data = json.loads(request.data)
+    if not all(key in solve_data for key in (SOLVE_ID, COMP_EVENT_ID)):
+        return (ERR_MSG_MISSING_INFO, HTTPStatus.BAD_REQUEST)
+
+    # Extract all the specific fields out of the solve data dictionary
+    solve_id = solve_data[SOLVE_ID]
+    comp_event_id = solve_data[COMP_EVENT_ID]
+
+    # Retrieve the specified competition event
+    comp_event = get_comp_event_by_id(comp_event_id)
+    if not comp_event:
+        return (ERR_MSG_NO_SUCH_EVENT.format(comp_event_id), HTTPStatus.NOT_FOUND)
+
+    # Verify that the competition event belongs to the active competition.
+    comp = comp_event.Competition
+    if not comp.active:
+        return (ERR_MSG_INACTIVE_COMP, HTTPStatus.BAD_REQUEST)
+
+    # Retrieve the user's results record for this event
+    user_event_results = get_event_results_for_user(comp_event_id, current_user)
+    if (not user_event_results) or (not user_event_results.solves):
+        return (ERR_MSG_NO_RESULTS.format(comp_event_id), HTTPStatus.NOT_FOUND)
+
+    target_solve = None
+    for solve in user_event_results.solves:
+        if solve.id == solve_id:
+            target_solve = solve
+            break
+
+    if not target_solve:
+        return (ERR_MSG_NO_SOLVE.format(solve_id, current_user.username), HTTPStatus.NOT_FOUND)
+
+    # If the results only have one solve (which we're about to delete), we need to delete the
+    # results entirely
+    do_delete_user_results_after_solve = len(user_event_results.solves) == 1
+
+    # Delete the target solve
+    delete_user_solve(target_solve)
+
+    # If no more solves left, just delete the whole results record
+    if do_delete_user_results_after_solve:
+        delete_event_results(user_event_results)
+
+    # Otherwise process through the user's event results, ensuring PB flags, best single, average,
+    # overall event result, etc are all up-to-date.
+    else:
+        process_event_results(user_event_results, comp_event, current_user)
+        save_event_results(user_event_results)
 
     return timer_page(comp_event_id, gather_info_for_live_refresh=True)
 

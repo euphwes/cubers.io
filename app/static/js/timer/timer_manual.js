@@ -18,8 +18,6 @@
         solve_data.is_plus_two = false;
         solve_data.elapsed_centiseconds = window.app.hmsToCentiseconds(currentValue);
 
-        var reload = function () { setTimeout(function () { window.location.reload(); }, 250); };
-
         $.ajax({
             url: '/post_solve',
             type: "POST",

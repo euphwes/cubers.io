@@ -90,6 +90,24 @@
         return $solve_clicked.attr('data-is_plus_two') == 'true';
     };
 
+    // Delete the selected solve
+    var deleteSolve = function($solve_clicked) {
+        var data = {};
+        data.comp_event_id = window.app.compEventId;
+        data.solve_id = parseInt($solve_clicked.attr('data-solve_id'));
+
+        $.ajax({
+            url: '/delete_solve',
+            type: "POST",
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            success: window.app.reRenderTimer,
+            error: function (xhr) {
+                bootbox.alert("Something unexpected happened: " + xhr.responseText);
+            }
+        });
+    };
+
     // Copy the selected solve's scramble to the clipboard
     var copyScramble = function($solve_clicked) {
         var scramble = $solve_clicked.attr('data-scramble');
@@ -134,7 +152,7 @@
                 "delete": {
                     name: "Delete time",
                     icon: "fas fa-trash",
-                    // callback: function(itemKey, opt, e) { deleteSolve($(opt.$trigger)); },
+                    callback: function(itemKey, opt, e) { deleteSolve($(opt.$trigger)); },
                 },
             }
         });
