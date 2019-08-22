@@ -106,8 +106,16 @@
 
         // Update the user solves text display in the sidebar / under the scramble text
         var userSolveDivs = $('.single_time').toArray();
-        $.each(eventData['user_solves'], function(i, timeValue){
-            $(userSolveDivs[i]).html(timeValue);
+        $.each(eventData['user_solves'], function(i, solveArray){
+            var friendlyTime = solveArray[0];
+            $(userSolveDivs[i]).html(friendlyTime);
+
+            var solveId = solveArray[1];
+            if (solveId == -1) {
+                $(userSolveDivs[i]).removeClass('selectable');
+            } else {
+                $(userSolveDivs[i]).addClass('selectable');
+            }
         });
 
         // Update the displayed time to match what's coming back from the server

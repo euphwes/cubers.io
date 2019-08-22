@@ -27,7 +27,11 @@
                     <div class="times text-center">
                         <div class="solves_header">Solves</div>
                         {% for solve in user_solves %}
-                        <div class="single_time">{{ solve }}</div>
+                            {% if solve[1] != -1 %}
+                                <div class="single_time selectable" data-solve_id="{{ solve[1] }}">{{ solve[0] }}</div>
+                            {% else %}
+                                <div class="single_time"> {{ solve[0] }} </div>
+                            {% endif %}
                         {% endfor %}
                     </div>
                     {% if show_scramble_preview %}
