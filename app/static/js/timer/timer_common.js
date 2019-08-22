@@ -13,8 +13,7 @@
 
     // If this event supports scramble previews:
     // 1. initialize the scramble image generator, which will render the small-size scramble preview
-    // 2. dd a click/press handler on the preview to show the large scramble preview
-    // TODO: redraw scramble on window resize
+    // 2. add a click/press handler on the preview to show the large scramble preview
     if (window.app.doShowScramble) {
         imageGenerator = new window.app.ScrambleImageGenerator();
         $('.scramble_preview:not(.no_pointer),.btn_scramble_preview').click(function () {
@@ -75,6 +74,74 @@
         fitText();
     };
 
+    // Check if the selected solve has DNF penalty
+    var hasDNF = function($solve_clicked) {
+        // use attr() instead of data(), so we can replace the attribute value on an ajax
+        // timer page reload. If we use data, jQuery doesn't update the value automatically
+        // if the DOM changes
+        return $solve_clicked.attr('data-is_dnf')  == 'true';
+    };
+
+    // Check if the selected solve has +2 penalty
+    var hasPlusTwo = function($solve_clicked) {
+        // use attr() instead of data(), so we can replace the attribute value on an ajax
+        // timer page reload. If we use data, jQuery doesn't update the value automatically
+        // if the DOM changes
+        return $solve_clicked.attr('data-is_plus_two') == 'true';
+    };
+
+    // Copy the selected solve's scramble to the clipboard
+    var copyScramble = function($solve_clicked) {
+        var scramble = $solve_clicked.attr('data-scramble');
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val(scramble).select();
+        document.execCommand("copy");
+        $temp.remove();
+    };
+
+    var wireContextMenu = function() {
+        $.contextMenu({
+            selector: '.single_time.ctx_menu',
+            trigger: 'left',
+            hideOnSecondTrigger: true,
+            items: {
+                "clear": {
+                    name: "Clear penalty",
+                    icon: "far fa-thumbs-up",
+                    // callback: function(itemKey, opt, e) { clearPenalty($(opt.$trigger)); },
+                    disabled: function(key, opt) { return !(hasDNF(this) || hasPlusTwo(this)); }
+                },
+                "dnf": {
+                    name: "DNF",
+                    icon: "fas fa-ban",
+                    // callback: function(itemKey, opt, e) { setDNF($(opt.$trigger)); },
+                    disabled: function(key, opt) { return hasDNF(this); }
+                },
+                "+2": {
+                    name: "+2",
+                    icon: "fas fa-plus",
+                    // callback: function(itemKey, opt, e) { setPlusTwo($(opt.$trigger)); },
+                    disabled: function(key, opt) { return hasPlusTwo(this); }
+                },
+                "sep1": "---------",
+                "copy_scramble" : {
+                    name: "Copy scramble",
+                    icon: "fas fa-clipboard",
+                    callback: function(itemKey, opt, e) { copyScramble($(opt.$trigger)); }
+                },
+                "sep2": "---------",
+                "delete": {
+                    name: "Delete time",
+                    icon: "fas fa-trash",
+                    // callback: function(itemKey, opt, e) { deleteSolve($(opt.$trigger)); },
+                },
+            }
+        });
+    };
+
+    wireContextMenu();
+
     // Function to re-render the timer page based on new event data after a successful
     // solve save, modification, delete, or comment change
     window.app.reRenderTimer = function(eventData) {
@@ -111,11 +178,20 @@
             $(userSolveDivs[i]).html(friendlyTime);
 
             var solveId = solveArray[1];
+            $(userSolveDivs[i]).attr('data-solve_id', solveId);
             if (solveId == -1) {
-                $(userSolveDivs[i]).removeClass('selectable');
+                $(userSolveDivs[i]).removeClass('ctx_menu');
             } else {
-                $(userSolveDivs[i]).addClass('selectable');
+                $(userSolveDivs[i]).addClass('ctx_menu');
             }
+
+            var isDnf = solveArray[2];
+            var isPlusTwo = solveArray[3];
+            $(userSolveDivs[i]).attr('data-is_dnf', isDnf);
+            $(userSolveDivs[i]).attr('data-is_plus_two', isPlusTwo);
+
+            var scramble = solveArray[4];
+            $(userSolveDivs[i]).attr('data-scramble', scramble);
         });
 
         // Update the displayed time to match what's coming back from the server
@@ -148,7 +224,6 @@
         updateButtonState('#BTN_UNDO', 'btn_undo', buttonStateInfo);
         updateButtonState('#BTN_COMMENT', 'btn_comment', buttonStateInfo);
         updateButtonState('#BTN_PLUS_TWO', 'btn_plus_two', buttonStateInfo);
-        
     }
 
     // A helper function to auto-format times in text input fields to the following format
