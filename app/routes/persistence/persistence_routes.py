@@ -266,6 +266,38 @@ def apply_comment():
 # Below are routes called by the timer page solve context menu
 # -------------------------------------------------------------------------------------------------
 
+@app.route('/set_time', methods=['POST'])
+@api_login_required
+def set_time():
+    """ Applies the specified time to the specified solve. """
+
+    target_solve_data, err_msg, http_status_code = __retrieve_target_solve(request.data, current_user)
+    if not target_solve_data:
+        return err_msg, http_status_code
+
+    # Extract the target solve, user's event results, and the associated competition event
+    target_solve, user_event_results, comp_event = target_solve_data
+
+    # Extract JSON solve data, deserialize to dict, and verify that all expected fields are present
+    # This is slightly redundant given the call to __retrieve_target_solve, but we also need to pull
+    # the centiseconds value which that doesn't do.
+    solve_data = json.loads(request.data)
+    if not all(key in solve_data for key in (SOLVE_ID, COMP_EVENT_ID, CENTISECONDS)):
+        return (ERR_MSG_MISSING_INFO, HTTPStatus.BAD_REQUEST)
+
+    # Extract all the specific fields out of the solve data dictionary
+    target_solve.time = solve_data[CENTISECONDS]
+
+    # No penalties on the solve after adjusting time
+    target_solve.is_plus_two = False
+    target_solve.is_dnf = False
+
+    process_event_results(user_event_results, comp_event, current_user)
+    save_event_results(user_event_results)
+
+    return timer_page(comp_event.id, gather_info_for_live_refresh=True)
+
+
 @app.route('/set_plus_two', methods=['POST'])
 @api_login_required
 def set_plus_two():

@@ -141,6 +141,43 @@
         $temp.remove();
     };
 
+    var manualTimeEntry = function($solve_clicked) {
+        $(document).on('input', '.bootbox-input.bootbox-input-text.form-control', function () {
+            window.app.modifyTimeToProperFormat('.bootbox-input.bootbox-input-text.form-control');
+        });
+
+        var solveId = parseInt($solve_clicked.attr('data-solve_id'));
+
+        bootbox.prompt({
+            title: 'Input your time',
+            centerVertical: true,
+            callback: function (result) {
+                // Dialog box was closed/canceled
+                if (result == null) {
+                    return;
+                }
+
+                var data = {};
+                data.comp_event_id = window.app.compEventId;
+                data.solve_id = solveId;
+                data.elapsed_centiseconds = window.app.hmsToCentiseconds(result);
+
+                $.ajax({
+                    url: '/set_time',
+                    type: "POST",
+                    data: JSON.stringify(data),
+                    contentType: "application/json",
+                    success: window.app.reRenderTimer,
+                    error: function (xhr) {
+                        bootbox.alert("Something unexpected happened: " + xhr.responseText);
+                    }
+                });
+
+                $(document).off('input', '.bootbox-input.bootbox-input-text.form-control');
+            }
+        });
+    };
+
     var wireContextMenu = function() {
         $.contextMenu({
             selector: '.single_time.ctx_menu',
@@ -173,12 +210,18 @@
                     disabled: function(key, opt) { return hasPlusTwo(this); }
                 },
                 "sep1": "---------",
+                "manual_entry": {
+                    name: "Manual time entry",
+                    icon: "fas fa-edit",
+                    callback: function(itemKey, opt, e) { manualTimeEntry($(opt.$trigger)); },
+                },
+                "sep2": "---------",
                 "copy_scramble" : {
                     name: "Copy scramble",
                     icon: "fas fa-clipboard",
                     callback: function(itemKey, opt, e) { copyScramble($(opt.$trigger)); }
                 },
-                "sep2": "---------",
+                "sep3": "---------",
                 "delete": {
                     name: "Delete time",
                     icon: "fas fa-trash",
