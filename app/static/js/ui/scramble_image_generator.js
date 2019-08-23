@@ -2017,6 +2017,199 @@
             }
         })();
 
+        var image223 = (function() {
+            var width = 30;
+            var posit = [];
+            var colors = null;
+
+            function doMove(move) {
+                if (move == 'U') {
+                    mathlib.circle(posit, 16, 18, 19, 17); // U corners
+                    mathlib.circle(posit, 26, 4, 10, 20); // U-adjacent left corners
+                    mathlib.circle(posit, 29, 7, 13, 23); // U-adjacent right corners
+                }
+                if (move == 'U2') {
+                    for (var v = 0; v < 2; v++) {
+                        mathlib.circle(posit, 16, 18, 19, 17); // U corners
+                        mathlib.circle(posit, 26, 4, 10, 20); // U-adjacent left corners
+                        mathlib.circle(posit, 29, 7, 13, 23); // U-adjacent right corners
+                    }
+                }
+                if (move == "U'") {
+                    for (var v = 0; v < 3; v++) {
+                        mathlib.circle(posit, 16, 18, 19, 17); // U corners
+                        mathlib.circle(posit, 26, 4, 10, 20); // U-adjacent left corners
+                        mathlib.circle(posit, 29, 7, 13, 23); // U-adjacent right corners
+                    }
+                }
+                if (move == 'D') {
+                    mathlib.circle(posit, 0, 2, 3, 1); // D corners
+                    mathlib.circle(posit, 28, 22, 12, 6); // D-adjacent left corners
+                    mathlib.circle(posit, 31, 25, 15, 9); // D-adjacent right corners
+                }
+                if (move == 'D2') {
+                    for (var v = 0; v < 2; v++) {
+                        mathlib.circle(posit, 0, 2, 3, 1); // D corners
+                        mathlib.circle(posit, 28, 22, 12, 6); // D-adjacent left corners
+                        mathlib.circle(posit, 31, 25, 15, 9); // D-adjacent right corners
+                    }
+                }
+                if (move == "D'") {
+                    for (var v = 0; v < 3; v++) {
+                        mathlib.circle(posit, 0, 2, 3, 1); // D corners
+                        mathlib.circle(posit, 28, 22, 12, 6); // D-adjacent left corners
+                        mathlib.circle(posit, 31, 25, 15, 9); // D-adjacent right corners
+                    }
+                }
+                if (move == 'R2') {
+                    mathlib.circle(posit, 18, 2); // U -> D corners top
+                    mathlib.circle(posit, 19, 3); // U -> D corners bottom
+                    mathlib.circle(posit, 29, 12); // F -> B corners top
+                    mathlib.circle(posit, 31, 10); // F -> B corners bottom
+                    mathlib.circle(posit, 30, 11); // F -> B edge
+                    mathlib.circle(posit, 20, 25); // R corners #1
+                    mathlib.circle(posit, 22, 23); // R corners #2
+                    mathlib.circle(posit, 21, 24); // R edges
+                }
+                if (move == 'F2') {
+                    mathlib.circle(posit, 17, 2); // U -> D corners left
+                    mathlib.circle(posit, 19, 0); // U -> D corners right
+                    mathlib.circle(posit, 7, 22); // L -> R corners top
+                    mathlib.circle(posit, 9, 20); // L -> R corners bottom
+                    mathlib.circle(posit, 8, 21); // L -> R edges
+                    mathlib.circle(posit, 27, 30); // F edges
+                    mathlib.circle(posit, 26, 31); // F corners #1
+                    mathlib.circle(posit, 28, 29); // F corners #2
+                }
+            }
+
+            function face(f) {
+
+                size = 2;
+                longSize = 3;
+
+                if (!colors) {
+                    setColors();
+                    colors = cube_colors;
+                }
+
+                var leftOffset = 2;
+                var topOffset = 2;
+
+                var offx = 10 / 8,
+                    offy = 10 / 8;
+                if (f == 0) { //D
+                    offx *= size;
+                    offx += leftOffset;
+                    offy *= size * 2.4
+                    offy += topOffset;
+                } else if (f == 1) { //L
+                    offx *= 0;
+                    offx += leftOffset;
+                    offy *= size;
+                    offy += topOffset;
+                } else if (f == 2) { //B
+                    offx *= size * 3;
+                    offx += leftOffset;
+                    offy *= size;
+                    offy += topOffset;
+                } else if (f == 3) { //U
+                    offx *= size;
+                    offx += leftOffset;
+                    offy *= 0;
+                    offy += topOffset;
+                } else if (f == 4) { //R
+                    offx *= size * 2;
+                    offx += leftOffset;
+                    offy *= size;
+                    offy += topOffset;
+                } else if (f == 5) { //F
+                    offx *= size;
+                    offx += leftOffset;
+                    offy *= size;
+                    offy += topOffset;
+                }
+
+                if (f == 3 || f == 0) {
+
+                    var cnt = 0;
+                    if (f == 3) {
+                        cnt = 16;
+                    } else {
+                        cnt = 0;
+                    }
+
+                    for (var i = 0; i < size; i++) {
+                        for (var j = 0; j < size; j++) {
+
+                            var color = colors[posit[cnt]];
+
+                            console.log('about to draw poly ' + cnt + ' on face ' + f);
+                            drawPolygon(ctx, color, [
+                                [i, i, i + 1, i + 1],
+                                [j, j + 1, j + 1, j]
+                            ], [width, offx, offy]);
+
+                            cnt += 1;
+                        }
+                    }
+                } else {
+
+                    var cnt = 0;
+                    if (f == 1) {
+                        cnt = 4;
+                    } else if (f == 5) {
+                        cnt = 26;
+                    } else if (f == 4) {
+                        cnt = 20;
+                    } else {
+                        cnt = 10;
+                    }
+
+                    for (var i = 0; i < size; i++) {
+                        for (var j = 0; j < longSize; j++) {
+    
+                            var color = colors[posit[cnt]];
+    
+                            console.log('about to draw poly ' + cnt + ' on face ' + f);
+                            drawPolygon(ctx, color, [
+                                [i, i, i + 1, i + 1],
+                                [j, j + 1, j + 1, j]
+                            ], [width, offx, offy]);
+
+                            cnt += 1;
+                        }
+                    }
+                }
+            }
+
+            return function(moveseq) {
+                var cnt = 0;
+                for (var i = 0; i < 6; i++) {
+                    var faceSize = (i == 3 || i == 0) ? 4 : 6;
+                    for (var f = 0; f < faceSize; f++) {
+                        posit[cnt++] = i;
+                    }
+                }
+
+                var scramble = moveseq.split(' ');
+                for (var i = 0; i < scramble.length; i++) {
+                    doMove(scramble[i]);
+                }
+
+                var imgSize = scalingFactor / 30;
+                canvas.width(39 * imgSize + 'em');
+                canvas.height((29 * imgSize)*1.5 + 'em');
+
+                canvas.attr('width', 39 * 3 / 9 * width + 1);
+                canvas.attr('height', 29 * 4 / 9 * width + 1);
+
+                for (var i = 0; i < 6; i++) {
+                    face(i);
+                }
+            }
+        })();
+
         var nnnImage = (function() {
             var width = 30;
 
@@ -2235,6 +2428,10 @@
             }
             if (type == "3x3x4") {
                 image334(scramble[1]);
+                return true;
+            }
+            if (type == "2x2x3") {
+                image223(scramble[1]);
                 return true;
             }
             if (type == "4x4 OH") {
