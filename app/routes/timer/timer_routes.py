@@ -33,7 +33,7 @@ ERR_MSG_NO_SUCH_EVENT = "Can't find a competition event with ID {comp_event_id}.
 ERR_MSG_INACTIVE_COMP = 'This event belongs to a competition which has ended.'
 
 NOT_YET_SOLVED = '—'
-NOT_YET_SOLVED_ARRAY = [NOT_YET_SOLVED]
+NOT_YET_SOLVED_ARRAY = [[NOT_YET_SOLVED, -1, False, False]]
 
 PAGE_TITLE_TEMPLATE = '{event_name} — {comp_title}'
 
@@ -188,7 +188,8 @@ def timer_page(comp_event_id, gather_info_for_live_refresh=False):
 # -------------------------------------------------------------------------------------------------
 
 def __build_user_solves_list(user_results, event_total_solves, scrambles):
-    """ Builds up a list in user-readable form of the user's current solve times. """
+    """ Returns a list in user-readable form of the user's current solves as a list of
+    [displayable_time, solve_id, is_dnf, is_plus_two] units, plus the most recent solve's friendly display time. """
 
     # Begin with an array of 'not yet solved' entries, with a length equal to the number of solves
     # this event has.
@@ -204,7 +205,8 @@ def __build_user_solves_list(user_results, event_total_solves, scrambles):
     for i, scramble in enumerate(scrambles):
         for solve in user_results.solves:
             if scramble.id == solve.scramble_id:
-                user_solves[i] = solve.get_friendly_time()
+                user_solves[i] = [solve.get_friendly_time(), solve.id, str(solve.is_dnf).lower(),
+                    str(solve.is_plus_two).lower(), scramble.scramble]
 
     return user_solves, user_results.solves[-1].get_friendly_time()
 
@@ -236,7 +238,7 @@ def __determine_scramble_id_text_index(user_results, user_solves_list, scrambles
     if user_results:
         first_unsolved_idx = -1
         for i, solve in enumerate(user_solves_list):
-            if solve == NOT_YET_SOLVED:
+            if solve[0] == NOT_YET_SOLVED:
                 first_unsolved_idx = i
                 break
 
@@ -244,7 +246,6 @@ def __determine_scramble_id_text_index(user_results, user_solves_list, scrambles
     # Instead of scramble text, return a message indicating they're done, possibly
     # with some additional info about PBs or whatever.
     if first_unsolved_idx == -1:
-        # TODO -- determine the right message to put here
         scramble_text = __build_done_message(user_results, event_name, event_format)
         scramble_id = -1
 

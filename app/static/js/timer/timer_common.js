@@ -1,5 +1,10 @@
 (function () {
 
+    var MOD_APPLY_DNF      = "apply_dnf";
+    var MOD_APPLY_PLUS_TWO = "apply_plus_two";
+    var MOD_CLEAR_PENALTY  = "clear_penalty";
+    var MOD_DELETE_SOLVE   = "delete_solve";
+
     // To manage user settings for the UI
     window.app.userSettingsManager = new window.app.UserSettingsManager();
 
@@ -13,8 +18,7 @@
 
     // If this event supports scramble previews:
     // 1. initialize the scramble image generator, which will render the small-size scramble preview
-    // 2. dd a click/press handler on the preview to show the large scramble preview
-    // TODO: redraw scramble on window resize
+    // 2. add a click/press handler on the preview to show the large scramble preview
     if (window.app.doShowScramble) {
         imageGenerator = new window.app.ScrambleImageGenerator();
         $('.scramble_preview:not(.no_pointer),.btn_scramble_preview').click(function () {
@@ -75,6 +79,162 @@
         fitText();
     };
 
+    // Check if the selected solve has DNF penalty
+    var hasDNF = function($solve_clicked) {
+        // use attr() instead of data(), so we can replace the attribute value on an ajax
+        // timer page reload. If we use data, jQuery doesn't update the value automatically
+        // if the DOM changes
+        return $solve_clicked.attr('data-is_dnf')  == 'true';
+    };
+
+    // Check if the selected solve has +2 penalty
+    var hasPlusTwo = function($solve_clicked) {
+        // use attr() instead of data(), so we can replace the attribute value on an ajax
+        // timer page reload. If we use data, jQuery doesn't update the value automatically
+        // if the DOM changes
+        return $solve_clicked.attr('data-is_plus_two') == 'true';
+    };
+
+    // Modify the solve somehow; apply +2 or DNF, clear penalties, or delete the solve
+    var applySolveModification = function($solve_clicked, modification) {
+        var data = {};
+        data.comp_event_id = window.app.compEventId;
+        data.solve_id = parseInt($solve_clicked.attr('data-solve_id'));
+
+        var route;
+        switch (modification) {
+            case MOD_APPLY_DNF:
+                route = '/set_dnf';
+                break;
+            case MOD_APPLY_PLUS_TWO:
+                route = '/set_plus_two';
+                break;
+            case MOD_CLEAR_PENALTY:
+                route = '/clear_penalty';
+                break;
+            case MOD_DELETE_SOLVE:
+                route = '/delete_solve';
+                break;
+            default:
+                return;
+        }
+
+        $.ajax({
+            url: route,
+            type: "POST",
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            success: window.app.reRenderTimer,
+            error: function (xhr) {
+                bootbox.alert("Something unexpected happened: " + xhr.responseText);
+            }
+        });
+    };
+
+    // Copy the selected solve's scramble to the clipboard
+    var copyScramble = function($solve_clicked) {
+        var scramble = $solve_clicked.attr('data-scramble');
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val(scramble).select();
+        document.execCommand("copy");
+        $temp.remove();
+    };
+
+    var manualTimeEntry = function($solve_clicked) {
+        $(document).on('input', '.bootbox-input.bootbox-input-text.form-control', function () {
+            window.app.modifyTimeToProperFormat('.bootbox-input.bootbox-input-text.form-control');
+        });
+
+        var solveId = parseInt($solve_clicked.attr('data-solve_id'));
+
+        bootbox.prompt({
+            title: 'Input your time',
+            centerVertical: true,
+            callback: function (result) {
+                // Dialog box was closed/canceled
+                if (result == null) {
+                    return;
+                }
+
+                var data = {};
+                data.comp_event_id = window.app.compEventId;
+                data.solve_id = solveId;
+                data.elapsed_centiseconds = window.app.hmsToCentiseconds(result);
+
+                $.ajax({
+                    url: '/set_time',
+                    type: "POST",
+                    data: JSON.stringify(data),
+                    contentType: "application/json",
+                    success: window.app.reRenderTimer,
+                    error: function (xhr) {
+                        bootbox.alert("Something unexpected happened: " + xhr.responseText);
+                    }
+                });
+
+                $(document).off('input', '.bootbox-input.bootbox-input-text.form-control');
+            }
+        });
+    };
+
+    var wireContextMenu = function() {
+        $.contextMenu({
+            selector: '.single_time.ctx_menu',
+            trigger: 'left',
+            hideOnSecondTrigger: true,
+            items: {
+                "clear": {
+                    name: "Clear penalty",
+                    icon: "far fa-thumbs-up",
+                    callback: function(itemKey, opt, e) { 
+                        applySolveModification($(opt.$trigger), MOD_CLEAR_PENALTY); 
+                    },
+                    disabled: function(key, opt) { return !(hasDNF(this) || hasPlusTwo(this)); }
+                },
+                "dnf": {
+                    name: "DNF",
+                    icon: "fas fa-ban",
+                    callback: function(itemKey, opt, e) { 
+                        applySolveModification($(opt.$trigger), MOD_APPLY_DNF); 
+                    },
+                    // TODO can I clean up this disabled function by just passing hasDNF directly? test
+                    disabled: function(key, opt) { return hasDNF(this); }
+                },
+                "+2": {
+                    name: "+2",
+                    icon: "fas fa-plus",
+                    callback: function(itemKey, opt, e) { 
+                        applySolveModification($(opt.$trigger), MOD_APPLY_PLUS_TWO); 
+                    },
+                    disabled: function(key, opt) { return hasPlusTwo(this); }
+                },
+                "sep1": "---------",
+                "manual_entry": {
+                    name: "Manual time entry",
+                    icon: "fas fa-edit",
+                    callback: function(itemKey, opt, e) { manualTimeEntry($(opt.$trigger)); },
+                },
+                "sep2": "---------",
+                "copy_scramble" : {
+                    name: "Copy scramble",
+                    icon: "fas fa-clipboard",
+                    callback: function(itemKey, opt, e) { copyScramble($(opt.$trigger)); }
+                },
+                "sep3": "---------",
+                "delete": {
+                    name: "Delete time",
+                    icon: "fas fa-trash",
+                    callback: function(itemKey, opt, e) { 
+                        applySolveModification($(opt.$trigger), MOD_DELETE_SOLVE); 
+                    },
+                },
+            }
+        });
+    };
+
+    wireContextMenu();
+
     // Function to re-render the timer page based on new event data after a successful
     // solve save, modification, delete, or comment change
     window.app.reRenderTimer = function(eventData) {
@@ -106,8 +266,25 @@
 
         // Update the user solves text display in the sidebar / under the scramble text
         var userSolveDivs = $('.single_time').toArray();
-        $.each(eventData['user_solves'], function(i, timeValue){
-            $(userSolveDivs[i]).html(timeValue);
+        $.each(eventData['user_solves'], function(i, solveArray){
+            var friendlyTime = solveArray[0];
+            $(userSolveDivs[i]).html(friendlyTime);
+
+            var solveId = solveArray[1];
+            $(userSolveDivs[i]).attr('data-solve_id', solveId);
+            if (solveId == -1) {
+                $(userSolveDivs[i]).removeClass('ctx_menu');
+            } else {
+                $(userSolveDivs[i]).addClass('ctx_menu');
+            }
+
+            var isDnf = solveArray[2];
+            var isPlusTwo = solveArray[3];
+            $(userSolveDivs[i]).attr('data-is_dnf', isDnf);
+            $(userSolveDivs[i]).attr('data-is_plus_two', isPlusTwo);
+
+            var scramble = solveArray[4];
+            $(userSolveDivs[i]).attr('data-scramble', scramble);
         });
 
         // Update the displayed time to match what's coming back from the server
@@ -140,7 +317,6 @@
         updateButtonState('#BTN_UNDO', 'btn_undo', buttonStateInfo);
         updateButtonState('#BTN_COMMENT', 'btn_comment', buttonStateInfo);
         updateButtonState('#BTN_PLUS_TWO', 'btn_plus_two', buttonStateInfo);
-        
     }
 
     // A helper function to auto-format times in text input fields to the following format
