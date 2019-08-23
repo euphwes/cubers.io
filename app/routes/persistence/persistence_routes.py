@@ -1,8 +1,8 @@
 """ Routes related to saving results to the database. """
 
-# TODO: TODO: TODO: refactor this stuff, I'm repeating myself so much it's like I have a stutter
-
 import json
+
+from functools import wraps
 
 from http import HTTPStatus
 
@@ -20,6 +20,19 @@ from app.routes.timer import timer_page
 
 # -------------------------------------------------------------------------------------------------
 
+def api_login_required(func):
+
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return abort(HTTPStatus.UNAUTHORIZED)
+
+        return func(*args, **kwargs)
+
+    return decorated_function
+
+# -------------------------------------------------------------------------------------------------
+
 LOG_EVENT_RESULTS_TEMPLATE = "{}: submitted {} results"
 LOG_RESULTS_ERROR_TEMPLATE = "{}: error creating or saving {} results"
 LOG_SAVED_RESULTS_TEMPLATE = "{}: saved {} results"
@@ -33,6 +46,9 @@ CENTISECONDS      = 'elapsed_centiseconds'
 IS_INSPECTION_DNF = 'is_inspection_dnf'
 EXPECTED_FIELDS = (IS_DNF, IS_PLUS_TWO, SCRAMBLE_ID, COMP_EVENT_ID, CENTISECONDS)
 SOLVE_ID          = 'solve_id'
+PENALTY_TO_TOGGLE = 'penalty_to_toggle'
+PENALTY_DNF       = 'penalty_dnf'
+PENALTY_PLUS_TWO  = 'penalty_plus_two'
 
 COMMENT = 'comment'
 
@@ -44,14 +60,14 @@ ERR_MSG_NO_SOLVE      = "Can't find solve with ID {} that belongs to {}."
 ERR_MSG_MBLD_TOO_FEW_ATTEMPTED = "You must attempt at least 2 cubes for MBLD!"
 
 # -------------------------------------------------------------------------------------------------
+# Below are routes called during standard usage of the timer pages
+# -------------------------------------------------------------------------------------------------
 
 @app.route('/post_solve', methods=['POST'])
+@api_login_required
 def post_solve():
     """ Saves a solve. Ensures the user has UserEventResults for this event, associated this solve
     with those results, and processes the results to make sure all relevant data is up-to-date. """
-
-    if not current_user.is_authenticated:
-        return abort(HTTPStatus.UNAUTHORIZED)
 
     # Extract JSON solve data, deserialize to dict, and verify that all expected fields are present
     solve_data = json.loads(request.data)
@@ -107,58 +123,11 @@ def post_solve():
     return timer_page(comp_event_id, gather_info_for_live_refresh=True)
 
 
-@app.route('/toggle_prev_dnf', methods=['POST'])
-def toggle_prev_dnf():
-    """ Toggles the DNF status of the last solve for the specified user and competition event. """
-
-    if not current_user.is_authenticated:
-        return abort(HTTPStatus.UNAUTHORIZED)
-
-    # Extract JSON solve data, deserialize to dict, and verify that all expected fields are present
-    solve_data = json.loads(request.data)
-    if not all(key in solve_data for key in (COMP_EVENT_ID,)):
-        return (ERR_MSG_MISSING_INFO, HTTPStatus.BAD_REQUEST)
-
-    # Extract all the specific fields out of the solve data dictionary
-    comp_event_id = solve_data[COMP_EVENT_ID]
-
-    # Retrieve the specified competition event
-    comp_event = get_comp_event_by_id(comp_event_id)
-    if not comp_event:
-        return (ERR_MSG_NO_SUCH_EVENT.format(comp_event_id), HTTPStatus.NOT_FOUND)
-
-    # Verify that the competition event belongs to the active competition.
-    comp = comp_event.Competition
-    if not comp.active:
-        return (ERR_MSG_INACTIVE_COMP, HTTPStatus.BAD_REQUEST)
-
-    # Retrieve the user's results record for this event
-    user_event_results = get_event_results_for_user(comp_event_id, current_user)
-    if (not user_event_results) or (not user_event_results.solves):
-        return (ERR_MSG_NO_RESULTS.format(comp_event_id), HTTPStatus.NOT_FOUND)
-
-    # Grab the last completed solve, and toggle DNF for it
-    previous_solve = user_event_results.solves[-1]
-    previous_solve.is_dnf = not previous_solve.is_dnf
-
-    # If the solve now has DNF, ensure it doesn't also have +2
-    if previous_solve.is_dnf:
-        previous_solve.is_plus_two = False
-
-    # Process through the user's event results, ensuring PB flags, best single, average, overall
-    # event result, etc are all up-to-date.
-    process_event_results(user_event_results, comp_event, current_user)
-    save_event_results(user_event_results)
-
-    return timer_page(comp_event_id, gather_info_for_live_refresh=True)
-
-
-@app.route('/toggle_prev_plus_two', methods=['POST'])
-def toggle_prev_plus_two():
-    """ Toggles the +2 status of the last solve for the specified user and competition event. """
-
-    if not current_user.is_authenticated:
-        return abort(HTTPStatus.UNAUTHORIZED)
+@app.route('/toggle_prev_penalty', methods=['POST'])
+@api_login_required
+def toggle_prev_penalty():
+    """ Toggles the either the DNF or +2 status of the last solve for the specified user and
+    competition event. """
 
     # Extract JSON solve data, deserialize to dict, and verify that all expected fields are present
     solve_data = json.loads(request.data)
@@ -167,6 +136,7 @@ def toggle_prev_plus_two():
 
     # Extract all the specific fields out of the solve data dictionary
     comp_event_id = solve_data[COMP_EVENT_ID]
+    penalty_to_toggle = solve_data[PENALTY_TO_TOGGLE]
 
     # Retrieve the specified competition event
     comp_event = get_comp_event_by_id(comp_event_id)
@@ -183,247 +153,35 @@ def toggle_prev_plus_two():
     if (not user_event_results) or (not user_event_results.solves):
         return (ERR_MSG_NO_RESULTS.format(comp_event_id), HTTPStatus.NOT_FOUND)
 
-    # Grab the last completed solve, and toggle +2 for it
+    # Grab the last completed solve
     previous_solve = user_event_results.solves[-1]
-    previous_solve.is_plus_two = not previous_solve.is_plus_two
 
-    # If the solve now has +2, ensure it doesn't also have DNF
-    if previous_solve.is_plus_two:
-        previous_solve.is_dnf = False
+    if penalty_to_toggle == PENALTY_DNF:
+        # Toggle DNF
+        # If the solve now has DNF, ensure it doesn't also have +2
+        previous_solve.is_dnf = not previous_solve.is_dnf
+        if previous_solve.is_dnf:
+            previous_solve.is_plus_two = False
 
-    # Process through the user's event results, ensuring PB flags, best single, average, overall
-    # event result, etc are all up-to-date.
-    process_event_results(user_event_results, comp_event, current_user)
-    save_event_results(user_event_results)
-
-    return timer_page(comp_event_id, gather_info_for_live_refresh=True)
-
-
-@app.route('/set_plus_two', methods=['POST'])
-def set_plus_two():
-    """ Applies +2 to the specified solve. """
-
-    if not current_user.is_authenticated:
-        return abort(HTTPStatus.UNAUTHORIZED)
-
-    # Extract JSON solve data, deserialize to dict, and verify that all expected fields are present
-    solve_data = json.loads(request.data)
-    if not all(key in solve_data for key in (SOLVE_ID, COMP_EVENT_ID)):
-        return (ERR_MSG_MISSING_INFO, HTTPStatus.BAD_REQUEST)
-
-    # Extract all the specific fields out of the solve data dictionary
-    solve_id = solve_data[SOLVE_ID]
-    comp_event_id = solve_data[COMP_EVENT_ID]
-
-    # Retrieve the specified competition event
-    comp_event = get_comp_event_by_id(comp_event_id)
-    if not comp_event:
-        return (ERR_MSG_NO_SUCH_EVENT.format(comp_event_id), HTTPStatus.NOT_FOUND)
-
-    # Verify that the competition event belongs to the active competition.
-    comp = comp_event.Competition
-    if not comp.active:
-        return (ERR_MSG_INACTIVE_COMP, HTTPStatus.BAD_REQUEST)
-
-    # Retrieve the user's results record for this event
-    user_event_results = get_event_results_for_user(comp_event_id, current_user)
-    if (not user_event_results) or (not user_event_results.solves):
-        return (ERR_MSG_NO_RESULTS.format(comp_event_id), HTTPStatus.NOT_FOUND)
-
-    target_solve = None
-    for solve in user_event_results.solves:
-        if solve.id == solve_id:
-            target_solve = solve
-            break
-
-    if not target_solve:
-        return (ERR_MSG_NO_SOLVE.format(solve_id, current_user.username), HTTPStatus.NOT_FOUND)
-
-    # TODO everything above this point is common to all the "do this thing to a specific solve"
-    # so refactor it
-
-    # Make the target solve +2, and ensure it's not DNF
-    target_solve.is_plus_two = True
-    target_solve.is_dnf = False
-
-    process_event_results(user_event_results, comp_event, current_user)
-    save_event_results(user_event_results)
-
-    return timer_page(comp_event_id, gather_info_for_live_refresh=True)
-
-
-@app.route('/set_dnf', methods=['POST'])
-def set_dnf():
-    """ Applies DNF to the specified solve. """
-
-    if not current_user.is_authenticated:
-        return abort(HTTPStatus.UNAUTHORIZED)
-
-    # Extract JSON solve data, deserialize to dict, and verify that all expected fields are present
-    solve_data = json.loads(request.data)
-    if not all(key in solve_data for key in (SOLVE_ID, COMP_EVENT_ID)):
-        return (ERR_MSG_MISSING_INFO, HTTPStatus.BAD_REQUEST)
-
-    # Extract all the specific fields out of the solve data dictionary
-    solve_id = solve_data[SOLVE_ID]
-    comp_event_id = solve_data[COMP_EVENT_ID]
-
-    # Retrieve the specified competition event
-    comp_event = get_comp_event_by_id(comp_event_id)
-    if not comp_event:
-        return (ERR_MSG_NO_SUCH_EVENT.format(comp_event_id), HTTPStatus.NOT_FOUND)
-
-    # Verify that the competition event belongs to the active competition.
-    comp = comp_event.Competition
-    if not comp.active:
-        return (ERR_MSG_INACTIVE_COMP, HTTPStatus.BAD_REQUEST)
-
-    # Retrieve the user's results record for this event
-    user_event_results = get_event_results_for_user(comp_event_id, current_user)
-    if (not user_event_results) or (not user_event_results.solves):
-        return (ERR_MSG_NO_RESULTS.format(comp_event_id), HTTPStatus.NOT_FOUND)
-
-    target_solve = None
-    for solve in user_event_results.solves:
-        if solve.id == solve_id:
-            target_solve = solve
-            break
-
-    if not target_solve:
-        return (ERR_MSG_NO_SOLVE.format(solve_id, current_user.username), HTTPStatus.NOT_FOUND)
-
-    # TODO everything above this point is common to all the "do this thing to a specific solve"
-    # so refactor it
-
-    # Make the target solve DNF, and ensure it's not +2
-    target_solve.is_dnf = True
-    target_solve.is_plus_two = False
-
-    process_event_results(user_event_results, comp_event, current_user)
-    save_event_results(user_event_results)
-
-    return timer_page(comp_event_id, gather_info_for_live_refresh=True)
-
-
-@app.route('/clear_penalty', methods=['POST'])
-def clear_penalty():
-    """ Clears penalties from the specified solve. """
-
-    if not current_user.is_authenticated:
-        return abort(HTTPStatus.UNAUTHORIZED)
-
-    # Extract JSON solve data, deserialize to dict, and verify that all expected fields are present
-    solve_data = json.loads(request.data)
-    if not all(key in solve_data for key in (SOLVE_ID, COMP_EVENT_ID)):
-        return (ERR_MSG_MISSING_INFO, HTTPStatus.BAD_REQUEST)
-
-    # Extract all the specific fields out of the solve data dictionary
-    solve_id = solve_data[SOLVE_ID]
-    comp_event_id = solve_data[COMP_EVENT_ID]
-
-    # Retrieve the specified competition event
-    comp_event = get_comp_event_by_id(comp_event_id)
-    if not comp_event:
-        return (ERR_MSG_NO_SUCH_EVENT.format(comp_event_id), HTTPStatus.NOT_FOUND)
-
-    # Verify that the competition event belongs to the active competition.
-    comp = comp_event.Competition
-    if not comp.active:
-        return (ERR_MSG_INACTIVE_COMP, HTTPStatus.BAD_REQUEST)
-
-    # Retrieve the user's results record for this event
-    user_event_results = get_event_results_for_user(comp_event_id, current_user)
-    if (not user_event_results) or (not user_event_results.solves):
-        return (ERR_MSG_NO_RESULTS.format(comp_event_id), HTTPStatus.NOT_FOUND)
-
-    target_solve = None
-    for solve in user_event_results.solves:
-        if solve.id == solve_id:
-            target_solve = solve
-            break
-
-    if not target_solve:
-        return (ERR_MSG_NO_SOLVE.format(solve_id, current_user.username), HTTPStatus.NOT_FOUND)
-
-    # TODO everything above this point is common to all the "do this thing to a specific solve"
-    # so refactor it
-
-    # Clear penalties
-    target_solve.is_plus_two = False
-    target_solve.is_dnf = False
-
-    process_event_results(user_event_results, comp_event, current_user)
-    save_event_results(user_event_results)
-
-    return timer_page(comp_event_id, gather_info_for_live_refresh=True)
-
-
-@app.route('/delete_solve', methods=['POST'])
-def delete_solve():
-    """ Deletes the specified solve. """
-
-    if not current_user.is_authenticated:
-        return abort(HTTPStatus.UNAUTHORIZED)
-
-    # Extract JSON solve data, deserialize to dict, and verify that all expected fields are present
-    solve_data = json.loads(request.data)
-    if not all(key in solve_data for key in (SOLVE_ID, COMP_EVENT_ID)):
-        return (ERR_MSG_MISSING_INFO, HTTPStatus.BAD_REQUEST)
-
-    # Extract all the specific fields out of the solve data dictionary
-    solve_id = solve_data[SOLVE_ID]
-    comp_event_id = solve_data[COMP_EVENT_ID]
-
-    # Retrieve the specified competition event
-    comp_event = get_comp_event_by_id(comp_event_id)
-    if not comp_event:
-        return (ERR_MSG_NO_SUCH_EVENT.format(comp_event_id), HTTPStatus.NOT_FOUND)
-
-    # Verify that the competition event belongs to the active competition.
-    comp = comp_event.Competition
-    if not comp.active:
-        return (ERR_MSG_INACTIVE_COMP, HTTPStatus.BAD_REQUEST)
-
-    # Retrieve the user's results record for this event
-    user_event_results = get_event_results_for_user(comp_event_id, current_user)
-    if (not user_event_results) or (not user_event_results.solves):
-        return (ERR_MSG_NO_RESULTS.format(comp_event_id), HTTPStatus.NOT_FOUND)
-
-    target_solve = None
-    for solve in user_event_results.solves:
-        if solve.id == solve_id:
-            target_solve = solve
-            break
-
-    if not target_solve:
-        return (ERR_MSG_NO_SOLVE.format(solve_id, current_user.username), HTTPStatus.NOT_FOUND)
-
-    # If the results only have one solve (which we're about to delete), we need to delete the
-    # results entirely
-    do_delete_user_results_after_solve = len(user_event_results.solves) == 1
-
-    # Delete the target solve
-    delete_user_solve(target_solve)
-
-    # If no more solves left, just delete the whole results record
-    if do_delete_user_results_after_solve:
-        delete_event_results(user_event_results)
-
-    # Otherwise process through the user's event results, ensuring PB flags, best single, average,
-    # overall event result, etc are all up-to-date.
     else:
-        process_event_results(user_event_results, comp_event, current_user)
-        save_event_results(user_event_results)
+        # Toggle +2
+        # If the solve now has +2, ensure it doesn't also have DNF
+        previous_solve.is_plus_two = not previous_solve.is_plus_two
+        if previous_solve.is_plus_two:
+            previous_solve.is_dnf = False
+
+    # Process through the user's event results, ensuring PB flags, best single, average, overall
+    # event result, etc are all up-to-date.
+    process_event_results(user_event_results, comp_event, current_user)
+    save_event_results(user_event_results)
 
     return timer_page(comp_event_id, gather_info_for_live_refresh=True)
 
 
 @app.route('/delete_prev_solve', methods=['POST'])
+@api_login_required
 def delete_prev_solve():
     """ Deletes the last completed solve of the specified competition event for this user. """
-
-    if not current_user.is_authenticated:
-        return abort(HTTPStatus.UNAUTHORIZED)
 
     # Extract JSON solve data, deserialize to dict, and verify that all expected fields are present
     solve_data = json.loads(request.data)
@@ -470,11 +228,9 @@ def delete_prev_solve():
 
 
 @app.route('/apply_comment', methods=['POST'])
+@api_login_required
 def apply_comment():
     """ Applies the supplied comment to the desired competition event for this user. """
-
-    if not current_user.is_authenticated:
-        return abort(HTTPStatus.UNAUTHORIZED)
 
     # Extract JSON solve data, deserialize to dict, and verify that all expected fields are present
     solve_data = json.loads(request.data)
@@ -505,3 +261,153 @@ def apply_comment():
     save_event_results(user_event_results)
 
     return timer_page(comp_event_id, gather_info_for_live_refresh=True)
+
+# -------------------------------------------------------------------------------------------------
+# Below are routes called by the timer page solve context menu
+# -------------------------------------------------------------------------------------------------
+
+@app.route('/set_plus_two', methods=['POST'])
+@api_login_required
+def set_plus_two():
+    """ Applies +2 to the specified solve. """
+
+    target_solve_data, err_msg, http_status_code = __retrieve_target_solve(request.data, current_user)
+    if not target_solve_data:
+        return err_msg, http_status_code
+
+    # Extract the target solve, user's event results, and the associated competition event
+    target_solve, user_event_results, comp_event = target_solve_data
+
+    # Make the target solve +2, and ensure it's not DNF
+    target_solve.is_plus_two = True
+    target_solve.is_dnf = False
+
+    process_event_results(user_event_results, comp_event, current_user)
+    save_event_results(user_event_results)
+
+    return timer_page(comp_event.id, gather_info_for_live_refresh=True)
+
+
+@app.route('/set_dnf', methods=['POST'])
+@api_login_required
+def set_dnf():
+    """ Applies DNF to the specified solve. """
+
+    target_solve_data, err_msg, http_status_code = __retrieve_target_solve(request.data, current_user)
+    if not target_solve_data:
+        return err_msg, http_status_code
+
+    # Extract the target solve, user's event results, and the associated competition event
+    target_solve, user_event_results, comp_event = target_solve_data
+
+    # Make the target solve DNF, and ensure it's not +2
+    target_solve.is_dnf = True
+    target_solve.is_plus_two = False
+
+    process_event_results(user_event_results, comp_event, current_user)
+    save_event_results(user_event_results)
+
+    return timer_page(comp_event.id, gather_info_for_live_refresh=True)
+
+
+@app.route('/clear_penalty', methods=['POST'])
+@api_login_required
+def clear_penalty():
+    """ Clears penalties from the specified solve. """
+
+    target_solve_data, err_msg, http_status_code = __retrieve_target_solve(request.data, current_user)
+    if not target_solve_data:
+        return err_msg, http_status_code
+
+    # Extract the target solve, user's event results, and the associated competition event
+    target_solve, user_event_results, comp_event = target_solve_data
+
+    # Clear penalties
+    target_solve.is_plus_two = False
+    target_solve.is_dnf = False
+
+    process_event_results(user_event_results, comp_event, current_user)
+    save_event_results(user_event_results)
+
+    return timer_page(comp_event.id, gather_info_for_live_refresh=True)
+
+
+@app.route('/delete_solve', methods=['POST'])
+@api_login_required
+def delete_solve():
+    """ Deletes the specified solve. """
+
+    target_solve_data, err_msg, http_status_code = __retrieve_target_solve(request.data, current_user)
+    if not target_solve_data:
+        return err_msg, http_status_code
+
+    # Extract the target solve, user's event results, and the associated comp event
+    target_solve, user_event_results, comp_event = target_solve_data
+
+    # If the results only have one solve (which we're about to delete),
+    # we need to delete the results entirely
+    do_delete_user_results_after_solve = len(user_event_results.solves) == 1
+
+    # Delete the target solve
+    delete_user_solve(target_solve)
+
+    # If no more solves left, just delete the whole results record
+    if do_delete_user_results_after_solve:
+        delete_event_results(user_event_results)
+
+    # Otherwise process through the user's event results, ensuring PB flags, best single, average,
+    # overall event result, etc are all up-to-date.
+    else:
+        process_event_results(user_event_results, comp_event, current_user)
+        save_event_results(user_event_results)
+
+    return timer_page(comp_event.id, gather_info_for_live_refresh=True)
+
+# -------------------------------------------------------------------------------------------------
+
+def __retrieve_target_solve(request_data, user):
+    """ Utility method to retrieve the specified solve (by solve id and competition event id).
+    Validates the solve belongs to an active competition, and belongs to the specified user.
+    Returns the following shapes:
+        ((target_solve, user_event_results, comp_event), None, None)
+            if the solve exists, in the active comp, for the specified user.
+        (None, err_msg, http_status_code)
+            if something goes wrong during retrieval.
+    """
+
+    # Extract JSON solve data, deserialize to dict, and verify that all expected fields are present
+    solve_data = json.loads(request_data)
+    if not all(key in solve_data for key in (SOLVE_ID, COMP_EVENT_ID)):
+        return None, ERR_MSG_MISSING_INFO, HTTPStatus.BAD_REQUEST
+
+    # Extract all the specific fields out of the solve data dictionary
+    solve_id = solve_data[SOLVE_ID]
+    comp_event_id = solve_data[COMP_EVENT_ID]
+
+    # Retrieve the specified competition event
+    comp_event = get_comp_event_by_id(comp_event_id)
+    if not comp_event:
+        return None, ERR_MSG_NO_SUCH_EVENT.format(comp_event_id), HTTPStatus.NOT_FOUND
+
+    # Verify that the competition event belongs to the active competition.
+    comp = comp_event.Competition
+    if not comp.active:
+        return ERR_MSG_INACTIVE_COMP, HTTPStatus.BAD_REQUEST
+
+    # Retrieve the user's results record for this event
+    user_event_results = get_event_results_for_user(comp_event_id, user)
+    if (not user_event_results) or (not user_event_results.solves):
+        return None, ERR_MSG_NO_RESULTS.format(comp_event_id), HTTPStatus.NOT_FOUND
+
+    # Find the target solve in the user's results
+    target_solve = None
+    for solve in user_event_results.solves:
+        if solve.id == solve_id:
+            target_solve = solve
+            break
+
+    # If we didn't find the target solve, let the user know
+    if not target_solve:
+        return None, ERR_MSG_NO_SOLVE.format(solve_id, user.username), HTTPStatus.NOT_FOUND
+
+    return (target_solve, user_event_results, comp_event), None, None

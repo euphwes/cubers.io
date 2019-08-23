@@ -1,5 +1,10 @@
 (function () {
 
+    var MOD_APPLY_DNF      = "apply_dnf";
+    var MOD_APPLY_PLUS_TWO = "apply_plus_two";
+    var MOD_CLEAR_PENALTY  = "clear_penalty";
+    var MOD_DELETE_SOLVE   = "delete_solve";
+
     // To manage user settings for the UI
     window.app.userSettingsManager = new window.app.UserSettingsManager();
 
@@ -90,68 +95,32 @@
         return $solve_clicked.attr('data-is_plus_two') == 'true';
     };
 
-    // Delete the selected solve
-    var deleteSolve = function($solve_clicked) {
+    // Modify the solve somehow; apply +2 or DNF, clear penalties, or delete the solve
+    var applySolveModification = function($solve_clicked, modification) {
         var data = {};
         data.comp_event_id = window.app.compEventId;
         data.solve_id = parseInt($solve_clicked.attr('data-solve_id'));
 
-        $.ajax({
-            url: '/delete_solve',
-            type: "POST",
-            data: JSON.stringify(data),
-            contentType: "application/json",
-            success: window.app.reRenderTimer,
-            error: function (xhr) {
-                bootbox.alert("Something unexpected happened: " + xhr.responseText);
-            }
-        });
-    };
-
-    // Apply DNF to the selected solve
-    var setDNF = function($solve_clicked) {
-        var data = {};
-        data.comp_event_id = window.app.compEventId;
-        data.solve_id = parseInt($solve_clicked.attr('data-solve_id'));
-
-        $.ajax({
-            url: '/set_dnf',
-            type: "POST",
-            data: JSON.stringify(data),
-            contentType: "application/json",
-            success: window.app.reRenderTimer,
-            error: function (xhr) {
-                bootbox.alert("Something unexpected happened: " + xhr.responseText);
-            }
-        });
-    };
-
-    // Apply +2 to the selected solve
-    var setPlusTwo = function($solve_clicked) {
-        var data = {};
-        data.comp_event_id = window.app.compEventId;
-        data.solve_id = parseInt($solve_clicked.attr('data-solve_id'));
+        var route;
+        switch (modification) {
+            case MOD_APPLY_DNF:
+                route = '/set_dnf';
+                break;
+            case MOD_APPLY_PLUS_TWO:
+                route = '/set_plus_two';
+                break;
+            case MOD_CLEAR_PENALTY:
+                route = '/clear_penalty';
+                break;
+            case MOD_DELETE_SOLVE:
+                route = '/delete_solve';
+                break;
+            default:
+                return;
+        }
 
         $.ajax({
-            url: '/set_plus_two',
-            type: "POST",
-            data: JSON.stringify(data),
-            contentType: "application/json",
-            success: window.app.reRenderTimer,
-            error: function (xhr) {
-                bootbox.alert("Something unexpected happened: " + xhr.responseText);
-            }
-        });
-    };
-
-    // Clear penalties from the selected solve
-    var clearPenalty = function($solve_clicked) {
-        var data = {};
-        data.comp_event_id = window.app.compEventId;
-        data.solve_id = parseInt($solve_clicked.attr('data-solve_id'));
-
-        $.ajax({
-            url: '/clear_penalty',
+            url: route,
             type: "POST",
             data: JSON.stringify(data),
             contentType: "application/json",
@@ -181,19 +150,26 @@
                 "clear": {
                     name: "Clear penalty",
                     icon: "far fa-thumbs-up",
-                    callback: function(itemKey, opt, e) { clearPenalty($(opt.$trigger)); },
+                    callback: function(itemKey, opt, e) { 
+                        applySolveModification($(opt.$trigger), MOD_CLEAR_PENALTY); 
+                    },
                     disabled: function(key, opt) { return !(hasDNF(this) || hasPlusTwo(this)); }
                 },
                 "dnf": {
                     name: "DNF",
                     icon: "fas fa-ban",
-                    callback: function(itemKey, opt, e) { setDNF($(opt.$trigger)); },
+                    callback: function(itemKey, opt, e) { 
+                        applySolveModification($(opt.$trigger), MOD_APPLY_DNF); 
+                    },
+                    // TODO can I clean up this disabled function by just passing hasDNF directly? test
                     disabled: function(key, opt) { return hasDNF(this); }
                 },
                 "+2": {
                     name: "+2",
                     icon: "fas fa-plus",
-                    callback: function(itemKey, opt, e) { setPlusTwo($(opt.$trigger)); },
+                    callback: function(itemKey, opt, e) { 
+                        applySolveModification($(opt.$trigger), MOD_APPLY_PLUS_TWO); 
+                    },
                     disabled: function(key, opt) { return hasPlusTwo(this); }
                 },
                 "sep1": "---------",
@@ -206,7 +182,9 @@
                 "delete": {
                     name: "Delete time",
                     icon: "fas fa-trash",
-                    callback: function(itemKey, opt, e) { deleteSolve($(opt.$trigger)); },
+                    callback: function(itemKey, opt, e) { 
+                        applySolveModification($(opt.$trigger), MOD_DELETE_SOLVE); 
+                    },
                 },
             }
         });

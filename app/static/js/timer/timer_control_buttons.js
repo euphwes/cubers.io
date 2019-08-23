@@ -44,9 +44,10 @@
 
         var data = {};
         data.comp_event_id = window.app.compEventId;
+        data.penalty_to_toggle = 'penalty_plus_two'
 
         $.ajax({
-            url: '/toggle_prev_plus_two',
+            url: '/toggle_prev_penalty',
             type: "POST",
             data: JSON.stringify(data),
             contentType: "application/json",
@@ -63,9 +64,10 @@
 
         var data = {};
         data.comp_event_id = window.app.compEventId;
+        data.penalty_to_toggle = 'penalty_dnf'
 
         $.ajax({
-            url: '/toggle_prev_dnf',
+            url: '/toggle_prev_penalty',
             type: "POST",
             data: JSON.stringify(data),
             contentType: "application/json",
