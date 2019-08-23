@@ -35,6 +35,24 @@ def get_mbld_successful_and_attempted(coded_value):
     return (num_successful, num_attempted)
 
 
+def get_mbld_total_points(coded_value):
+    """ Returns the number of points for the MBLD results. """
+
+    coded_result = str(coded_value)
+
+    if coded_result == 'DNF':
+        return 0
+
+    num_successful, num_attempted, _ = __parse_mbld_coded_value(coded_result)
+
+    # 52 attempted, 50 successful = 48 points
+    # 50 - (52 - 50)
+    # 50 - 2
+    # 48
+
+    return num_successful - (num_attempted - num_successful)
+
+
 def __parse_mbld_coded_value(coded_value):
     """ Parses a coded integer representation of MBLD results, returning a tuple of
     (num_successful, num_attempted, time_seconds). """

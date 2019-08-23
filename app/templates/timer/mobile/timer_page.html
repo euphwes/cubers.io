@@ -42,7 +42,12 @@
                 </div>
                 <div class="times text-center">
                     {% for solve in user_solves %}
-                    <div class="single_time">{{ solve }}</div>
+                        {% if solve[1] != -1 %}
+                            <div class="single_time ctx_menu noselect" data-solve_id="{{ solve[1] }}"
+                                data-is_dnf="{{ solve[2] }}" data-is_plus_two="{{ solve[3] }}" data-scramble="{{ solve[4] }}">{{ solve[0] }}</div>
+                        {% else %}
+                            <div class="single_time noselect"> {{ solve[0] }} </div>
+                        {% endif %}
                     {% endfor %}
                 </div>
             </div>
