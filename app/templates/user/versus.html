@@ -1,0 +1,49 @@
+{% extends "common/base.html" %}
+
+{% block head %}
+{{ super() }}
+    {% block additional_styles %}
+        {% assets "app_css" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}" />
+        {% endassets %}
+    {% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid cubers-container profile-container">
+    <div class="row">
+        <div class="col-12 username_area">
+            <h3 class="text-center">{{ user1 }} vs {{ user2 }}</h3>
+        </div>
+    </div>
+    <div class="row pt-4">
+        <div class="col-12 col-md-6 offset-md-3">
+            <table class="table table-sm table-striped table-cubersio text-center">
+                <thead class="thead-dark">
+                        <tr>
+                            <th rowspan="2">Event</th>
+                            <th colspan="2">Single</th>
+                            <th colspan="2">Average</th>
+                        </tr>
+                        <tr>
+                            <th>{{ user1 }}</th>
+                            <th>{{ user2 }}</th>
+                            <th>{{ user1 }}</th>
+                            <th>{{ user2 }}</th>
+                        </tr>
+                    </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_script %}
+<script>
+    $(function () {
+    })
+</script>
+{% endblock %}
