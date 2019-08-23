@@ -108,6 +108,60 @@
         });
     };
 
+    // Apply DNF to the selected solve
+    var setDNF = function($solve_clicked) {
+        var data = {};
+        data.comp_event_id = window.app.compEventId;
+        data.solve_id = parseInt($solve_clicked.attr('data-solve_id'));
+
+        $.ajax({
+            url: '/set_dnf',
+            type: "POST",
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            success: window.app.reRenderTimer,
+            error: function (xhr) {
+                bootbox.alert("Something unexpected happened: " + xhr.responseText);
+            }
+        });
+    };
+
+    // Apply +2 to the selected solve
+    var setPlusTwo = function($solve_clicked) {
+        var data = {};
+        data.comp_event_id = window.app.compEventId;
+        data.solve_id = parseInt($solve_clicked.attr('data-solve_id'));
+
+        $.ajax({
+            url: '/set_plus_two',
+            type: "POST",
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            success: window.app.reRenderTimer,
+            error: function (xhr) {
+                bootbox.alert("Something unexpected happened: " + xhr.responseText);
+            }
+        });
+    };
+
+    // Clear penalties from the selected solve
+    var clearPenalty = function($solve_clicked) {
+        var data = {};
+        data.comp_event_id = window.app.compEventId;
+        data.solve_id = parseInt($solve_clicked.attr('data-solve_id'));
+
+        $.ajax({
+            url: '/clear_penalty',
+            type: "POST",
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            success: window.app.reRenderTimer,
+            error: function (xhr) {
+                bootbox.alert("Something unexpected happened: " + xhr.responseText);
+            }
+        });
+    };
+
     // Copy the selected solve's scramble to the clipboard
     var copyScramble = function($solve_clicked) {
         var scramble = $solve_clicked.attr('data-scramble');
@@ -127,19 +181,19 @@
                 "clear": {
                     name: "Clear penalty",
                     icon: "far fa-thumbs-up",
-                    // callback: function(itemKey, opt, e) { clearPenalty($(opt.$trigger)); },
+                    callback: function(itemKey, opt, e) { clearPenalty($(opt.$trigger)); },
                     disabled: function(key, opt) { return !(hasDNF(this) || hasPlusTwo(this)); }
                 },
                 "dnf": {
                     name: "DNF",
                     icon: "fas fa-ban",
-                    // callback: function(itemKey, opt, e) { setDNF($(opt.$trigger)); },
+                    callback: function(itemKey, opt, e) { setDNF($(opt.$trigger)); },
                     disabled: function(key, opt) { return hasDNF(this); }
                 },
                 "+2": {
                     name: "+2",
                     icon: "fas fa-plus",
-                    // callback: function(itemKey, opt, e) { setPlusTwo($(opt.$trigger)); },
+                    callback: function(itemKey, opt, e) { setPlusTwo($(opt.$trigger)); },
                     disabled: function(key, opt) { return hasPlusTwo(this); }
                 },
                 "sep1": "---------",
