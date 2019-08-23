@@ -2,6 +2,7 @@
 from arrow import now
 
 from app import app
+from app.util.events import get_mbld_total_points
 from app.persistence.comp_manager import get_comp_event_name_by_id
 
 # -------------------------------------------------------------------------------------------------
@@ -16,14 +17,12 @@ __AUTO_BLACKLIST_NOTE_TEMPLATE += "less than the threshold for this event."
 __PERMA_BLACKLIST_NOTE_TEMPLATE = "Results automatically hidden on {date} because this user is flagged for "
 __PERMA_BLACKLIST_NOTE_TEMPLATE += "permanent blacklist."
 
+# MBLD blacklist note
+__MBLD_BLACKLIST_NOTE_TEMPLATE = "Results automatically hidden on {date} because this result has {points} "
+__MBLD_BLACKLIST_NOTE_TEMPLATE += "points, which is higher than the threshold."
+
 # For retrieving blacklist threshold multiplicative factor from app config
 __KEY_AUTO_BL_FACTOR = 'AUTO_BL_FACTOR'
-
-# Log message templates
-__LOG_BLACKLIST_BASE = "blacklisted {username}'s results for {comp_event_name}"
-__LOG_PERFORMED_PERMA_BLACKLIST_ACTION = __LOG_BLACKLIST_BASE + " -- permanent blacklist"
-__LOG_PERFORMED_SINGLE_BLACKLIST_ACTION = __LOG_BLACKLIST_BASE + " -- single threshold"
-__LOG_PERFORMED_AVERAGE_BLACKLIST_ACTION = __LOG_BLACKLIST_BASE + " -- average threshold"
 
 # Values to be inserted into blacklist note templates above, and key for a kwargs dict
 # to insert timestamp as `date` kwarg
@@ -51,6 +50,7 @@ __AUTO_BLACKLIST_THRESHOLDS = {
     'Skewb':         (110, 203),
     'FMC':           (1700, 2400),  # in "centi-moves"
     '3x3 With Feet': (1696, 2222),
+    'MBLD':          48,            # points
 
     # Below are thresholds for "reasonable" times for bonus events, based on times that have been
     # submitted for bonus events over the last few months. Mostly gave a few seconds of buffer underneath
@@ -90,17 +90,27 @@ def take_blacklist_action_if_necessary(results, user):
     if not results.is_complete:
         return __ensure_clean_unblacklisted(results), False
 
-    comp_event_name = get_comp_event_name_by_id(results.comp_event_id)
-
     # Check if the user is flagged to have all of their results automatically blacklisted
     if user.always_blacklist:
-        return __perform_perma_blacklist_action(results, comp_event_name, user), True
+        return __perform_perma_blacklist_action(results, user), True
+
+    # Get comp event name
+    comp_event_name = get_comp_event_name_by_id(results.comp_event_id)
 
     # Get the auto-blacklist thresholds for the event these results are for.
     # If we don't have thresholds, leave without taking any blacklist action
     thresholds = __get_event_thresholds(comp_event_name)
     if not thresholds:
         return results, False
+
+    # First check if results are for MBLD, because that blacklisting check is a little different
+    # We're only checking single, and we need to convert the 'time' (encoded value) into MBLD points
+    # so we can compare it against the MBLD points threshold
+    if comp_event_name == 'MBLD':
+        user_points = get_mbld_total_points(results.single)
+        if user_points < thresholds:
+            return __ensure_clean_unblacklisted(results), False
+        return __blacklist_results_with_note(results, __MBLD_BLACKLIST_NOTE_TEMPLATE, points=user_points), True
 
     # Extract the adjusted single and average thresholds
     single_threshold, average_threshold = thresholds
@@ -111,13 +121,13 @@ def take_blacklist_action_if_necessary(results, user):
     # automatically blacklisted, and fire off a task to retroactively blacklist other results
     # already posted this week.
     if __check_event_average_threshold_breached(results, average_threshold):
-        return __perform_average_results_blacklist_action(results, comp_event_name, user), True
+        return __perform_average_results_blacklist_action(results, user), True
 
     # If the single threshold has been breached, blacklist just the one set of results.
     # We don't want to go overboard and blacklist everything this week because a single
     # very low time could be a legitimate accident
     if __check_event_single_threshold_breached(results, single_threshold):
-        return __perform_single_results_blacklist_action(results, comp_event_name, user), True
+        return __perform_single_results_blacklist_action(results, user), True
 
     # Everything's legit! Let those results through without blacklisting anything
     return __ensure_clean_unblacklisted(results), False
@@ -135,30 +145,23 @@ def __ensure_clean_unblacklisted(results):
     return results
 
 
-def __perform_perma_blacklist_action(results, comp_event_name, user):
+def __perform_perma_blacklist_action(results, user):
     """ Blacklists this specific UserEventResults and sets the note indicating the user was flagged
     for permanent blacklist. """
 
-    app.logger.info(__LOG_PERFORMED_PERMA_BLACKLIST_ACTION.format(comp_event_name=comp_event_name,
-        username=user.username))
     return __blacklist_results_with_note(results, __PERMA_BLACKLIST_NOTE_TEMPLATE)
 
 
-def __perform_single_results_blacklist_action(results, comp_event_name, user):
+def __perform_single_results_blacklist_action(results, user):
     """ Blacklists this specific UserEventResults and sets the note indicating the results were
     blacklisted due to being lower than the single threshold. """
 
-    app.logger.info(__LOG_PERFORMED_SINGLE_BLACKLIST_ACTION.format(comp_event_name=comp_event_name,
-        username=user.username))
     return __blacklist_results_with_note(results, __AUTO_BLACKLIST_NOTE_TEMPLATE, type=__SINGLE)
 
 
-def __perform_average_results_blacklist_action(results, comp_event_name, user):
+def __perform_average_results_blacklist_action(results, user):
     """ Blacklists this specific UserEventResults and sets the note indicating the results were
     blacklisted due to being lower than the single threshold. """
-
-    app.logger.info(__LOG_PERFORMED_AVERAGE_BLACKLIST_ACTION.format(comp_event_name=comp_event_name,
-        username=user.username))
 
     # Blacklist these results and return
     return __blacklist_results_with_note(results, __AUTO_BLACKLIST_NOTE_TEMPLATE, type=__AVERAGE)
@@ -185,6 +188,11 @@ def __get_event_thresholds(comp_event_name):
     # If we don't have any thresholds for the event for some reason, then bail without taking action
     if not event_thresholds:
         return None
+
+    # If this is for MBLD, just return the threshold itself directly.
+    # It's a single value (points), not a tuple of (single, average) thresholds
+    if comp_event_name == 'MBLD':
+        return event_thresholds
 
     # A multiplicative factor to adjust autoblacklist thresholds up or down
     threshold_factor = app.config[__KEY_AUTO_BL_FACTOR]
