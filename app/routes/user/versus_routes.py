@@ -16,6 +16,8 @@ from app.persistence.user_site_rankings_manager import get_site_rankings_for_use
 
 LOG_NO_SUCH_USER = "Oops, can't find a user with username '{}'"
 
+EVENT_NOT_PARTICIPATED = (None, None, None, None)
+
 # -------------------------------------------------------------------------------------------------
 
 @app.route('/vs/<other_username>')
@@ -33,6 +35,30 @@ def vs_user(other_username):
 
     rankings1 = __get_user_site_rankings(current_user.id)
     rankings2 = __get_user_site_rankings(other_user.id)
+
+    # Determine any events that both users haven't participated in
+    event_ids_to_remove = list()
+    for event_id in event_id_name_map.keys():
+
+        # This is a blank entry we added below in __get_user_site_rankings when retrieving
+        # the site rankings to ensure both users have a record if at least one does
+        ranks1_empty = rankings1[event_id] == EVENT_NOT_PARTICIPATED
+        ranks2_empty = rankings2[event_id] == EVENT_NOT_PARTICIPATED
+
+        # This is an entry that existed in the site rankings for some reason, but with an
+        # empty result, indicating the user hasn't actually participated.
+        # TODO: figure out why this is happening. Bad devo data?
+        ranks1_empty_2 = rankings1[event_id][0] == rankings1[event_id][2] == ''
+        ranks2_empty_2 = rankings2[event_id][0] == rankings2[event_id][2] == ''
+
+        if (ranks1_empty or ranks1_empty_2) and (ranks2_empty or ranks2_empty_2):
+            event_ids_to_remove.append(event_id)
+
+    # Remove any events from the rankings and from the event_id_name_map
+    for event_id in event_ids_to_remove:
+        del rankings1[event_id]
+        del rankings2[event_id]
+        del event_id_name_map[event_id]
 
     return render_template("user/versus.html", username1=current_user.username, username2=other_username,
         rankings1=rankings1, rankings2=rankings2, event_id_name_map=event_id_name_map)
@@ -64,9 +90,9 @@ def __get_user_site_rankings(user_id):
         site_rankings = site_rankings_record.get_site_rankings_and_pbs(event_id_name_map)
 
     # Iterate over all events, making sure there's an entry in the user site rankings for everything,
-    # even events they haven't participated in
+    # even events they haven't participated in, in case the other user has done that event.
     for event_id in event_id_name_map.keys():
         if event_id not in site_rankings.keys():
-            site_rankings[event_id] = (None, None, None, None)
+            site_rankings[event_id] = EVENT_NOT_PARTICIPATED
 
     return site_rankings
