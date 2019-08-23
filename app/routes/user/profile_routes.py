@@ -83,12 +83,15 @@ def profile(username):
         sor_wca       = None
         sor_non_wca   = None
 
+    # Set a flag indicating if this page view is for a user viewing another user's page
+    viewing_other_user = user.username != current_user.username
+
     return render_template("user/profile.html", user=user, solve_count=solve_count,
         comp_count=comps_count, history=history, rankings=site_rankings,
         event_id_name_map=event_id_name_map, rankings_ts=rankings_ts,
         is_admin_viewing=current_user.is_admin, sor_all=sor_all, sor_wca=sor_wca,
         sor_non_wca=sor_non_wca, gold_count=gold_count, silver_count=silver_count,
-        bronze_count=bronze_count)
+        bronze_count=bronze_count, viewing_other_user=viewing_other_user)
 
 # -------------------------------------------------------------------------------------------------
 
