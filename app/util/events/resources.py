@@ -341,6 +341,18 @@ def sort_site_rankings_by_global_sort_order(site_rankings, event_id_name_map):
 
     return ordered_rankings
 
+
+def sort_event_id_name_map_by_global_sort_order(event_id_name_map):
+
+    ordered_map = OrderedDict()
+
+    for event in __GLOBAL_SORT_ORDER:
+        for mapped_event_id, mapped_event_name in event_id_name_map.items():
+            if mapped_event_name == event.name:
+                ordered_map[mapped_event_id] = mapped_event_name
+
+    return ordered_map
+
 # -------------------------------------------------------------------------------------------------
 
 def get_num_COLLs():

@@ -13,27 +13,96 @@
 <div class="container-fluid cubers-container profile-container">
     <div class="row">
         <div class="col-12 username_area">
-            <h3 class="text-center">{{ user1 }} vs {{ user2 }}</h3>
+            <h3 class="text-center">{{ username1 }} vs {{ username2 }}</h3>
         </div>
     </div>
     <div class="row pt-4">
         <div class="col-12 col-md-6 offset-md-3">
-            <table class="table table-sm table-striped table-cubersio text-center">
+            <table class="table table-sm table-striped table-cubersio">
                 <thead class="thead-dark">
-                        <tr>
-                            <th rowspan="2">Event</th>
-                            <th colspan="2">Single</th>
-                            <th colspan="2">Average</th>
-                        </tr>
-                        <tr>
-                            <th>{{ user1 }}</th>
-                            <th>{{ user2 }}</th>
-                            <th>{{ user1 }}</th>
-                            <th>{{ user2 }}</th>
-                        </tr>
-                    </thead>
+                    <tr>
+                        <th rowspan="2">Event</th>
+                        <th colspan="2" style="text-align: center;">Single</th>
+                        <th colspan="2" style="text-align: center;">Average</th>
+                    </tr>
+                    <tr>
+                        <th>{{ username1 }}</th>
+                        <th>{{ username2 }}</th>
+                        <th>{{ username1 }}</th>
+                        <th>{{ username2 }}</th>
+                    </tr>
+                </thead>
                 <tbody>
+                    {% for event_id, event_name in event_id_name_map.items() %}
 
+                    {% set single1  = rankings1[event_id][0] %}
+                    {% set average1 = rankings1[event_id][2] %}
+                    {% set single2  = rankings2[event_id][0] %}
+                    {% set average2 = rankings2[event_id][2] %}
+
+                    {% if event_name == "FMC" %}
+                        {% set friendly_single1 = single1 | format_fmc_result %}
+                        {% set friendly_single2 = single2 | format_fmc_result %}
+                        {% set friendly_average1 = average1 | format_fmc_result %}
+                        {% set friendly_average2 = average2 | format_fmc_result %}
+                    {% else %}
+                        {% if event_name == "MBLD" %}
+                            {% set friendly_single1 = single1 | format_mbld_result %}
+                            {% set friendly_single2 = single2 | format_mbld_result %}
+                            {% set friendly_average1 = average1 | format_mbld_result %}
+                            {% set friendly_average2 = average2 | format_mbld_result %}
+                        {% else %}
+                            {% set friendly_single1 = single1 | friendly_time %}
+                            {% set friendly_single2 = single2 | friendly_time %}
+                            {% set friendly_average1 = average1 | friendly_time %}
+                            {% set friendly_average2 = average2 | friendly_time %}
+                        {% endif %}
+                    {% endif %}
+
+                    {% set single1_rank  = rankings1[event_id][1] | int %}
+                    {% set average1_rank = rankings1[event_id][3] | int %}
+                    {% set single2_rank  = rankings2[event_id][1] | int %}
+                    {% set average2_rank = rankings2[event_id][3] | int %}
+
+                    {% if single1_rank == single2_rank %}
+                        {% set single1_class = 'vs_winner' %}
+                        {% set single2_class = 'vs_winner' %}
+                    {% else %}
+                        {% if single1_rank < single2_rank %}
+                            {% set single1_class = 'vs_winner' %}
+                            {% set single2_class = '' %}
+                        {% else %}
+                            {% set single1_class = '' %}
+                            {% set single2_class = 'vs_winner' %}
+                        {% endif %}
+                    {% endif %}
+
+                    {% if average1_rank == average2_rank %}
+                        {% set average1_class = '' %}
+                        {% set average2_class = '' %}
+                    {% else %}
+                        {% if average1_rank < average2_rank %}
+                            {% set average1_class = 'vs_winner' %}
+                            {% set average2_class = '' %}
+                        {% else %}
+                            {% set average1_class = '' %}
+                            {% set average2_class = 'vs_winner' %}
+                        {% endif %}
+                    {% endif %}
+
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('event_results', event_name=event_id_name_map[event_id]|replace('/','%2F')) }}">
+                                <img class="tab-event-image" src="/static/images/cube-{{event_id}}.png">
+                                {{ event_id_name_map[event_id] }}
+                            </a>
+                        </td>
+                        <td class="{{ single1_class }}">{{ friendly_single1 }}</td>
+                        <td class="{{ single2_class }}">{{ friendly_single2 }}</td>
+                        <td class="{{ average1_class }}">{{ friendly_average1 }}</td>
+                        <td class="{{ average2_class }}">{{ friendly_average2 }}</td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>

@@ -206,6 +206,9 @@ def format_datetime(value):
 def friendly_time(value):
     """ Jinja custom filter to convert a time in cs to a user-friendly time. """
 
+    if value is None:
+        return ''
+
     try:
         converted_value = int(value)
     except ValueError:
@@ -216,6 +219,9 @@ def friendly_time(value):
 @app.template_filter('format_fmc_result')
 def format_fmc_result(value):
     """ Jinja custom filter to convert a fake 'centisecond' result to FMC moves. """
+
+    if value is None:
+        return ''
 
     try:
         converted_value = int(value) / 100
@@ -231,6 +237,9 @@ def format_fmc_result(value):
 @app.template_filter('format_mbld_result')
 def format_mbld_result(value):
     """ Jinja custom filter to convert a fake 'centisecond' result to MBLD results. """
+
+    if value is None:
+        return ''
 
     if not value:
         return ''
