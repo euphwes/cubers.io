@@ -156,7 +156,7 @@ EVENT_4BLD      = EventResource("4BLD", scrambler444.get_4BLD_scramble, 3, True,
 EVENT_5BLD      = EventResource("5BLD", scrambler555.get_5BLD_scramble, 3, True, True)
 EVENT_MBLD      = EventResource("MBLD", mbld_scrambler, 3, True, True)
 
-# Bonus event definitions (current count = 14)
+# Bonus event definitions (current count = 16)
 EVENT_COLL      = EventResource("COLL", COLL_scrambler, 5, False, False, is_rotating=True)
 EVENT_F2L       = EventResource("F2L", scrambler333.get_WCA_scramble, 5, False, False, is_rotating=True)
 EVENT_Void      = EventResource("Void Cube", scrambler333.get_3BLD_scramble, 5, False, False, is_rotating=True)
@@ -172,9 +172,10 @@ EVENT_PLLAttack = EventResource("PLL Time Attack", attack_scrambler, 1, False, F
 EVENT_2BLD      = EventResource("2BLD", scrambler222.get_WCA_scramble, 3, False, False, is_rotating=True)
 EVENT_REDI      = EventResource("Redi Cube", redi_scrambler, 5, False, False, is_rotating=True)
 EVENT_DINO      = EventResource("Dino Cube", lambda: redi_scrambler(5), 5, False, False, is_rotating=True)
+EVENT_2x2x3     = EventResource("2x2x3", cuboidsScrambler.get_2x2x3_scramble, 5, False, False, is_rotating=True)
 
-# Special event definitions, like bonus except they don't rotate over the weeks, they only
-# come up when it's an "all events" competition
+# Special event definitions, like bonus except they don't rotate over the weeks,
+# they only come up when it's an "all events" competition
 EVENT_8x8 = EventResource("8x8", bigCubesScrambler.get_8x8x8_scramble, 1, False, False, is_rotating=False)
 EVENT_9x9 = EventResource("9x9", bigCubesScrambler.get_9x9x9_scramble, 1, False, False, is_rotating=False)
 
@@ -219,7 +220,8 @@ __ALL_EVENTS = [
     EVENT_8x8,
     EVENT_9x9,
     EVENT_MBLD,
-    EVENT_DINO
+    EVENT_DINO,
+    EVENT_2x2x3
 ]
 
 # Important! Don't change how these weekly and bonus lists are built, we rely on the order
@@ -279,6 +281,7 @@ __GLOBAL_SORT_ORDER = [
     EVENT_Mirror,
     EVENT_Void,
     EVENT_4x4OH,
+    EVENT_2x2x3,
     EVENT_3x3x2,
     EVENT_3x3x4,
     EVENT_3x3x5,
