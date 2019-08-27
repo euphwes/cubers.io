@@ -91,6 +91,8 @@
                         <a class="dropdown-item" href="{{ url_for('prev_leaders') }}">Last Week's Competition</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{{ url_for('results_list') }}">All competitions</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('versus_search') }}">Competitor Showdown</a>
                     </div>
                 </li>
                 {% if current_user.is_authenticated %}
