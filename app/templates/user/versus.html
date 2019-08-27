@@ -27,15 +27,15 @@
                 <thead class="thead-dark">
                     <tr>
                         <th>&nbsp;</th>
-                        <th colspan="2" style="text-align: center;">Single</th>
-                        <th>&nbsp; &nbsp;</th>
-                        <th colspan="2" style="text-align: center;">Average</th>
+                        <th colspan="2">Single</th>
+                        <th class="spacer"></th>
+                        <th colspan="2">Average</th>
                     </tr>
                     <tr>
                         <th>Event</th>
                         <th>{{ username1 }}</th>
                         <th>{{ username2 }}</th>
-                        <th>&nbsp; &nbsp;</th>
+                        <th class="spacer"></th>
                         <th>{{ username1 }}</th>
                         <th>{{ username2 }}</th>
                     </tr>
@@ -107,7 +107,7 @@
                         </td>
                         <td class="{{ single1_class }}">{{ friendly_single1 }}</td>
                         <td class="{{ single2_class }}">{{ friendly_single2 }}</td>
-                        <td>&nbsp; &nbsp;</td>
+                        <td class="spacer"></td>
                         <td class="{{ average1_class }}">{{ friendly_average1 }}</td>
                         <td class="{{ average2_class }}">{{ friendly_average2 }}</td>
                     </tr>
@@ -122,14 +122,14 @@
                     <table class="table table-sm table-striped table-cubersio">
                         <thead class="thead-dark">
                             <tr>
-                                <th colspan="2" style="text-align: center;">Competitions</th>
-                                <th>&nbsp; &nbsp;</th>
-                                <th colspan="2" style="text-align: center;">Total Solves</th>
+                                <th colspan="2">Competitions</th>
+                                <th class="spacer"></th>
+                                <th colspan="2">Total Solves</th>
                             </tr>
                             <tr>
                                 <th>{{ username1 }}</th>
                                 <th>{{ username2 }}</th>
-                                <th>&nbsp; &nbsp;</th>
+                                <th class="spacer"></th>
                                 <th>{{ username1 }}</th>
                                 <th>{{ username2 }}</th>
                             </tr>
@@ -138,7 +138,7 @@
                             <tr>
                                 <td>{{ user1_stats['comps_count'] }}</td>
                                 <td>{{ user2_stats['comps_count'] }}</td>
-                                <td>&nbsp; &nbsp;</td>
+                                <td class="spacer"></td>
                                 <td>{{ user1_stats['solve_count'] }}</td>
                                 <td>{{ user2_stats['solve_count'] }}</td>
                             </tr>
@@ -149,32 +149,32 @@
             <div class="row pt-4">
                 <div class="col-12 col-md-12">
                     <h4 class="text-center" style="font-size: 16px;">Medal Collection</h4>
-                    <table class="table table-sm table-striped table-cubersio">
+                    <table class="table table-sm table-striped table-cubersio text-center">
                         <thead class="thead-dark">
                             <tr>
-                                <th colspan="3" style="text-align: center;">{{ username1 }}</th>
-                                <th style="text-align: center;">&nbsp; &nbsp;</th>
-                                <th colspan="3" style="text-align: center;">{{ username2 }}</th>
+                                <th colspan="3">{{ username1 }}</th>
+                                <th class="spacer"></th>
+                                <th colspan="3">{{ username2 }}</th>
                             </tr>
                             <tr>
-                                <th style="text-align: center;"><span class="fas fa-medal gold"></span></th>
-                                <th style="text-align: center;"><span class="fas fa-medal silver"></span></th>
-                                <th style="text-align: center;"><span class="fas fa-medal bronze"></span></th>
-                                <th style="text-align: center;">&nbsp; &nbsp;</th>
-                                <th style="text-align: center;"><span class="fas fa-medal gold"></span></th>
-                                <th style="text-align: center;"><span class="fas fa-medal silver"></span></th>
-                                <th style="text-align: center;"><span class="fas fa-medal bronze"></span></th>
+                                <th><span class="fas fa-medal gold"></span></th>
+                                <th><span class="fas fa-medal silver"></span></th>
+                                <th><span class="fas fa-medal bronze"></span></th>
+                                <th class="spacer"></th>
+                                <th><span class="fas fa-medal gold"></span></th>
+                                <th><span class="fas fa-medal silver"></span></th>
+                                <th><span class="fas fa-medal bronze"></span></th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td style="text-align: center;">{{ user1_stats['medals_count']['gold'] }}</td>
-                                <td style="text-align: center;">{{ user1_stats['medals_count']['silver'] }}</td>
-                                <td style="text-align: center;">{{ user1_stats['medals_count']['bronze'] }}</td>
-                                <td style="text-align: center;">&nbsp; &nbsp;</td>
-                                <td style="text-align: center;">{{ user2_stats['medals_count']['gold'] }}</td>
-                                <td style="text-align: center;">{{ user2_stats['medals_count']['silver'] }}</td>
-                                <td style="text-align: center;">{{ user2_stats['medals_count']['bronze'] }}</td>
+                                <td>{{ user1_stats['medals_count']['gold'] }}</td>
+                                <td>{{ user1_stats['medals_count']['silver'] }}</td>
+                                <td>{{ user1_stats['medals_count']['bronze'] }}</td>
+                                <td class="spacer"></td>
+                                <td>{{ user2_stats['medals_count']['gold'] }}</td>
+                                <td>{{ user2_stats['medals_count']['silver'] }}</td>
+                                <td>{{ user2_stats['medals_count']['bronze'] }}</td>
                             </tr>
                         </tbody>
                     </table>    
