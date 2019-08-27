@@ -52,6 +52,15 @@
         $('#btn_compare_users').click(function(){
             var user1 = $('#user1_input').val();
             var user2 = $('#user2_input').val();
+
+            if (!user1 || !user2) {
+                bootbox.alert({
+                    message: "You must pick two users!",
+                    centerVertical: true,
+                    closeButton: false,
+                });
+                return;
+            }
             window.location.href = '/versus/' + user1 + '/' + user2;
         });
     })
