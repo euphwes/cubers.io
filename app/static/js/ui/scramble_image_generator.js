@@ -2093,7 +2093,7 @@
                     colors = cube_colors;
                 }
 
-                var leftOffset = 2;
+                var leftOffset = 1;
                 var topOffset = 2;
 
                 var offx = 10 / 8,
@@ -2141,15 +2141,10 @@
 
                     for (var i = 0; i < size; i++) {
                         for (var j = 0; j < size; j++) {
-
-                            var color = colors[posit[cnt]];
-
-                            console.log('about to draw poly ' + cnt + ' on face ' + f);
-                            drawPolygon(ctx, color, [
+                            drawPolygon(ctx, colors[posit[cnt]], [
                                 [i, i, i + 1, i + 1],
                                 [j, j + 1, j + 1, j]
                             ], [width, offx, offy]);
-
                             cnt += 1;
                         }
                     }
@@ -2168,15 +2163,10 @@
 
                     for (var i = 0; i < size; i++) {
                         for (var j = 0; j < longSize; j++) {
-    
-                            var color = colors[posit[cnt]];
-    
-                            console.log('about to draw poly ' + cnt + ' on face ' + f);
-                            drawPolygon(ctx, color, [
+                            drawPolygon(ctx, colors[posit[cnt]], [
                                 [i, i, i + 1, i + 1],
                                 [j, j + 1, j + 1, j]
                             ], [width, offx, offy]);
-
                             cnt += 1;
                         }
                     }
@@ -2198,11 +2188,11 @@
                 }
 
                 var imgSize = scalingFactor / 30;
-                canvas.width(39 * imgSize + 'em');
-                canvas.height((29 * imgSize)*1.5 + 'em');
+                canvas.width(35 * imgSize + 'em');
+                canvas.height((25 * imgSize)*1.25 + 'em');
 
-                canvas.attr('width', 39 * 3 / 9 * width + 1);
-                canvas.attr('height', 29 * 4 / 9 * width + 1);
+                canvas.attr('width', 35 * 3 / 9 * width + 1);
+                canvas.attr('height', 25 * 4 / 9 * width + 1);
 
                 for (var i = 0; i < 6; i++) {
                     face(i);
