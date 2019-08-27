@@ -106,7 +106,7 @@
             <h4 class="text-center">Personal Records as of {{rankings_ts}}</h4>
             {% if viewing_other_user %}
             <p class="text-center">
-                <a href="{{ url_for('vs_user', other_username=user.username) }}">
+                <a href="{{ url_for('me_versus_other', username=user.username) }}">
                     compare to my records
                 </a>
             </p>

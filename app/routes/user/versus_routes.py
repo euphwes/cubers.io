@@ -1,10 +1,10 @@
 """ Routes related to comparing results between users. """
 
-from flask import render_template
-from flask_login import current_user
-
 from http import HTTPStatus
 import json
+
+from flask import render_template
+from flask_login import current_user
 
 from app import app
 from app.util.events.resources import sort_event_id_name_map_by_global_sort_order
@@ -22,74 +22,47 @@ NO_SUCH_USER_ERR_MSG = "Oops, can't find a user with username '{}'"
 EVENT_NOT_PARTICIPATED = (None, None, None, None)
 
 # -------------------------------------------------------------------------------------------------
+# Standard routes, to be removed once React components + API endpoints are finalized and being used
+# -------------------------------------------------------------------------------------------------
 
-@app.route('/vs/<other_username>')
-def vs_user(other_username):
+@app.route('/vs/<username>')
+def me_versus_other(username):
     """ A route for displaying user results head-to-head with the current user. """
 
     # TODO here and below, implement proper error-handling
 
+    user1 = current_user
+    user2 = get_user_by_username(username)
+    if not user2:
+        return NO_SUCH_USER_ERR_MSG.format(username), HTTPStatus.NOT_FOUND
+
+    return __render_versus_page_for_users(user1, user2)
+
+
+def __render_versus_page_for_users(user1, user2):
+    """ Renders and returns a user versus page for the specified two users. """
+
+    # Get a map of event ID to event name, to facilitate rendering the template.
+    # Sort it by the global sort order so the event records table has the same ordering
+    # as everywhere else.
     event_id_name_map = get_events_id_name_mapping()
     event_id_name_map = sort_event_id_name_map_by_global_sort_order(event_id_name_map)
 
-    other_user = get_user_by_username(other_username)
-    if not other_user:
-        return NO_SUCH_USER_ERR_MSG.format(other_username), HTTPStatus.NOT_FOUND
-
-    rankings1 = __get_user_site_rankings(current_user.id)
-    rankings2 = __get_user_site_rankings(other_user.id)
-
-    # Determine any events that both users haven't participated in
-    event_ids_to_remove = list()
-    for event_id in event_id_name_map.keys():
-
-        # This is a blank entry we added below in __get_user_site_rankings when retrieving
-        # the site rankings to ensure both users have a record if at least one does
-        ranks1_empty = rankings1[event_id] == EVENT_NOT_PARTICIPATED
-        ranks2_empty = rankings2[event_id] == EVENT_NOT_PARTICIPATED
-
-        # This is an entry that existed in the site rankings for some reason, but with an
-        # empty result, indicating the user hasn't actually participated.
-        # TODO: figure out why this is happening. Bad devo data?
-        ranks1_empty_2 = rankings1[event_id][0] == rankings1[event_id][2] == ''
-        ranks2_empty_2 = rankings2[event_id][0] == rankings2[event_id][2] == ''
-
-        if (ranks1_empty or ranks1_empty_2) and (ranks2_empty or ranks2_empty_2):
-            event_ids_to_remove.append(event_id)
-
-    # Remove any events from the rankings and from the event_id_name_map
-    for event_id in event_ids_to_remove:
-        del rankings1[event_id]
-        del rankings2[event_id]
-        del event_id_name_map[event_id]
-
+    # Get site rankings info for both users
     # Get users' medal counts, number of total solves, number of competitions participated in
-    user1_medals = get_user_medals_count(current_user.id)
-    user1_stats = {
-        'solve_count':  get_user_completed_solves_count(current_user.id),
-        'comps_count':  get_user_participated_competitions_count(current_user.id),
-        'medals_count': {
-            'gold':   user1_medals[0],
-            'silver': user1_medals[1],
-            'bronze': user1_medals[2]
-        },
-    }
+    rankings1, user1_stats = __get_versus_page_info_for_user(user1)
+    rankings2, user2_stats = __get_versus_page_info_for_user(user2)
 
-    user2_medals = get_user_medals_count(other_user.id)
-    user2_stats = {
-        'solve_count':  get_user_completed_solves_count(other_user.id),
-        'comps_count':  get_user_participated_competitions_count(other_user.id),
-        'medals_count': {
-            'gold':   user2_medals[0],
-            'silver': user2_medals[1],
-            'bronze': user2_medals[2]
-        },
-    }
+    # Remove any events which neither user has participated in
+    __remove_events_not_participated_in(event_id_name_map, rankings1, rankings2)
 
-    return render_template("user/versus.html", username1=current_user.username, username2=other_username,
+    return render_template("user/versus.html", username1=current_user.username, username2=user2.username,
         rankings1=rankings1, rankings2=rankings2, event_id_name_map=event_id_name_map,
         user1_stats=user1_stats, user2_stats=user2_stats)
 
+# -------------------------------------------------------------------------------------------------
+# API endpoints
+# -------------------------------------------------------------------------------------------------
 
 @app.route('/api/site_stats/<username>/')
 def user_site_stats(username):
@@ -126,6 +99,13 @@ def user_site_rankings(username):
 
 # -------------------------------------------------------------------------------------------------
 
+def __get_versus_page_info_for_user(user):
+    """ Retrieves all the info needed to render the versus page for a single user. Returns a
+    tuple of the form: () """
+
+    return __get_user_site_rankings(user.id), __get_user_site_stats(user.id)
+
+
 def __get_user_site_rankings(user_id):
     """ Retrieves a user site rankings record by user id. """
 
@@ -150,4 +130,42 @@ def __get_user_site_rankings(user_id):
 def __get_user_site_stats(user_id):
     """ Retrieves a user's stats related to their usage of the site: """
 
-    pass
+    medals_count = get_user_medals_count(user_id)
+    return {
+        'solve_count':  get_user_completed_solves_count(user_id),
+        'comps_count':  get_user_participated_competitions_count(user_id),
+        'medals_count': {
+            'gold':   medals_count[0],
+            'silver': medals_count[1],
+            'bronze': medals_count[2]
+        },
+    }
+
+
+def __remove_events_not_participated_in(event_id_name_map, rankings1, rankings2):
+    """ Checks both sets of user rankings, and removes the entries for events that neither user has
+    participated in. """
+
+    # Determine any events that both users haven't participated in
+    event_ids_to_remove = list()
+    for event_id in event_id_name_map.keys():
+
+        # This is a blank entry we added below in __get_user_site_rankings when retrieving
+        # the site rankings to ensure both users have a record if at least one does
+        ranks1_empty = rankings1[event_id] == EVENT_NOT_PARTICIPATED
+        ranks2_empty = rankings2[event_id] == EVENT_NOT_PARTICIPATED
+
+        # This is an entry that existed in the site rankings for some reason, but with an
+        # empty result, indicating the user hasn't actually participated.
+        # TODO: figure out why this is happening. Bad devo data?
+        ranks1_empty_2 = rankings1[event_id][0] == rankings1[event_id][2] == ''
+        ranks2_empty_2 = rankings2[event_id][0] == rankings2[event_id][2] == ''
+
+        if (ranks1_empty or ranks1_empty_2) and (ranks2_empty or ranks2_empty_2):
+            event_ids_to_remove.append(event_id)
+
+    # Remove any events from the rankings and from the event_id_name_map
+    for event_id in event_ids_to_remove:
+        del rankings1[event_id]
+        del rankings2[event_id]
+        del event_id_name_map[event_id]
