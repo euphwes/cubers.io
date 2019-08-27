@@ -9,7 +9,7 @@ from flask_login import current_user
 from app import app
 from app.util.events.resources import sort_event_id_name_map_by_global_sort_order
 from app.persistence.events_manager import get_events_id_name_mapping
-from app.persistence.user_manager import get_user_by_username
+from app.persistence.user_manager import get_user_by_username, get_all_active_usernames
 from app.persistence.user_site_rankings_manager import get_site_rankings_for_user
 from app.persistence.user_results_manager import get_user_completed_solves_count,\
     get_user_medals_count
@@ -63,6 +63,13 @@ def __render_versus_page_for_users(user1, user2):
 # -------------------------------------------------------------------------------------------------
 # API endpoints
 # -------------------------------------------------------------------------------------------------
+
+@app.route('/api/usernames/')
+def usernames():
+    """ A route for retrieving a list of usernames for all active users. """
+
+    return json.dumps(get_all_active_usernames())
+
 
 @app.route('/api/site_stats/<username>/')
 def user_site_stats(username):
