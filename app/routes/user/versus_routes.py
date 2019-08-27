@@ -25,6 +25,13 @@ EVENT_NOT_PARTICIPATED = (None, None, None, None)
 # Standard routes, to be removed once React components + API endpoints are finalized and being used
 # -------------------------------------------------------------------------------------------------
 
+@app.route('/versus/')
+def versus_search():
+    """ TODO """
+
+    return render_template("user/versus_search.html", usernames=get_all_active_usernames())
+
+
 @app.route('/vs/<username>')
 def me_versus_other(username):
     """ A route for displaying user results head-to-head with the current user. """

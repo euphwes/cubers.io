@@ -32,6 +32,7 @@ def get_all_active_usernames():
     # list of 1-tuples of usernames
     usernames = User.query.with_entities(User.username).\
         join(UserEventResults).\
+        filter(UserEventResults.is_blacklisted.isnot(True)).\
         distinct(User.id).\
         all()
 

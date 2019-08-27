@@ -22,6 +22,10 @@
     background-color: white;
 }
 
+.versus-search {
+    height: ~"calc(100% - 72px)";
+}
+
 .vs_winner {
     background-color: #9afaca;
 }
@@ -77,6 +81,14 @@
         &.spacer {
             width: 45px;
         }
+    }
+}
+
+.no-glow {
+    &:focus {
+        outline: none;
+        box-shadow: none;
+        border-color: #ced4da;
     }
 }
 

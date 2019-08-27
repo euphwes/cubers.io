@@ -1,0 +1,39 @@
+{% extends "common/base.html" %}
+
+{% block head %}
+{{ super() }}
+    {% block additional_styles %}
+        {% assets "app_css" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}" />
+        {% endassets %}
+    {% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="container cubers-container versus-container versus-search">
+    <div class="row flex-center-all pt-4" style="margin-top: 120px;">
+        <h3>Choose Users</h3>
+    </div>
+    <div class="row pt-4" style="margin-top: 40px";>
+        <div class="col-12 col-md-3 offset-md-2 flex-center-all">
+            <input class="form-control no-glow" id="user1_input"/>
+        </div>
+        <div class="col-md-2 flex-center-all">
+            <h3>vs</h3>
+        </div>
+        <div class="col-12 col-md-3 flex-center-all">
+            <input class="form-control no-glow" id="user2_input"/>
+        </div>
+    </div>
+    <div class="row flex-center-all pt-4" style="margin-top: 40px";>
+        <button class="btn btn-success" style="width: 100px;">Go!</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_script %}
+<script>
+    $(function () {
+    })
+</script>
+{% endblock %}
