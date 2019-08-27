@@ -11,10 +11,13 @@ from app.util.events.resources import sort_event_id_name_map_by_global_sort_orde
 from app.persistence.events_manager import get_events_id_name_mapping
 from app.persistence.user_manager import get_user_by_username
 from app.persistence.user_site_rankings_manager import get_site_rankings_for_user
+from app.persistence.user_results_manager import get_user_completed_solves_count,\
+    get_user_medals_count
+from app.persistence.comp_manager import get_user_participated_competitions_count
 
 # -------------------------------------------------------------------------------------------------
 
-LOG_NO_SUCH_USER = "Oops, can't find a user with username '{}'"
+NO_SUCH_USER_ERR_MSG = "Oops, can't find a user with username '{}'"
 
 EVENT_NOT_PARTICIPATED = (None, None, None, None)
 
@@ -31,7 +34,7 @@ def vs_user(other_username):
 
     other_user = get_user_by_username(other_username)
     if not other_user:
-        return LOG_NO_SUCH_USER.format(other_username), HTTPStatus.NOT_FOUND
+        return NO_SUCH_USER_ERR_MSG.format(other_username), HTTPStatus.NOT_FOUND
 
     rankings1 = __get_user_site_rankings(current_user.id)
     rankings2 = __get_user_site_rankings(other_user.id)
@@ -60,18 +63,64 @@ def vs_user(other_username):
         del rankings2[event_id]
         del event_id_name_map[event_id]
 
+    # Get users' medal counts, number of total solves, number of competitions participated in
+    user1_medals = get_user_medals_count(current_user.id)
+    user1_stats = {
+        'solve_count':  get_user_completed_solves_count(current_user.id),
+        'comps_count':  get_user_participated_competitions_count(current_user.id),
+        'medals_count': {
+            'gold':   user1_medals[0],
+            'silver': user1_medals[1],
+            'bronze': user1_medals[2]
+        },
+    }
+
+    user2_medals = get_user_medals_count(other_user.id)
+    user2_stats = {
+        'solve_count':  get_user_completed_solves_count(other_user.id),
+        'comps_count':  get_user_participated_competitions_count(other_user.id),
+        'medals_count': {
+            'gold':   user2_medals[0],
+            'silver': user2_medals[1],
+            'bronze': user2_medals[2]
+        },
+    }
+
     return render_template("user/versus.html", username1=current_user.username, username2=other_username,
-        rankings1=rankings1, rankings2=rankings2, event_id_name_map=event_id_name_map)
+        rankings1=rankings1, rankings2=rankings2, event_id_name_map=event_id_name_map,
+        user1_stats=user1_stats, user2_stats=user2_stats)
+
+
+@app.route('/api/site_stats/<username>/')
+def user_site_stats(username):
+    """ A route for retrieving data related to a user's usage of the site. Returns a JSON-serialized
+    dictionary of the form:
+    { event_id: [single, single_site_ranking, average, average_site_ranking] } """
+
+    user = get_user_by_username(username)
+    if not user:
+        return NO_SUCH_USER_ERR_MSG.format(username), HTTPStatus.NOT_FOUND
+
+    return json.dumps(__get_user_site_rankings(user.id))
 
 
 @app.route('/api/site_rankings/<username>/')
 def user_site_rankings(username):
     """ A route for retrieving data related to a user's PBs for all events. Returns a JSON-serialized
-    dictionary of the form event_id: (single, single_site_ranking, average, average_site_ranking) """
+    dictionary of the form:
+    { event_id: [single, single_site_ranking, average, average_site_ranking] } """
+
+    # TODO: format the values at indices 0 and 3 to be user-friendly representations of the results.
+    #
+    # Right now they are just the raw centiseconds, encoded MBLD, or "centi-moves" FMC values
+    #
+    # Further thinking... should I just format those for user-friendly display when I save them
+    # to the database? I don't think we use the raw results times anywhere, and we're just wasting time
+    # converting all of them each time we display them.
 
     user = get_user_by_username(username)
     if not user:
-        return LOG_NO_SUCH_USER.format(username), HTTPStatus.NOT_FOUND
+        return NO_SUCH_USER_ERR_MSG.format(username), HTTPStatus.NOT_FOUND
 
     return json.dumps(__get_user_site_rankings(user.id))
 
@@ -96,3 +145,9 @@ def __get_user_site_rankings(user_id):
             site_rankings[event_id] = EVENT_NOT_PARTICIPATED
 
     return site_rankings
+
+
+def __get_user_site_stats(user_id):
+    """ Retrieves a user's stats related to their usage of the site: """
+
+    pass
