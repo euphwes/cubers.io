@@ -12,7 +12,7 @@
 {% block content %}
 <div class="container cubers-container versus-container versus-search">
     <div class="row flex-center-all pt-4" style="margin-top: 120px;">
-        <h3>Choose Users</h3>
+        <h3>Competitor Showdown</h3>
     </div>
     <div class="row pt-4" style="margin-top: 40px";>
         <div class="col-12 col-md-3 offset-md-2 flex-center-all">
@@ -26,7 +26,7 @@
         </div>
     </div>
     <div class="row flex-center-all pt-4" style="margin-top: 40px";>
-        <button class="btn btn-success" style="width: 100px;">Go!</button>
+        <button id="btn_compare_users" class="btn btn-success" style="width: 100px;">Go!</button>
     </div>
 </div>
 {% endblock %}
@@ -34,6 +34,25 @@
 {% block additional_script %}
 <script>
     $(function () {
+        var options = {
+            data: {{ usernames | tojson}},
+            list: {
+                maxNumberOfElements: 10,
+                match: {
+                    enabled: true
+                }
+            },
+            placeholder: "User #1"
+        };
+        $("#user1_input").easyAutocomplete(options);
+
+        options.placeholder = "User #2";
+        $("#user2_input").easyAutocomplete(options);
+
+        $('#btn_compare_users').click(function(){
+            alert($('#user1_input').val());
+            alert($('#user2_input').val());
+        });
     })
 </script>
 {% endblock %}
