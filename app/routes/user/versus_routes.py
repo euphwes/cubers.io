@@ -3,7 +3,7 @@
 from http import HTTPStatus
 import json
 
-from flask import render_template
+from flask import render_template, redirect, url_for
 from flask_login import current_user
 
 from app import app
@@ -27,9 +27,27 @@ EVENT_NOT_PARTICIPATED = (None, None, None, None)
 
 @app.route('/versus/')
 def versus_search():
-    """ TODO """
+    """ Displays a landing page for user comparison, with username search boxes that auto-complete
+    with the usernames of active users. """
 
     return render_template("user/versus_search.html", usernames=get_all_active_usernames())
+
+
+@app.route('/versus/<username1>/<username2>')
+def user_versus_user(username1, username2):
+    """ A route for displaying user results head-to-head with the current user. """
+
+    # TODO here and below, implement proper error-handling
+
+    user1 = get_user_by_username(username1)
+    if not user1:
+        return NO_SUCH_USER_ERR_MSG.format(username1), HTTPStatus.NOT_FOUND
+
+    user2 = get_user_by_username(username2)
+    if not user2:
+        return NO_SUCH_USER_ERR_MSG.format(username2), HTTPStatus.NOT_FOUND
+
+    return __render_versus_page_for_users(user1, user2)
 
 
 @app.route('/vs/<username>')
@@ -43,7 +61,7 @@ def me_versus_other(username):
     if not user2:
         return NO_SUCH_USER_ERR_MSG.format(username), HTTPStatus.NOT_FOUND
 
-    return __render_versus_page_for_users(user1, user2)
+    return redirect(url_for('user_versus_user', username1=user1.username, username2=user2.username))
 
 
 def __render_versus_page_for_users(user1, user2):
@@ -63,7 +81,7 @@ def __render_versus_page_for_users(user1, user2):
     # Remove any events which neither user has participated in
     __remove_events_not_participated_in(event_id_name_map, rankings1, rankings2)
 
-    return render_template("user/versus.html", username1=current_user.username, username2=user2.username,
+    return render_template("user/versus.html", username1=user1.username, username2=user2.username,
         rankings1=rankings1, rankings2=rankings2, event_id_name_map=event_id_name_map,
         user1_stats=user1_stats, user2_stats=user2_stats)
 

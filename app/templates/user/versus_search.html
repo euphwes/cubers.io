@@ -50,8 +50,9 @@
         $("#user2_input").easyAutocomplete(options);
 
         $('#btn_compare_users').click(function(){
-            alert($('#user1_input').val());
-            alert($('#user2_input').val());
+            var user1 = $('#user1_input').val();
+            var user2 = $('#user2_input').val();
+            window.location.href = '/versus/' + user1 + '/' + user2;
         });
     })
 </script>
