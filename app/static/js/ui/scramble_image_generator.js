@@ -11,31 +11,40 @@
 
     var TRANSPARENT = "rgba(255, 255, 255, 0)";
 
+    // "global"-ish variable to hold the border radius for the current event and canvas size
     var eventCornerRadius = 0;
-    var defaultCornerRadius = 0;
+
+    // Default to no corner radius for events without an override in the map below
+    var defaultCornerRadiusOptions = [0, 0];
+
+    // Border radius config options will be differentiated between small and large canvas
+    // sizes, because lots tiny polygons with curved borders end up looking weird on small canvas.
+    // Value at index 0 is for small canvas, value at index 1 is for big canvas
+    var CANVAS_SMALL_RADIUS_IDX = 0;
+    var CANVAS_LARGE_RADIUS_IDX = 1;
 
     var nxnRadius = 8;
     var cornerRadiusMap = {
-        "2x2":    nxnRadius,
-        "3x3":    nxnRadius,
-        "3x3":    nxnRadius,
-        "3x3OH":  nxnRadius,
-        "2GEN":   nxnRadius,
-        "LSE":    nxnRadius,
-        "F2L":    nxnRadius,
-        "FMC":    nxnRadius,
-        "COLL":   nxnRadius,
-        "4x4":    nxnRadius,
-        "4x4 OH": nxnRadius,
-        "5x5":    nxnRadius,
-        "6x6":    nxnRadius,
-        "7x7":    nxnRadius,
-        "2x2x3":  nxnRadius,
-        "3x3x2":  nxnRadius,
-        "3x3x4":  nxnRadius,
-        "3x3x5":  nxnRadius,
-        "Void Cube":  nxnRadius,
-        "3x3 With Feet": nxnRadius,
+        "2x2":    [nxnRadius, nxnRadius],
+        "3x3":    [nxnRadius, nxnRadius],
+        "3x3":    [nxnRadius, nxnRadius],
+        "3x3OH":  [nxnRadius, nxnRadius],
+        "2GEN":   [nxnRadius, nxnRadius],
+        "LSE":    [nxnRadius, nxnRadius],
+        "F2L":    [nxnRadius, nxnRadius],
+        "FMC":    [nxnRadius, nxnRadius],
+        "COLL":   [nxnRadius, nxnRadius],
+        "4x4":    [nxnRadius, nxnRadius],
+        "4x4 OH": [nxnRadius, nxnRadius],
+        "5x5":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
+        "6x6":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
+        "7x7":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
+        "2x2x3":  [nxnRadius, nxnRadius],
+        "3x3x2":  [nxnRadius, nxnRadius],
+        "3x3x4":  [nxnRadius, nxnRadius],
+        "3x3x5":  [nxnRadius, nxnRadius],
+        "Void Cube":  [nxnRadius, nxnRadius],
+        "3x3 With Feet": [nxnRadius, nxnRadius],
     }
 
     var setColors = function() {
@@ -2454,15 +2463,16 @@
 
         var types_nnn = ['', '', '2x2', '3x3', '4x4', '5x5', '6x6', '7x7', '8x8', '9x9'];
 
-        function setBorderRadius(type) {
-            eventCornerRadius = cornerRadiusMap[type] || defaultCornerRadius;
+        function setBorderRadius(type, canvasSize) {
+            cornerRadiusOptions = cornerRadiusMap[type] || defaultCornerRadiusOptions;
+            eventCornerRadius = cornerRadiusOptions[canvasSize];
         }
 
-        function genImage(scramble) {
+        function genImage(scramble, canvasSize) {
 
             var type = scramble[0];
 
-            setBorderRadius(type);
+            setBorderRadius(type, canvasSize);
 
             var size;
             for (size = 0; size <= 9; size++) {
@@ -2618,7 +2628,7 @@
         // on this window size, just go ahead and draw the image that was prepped
         if (this.haveEstablishedDesktopScalingFactor) {
             image.setScalingFactorDirectly(this.desktopScalingFactor);
-            return image.draw([this.savedEventName, this.savedScramble]);
+            return image.draw([this.savedEventName, this.savedScramble], CANVAS_SMALL_RADIUS_IDX);
         }
 
         // Find the correct scaling factor and remember that we've done so
@@ -2628,7 +2638,7 @@
 
         // Finally draw the preview at the correct scaling factor
         image.setScalingFactorDirectly(this.desktopScalingFactor);
-        return image.draw([this.savedEventName, this.savedScramble]);
+        return image.draw([this.savedEventName, this.savedScramble], CANVAS_SMALL_RADIUS_IDX);
     };
 
     ScrambleImageGenerator.prototype.showLargeImage = function() {
@@ -2639,7 +2649,7 @@
         // on this device, just go ahead and draw the image that was prepped
         if (this.haveEstablishedLargeScalingFactor) {
             image.setScalingFactorDirectly(this.largeScalingFactor);
-            return image.draw([this.savedEventName, this.savedScramble]);
+            return image.draw([this.savedEventName, this.savedScramble], CANVAS_LARGE_RADIUS_IDX);
         }
 
         // Target width & height is 20 less than device/browser width & height, so there's a ~10px buffer on either side
@@ -2650,7 +2660,7 @@
 
         // Finally draw the preview at the correct scaling factor
         image.setScalingFactorDirectly(this.largeScalingFactor);
-        return image.draw([this.savedEventName, this.savedScramble]);
+        return image.draw([this.savedEventName, this.savedScramble], CANVAS_LARGE_RADIUS_IDX);
     };
 
     ScrambleImageGenerator.prototype.determineScalingFactorAndDraw = function(targetWidth) {
@@ -2659,7 +2669,7 @@
         while (true) {
 
             image.setScalingFactorDirectly(testScalingFactor);
-            image.draw([this.savedEventName, this.savedScramble]);
+            image.draw([this.savedEventName, this.savedScramble], CANVAS_SMALL_RADIUS_IDX);
 
             if (testScalingFactor >= 50) {
                 testScalingFactor = 50;
