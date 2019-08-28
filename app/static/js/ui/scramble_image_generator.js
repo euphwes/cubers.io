@@ -11,6 +11,33 @@
 
     var TRANSPARENT = "rgba(255, 255, 255, 0)";
 
+    var eventCornerRadius = 0;
+    var defaultCornerRadius = 0;
+
+    var nxnRadius = 8;
+    var cornerRadiusMap = {
+        "2x2":    nxnRadius,
+        "3x3":    nxnRadius,
+        "3x3":    nxnRadius,
+        "3x3OH":  nxnRadius,
+        "2GEN":   nxnRadius,
+        "LSE":    nxnRadius,
+        "F2L":    nxnRadius,
+        "FMC":    nxnRadius,
+        "COLL":   nxnRadius,
+        "4x4":    nxnRadius,
+        "4x4 OH": nxnRadius,
+        "5x5":    nxnRadius,
+        "6x6":    nxnRadius,
+        "7x7":    nxnRadius,
+        "2x2x3":  nxnRadius,
+        "3x3x2":  nxnRadius,
+        "3x3x4":  nxnRadius,
+        "3x3x5":  nxnRadius,
+        "Void Cube":  nxnRadius,
+        "3x3 With Feet": nxnRadius,
+    }
+
     var setColors = function() {
         if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_CUBE_COLORS)) {
             cube_colors = [
@@ -811,19 +838,7 @@
             return ret;
         }
 
-        // trans: [size, offx, offy] == [size, 0, offx * size, 0, size, offy * size] or [a11 a12 a13 a21 a22 a23]
-        function drawPolygon(ctx, color, arr, trans, text, is334) {
-            if (!ctx) {
-                return;
-            }
-            trans = trans || [1, 0, 0, 0, 1, 0];
-            is334 = is334 || false;
-
-            if (is334) {
-                trans[0] = trans[0] * 0.80;
-            }
-
-            arr = Transform(arr, trans);
+        function drawRoundedPolygon(ctx, pts, radius, color) {
             ctx.beginPath();
 
             ctx.fillStyle = color;
@@ -833,13 +848,74 @@
                 ctx.strokeStyle = "#000";
             }
 
-            ctx.moveTo(arr[0][0], arr[1][0]);
-            for (var i = 1; i < arr[0].length; i++) {
-                ctx.lineTo(arr[0][i], arr[1][i]);
+            if (radius > 0) {
+                pts = getRoundedPoints(pts, radius);
             }
+
+            var i, pt, len = pts.length;
+            for (i = 0; i < len; i++) {
+                pt = pts[i];
+                if (i == 0) {
+                    ctx.moveTo(pt[0], pt[1]);
+                } else {
+                    ctx.lineTo(pt[0], pt[1]);
+                }
+                if (radius > 0) {
+                    ctx.quadraticCurveTo(pt[2], pt[3], pt[4], pt[5]);
+                }
+            }
+
             ctx.closePath();
             ctx.fill();
             ctx.stroke();
+        }
+
+        function getRoundedPoints(pts, radius) {
+            var i1, i2, i3, p1, p2, p3, prevPt, nextPt,
+                len = pts.length,
+                res = new Array(len);
+            for (i2 = 0; i2 < len; i2++) {
+              i1 = i2-1;
+              i3 = i2+1;
+              if (i1 < 0) {
+                i1 = len - 1;
+              }
+              if (i3 == len) {
+                i3 = 0;
+              }
+              p1 = pts[i1];
+              p2 = pts[i2];
+              p3 = pts[i3];
+              prevPt = getRoundedPoint(p1[0], p1[1], p2[0], p2[1], radius, false);
+              nextPt = getRoundedPoint(p2[0], p2[1], p3[0], p3[1], radius, true);
+              res[i2] = [prevPt[0], prevPt[1], p2[0], p2[1], nextPt[0], nextPt[1]];
+            }
+            return res;
+        };
+
+        function getRoundedPoint(x1, y1, x2, y2, radius, first) {
+            var total = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)),
+                idx = first ? radius / total : (total - radius) / total;
+            return [x1 + (idx * (x2 - x1)), y1 + (idx * (y2 - y1))];
+        }
+
+        // trans: [size, offx, offy] == [size, 0, offx * size, 0, size, offy * size] or [a11 a12 a13 a21 a22 a23]
+        function drawPolygon(ctx, color, arr, trans, text) {
+            if (!ctx) {
+                return;
+            }
+
+            trans = trans || [1, 0, 0, 0, 1, 0];
+            arr = Transform(arr, trans);
+
+            var ptsByXY = [];
+            var xPts = arr[0];
+            var yPts = arr[1];
+            for (var i = 0; i < xPts.length; i++) {
+                ptsByXY[i] = [xPts[i], yPts[i]];
+            }
+
+            drawRoundedPolygon(ctx, ptsByXY, eventCornerRadius, color);
 
             if (text) {
                 ctx.fillStyle = '#000';
@@ -1752,7 +1828,7 @@
         })();
 
         var image334 = (function() {
-            var width = 30;
+            var width = 24;
             var posit = [];
             var colors = null;
 
@@ -1950,14 +2026,10 @@
 
                     for (var i = 0; i < size; i++) {
                         for (var j = 0; j < size; j++) {
-
-                            var color = colors[posit[cnt]];
-
-                            drawPolygon(ctx, color, [
+                            drawPolygon(ctx, colors[posit[cnt]], [
                                 [i, i, i + 1, i + 1],
                                 [j, j + 1, j + 1, j]
                             ], [width, offx, offy]);
-
                             cnt += 1;
                         }
                     }
@@ -1976,14 +2048,10 @@
 
                     for (var i = 0; i < size; i++) {
                         for (var j = 0; j < longSize; j++) {
-    
-                            var color = colors[posit[cnt]];
-    
-                            drawPolygon(ctx, color, [
+                            drawPolygon(ctx, colors[posit[cnt]], [
                                 [i, i, i + 1, i + 1],
                                 [j, j + 1, j + 1, j]
                             ], [width, offx, offy]);
-
                             cnt += 1;
                         }
                     }
@@ -2386,9 +2454,16 @@
 
         var types_nnn = ['', '', '2x2', '3x3', '4x4', '5x5', '6x6', '7x7', '8x8', '9x9'];
 
+        function setBorderRadius(type) {
+            eventCornerRadius = cornerRadiusMap[type] || defaultCornerRadius;
+        }
+
         function genImage(scramble) {
 
             var type = scramble[0];
+
+            setBorderRadius(type);
+
             var size;
             for (size = 0; size <= 9; size++) {
                 if (type == types_nnn[size]) {
