@@ -2187,7 +2187,7 @@
                     doMove(scramble[i]);
                 }
 
-                var imgSize = scalingFactor / 30;
+                var imgSize = scalingFactor / 40;
                 canvas.width(35 * imgSize + 'em');
                 canvas.height((25 * imgSize)*1.25 + 'em');
 
