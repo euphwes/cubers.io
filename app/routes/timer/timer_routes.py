@@ -59,10 +59,31 @@ EXCLAMATIONS = [
     'Nice'
 ]
 
+# Just for fun, mix up the encouragement portion of the DNF result messaging.
+ENCOURAGEMENTS = [
+    "Don't give up!",
+    "Keep trying!",
+    "Better luck next time!",
+    "Never give up, never surrender!",
+    "Hang in there.",
+    "Stay strong.",
+    "Believe in yourself."
+]
+
+EMOJI = [
+    ":-(",
+    ":(",
+    "⊙︿⊙",
+    "●︿●",
+    ":-/"
+]
+
 MSG_RESULTS_COMPLETE            = "{excl}!\nYou've finished {event_name} with {result_type} of {result}."
 MSG_RESULTS_COMPLETE_TWO_PBS    = "{excl}!\nYou've finished {event_name} with a PB average of {average} and a PB single of {single}!"
 MSG_RESULTS_COMPLETE_PB_SINGLE  = "{excl}!\nYou've finished {event_name} with a PB single of {result}!"
 MSG_RESULTS_COMPLETE_PB_AVERAGE = "{excl}!\nYou've finished {event_name} with a PB average of {result}!"
+MSG_RESULTS_DNF                 = "You've finished {event_name} with a DNF result.\n{encouragement}"
+MSG_RESULTS_DNF_EMOJI           = "{emoji}"
 
 EVENT_FORMAT_RESULTS_TYPE_MAP = {
     EventFormat.Bo3: 'a best single',
@@ -355,6 +376,15 @@ def __build_done_message(user_results, event_name, event_format):
             event_name=event_name,
             result=user_results.friendly_average()
         )
+
+    if user_results.friendly_result() == 'DNF':
+        if random_choice(range(100)) < 20:
+            return MSG_RESULTS_DNF_EMOJI.format(emoji=random_choice(EMOJI))
+        else:
+            return MSG_RESULTS_DNF.format(
+                event_name=event_name,
+                encouragement=random_choice(ENCOURAGEMENTS)
+            )
 
     return MSG_RESULTS_COMPLETE.format(
         excl=random_choice(EXCLAMATIONS),
