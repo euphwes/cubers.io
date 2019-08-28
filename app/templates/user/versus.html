@@ -1,0 +1,199 @@
+{% extends "common/base.html" %}
+
+{% block head %}
+{{ super() }}
+    {% block additional_styles %}
+        {% assets "app_css" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}" />
+        {% endassets %}
+    {% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="container cubers-container versus-container">
+    {% for error in errors %}
+    <div class="alert alert-danger text-center alert-auth">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        {{ error }}
+    </div>
+    {% endfor %}
+    <div class="row">
+        <div class="col-12 username_area">
+            <h3 class="text-center">
+                <a href="{{ url_for('profile', username=username1) }}">{{ username1 }}</a>
+                vs
+                <a href="{{ url_for('profile', username=username2) }}">{{ username2 }}</a>
+            </h3>
+        </div>
+    </div>
+    <div class="row pt-4">
+        <div class="col-12 col-md-8">
+            <h4 class="text-center" style="font-size: 16px;">Event Records</h4>
+            <table class="table table-sm table-striped table-cubersio">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>&nbsp;</th>
+                        <th colspan="2">Single</th>
+                        <th class="spacer"></th>
+                        <th colspan="2">Average</th>
+                    </tr>
+                    <tr>
+                        <th>Event</th>
+                        <th>{{ username1 }}</th>
+                        <th>{{ username2 }}</th>
+                        <th class="spacer"></th>
+                        <th>{{ username1 }}</th>
+                        <th>{{ username2 }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event_id, event_name in event_id_name_map.items() %}
+
+                    {% set single1  = rankings1[event_id][0] %}
+                    {% set average1 = rankings1[event_id][2] %}
+                    {% set single2  = rankings2[event_id][0] %}
+                    {% set average2 = rankings2[event_id][2] %}
+
+                    {% if event_name == "FMC" %}
+                        {% set friendly_single1 = single1 | format_fmc_result %}
+                        {% set friendly_single2 = single2 | format_fmc_result %}
+                        {% set friendly_average1 = average1 | format_fmc_result %}
+                        {% set friendly_average2 = average2 | format_fmc_result %}
+                    {% else %}
+                        {% if event_name == "MBLD" %}
+                            {% set friendly_single1 = single1 | format_mbld_result %}
+                            {% set friendly_single2 = single2 | format_mbld_result %}
+                            {% set friendly_average1 = average1 | format_mbld_result %}
+                            {% set friendly_average2 = average2 | format_mbld_result %}
+                        {% else %}
+                            {% set friendly_single1 = single1 | friendly_time %}
+                            {% set friendly_single2 = single2 | friendly_time %}
+                            {% set friendly_average1 = average1 | friendly_time %}
+                            {% set friendly_average2 = average2 | friendly_time %}
+                        {% endif %}
+                    {% endif %}
+
+                    {% set single1_rank  = rankings1[event_id][1] | int %}
+                    {% set average1_rank = rankings1[event_id][3] | int %}
+                    {% set single2_rank  = rankings2[event_id][1] | int %}
+                    {% set average2_rank = rankings2[event_id][3] | int %}
+
+                    {% if single1_rank == single2_rank %}
+                        {% set single1_class = 'vs_winner' %}
+                        {% set single2_class = 'vs_winner' %}
+                    {% else %}
+                        {% if single1_rank < single2_rank %}
+                            {% set single1_class = 'vs_winner' %}
+                            {% set single2_class = '' %}
+                        {% else %}
+                            {% set single1_class = '' %}
+                            {% set single2_class = 'vs_winner' %}
+                        {% endif %}
+                    {% endif %}
+
+                    {% if average1_rank == average2_rank %}
+                        {% set average1_class = '' %}
+                        {% set average2_class = '' %}
+                    {% else %}
+                        {% if average1_rank < average2_rank %}
+                            {% set average1_class = 'vs_winner' %}
+                            {% set average2_class = '' %}
+                        {% else %}
+                            {% set average1_class = '' %}
+                            {% set average2_class = 'vs_winner' %}
+                        {% endif %}
+                    {% endif %}
+
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('event_results', event_name=event_id_name_map[event_id]|replace('/','%2F')) }}">
+                                <img class="tab-event-image" src="/static/images/cube-{{event_id}}.png">
+                                {{ event_id_name_map[event_id] }}
+                            </a>
+                        </td>
+                        <td class="{{ single1_class }}">{{ friendly_single1 }}</td>
+                        <td class="{{ single2_class }}">{{ friendly_single2 }}</td>
+                        <td class="spacer"></td>
+                        <td class="{{ average1_class }}">{{ friendly_average1 }}</td>
+                        <td class="{{ average2_class }}">{{ friendly_average2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="row">
+                <div class="col-12 col-md-12">
+                    <h4 class="text-center" style="font-size: 16px;">Solve Statistics</h4>
+                    <table class="table table-sm table-striped table-cubersio">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th colspan="2">Competitions</th>
+                                <th class="spacer"></th>
+                                <th colspan="2">Total Solves</th>
+                            </tr>
+                            <tr>
+                                <th>{{ username1 }}</th>
+                                <th>{{ username2 }}</th>
+                                <th class="spacer"></th>
+                                <th>{{ username1 }}</th>
+                                <th>{{ username2 }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ user1_stats['comps_count'] }}</td>
+                                <td>{{ user2_stats['comps_count'] }}</td>
+                                <td class="spacer"></td>
+                                <td>{{ user1_stats['solve_count'] }}</td>
+                                <td>{{ user2_stats['solve_count'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-12">
+                    <h4 class="text-center" style="font-size: 16px;">Medal Collection</h4>
+                    <table class="table table-sm table-striped table-cubersio text-center">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th colspan="3">{{ username1 }}</th>
+                                <th class="spacer"></th>
+                                <th colspan="3">{{ username2 }}</th>
+                            </tr>
+                            <tr>
+                                <th><span class="fas fa-medal gold"></span></th>
+                                <th><span class="fas fa-medal silver"></span></th>
+                                <th><span class="fas fa-medal bronze"></span></th>
+                                <th class="spacer"></th>
+                                <th><span class="fas fa-medal gold"></span></th>
+                                <th><span class="fas fa-medal silver"></span></th>
+                                <th><span class="fas fa-medal bronze"></span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ user1_stats['medals_count']['gold'] }}</td>
+                                <td>{{ user1_stats['medals_count']['silver'] }}</td>
+                                <td>{{ user1_stats['medals_count']['bronze'] }}</td>
+                                <td class="spacer"></td>
+                                <td>{{ user2_stats['medals_count']['gold'] }}</td>
+                                <td>{{ user2_stats['medals_count']['silver'] }}</td>
+                                <td>{{ user2_stats['medals_count']['bronze'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_script %}
+<script>
+    $(function () {
+    })
+</script>
+{% endblock %}

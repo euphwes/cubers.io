@@ -8,7 +8,8 @@ from app.business.user_history import get_user_competition_history
 from app.persistence.comp_manager import get_user_participated_competitions_count
 from app.persistence.user_manager import get_user_by_username, verify_user, unverify_user,\
     set_perma_blacklist_for_user, unset_perma_blacklist_for_user, get_user_by_id
-from app.persistence.user_results_manager import get_user_completed_solves_count
+from app.persistence.user_results_manager import get_user_completed_solves_count,\
+    get_user_medals_count
 from app.persistence.events_manager import get_events_id_name_mapping
 from app.persistence.user_site_rankings_manager import get_site_rankings_for_user
 
@@ -39,14 +40,7 @@ def profile(username):
     history = get_user_competition_history(user, include_blacklisted=include_blacklisted)
 
     # Accumulate a count of medals this user has for podiuming
-    gold_count   = 0
-    silver_count = 0
-    bronze_count = 0
-    for _, comp_event_results_dict in history.items():
-        for _, results in comp_event_results_dict.items():
-            gold_count   += 1 if results.was_gold_medal else 0
-            silver_count += 1 if results.was_silver_medal else 0
-            bronze_count += 1 if results.was_bronze_medal else 0
+    gold_count, silver_count, bronze_count = get_user_medals_count(user.id)
 
     # Get some other interesting stats
     solve_count = get_user_completed_solves_count(user.id)
@@ -83,12 +77,15 @@ def profile(username):
         sor_wca       = None
         sor_non_wca   = None
 
+    # Set a flag indicating if this page view is for a user viewing another user's page
+    viewing_other_user = user.username != current_user.username
+
     return render_template("user/profile.html", user=user, solve_count=solve_count,
         comp_count=comps_count, history=history, rankings=site_rankings,
         event_id_name_map=event_id_name_map, rankings_ts=rankings_ts,
         is_admin_viewing=current_user.is_admin, sor_all=sor_all, sor_wca=sor_wca,
         sor_non_wca=sor_non_wca, gold_count=gold_count, silver_count=silver_count,
-        bronze_count=bronze_count)
+        bronze_count=bronze_count, viewing_other_user=viewing_other_user)
 
 # -------------------------------------------------------------------------------------------------
 

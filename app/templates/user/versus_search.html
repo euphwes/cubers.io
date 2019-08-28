@@ -1,0 +1,68 @@
+{% extends "common/base.html" %}
+
+{% block head %}
+{{ super() }}
+    {% block additional_styles %}
+        {% assets "app_css" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}" />
+        {% endassets %}
+    {% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="container cubers-container versus-container versus-search">
+    <div class="row flex-center-all pt-4" style="margin-top: 120px;">
+        <h3>Competitor Showdown</h3>
+    </div>
+    <div class="row pt-4" style="margin-top: 40px";>
+        <div class="col-12 col-md-3 offset-md-2 flex-center-all">
+            <input class="form-control no-glow" id="user1_input"/>
+        </div>
+        <div class="col-md-2 flex-center-all">
+            <h3>vs</h3>
+        </div>
+        <div class="col-12 col-md-3 flex-center-all">
+            <input class="form-control no-glow" id="user2_input"/>
+        </div>
+    </div>
+    <div class="row flex-center-all pt-4" style="margin-top: 40px";>
+        <button id="btn_compare_users" class="btn btn-success" style="width: 100px;">Go!</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_script %}
+<script>
+    $(function () {
+        var options = {
+            data: {{ usernames | tojson}},
+            list: {
+                maxNumberOfElements: 10,
+                match: {
+                    enabled: true
+                }
+            },
+            placeholder: "User #1"
+        };
+        $("#user1_input").easyAutocomplete(options);
+
+        options.placeholder = "User #2";
+        $("#user2_input").easyAutocomplete(options);
+
+        $('#btn_compare_users').click(function(){
+            var user1 = $('#user1_input').val();
+            var user2 = $('#user2_input').val();
+
+            if (!user1 || !user2) {
+                bootbox.alert({
+                    message: "You must pick two users!",
+                    centerVertical: true,
+                    closeButton: false,
+                });
+                return;
+            }
+            window.location.href = '/versus/' + user1 + '/' + user2;
+        });
+    })
+</script>
+{% endblock %}
