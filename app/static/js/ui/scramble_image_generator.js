@@ -24,6 +24,8 @@
     var CANVAS_LARGE_RADIUS_IDX = 1;
 
     var nxnRadius = 8;
+    var cuboidRadius = 4;
+
     var cornerRadiusMap = {
         "2x2":    [nxnRadius, nxnRadius],
         "3x3":    [nxnRadius, nxnRadius],
@@ -36,15 +38,16 @@
         "COLL":   [nxnRadius, nxnRadius],
         "4x4":    [nxnRadius, nxnRadius],
         "4x4 OH": [nxnRadius, nxnRadius],
+        "Void Cube":     [nxnRadius, nxnRadius],
+        "3x3 With Feet": [nxnRadius, nxnRadius],
+
         "5x5":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
         "6x6":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
         "7x7":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
-        "2x2x3":  [nxnRadius, nxnRadius],
-        "3x3x2":  [nxnRadius, nxnRadius],
-        "3x3x4":  [nxnRadius, nxnRadius],
-        "3x3x5":  [nxnRadius, nxnRadius],
-        "Void Cube":  [nxnRadius, nxnRadius],
-        "3x3 With Feet": [nxnRadius, nxnRadius],
+
+        "2x2x3": [cuboidRadius, cuboidRadius],
+        "3x3x2": [cuboidRadius, cuboidRadius],
+        "3x3x4": [cuboidRadius, cuboidRadius],
     }
 
     var setColors = function() {
@@ -2023,6 +2026,9 @@
                     offx *= size;
                     offy *= size;
                 }
+
+                var topOffset = 1;
+                offy += topOffset;
 
                 if (f == 3 || f == 0) {
 
