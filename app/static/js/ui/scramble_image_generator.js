@@ -44,10 +44,21 @@
         "5x5":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
         "6x6":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
         "7x7":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
+        "8x8":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
+        "9x9":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
 
         "2x2x3": [cuboidRadius, cuboidRadius],
         "3x3x2": [cuboidRadius, cuboidRadius],
         "3x3x4": [cuboidRadius, cuboidRadius],
+
+        "Pyraminx": [8, 8],
+        "Skewb": [5, 5],
+
+        "Megaminx": [5, 5],
+        "Kilominx": [8, 8],
+
+        "Redi Cube": [5, 5],
+        "Dino Cube": [12, 12],
     }
 
     var setColors = function() {
