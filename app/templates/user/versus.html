@@ -11,6 +11,12 @@
 
 {% block content %}
 <div class="container cubers-container versus-container">
+    {% for error in errors %}
+    <div class="alert alert-danger text-center alert-auth">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        {{ error }}
+    </div>
+    {% endfor %}
     <div class="row">
         <div class="col-12 username_area">
             <h3 class="text-center">

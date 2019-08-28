@@ -2,6 +2,7 @@
 
 from http import HTTPStatus
 import json
+from random import choice
 
 from flask import render_template, redirect, url_for
 from flask_login import current_user
@@ -17,7 +18,7 @@ from app.persistence.comp_manager import get_user_participated_competitions_coun
 
 # -------------------------------------------------------------------------------------------------
 
-NO_SUCH_USER_ERR_MSG = "Oops, can't find a user with username '{}'"
+NO_SUCH_USER_ERR_MSG = 'There is no user named {}! I picked {} at random instead.'
 
 EVENT_NOT_PARTICIPATED = (None, None, None, None)
 
@@ -34,37 +35,36 @@ def versus_search():
 
 
 @app.route('/versus/<username1>/<username2>')
-def user_versus_user(username1, username2):
+def user_versus_user(username1, username2, errors=None):
     """ A route for displaying user results head-to-head with the current user. """
 
-    # TODO here and below, implement proper error-handling
+    errors = list()
+    usernames = None
 
     user1 = get_user_by_username(username1)
     if not user1:
-        return NO_SUCH_USER_ERR_MSG.format(username1), HTTPStatus.NOT_FOUND
+        usernames = get_all_active_usernames()
+        user1 = get_user_by_username(choice(usernames))
+        errors.append(NO_SUCH_USER_ERR_MSG.format(username1, user1.username))
 
     user2 = get_user_by_username(username2)
     if not user2:
-        return NO_SUCH_USER_ERR_MSG.format(username2), HTTPStatus.NOT_FOUND
+        if not usernames:
+            usernames = get_all_active_usernames()
+        user2 = get_user_by_username(choice(usernames))
+        errors.append(NO_SUCH_USER_ERR_MSG.format(username2, user2.username))
 
-    return __render_versus_page_for_users(user1, user2)
+    return __render_versus_page_for_users(user1, user2, errors)
 
 
 @app.route('/vs/<username>')
 def me_versus_other(username):
     """ A route for displaying user results head-to-head with the current user. """
 
-    # TODO here and below, implement proper error-handling
-
-    user1 = current_user
-    user2 = get_user_by_username(username)
-    if not user2:
-        return NO_SUCH_USER_ERR_MSG.format(username), HTTPStatus.NOT_FOUND
-
-    return redirect(url_for('user_versus_user', username1=user1.username, username2=user2.username))
+    return redirect(url_for('user_versus_user', username1=current_user.username, username2=username))
 
 
-def __render_versus_page_for_users(user1, user2):
+def __render_versus_page_for_users(user1, user2, errors):
     """ Renders and returns a user versus page for the specified two users. """
 
     # Get a map of event ID to event name, to facilitate rendering the template.
@@ -83,7 +83,7 @@ def __render_versus_page_for_users(user1, user2):
 
     return render_template("user/versus.html", username1=user1.username, username2=user2.username,
         rankings1=rankings1, rankings2=rankings2, event_id_name_map=event_id_name_map,
-        user1_stats=user1_stats, user2_stats=user2_stats)
+        user1_stats=user1_stats, user2_stats=user2_stats, errors=errors)
 
 # -------------------------------------------------------------------------------------------------
 # API endpoints
