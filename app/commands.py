@@ -1,16 +1,20 @@
 """ Utility Flask commands for administrating the app. """
 
 import click
+from random import randrange, choice
 
 from app import app
+from app.persistence.models import UserSolve, UserEventResults
+from app.business.user_results.blacklisting import __AUTO_BLACKLIST_THRESHOLDS
 from app.business.user_results.personal_bests import recalculate_user_pbs_for_event
 from app.persistence.comp_manager import get_complete_competitions, get_all_comp_events_for_comp,\
-    get_competition, override_title_for_next_comp, set_all_events_flag_for_next_comp, get_comp_event_by_id
+    get_competition, override_title_for_next_comp, set_all_events_flag_for_next_comp, get_comp_event_by_id,\
+    get_active_competition
 from app.persistence.events_manager import get_all_events
 from app.persistence.user_results_manager import get_event_results_for_user, save_event_results
 from app.persistence.user_manager import get_all_users, get_all_admins, set_user_as_admin,\
     unset_user_as_admin, UserDoesNotExistException, set_user_as_results_moderator, unset_user_as_results_moderator,\
-    get_user_by_username
+    get_user_by_username, update_or_create_user
 from app.business.user_results import set_medals_on_best_event_results
 from app.business.user_results.creation import process_event_results
 from app.tasks.competition_management import post_results_thread_task,\
@@ -198,3 +202,72 @@ def reprocess_results_for_user_and_comp_event(username, comp_event_id):
     results = get_event_results_for_user(comp_event_id, user)
     results = process_event_results(results, comp_event, user)
     save_event_results(results)
+
+# -------------------------------------------------------------------------------------------------
+# Below are utility commands intended just for development use
+# -------------------------------------------------------------------------------------------------
+
+# This is a list of multiplicative factors for determining "how fast" a given test user is compared
+# to the world record, starting at 1.25x WR at the fastest, and getting slower
+__TEST_USER_SPEEDS = [1.25 + (0.45 * i) for i in range(10)]
+
+__TEST_USER_NAMES = [
+    'sonic_the_hedgehog',
+    'crash_bandicoot',
+    'Mari0',
+    'Earthworm_Jim',
+    'parappa_the_rappa',
+    'guile_sonic_BOOM',
+    'pacman',
+    'lara-croft',
+    'kirby',
+    'Luigi'
+]
+
+def __build_solve(user_num, wr_average, event_name, scramble_id):
+    """ Returns a UserSolve for an event, for the specified test user number, given the WR average
+    for that event. Basically just a multiplicative factor against the WR average with a little random
+    variation. Hardcoded DNF and +2 rates, because that seems reasonable for fake data.
+    Return format is (centiseconds, was_dnf, was_plus_two). """
+
+    # hardcoded multiplicative factor against WR average, within +/- 30% random adjustment
+    factor = __TEST_USER_SPEEDS[user_num] * randrange(700, 1300) / 1000
+    centiseconds = int(factor * wr_average)
+
+    # 1/3 DNF rate for BLD events, 1/30 for everything else
+    dnf_rate = 3 if 'BLD' in event_name else 30
+
+    # 1/<dnf_rate> chance of DNF
+    # 1/20 chance of +2 if not DNF
+    was_dnf = choice(range(dnf_rate)) == 0
+    was_plus_two = False if was_dnf else choice(range(20)) == 0
+
+    return UserSolve(time=centiseconds, is_dnf=was_dnf, is_plus_two=was_plus_two,
+        scramble_id=scramble_id, is_inspection_dnf=False)
+
+
+@app.cli.command()
+def generate_fake_comp_results():
+    """ Generates a bunch of fake results for the current competition with realistic-ish results. """
+
+    test_users = [update_or_create_user(__TEST_USER_NAMES[i], '') for i in range(10)]
+
+    for comp_event in get_all_comp_events_for_comp(get_active_competition().id):
+        event_name = comp_event.Event.name
+
+        if event_name in ('FMC', 'MBLD'):
+            continue
+
+        thresholds = __AUTO_BLACKLIST_THRESHOLDS.get(event_name)
+        if not thresholds:
+            continue
+
+        wr_average = thresholds[1]
+
+        for i, user in enumerate(test_users):
+            results = UserEventResults(comp_event_id=comp_event.id, user_id=user.id, comment='')
+            for solve in [__build_solve(i, wr_average, event_name, s.id) for s in comp_event.scrambles]:
+                results.solves.append(solve)
+
+            process_event_results(results, comp_event, user)
+            save_event_results(results)
