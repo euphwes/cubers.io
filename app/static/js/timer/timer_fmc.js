@@ -48,6 +48,7 @@
         solve_data.comp_event_id = window.app.compEventId;
         solve_data.is_dnf = isDNF;
         solve_data.is_plus_two = false;
+        solve_data.fmc_comment = window.app.fmc_comment;
 
         if (solve_data.is_dnf) {
             solve_data.elapsed_centiseconds = 99900;

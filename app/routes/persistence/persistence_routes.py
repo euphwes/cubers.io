@@ -49,6 +49,7 @@ SOLVE_ID          = 'solve_id'
 PENALTY_TO_TOGGLE = 'penalty_to_toggle'
 PENALTY_DNF       = 'penalty_dnf'
 PENALTY_PLUS_TWO  = 'penalty_plus_two'
+FMC_COMMENT       = 'fmc_comment'
 
 COMMENT = 'comment'
 
@@ -81,6 +82,7 @@ def post_solve():
     comp_event_id     = solve_data[COMP_EVENT_ID]
     centiseconds      = solve_data[CENTISECONDS]
     is_inspection_dnf = solve_data.get(IS_INSPECTION_DNF, False)
+    fmc_comment       = solve_data.get(FMC_COMMENT, '')
 
     # If the submitted solve is for a scramble the user already has a solve for,
     # don't take any further action to persist a solve, just return. User probably
@@ -112,7 +114,8 @@ def post_solve():
 
     # Create the record for this solve and associate it with the user's event results
     solve = UserSolve(time=centiseconds, is_dnf=is_dnf, is_plus_two=is_plus_two,
-                      scramble_id=scramble_id, is_inspection_dnf=is_inspection_dnf)
+                      scramble_id=scramble_id, is_inspection_dnf=is_inspection_dnf,
+                      fmc_explanation=fmc_comment)
     user_event_results.solves.append(solve)
 
     # Process through the user's event results, ensuring PB flags, best single, average, overall
