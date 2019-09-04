@@ -141,6 +141,22 @@
     // Strip out the comments and characters which aren't a valid solution, ensure correct casing,
     // clean up errant whitespace, and return as the raw solution string
     function sanitizeSolutionAndGetRawMoves(result) {
+
+        var validMoves = [
+            "U", "U2", "U'",
+            "F", "F2", "F'",
+            "R", "R2", "R'",
+            "L", "L2", "L'",
+            "D", "D2", "D'",
+            "B", "B2", "B'",
+            "M", "M2", "M'",
+            "S", "S2", "S'",
+            "E", "E2", "E'",
+            "x", "x2", "x'",
+            "y", "y2", "y'",
+            "z", "z2", "z'",
+        ];
+
         var moves = [];
 
         var lines = result.split(/\r?\n/);
@@ -155,6 +171,7 @@
             $.each(line.split(" "), function(j, chunk) {
                 chunk = chunk.trim();
                 if (chunk == '') { return; }
+                if (!validMoves.includes(chunk)) { return; }
 
                 moves.push(chunk);
             });
@@ -190,6 +207,7 @@
 
                 var raw_solution = sanitizeSolutionAndGetRawMoves(result);
                 var solution = raw_solution.join(' ');
+                console.log('parsed solution: ' + solution);
 
                 var solution_is_valid = doesSolutionSolveScramble(solution, window.app.scramble);
                 alert(solution_is_valid);
