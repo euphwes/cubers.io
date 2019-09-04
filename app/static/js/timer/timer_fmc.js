@@ -21,7 +21,7 @@
         var asInt = 99900;
 
         var showInvalid = function() {;
-            bootbox.alert('"' + currentValue + '" is not a valid result!<br>Please enter "DNF" or number of moves.');
+            bootbox.alert('Please use the "solution" button below to enter a solution for this scramble.');
         }
 
         if (currentValue.toUpperCase() == 'DNF') {
@@ -221,6 +221,8 @@
                     return;
                 }
 
+                window.app.fmc_comment = result;
+
                 var raw_solution = sanitizeSolutionAndGetRawMoves(result);
                 var solution = raw_solution.join(' ');
                 var solution_length = getOBTMMoveCount(raw_solution);
@@ -228,12 +230,17 @@
                 console.log('calculated OTBM solution length: ' + solution_length);
 
                 var solution_is_valid = doesSolutionSolveScramble(solution, window.app.scramble);
-                alert(solution_is_valid);
 
-                // validate solution is proper notation
-                // validate solution solves cube
-                    // yes? get solution length
-                    // no? 
+                if (!solution_is_valid) {
+                    var msg = "Your solution doesn't appear to solve the provided scramble!<br>";
+                    msg += "Please double-check your solution for correctness and typos.<br><br>";
+                    msg += "Here is how your solution was interpreted:<br><br>";
+                    msg += "<div class=\"code\">" + solution + "</div>";
+                    bootbox.alert(msg);
+                    return;
+                } else {
+                    $('#manualEntryInput').val(solution_length);
+                }
             }
         });
     });
