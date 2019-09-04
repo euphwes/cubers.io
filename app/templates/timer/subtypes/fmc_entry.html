@@ -3,12 +3,12 @@
     <div id="the_manual_entry" class="{{timer_disabled}} flex_full_center">
         <form id="manualEntryForm" class="form-inline" autocomplete="off">
             <div class="form-group">
-                <input id="manualEntryInput" type="text" class="form-control form-control-lg" placeholder="# or DNF"
-                    id="timeEntry" value="">
+                <input id="manualEntryInput" type="text" class="form-control form-control-lg" placeholder="Enter solution"
+                    id="timeEntry" value="" disabled>
             </div>
             <div class="control_icon"><button id="BTN_SUBMIT" class="btn btn-outline-light btn-timer-control"><i
                         class="fas fa-arrow-right"></i></button></div>
         </form>
     </div>
-    {% include "timer/subtypes/buttons_delete_comment.html" %}
+    {% include "timer/subtypes/buttons_delete_fmc_comment.html" %}
 </div>
