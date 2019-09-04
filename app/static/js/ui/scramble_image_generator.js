@@ -2646,7 +2646,39 @@
     };
 
     ScrambleImageGenerator.prototype.getCubeState = function(scramble) {
-        return image.getCubeState(scramble);
+        return image.getCubeState(scramble).join('');
+    }
+
+    ScrambleImageGenerator.prototype.getAllSolvedCubeStates = function(scramble) {
+        var states = [];
+        
+        // top, front
+        states.push(image.getCubeState("").join(''));      // white, green
+        states.push(image.getCubeState("y").join(''));     // white, red 
+        states.push(image.getCubeState("y2").join(''));    // white, blue
+        states.push(image.getCubeState("y'").join(''));    // white, orange
+        states.push(image.getCubeState("x").join(''));     // green, yellow
+        states.push(image.getCubeState("x y").join(''));   // green, red 
+        states.push(image.getCubeState("x y2").join(''));  // green, white
+        states.push(image.getCubeState("x y'").join(''));  // green, orange
+        states.push(image.getCubeState("x2").join(''));    // yellow, blue
+        states.push(image.getCubeState("x2 y").join(''));  // yellow, red 
+        states.push(image.getCubeState("x2 y2").join('')); // yellow, green
+        states.push(image.getCubeState("x2 y'").join('')); // yellow, orange
+        states.push(image.getCubeState("x'").join(''));    // blue, white
+        states.push(image.getCubeState("x' y").join(''));  // blue, red 
+        states.push(image.getCubeState("x' y2").join('')); // blue, yellow
+        states.push(image.getCubeState("x' y'").join('')); // blue, orange
+        states.push(image.getCubeState("z").join(''));     // orange, green
+        states.push(image.getCubeState("z y").join(''));   // orange, white
+        states.push(image.getCubeState("z y2").join(''));  // orange, blue
+        states.push(image.getCubeState("z y'").join(''));  // orange, yellow
+        states.push(image.getCubeState("z'").join(''));    // red, green
+        states.push(image.getCubeState("z' y").join(''));  // red, yellow
+        states.push(image.getCubeState("z' y2").join('')); // red, blue
+        states.push(image.getCubeState("z' y'").join('')); // red, white
+
+        return states;
     }
 
     ScrambleImageGenerator.prototype.showNormalImage = function() {

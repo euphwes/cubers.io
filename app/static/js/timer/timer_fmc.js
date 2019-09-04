@@ -94,17 +94,24 @@
                     return;
                 }
 
-                alert((new window.app.ScrambleImageGenerator()).getCubeState(''));
-                alert(window.app.scramble);
-                alert((new window.app.ScrambleImageGenerator()).getCubeState(window.app.scramble));
+                var solved_states = (new window.app.ScrambleImageGenerator()).getAllSolvedCubeStates();
+                var combined_scramble_solution = window.app.scramble + ' ' + result;
+
+                var state_post_solution = (new window.app.ScrambleImageGenerator()).getCubeState(combined_scramble_solution);
+
+                var solution_is_valid = false;
+                $.each(solved_states, function(i, solved_state) {
+                    if (state_post_solution == solved_state) {
+                        solution_is_valid = true;
+                    }
+                });
+
+                alert('solution is valid: ' + solution_is_valid);
 
                 // validate solution is proper notation
                 // validate solution solves cube
                     // yes? get solution length
                     // no? 
-
-                console.log(result);
-                alert(result);
             }
         });
     });
