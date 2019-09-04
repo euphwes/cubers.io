@@ -107,7 +107,7 @@
                     <tr>
                         <td>
                             <a href="{{ url_for('event_results', event_name=event_id_name_map[event_id]|replace('/','%2F')) }}">
-                                <img class="tab-event-image" src="/static/images/cube-{{event_id}}.png">
+                                <img class="tab-event-image" src="/static/images/cube-{{event_id_name_map[event_id] | slugify}}.png">
                                 {{ event_id_name_map[event_id] }}
                             </a>
                         </td>

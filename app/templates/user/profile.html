@@ -140,7 +140,7 @@
                     <tr>
                         <td>
                             <a href="{{ url_for('event_results', event_name=event_id_name_map[event_id]|replace('/','%2F')) }}">
-                                <img class="tab-event-image" src="/static/images/cube-{{event_id}}.png">
+                                <img class="tab-event-image" src="/static/images/cube-{{event_id_name_map[event_id] | slugify}}.png">
                                 {{ event_id_name_map[event_id] }}
                             </a>
                         </td>
@@ -164,12 +164,12 @@
                 {% if loop.index0 == 0 %}
                 <li class="active nav-item">
                     <a href="#tab{{event_item.name | slugify}}" class="nav-link active show" role="tab" data-toggle="tab">
-                        <img class="tab-event-image" src="/static/images/cube-{{event_item.id}}.png">
+                        <img class="tab-event-image" src="/static/images/cube-{{event_item.name | slugify}}.png">
                     </a>
                 {% else %}
                 <li class="nav-item">
                     <a href="#tab{{event_item.name | slugify}}" class="nav-link" role="tab" data-toggle="tab">
-                        <img class="tab-event-image" src="/static/images/cube-{{event_item.id}}.png">
+                        <img class="tab-event-image" src="/static/images/cube-{{event_item.name | slugify}}.png">
                     </a>
                 {% endif %}
                 </li>
@@ -201,7 +201,7 @@
                                 {% else %}
                                 <th scope="col" colspan="10">
                                 {% endif %}
-                                    <img class="event-image" src="/static/images/cube-{{event_item.id}}.png">
+                                    <img class="event-image" src="/static/images/cube-{{event_item.name | slugify}}.png">
                                     {{ event_item.name }}
                                 </th>
                             </tr>
