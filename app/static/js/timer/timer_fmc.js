@@ -69,6 +69,22 @@
         return false;
     };
 
+    // Determine if a given solution solves a given scramble
+    function doesSolutionSolveScramble(solution, scramble) {
+        var combined_scramble_solution = solution + ' ' + scramble;
+        var state_post_solution = (new window.app.ScrambleImageGenerator()).getCubeState(combined_scramble_solution);
+
+        var solved_states = (new window.app.ScrambleImageGenerator()).getAllSolvedCubeStates();
+        var solution_is_valid = false;
+        $.each(solved_states, function(i, solved_state) {
+            if (state_post_solution == solved_state) {
+                solution_is_valid = true;
+            }
+        });
+
+        return solution_is_valid;
+    };
+
     // Wire up the FMC comment button
     $('#BTN_FMC_COMMENT').click(function () {
         $('#BTN_FMC_COMMENT').blur();
@@ -89,24 +105,13 @@
                 }
             },
             callback: function (result) {
-                // Dialog box was closed/canceled, so don't update comment, 
+                // Dialog box was closed/canceled, so don't update comment
                 if (result == null) {
                     return;
                 }
 
-                var solved_states = (new window.app.ScrambleImageGenerator()).getAllSolvedCubeStates();
-                var combined_scramble_solution = window.app.scramble + ' ' + result;
-
-                var state_post_solution = (new window.app.ScrambleImageGenerator()).getCubeState(combined_scramble_solution);
-
-                var solution_is_valid = false;
-                $.each(solved_states, function(i, solved_state) {
-                    if (state_post_solution == solved_state) {
-                        solution_is_valid = true;
-                    }
-                });
-
-                alert('solution is valid: ' + solution_is_valid);
+                var solution_is_valid = doesSolutionSolveScramble(result, window.app.scramble);
+                alert(solution_is_valid);
 
                 // validate solution is proper notation
                 // validate solution solves cube
