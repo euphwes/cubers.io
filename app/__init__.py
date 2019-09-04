@@ -1,5 +1,7 @@
 """ Main initialization point of the web app. """
 
+from urllib.parse import urlencode
+
 from flask import Flask
 from flask_assets import Bundle, Environment
 from flask_migrate import Migrate
@@ -187,6 +189,16 @@ from app.commands import *            # noqa
 from app.util.times import convert_centiseconds_to_friendly_time  # noqa
 
 # -------------------------------------------------------------------------------------------------
+
+@app.template_filter('algcubingnet')
+def link_to_algcubingnet(text, setup, alg):
+    """ Generates an anchor with a link to alg.cubing.net for the specified set and algorithm/moves. """
+
+    anchor = '<a href="https://alg.cubing.net/?{}" target="_blank">{}</a>'
+    querystring = urlencode((('setup', setup), ('alg', alg)))
+
+    return anchor.format(querystring, text)
+
 
 @app.template_filter('slugify')
 def slugify_filter(value):
