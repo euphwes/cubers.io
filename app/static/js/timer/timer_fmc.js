@@ -85,6 +85,84 @@
         return solution_is_valid;
     };
 
+    // Strips comments from solution lines, for common comment formats
+    // Examples:
+    //       R2 F2 L' D'  // does a thing
+    //       R2 F2 L' D'  \\ does a thing
+    //       R2 F2 L' D'  # does a thing
+    //       R2 F2 L' D'  - does a thing
+    function stripComments(line) {
+        var commentStartIndex = -1;
+
+        commentStartIndex = line.indexOf("/");
+        if (commentStartIndex > 0) {
+            return line.substr(0, commentStartIndex);
+        }
+
+        commentStartIndex = line.indexOf("\\");
+        if (commentStartIndex > 0) {
+            return line.substr(0, commentStartIndex);
+        }
+
+        commentStartIndex = line.indexOf("#");
+        if (commentStartIndex > 0) {
+            return line.substr(0, commentStartIndex);
+        }
+
+        commentStartIndex = line.indexOf("-");
+        if (commentStartIndex > 0) {
+            return line.substr(0, commentStartIndex);
+        }
+
+        return line;
+    };
+
+    // Ensures the solution is written with the casing that the scramble preview generator expects
+    function ensureCorrectCasing(line) {
+        // face moves and slices should be capitals
+        line = line.replace(/r/g, "R");
+        line = line.replace(/f/g, "F");
+        line = line.replace(/l/g, "L");
+        line = line.replace(/b/g, "B");
+        line = line.replace(/u/g, "U");
+        line = line.replace(/d/g, "D");
+        line = line.replace(/e/g, "E");
+        line = line.replace(/s/g, "S");
+        line = line.replace(/m/g, "M");
+
+        // rotations should be lowercase
+        line = line.replace(/X/g, "x");
+        line = line.replace(/Y/g, "y");
+        line = line.replace(/Z/g, "z");
+
+        return line;
+    };
+
+    // Strip out the comments and characters which aren't a valid solution, ensure correct casing,
+    // clean up errant whitespace, and return as the raw solution string
+    function sanitizeSolutionAndGetRawMoves(result) {
+        var moves = [];
+
+        var lines = result.split(/\r?\n/);
+        $.each(lines, function(i, line) {
+            line = line.trim();
+            line = ensureCorrectCasing(line);
+            line = stripComments(line);
+            line = line.trim();
+
+            if (line == '') { return; }
+
+            $.each(line.split(" "), function(j, chunk) {
+                chunk = chunk.trim();
+                if (chunk == '') { return; }
+
+                moves.push(chunk);
+            });
+        });
+
+        return moves;
+    };
+
     // Wire up the FMC comment button
     $('#BTN_FMC_COMMENT').click(function () {
         $('#BTN_FMC_COMMENT').blur();
@@ -110,7 +188,10 @@
                     return;
                 }
 
-                var solution_is_valid = doesSolutionSolveScramble(result, window.app.scramble);
+                var raw_solution = sanitizeSolutionAndGetRawMoves(result);
+                var solution = raw_solution.join(' ');
+
+                var solution_is_valid = doesSolutionSolveScramble(solution, window.app.scramble);
                 alert(solution_is_valid);
 
                 // validate solution is proper notation
