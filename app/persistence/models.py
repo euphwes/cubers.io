@@ -353,7 +353,7 @@ class UserSolve(Model):
     scramble_id           = Column(Integer, ForeignKey('scrambles.id'))
     user_event_results_id = Column(Integer, ForeignKey('user_event_results.id'))
     UserEventResults      = relationship("UserEventResults")
-
+    fmc_explanation       = Column(Text)
 
     def get_total_time(self):
         """ Returns the solve's time with +2s penalty counted, if applicable. """
