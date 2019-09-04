@@ -180,6 +180,22 @@
         return moves;
     };
 
+    // Gets a move count in Outer Block Turn Metric for a given solution
+    function getOBTMMoveCount(moves) {
+        var sliceMoves = ["E", "E2", "E'", "M", "M2", "M'", "S", "S2", "S'"];
+
+        var moveCount = 0;
+        $.each(moves, function(i, move) {
+            if (sliceMoves.includes(move)) {
+                moveCount += 2;
+            } else {
+                moveCount += 1;
+            }
+        });
+
+        return moveCount;
+    };
+
     // Wire up the FMC comment button
     $('#BTN_FMC_COMMENT').click(function () {
         $('#BTN_FMC_COMMENT').blur();
@@ -207,7 +223,9 @@
 
                 var raw_solution = sanitizeSolutionAndGetRawMoves(result);
                 var solution = raw_solution.join(' ');
+                var solution_length = getOBTMMoveCount(raw_solution);
                 console.log('parsed solution: ' + solution);
+                console.log('calculated OTBM solution length: ' + solution_length);
 
                 var solution_is_valid = doesSolutionSolveScramble(solution, window.app.scramble);
                 alert(solution_is_valid);
