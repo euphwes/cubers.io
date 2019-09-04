@@ -2,6 +2,8 @@
 
 import click
 
+from slugify import slugify
+
 from app import app
 from app.business.user_results.personal_bests import recalculate_user_pbs_for_event
 from app.persistence.comp_manager import get_complete_competitions, get_all_comp_events_for_comp,\
@@ -198,3 +200,14 @@ def reprocess_results_for_user_and_comp_event(username, comp_event_id):
     results = get_event_results_for_user(comp_event_id, user)
     results = process_event_results(results, comp_event, user)
     save_event_results(results)
+
+# -------------------------------------------------------------------------------------------------
+# Other useful stuff
+# -------------------------------------------------------------------------------------------------
+
+@app.cli.command()
+def show_slugified_event_names():
+    """ Utility command to slugify all event names and display them in the terminal. """
+
+    for event in get_all_events():
+        print(slugify(event.name))
