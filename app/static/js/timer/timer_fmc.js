@@ -67,7 +67,47 @@
         });
 
         return false;
-    }
+    };
+
+    // Wire up the FMC comment button
+    $('#BTN_FMC_COMMENT').click(function () {
+        $('#BTN_FMC_COMMENT').blur();
+
+        bootbox.prompt({
+            title: 'Solution',
+            value: window.app.fmc_comment,
+            inputType: "textarea",
+            centerVertical: true,
+            buttons: {
+                confirm: {
+                    label: 'Confirm solution',
+                    // className: 'btn-success'
+                },
+                cancel: {
+                    label: 'Cancel',
+                    // className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                // Dialog box was closed/canceled, so don't update comment, 
+                if (result == null) {
+                    return;
+                }
+
+                alert((new window.app.ScrambleImageGenerator()).getCubeState(''));
+                alert(window.app.scramble);
+                alert((new window.app.ScrambleImageGenerator()).getCubeState(window.app.scramble));
+
+                // validate solution is proper notation
+                // validate solution solves cube
+                    // yes? get solution length
+                    // no? 
+
+                console.log(result);
+                alert(result);
+            }
+        });
+    });
 
     $('#manualEntryInput').on('keypress', disallowNonDigitsAndDNF);
 

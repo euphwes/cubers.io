@@ -2441,10 +2441,11 @@
                 }
             }
 
-            return function(size, moveseq, isVoidCube, is332) {
+            return function(size, moveseq, isVoidCube, is332, returnCubeState) {
 
                 isVoidCube = isVoidCube || false; // default value of false
                 is332 = is332 || false; // default value of false
+                returnCubeState = returnCubeState || false; // default value of false
 
                 var cnt = 0;
                 for (var i = 0; i < 6; i++) {
@@ -2464,6 +2465,8 @@
                         doslice((moves[s][0] + 3) % 6, 0, moves[s][2] + 4, size);
                     }
                 }
+
+                if (returnCubeState) { return posit; }
 
                 var imgSize = scalingFactor / 50;
                 canvas.width(39 * imgSize + 'em');
@@ -2557,6 +2560,10 @@
             return false;
         }
 
+        function getCubeState(scramble) {
+            return nnnImage(3, scramble, false, false, true);
+        }
+
         function getCanvasWidth() {
             return parseInt($(canvas[0]).css('width').replace('px',''));
         }
@@ -2593,6 +2600,7 @@
             setScalingFactorDirectly: setScalingFactorDirectly,
             getCanvasWidth: getCanvasWidth,
             getCanvasHeight: getCanvasHeight,
+            getCubeState: getCubeState
         }
     })();
 
@@ -2636,6 +2644,10 @@
         // and it'll just bail early.
         this.showNormalImage();
     };
+
+    ScrambleImageGenerator.prototype.getCubeState = function(scramble) {
+        return image.getCubeState(scramble);
+    }
 
     ScrambleImageGenerator.prototype.showNormalImage = function() {
         // If the canvas doesn't exist, we shouldn't be trying to show the image, just bail
