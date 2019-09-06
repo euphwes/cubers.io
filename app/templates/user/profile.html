@@ -262,10 +262,19 @@
                                     <td><a href="/leaderboards/{{ comp.id }}">{{ comp.title }}</a></td>
                                     <td class="{{single_class}}">{{ single_val }}</td>
                                     <td class="{{average_class}}">{{ average_val }}</td>
-                                    {% for solve_time in results.solves_helper %}
-                                    <td class="d-none d-md-table-cell">{{ solve_time }}</td>
-                                    {% endfor %}
-
+                                    {% if event_item.name == "FMC" %}
+                                        {% for solve in results.solves_helper %}
+                                        <td class="d-none d-md-table-cell">
+                                            {% if solve[0] %}
+                                            {{ link_to_algcubingnet(solve[0], solve[1], solve[2]) | safe }}
+                                            {% endif %}
+                                        </td>
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for solve_time in results.solves_helper %}
+                                        <td class="d-none d-md-table-cell">{{ solve_time }}</td>
+                                        {% endfor %}
+                                    {% endif %}
                                     {% if results.is_blacklisted and is_admin_viewing %}
                                         {% set the_comment = results.blacklist_note|trim() %}
                                         <td scope="col" class="d-none d-md-table-cell">
