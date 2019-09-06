@@ -194,13 +194,18 @@ from app.util.times import convert_centiseconds_to_friendly_time  # noqa
 def link_to_algcubingnet():
     """ Generates an anchor with a link to alg.cubing.net for the specified set and algorithm/moves. """
 
-    def __link_to_algcubingnet(setup, alg, text):
+    def __link_to_algcubingnet(setup, alg, moves_count):
         """ Generates an anchor with a link to alg.cubing.net for the specified set and algorithm/moves. """
+
+        # If no solution was provided, the solve probably predated the required FMC solutions feature
+        # Don't render a link to alg.cubing.net; instead just render the moves count 
+        if not alg:
+            return moves_count
 
         anchor = '<a href="https://alg.cubing.net/?{}" style="font-size: 14px;" target="_blank">{} <i class="fas fa-external-link-alt"></i></a>'
         querystring = urlencode((('setup', setup), ('alg', alg)))
 
-        return anchor.format(querystring, text)
+        return anchor.format(querystring, moves_count)
 
     return dict(link_to_algcubingnet=__link_to_algcubingnet)
 

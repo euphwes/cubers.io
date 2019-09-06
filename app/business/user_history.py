@@ -43,9 +43,9 @@ def get_user_competition_history(user, include_blacklisted=False):
                 solves_helper = list()
                 for i, solve in enumerate(results.solves):
                     scramble = solve.Scramble.scramble
-                    explanation = solve.fmc_explanation if solve.fmc_explanation else "// No solution provided"
-                    moves = solve.get_friendly_time()
-                    solves_helper.append((scramble, explanation, moves))
+                    solution = solve.fmc_explanation
+                    moves    = solve.get_friendly_time()
+                    solves_helper.append((scramble, solution, moves))
                 while len(solves_helper) < 5:
                     solves_helper.append((None, None, None))
             else:

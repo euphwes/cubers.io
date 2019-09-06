@@ -11,8 +11,7 @@ from app.business.user_results.personal_bests import recalculate_user_pbs_for_ev
 from app.persistence.comp_manager import get_active_competition, get_complete_competitions,\
     get_previous_competition, get_competition, get_all_comp_events_for_comp, get_comp_event_by_id
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp_event,\
-    blacklist_results, unblacklist_results, UserEventResultsDoesNotExistException,\
-    get_user_event_results_by_id
+    blacklist_results, unblacklist_results, UserEventResultsDoesNotExistException
 from app.util.sorting import sort_user_results_with_rankings
 from app.util.events.resources import sort_comp_events_by_global_sort_order
 
@@ -94,9 +93,9 @@ def comp_event_results(comp_event_id):
             solves_helper = list()
             for i, solve in enumerate(result.solves):
                 scramble = solve.Scramble.scramble
-                explanation = solve.fmc_explanation if solve.fmc_explanation else "// No solution provided"
-                moves = solve.get_friendly_time()
-                solves_helper.append((scramble, explanation, moves))
+                solution = solve.fmc_explanation
+                moves    = solve.get_friendly_time()
+                solves_helper.append((scramble, solution, moves))
             while len(solves_helper) < 5:
                 solves_helper.append((None, None, None))
         else:
