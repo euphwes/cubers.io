@@ -21,6 +21,7 @@ from app.business.user_results import set_medals_on_best_event_results
 from app.business.user_results.creation import process_event_results
 from app.tasks.competition_management import post_results_thread_task,\
     generate_new_competition_task, wrap_weekly_competition, run_user_site_rankings
+from app.tasks.scramble_generation import check_scramble_pool
 
 # -------------------------------------------------------------------------------------------------
 # Below are admin commands for creating new competitions, and scoring previous ones
@@ -85,6 +86,13 @@ def calculate_all_user_site_rankings():
     """ Calculates UserSiteRankings for all users as of the current comp. """
 
     run_user_site_rankings()
+
+
+@app.cli.command()
+def top_off_scrambles():
+    """ Kicks off a task to check the scramble pool and generate scrambles. """
+
+    check_scramble_pool()
 
 # -------------------------------------------------------------------------------------------------
 # Below are admin commands for one-off app administration needs
