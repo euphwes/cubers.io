@@ -62,6 +62,16 @@ def unblacklist_results(results_id):
     return results
 
 
+def get_user_event_results_by_id(user_event_results_id):
+    """ Returns a specific UserEventResults record by ID. """
+
+    return DB.session.\
+        query(UserEventResults).\
+        filter(UserEventResults.is_complete).\
+        filter(UserEventResults.id == user_event_results_id).\
+        first()
+
+
 def get_user_completed_solves_count(user_id):
     """ Returns a count of the number of solves for completed events for the given user. """
 

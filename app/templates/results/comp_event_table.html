@@ -93,9 +93,11 @@
                     {% if comp_event.Event.name == "FMC" %}
                         <td scope="col">{{ result.average | format_fmc_result }}</td>
                         <td scope="col" class="font-weight-bold">{{ result.single | format_fmc_result }}</td>
-                        {% for solve in result.solves_helper %}
-                        <td scope="col" class="d-none d-md-table-cell">{{ solve }}</td>
-                        {% endfor %}
+                        <td scope="col" colspan="3" class="d-none d-md-table-cell">
+                            <a href="{{ url_for('fmc_results_detail', results_id=result.id) }}">
+                                View FMC solutions
+                            </a>
+                        </td>
                     {% else %}
                         {% if comp_event.Event.name == "MBLD" %}
                             <td scope="col" class="font-weight-bold"></td>

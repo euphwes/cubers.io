@@ -11,7 +11,8 @@ from app.business.user_results.personal_bests import recalculate_user_pbs_for_ev
 from app.persistence.comp_manager import get_active_competition, get_complete_competitions,\
     get_previous_competition, get_competition, get_all_comp_events_for_comp, get_comp_event_by_id
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp_event,\
-    blacklist_results, unblacklist_results, UserEventResultsDoesNotExistException
+    blacklist_results, unblacklist_results, UserEventResultsDoesNotExistException,\
+    get_user_event_results_by_id
 from app.util.sorting import sort_user_results_with_rankings
 from app.util.events.resources import sort_comp_events_by_global_sort_order
 
@@ -99,6 +100,14 @@ def comp_event_results(comp_event_id):
 
     return render_template("results/comp_event_table.html", results=results_with_ranks,
         comp_event=comp_event, show_admin=show_admin, scrambles=scrambles)
+
+
+@app.route('/fmc/<results_id>/')
+def fmc_results_detail(results_id):
+    """ A route for seeing in-depth info related to a user's FMC results. """
+
+    results = get_user_event_results_by_id(results_id)
+    return str(results.id)
 
 
 def get_overall_performance_data(comp_id):
