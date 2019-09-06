@@ -96,22 +96,22 @@
         var commentStartIndex = -1;
 
         commentStartIndex = line.indexOf("/");
-        if (commentStartIndex > 0) {
+        if (commentStartIndex > -1) {
             return line.substr(0, commentStartIndex);
         }
 
         commentStartIndex = line.indexOf("\\");
-        if (commentStartIndex > 0) {
+        if (commentStartIndex > -1) {
             return line.substr(0, commentStartIndex);
         }
 
         commentStartIndex = line.indexOf("#");
-        if (commentStartIndex > 0) {
+        if (commentStartIndex > -1) {
             return line.substr(0, commentStartIndex);
         }
 
         commentStartIndex = line.indexOf("-");
-        if (commentStartIndex > 0) {
+        if (commentStartIndex > -1) {
             return line.substr(0, commentStartIndex);
         }
 
