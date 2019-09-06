@@ -190,14 +190,19 @@ from app.util.times import convert_centiseconds_to_friendly_time  # noqa
 
 # -------------------------------------------------------------------------------------------------
 
-@app.template_filter('algcubingnet')
-def link_to_algcubingnet(text, setup, alg):
+@app.context_processor
+def link_to_algcubingnet():
     """ Generates an anchor with a link to alg.cubing.net for the specified set and algorithm/moves. """
 
-    anchor = '<a href="https://alg.cubing.net/?{}" target="_blank">{}</a>'
-    querystring = urlencode((('setup', setup), ('alg', alg)))
+    def __link_to_algcubingnet(setup, alg, text):
+        """ Generates an anchor with a link to alg.cubing.net for the specified set and algorithm/moves. """
 
-    return anchor.format(querystring, text)
+        anchor = '<a href="https://alg.cubing.net/?{}" style="font-size: 14px;" target="_blank">{} <i class="fas fa-external-link-alt"></i></a>'
+        querystring = urlencode((('setup', setup), ('alg', alg)))
+
+        return anchor.format(querystring, text)
+
+    return dict(link_to_algcubingnet=__link_to_algcubingnet)
 
 
 @app.template_filter('slugify')

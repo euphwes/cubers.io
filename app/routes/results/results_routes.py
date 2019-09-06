@@ -90,9 +90,19 @@ def comp_event_results(comp_event_id):
     # with empty strings if necessary
     # TODO put this in business logic somewhere
     for result in results:
-        solves_helper = result.times_string.split(', ')
-        while len(solves_helper) < 5:
-            solves_helper.append('')
+        if comp_event.Event.name == 'FMC':
+            solves_helper = list()
+            for i, solve in enumerate(result.solves):
+                scramble = solve.Scramble.scramble
+                explanation = solve.fmc_explanation if solve.fmc_explanation else "// No solution provided"
+                moves = solve.get_friendly_time()
+                solves_helper.append((scramble, explanation, moves))
+            while len(solves_helper) < 5:
+                solves_helper.append((None, None, None))
+        else:
+            solves_helper = result.times_string.split(', ')
+            while len(solves_helper) < 5:
+                solves_helper.append('')
         setattr(result, 'solves_helper', solves_helper)
 
     # Sort the results
@@ -100,14 +110,6 @@ def comp_event_results(comp_event_id):
 
     return render_template("results/comp_event_table.html", results=results_with_ranks,
         comp_event=comp_event, show_admin=show_admin, scrambles=scrambles)
-
-
-@app.route('/fmc/<results_id>/')
-def fmc_results_detail(results_id):
-    """ A route for seeing in-depth info related to a user's FMC results. """
-
-    results = get_user_event_results_by_id(results_id)
-    return str(results.id)
 
 
 def get_overall_performance_data(comp_id):
