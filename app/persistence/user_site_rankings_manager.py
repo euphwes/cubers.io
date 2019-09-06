@@ -161,8 +161,6 @@ def update_one_event_site_rankings_for_user(user_id, new_site_rankings, event):
     if not rankings_record:
         return
 
-    #print('Updating UserSiteRankings for user {} and event {}'.format(user_id, event.id))
-
     # Get dict representation of existing site rankings data, and then update the entry
     # for the specified event with the new data for that event
     existing_data = rankings_record.get_site_rankings_data_as_dict()

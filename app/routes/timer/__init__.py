@@ -1,1 +1,1 @@
-from .timer_routes import timer_page
+from .timer_routes import timer_page  # noqa

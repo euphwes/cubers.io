@@ -39,12 +39,22 @@ def get_user_competition_history(user, include_blacklisted=False):
             if event.name == "COLL":
                 continue
 
-            # Split the times string into components, add to a list called `"solves_helper` which
-            # is used in the UI to show individual solves, and make sure the length == 5, filled
-            # with empty strings if necessary
-            solves_helper = results.times_string.split(', ')
-            while len(solves_helper) < 5:
-                solves_helper.append('')
+            if event.name == 'FMC':
+                solves_helper = list()
+                for i, solve in enumerate(results.solves):
+                    scramble = solve.Scramble.scramble
+                    solution = solve.fmc_explanation
+                    moves    = solve.get_friendly_time()
+                    solves_helper.append((scramble, solution, moves))
+                while len(solves_helper) < 5:
+                    solves_helper.append((None, None, None))
+            else:
+                # Split the times string into components, add to a list called `"solves_helper` which
+                # is used in the UI to show individual solves, and make sure the length == 5, filled
+                # with empty strings if necessary
+                solves_helper = results.times_string.split(', ')
+                while len(solves_helper) < 5:
+                    solves_helper.append('')
             setattr(results, 'solves_helper', solves_helper)
 
             # Store these UserEventResults for this Competition

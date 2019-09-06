@@ -103,8 +103,14 @@
     {% if rankings %}
     <div class="row pt-4">
         <div class="col-12 col-md-6 offset-md-3">
-            <h4 class="text-center">Personal Records</h4>
-            <h6 class="text-center">as of {{rankings_ts}}</h6>
+            <h4 class="text-center">Personal Records as of {{rankings_ts}}</h4>
+            {% if viewing_other_user %}
+            <p class="text-center">
+                <a href="{{ url_for('me_versus_other', username=user.username) }}">
+                    compare to my records
+                </a>
+            </p>
+            {% endif %}
             <table class="table table-sm table-striped table-cubersio">
                 <thead class="thead-dark">
                     <tr>
@@ -134,7 +140,7 @@
                     <tr>
                         <td>
                             <a href="{{ url_for('event_results', event_name=event_id_name_map[event_id]|replace('/','%2F')) }}">
-                                <img class="tab-event-image" src="/static/images/cube-{{event_id}}.png">
+                                <img class="tab-event-image" src="/static/images/cube-{{event_id_name_map[event_id] | slugify}}.png">
                                 {{ event_id_name_map[event_id] }}
                             </a>
                         </td>
@@ -158,12 +164,12 @@
                 {% if loop.index0 == 0 %}
                 <li class="active nav-item">
                     <a href="#tab{{event_item.name | slugify}}" class="nav-link active show" role="tab" data-toggle="tab">
-                        <img class="tab-event-image" src="/static/images/cube-{{event_item.id}}.png">
+                        <img class="tab-event-image" src="/static/images/cube-{{event_item.name | slugify}}.png">
                     </a>
                 {% else %}
                 <li class="nav-item">
                     <a href="#tab{{event_item.name | slugify}}" class="nav-link" role="tab" data-toggle="tab">
-                        <img class="tab-event-image" src="/static/images/cube-{{event_item.id}}.png">
+                        <img class="tab-event-image" src="/static/images/cube-{{event_item.name | slugify}}.png">
                     </a>
                 {% endif %}
                 </li>
@@ -195,7 +201,7 @@
                                 {% else %}
                                 <th scope="col" colspan="10">
                                 {% endif %}
-                                    <img class="event-image" src="/static/images/cube-{{event_item.id}}.png">
+                                    <img class="event-image" src="/static/images/cube-{{event_item.name | slugify}}.png">
                                     {{ event_item.name }}
                                 </th>
                             </tr>
@@ -256,10 +262,19 @@
                                     <td><a href="/leaderboards/{{ comp.id }}">{{ comp.title }}</a></td>
                                     <td class="{{single_class}}">{{ single_val }}</td>
                                     <td class="{{average_class}}">{{ average_val }}</td>
-                                    {% for solve_time in results.solves_helper %}
-                                    <td class="d-none d-md-table-cell">{{ solve_time }}</td>
-                                    {% endfor %}
-
+                                    {% if event_item.name == "FMC" %}
+                                        {% for solve in results.solves_helper %}
+                                        <td class="d-none d-md-table-cell">
+                                            {% if solve[0] %}
+                                            {{ link_to_algcubingnet(solve[0], solve[1], solve[2]) | safe }}
+                                            {% endif %}
+                                        </td>
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for solve_time in results.solves_helper %}
+                                        <td class="d-none d-md-table-cell">{{ solve_time }}</td>
+                                        {% endfor %}
+                                    {% endif %}
                                     {% if results.is_blacklisted and is_admin_viewing %}
                                         {% set the_comment = results.blacklist_note|trim() %}
                                         <td scope="col" class="d-none d-md-table-cell">

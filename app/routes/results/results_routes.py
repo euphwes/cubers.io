@@ -89,9 +89,19 @@ def comp_event_results(comp_event_id):
     # with empty strings if necessary
     # TODO put this in business logic somewhere
     for result in results:
-        solves_helper = result.times_string.split(', ')
-        while len(solves_helper) < 5:
-            solves_helper.append('')
+        if comp_event.Event.name == 'FMC':
+            solves_helper = list()
+            for i, solve in enumerate(result.solves):
+                scramble = solve.Scramble.scramble
+                solution = solve.fmc_explanation
+                moves    = solve.get_friendly_time()
+                solves_helper.append((scramble, solution, moves))
+            while len(solves_helper) < 5:
+                solves_helper.append((None, None, None))
+        else:
+            solves_helper = result.times_string.split(', ')
+            while len(solves_helper) < 5:
+                solves_helper.append('')
         setattr(result, 'solves_helper', solves_helper)
 
     # Sort the results

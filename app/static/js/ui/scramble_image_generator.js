@@ -11,6 +11,56 @@
 
     var TRANSPARENT = "rgba(255, 255, 255, 0)";
 
+    // "global"-ish variable to hold the border radius for the current event and canvas size
+    var eventCornerRadius = 0;
+
+    // Default to no corner radius for events without an override in the map below
+    var defaultCornerRadiusOptions = [0, 0];
+
+    // Border radius config options will be differentiated between small and large canvas
+    // sizes, because lots tiny polygons with curved borders end up looking weird on small canvas.
+    // Value at index 0 is for small canvas, value at index 1 is for big canvas
+    var CANVAS_SMALL_RADIUS_IDX = 0;
+    var CANVAS_LARGE_RADIUS_IDX = 1;
+
+    var nxnRadius = 8;
+    var cuboidRadius = 4;
+
+    var cornerRadiusMap = {
+        "2x2":    [nxnRadius, nxnRadius],
+        "3x3":    [nxnRadius, nxnRadius],
+        "3x3":    [nxnRadius, nxnRadius],
+        "3x3OH":  [nxnRadius, nxnRadius],
+        "2GEN":   [nxnRadius, nxnRadius],
+        "LSE":    [nxnRadius, nxnRadius],
+        "F2L":    [nxnRadius, nxnRadius],
+        "FMC":    [nxnRadius, nxnRadius],
+        "COLL":   [nxnRadius, nxnRadius],
+        "4x4":    [nxnRadius, nxnRadius],
+        "4x4 OH": [nxnRadius, nxnRadius],
+        "Void Cube":     [nxnRadius, nxnRadius],
+        "3x3 With Feet": [nxnRadius, nxnRadius],
+
+        "5x5":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
+        "6x6":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
+        "7x7":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
+        "8x8":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
+        "9x9":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
+
+        "2x2x3": [cuboidRadius, cuboidRadius],
+        "3x3x2": [cuboidRadius, cuboidRadius],
+        "3x3x4": [cuboidRadius, cuboidRadius],
+
+        "Pyraminx": [8, 8],
+        "Skewb": [5, 5],
+
+        "Megaminx": [5, 5],
+        "Kilominx": [8, 8],
+
+        "Redi Cube": [5, 5],
+        "Dino Cube": [12, 12],
+    }
+
     var setColors = function() {
         if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_CUBE_COLORS)) {
             cube_colors = [
@@ -811,13 +861,7 @@
             return ret;
         }
 
-        // trans: [size, offx, offy] == [size, 0, offx * size, 0, size, offy * size] or [a11 a12 a13 a21 a22 a23]
-        function drawPolygon(ctx, color, arr, trans, text) {
-            if (!ctx) {
-                return;
-            }
-            trans = trans || [1, 0, 0, 0, 1, 0];
-            arr = Transform(arr, trans);
+        function drawRoundedPolygon(ctx, pts, radius, color) {
             ctx.beginPath();
 
             ctx.fillStyle = color;
@@ -827,13 +871,74 @@
                 ctx.strokeStyle = "#000";
             }
 
-            ctx.moveTo(arr[0][0], arr[1][0]);
-            for (var i = 1; i < arr[0].length; i++) {
-                ctx.lineTo(arr[0][i], arr[1][i]);
+            if (radius > 0) {
+                pts = getRoundedPoints(pts, radius);
             }
+
+            var i, pt, len = pts.length;
+            for (i = 0; i < len; i++) {
+                pt = pts[i];
+                if (i == 0) {
+                    ctx.moveTo(pt[0], pt[1]);
+                } else {
+                    ctx.lineTo(pt[0], pt[1]);
+                }
+                if (radius > 0) {
+                    ctx.quadraticCurveTo(pt[2], pt[3], pt[4], pt[5]);
+                }
+            }
+
             ctx.closePath();
             ctx.fill();
             ctx.stroke();
+        }
+
+        function getRoundedPoints(pts, radius) {
+            var i1, i2, i3, p1, p2, p3, prevPt, nextPt,
+                len = pts.length,
+                res = new Array(len);
+            for (i2 = 0; i2 < len; i2++) {
+              i1 = i2-1;
+              i3 = i2+1;
+              if (i1 < 0) {
+                i1 = len - 1;
+              }
+              if (i3 == len) {
+                i3 = 0;
+              }
+              p1 = pts[i1];
+              p2 = pts[i2];
+              p3 = pts[i3];
+              prevPt = getRoundedPoint(p1[0], p1[1], p2[0], p2[1], radius, false);
+              nextPt = getRoundedPoint(p2[0], p2[1], p3[0], p3[1], radius, true);
+              res[i2] = [prevPt[0], prevPt[1], p2[0], p2[1], nextPt[0], nextPt[1]];
+            }
+            return res;
+        };
+
+        function getRoundedPoint(x1, y1, x2, y2, radius, first) {
+            var total = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)),
+                idx = first ? radius / total : (total - radius) / total;
+            return [x1 + (idx * (x2 - x1)), y1 + (idx * (y2 - y1))];
+        }
+
+        // trans: [size, offx, offy] == [size, 0, offx * size, 0, size, offy * size] or [a11 a12 a13 a21 a22 a23]
+        function drawPolygon(ctx, color, arr, trans, text) {
+            if (!ctx) {
+                return;
+            }
+
+            trans = trans || [1, 0, 0, 0, 1, 0];
+            arr = Transform(arr, trans);
+
+            var ptsByXY = [];
+            var xPts = arr[0];
+            var yPts = arr[1];
+            for (var i = 0; i < xPts.length; i++) {
+                ptsByXY[i] = [xPts[i], yPts[i]];
+            }
+
+            drawRoundedPolygon(ctx, ptsByXY, eventCornerRadius, color);
 
             if (text) {
                 ctx.fillStyle = '#000';
@@ -935,6 +1040,99 @@
                     ctx.fillText("U", width * off1X, width * off1Y);
                     ctx.fillText("F", width * off1X, width * (off1Y + Math.sin(PI * 0.5) * efrac2));
                 }
+            };
+        })();
+
+        var kilominxImage = (function() {
+            var moveU = [4, 0, 1, 2, 3, 9, 5, 6, 7, 8, 10, 11, 12, 13, 58, 59, 16, 17, 18, 63, 20, 21, 22, 23, 24, 14, 15, 27, 28, 29, 19, 31, 32, 33, 34, 35, 25, 26, 38, 39, 40, 30, 42, 43, 44, 45, 46, 36, 37, 49, 50, 51, 41, 53, 54, 55, 56, 57, 47, 48, 60, 61, 62, 52, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131];
+            var moveR = [81, 77, 78, 3, 4, 86, 82, 83, 8, 85, 87, 122, 123, 124, 125, 121, 127, 128, 129, 130, 126, 131, 89, 90, 24, 25, 88, 94, 95, 29, 97, 93, 98, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 26, 22, 23, 48, 30, 31, 27, 28, 53, 32, 69, 70, 66, 67, 68, 74, 75, 71, 72, 73, 76, 101, 102, 103, 99, 100, 106, 107, 108, 104, 105, 109, 46, 47, 79, 80, 45, 51, 52, 84, 49, 50, 54, 0, 1, 2, 91, 92, 5, 6, 7, 96, 9, 10, 15, 11, 12, 13, 14, 20, 16, 17, 18, 19, 21, 113, 114, 110, 111, 112, 118, 119, 115, 116, 117, 120, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65];
+            var moveD = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 33, 34, 35, 14, 15, 38, 39, 40, 19, 42, 43, 44, 45, 46, 25, 26, 49, 50, 51, 30, 53, 54, 55, 56, 57, 36, 37, 60, 61, 62, 41, 64, 65, 11, 12, 13, 47, 48, 16, 17, 18, 52, 20, 21, 22, 23, 24, 58, 59, 27, 28, 29, 63, 31, 32, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 124, 125, 121, 122, 123, 129, 130, 126, 127, 128, 131];
+            var moveMaps = [moveU, moveR, moveD];
+
+            var width = 40;
+            var cfrac = 0.33;
+            var efrac2 = (Math.sqrt(5) + 1) / 2;
+            var d2x = (1 - cfrac) / 2 / Math.tan(PI / 5);
+            var off1X = 2.6;
+            var off1Y = 2.2;
+            var off2X = off1X + Math.cos(PI * 0.1) * 3 * efrac2;
+            var off2Y = off1Y + Math.sin(PI * 0.1) * 1 * efrac2;
+            var cornX = [0, d2x, 0, -d2x];
+            var cornY = [-1, -(1 + cfrac) / 2, -cfrac * 0.25, -(1 + cfrac) / 2];
+            var edgeX = [Math.cos(PI * 0.1) - d2x, d2x, 0, Math.sin(PI * 0.4) * cfrac];
+            var edgeY = [-Math.sin(PI * 0.1) + (cfrac - 1) / 2, -(1 + cfrac) / 2, -cfrac, -Math.cos(PI * 0.4) * cfrac];
+            var centX = [Math.sin(PI * 0.0) * cfrac, Math.sin(PI * 0.4) * cfrac, Math.sin(PI * 0.8) * cfrac, Math.sin(PI * 1.2) * cfrac, Math.sin(PI * 1.6) * cfrac];
+            var centY = [-Math.cos(PI * 0.0) * cfrac, -Math.cos(PI * 0.4) * cfrac, -Math.cos(PI * 0.8) * cfrac, -Math.cos(PI * 1.2) * cfrac, -Math.cos(PI * 1.6) * cfrac];
+            var colors = null;
+
+            function drawFace(state, baseIdx, trans, rot) {
+
+                if (!colors) {
+                    setColors();
+                    colors = mega_colors;
+                }
+
+                // draw "centers" and "edges" first, as black, so they just appear as background fill
+                // after the corners draw on top of them
+                drawPolygon(ctx, '#000000', Rotate([centX, centY], rot), trans);
+                for (var i = 0; i < 5; i++) {
+                    drawPolygon(ctx, '#000000', Rotate([edgeX, edgeY], PI * 2 / 5 * i + rot), trans);
+                }
+
+                for (var i = 0; i < 5; i++) {
+                    drawPolygon(ctx, colors[state[baseIdx + i]], Rotate([cornX, cornY], PI * 2 / 5 * i + rot), trans);
+                }
+            }
+
+            function doMove(state, axis, inv) {
+                var moveMap = moveMaps[axis];
+                var oldState = state.slice();
+                if (inv) {
+                    for (var i = 0; i < 132; i++) {
+                        state[moveMap[i]] = oldState[i];
+                    }
+                } else {
+                    for (var i = 0; i < 132; i++) {
+                        state[i] = oldState[moveMap[i]];
+                    }
+                }
+            }
+
+            var movere = /[RD][+-]{2}|U'?/
+            return function(moveseq) {
+                var state = [];
+                for (var i = 0; i < 12; i++) {
+                    for (var j = 0; j < 11; j++) {
+                        state[i * 11 + j] = i;
+                    }
+                }
+                var moves = moveseq.split(/\s+/);
+                for (var i = 0; i < moves.length; i++) {
+                    var m = movere.exec(moves[i]);
+                    if (!m) {
+                        continue;
+                    }
+                    var axis = "URD".indexOf(m[0][0]);
+                    var inv = /[-']/.exec(m[0][1]);
+                    doMove(state, axis, inv);
+                }
+                var imgSize = scalingFactor / 7.5;
+                canvas.width(7 * imgSize + 'em');
+                canvas.height(3.5 * imgSize + 'em');
+                canvas.attr('width', 9.8 * width);
+                canvas.attr('height', 4.9 * width);
+                drawFace(state, 0, [width, off1X + 0 * efrac2, off1Y + 0 * efrac2], PI * 0.0);
+                drawFace(state, 11, [width, off1X + Math.cos(PI * 0.1) * efrac2, off1Y + Math.sin(PI * 0.1) * efrac2], PI * 0.2);
+                drawFace(state, 22, [width, off1X + Math.cos(PI * 0.5) * efrac2, off1Y + Math.sin(PI * 0.5) * efrac2], PI * 0.6);
+                drawFace(state, 33, [width, off1X + Math.cos(PI * 0.9) * efrac2, off1Y + Math.sin(PI * 0.9) * efrac2], PI * 1.0);
+                drawFace(state, 44, [width, off1X + Math.cos(PI * 1.3) * efrac2, off1Y + Math.sin(PI * 1.3) * efrac2], PI * 1.4);
+                drawFace(state, 55, [width, off1X + Math.cos(PI * 1.7) * efrac2, off1Y + Math.sin(PI * 1.7) * efrac2], PI * 1.8);
+                drawFace(state, 66, [width, off2X + Math.cos(PI * 0.7) * efrac2, off2Y + Math.sin(PI * 0.7) * efrac2], PI * 0.0);
+                drawFace(state, 77, [width, off2X + Math.cos(PI * 0.3) * efrac2, off2Y + Math.sin(PI * 0.3) * efrac2], PI * 1.6);
+                drawFace(state, 88, [width, off2X + Math.cos(PI * 1.9) * efrac2, off2Y + Math.sin(PI * 1.9) * efrac2], PI * 1.2);
+                drawFace(state, 99, [width, off2X + Math.cos(PI * 1.5) * efrac2, off2Y + Math.sin(PI * 1.5) * efrac2], PI * 0.8);
+                drawFace(state, 110, [width, off2X + Math.cos(PI * 1.1) * efrac2, off2Y + Math.sin(PI * 1.1) * efrac2], PI * 0.4);
+                drawFace(state, 121, [width, off2X + 0 * efrac2, off2Y + 0 * efrac2], PI * 1.0);
             };
         })();
 
@@ -1526,6 +1724,576 @@
             }
         })();
 
+        var dinoImage = (function() {
+            var width = 30;
+            var posit = [];
+            var colors = null;
+            var DINO_EDGE_INDICES = [1,3,5,7,10,12,14,16,19,21,23,25,28,30,32,34,37,39,41,43,46,48,50,52];
+
+            function doMove(move) {
+                if (move == 'R') {
+                    mathlib.circle(posit, 34, 37, 50); // edges half
+                    mathlib.circle(posit, 46, 32, 39); // edges half
+                }
+                if (move == "R'") {
+                    mathlib.circle(posit, 34, 50, 37); // edges half
+                    mathlib.circle(posit, 46, 39, 32); // edges half
+                }
+                if (move == 'L') {
+                    mathlib.circle(posit, 30, 46, 12); // edges half
+                    mathlib.circle(posit, 10, 34, 48); // edges half
+                }
+                if (move == "L'") {
+                    mathlib.circle(posit, 30, 12, 46); // edges half
+                    mathlib.circle(posit, 10, 48, 34); // edges half
+                }
+                if (move == 'x') {
+                    mathlib.circle(posit, 37, 41, 43, 39); // R face edge cubelets
+                    mathlib.circle(posit, 10, 14, 16, 12); // L face edge cubelets
+                    mathlib.circle(posit, 28, 25, 7, 46); // 'A' edge vertical line around cube
+                    mathlib.circle(posit, 32, 23, 5, 50); // 'B' edge vertical line around cube
+                    mathlib.circle(posit, 34, 19, 1, 52); // 'C' edge vertical line around cube
+                    mathlib.circle(posit, 30, 21, 3, 48); // 'D' edge vertical line around cube
+                }
+            }
+
+            function face(f) {
+
+                size = 3;
+
+                if (!colors) {
+                    setColors();
+                    colors = cube_colors;
+                }
+
+                var offx = 10 / 9,
+                    offy = 10 / 9;
+                if (f == 0) { //D
+                    offx *= size;
+                    offy *= size * 2;
+                } else if (f == 1) { //L
+                    offx *= 0;
+                    offy *= size;
+                } else if (f == 2) { //B
+                    offx *= size * 3;
+                    offy *= size;
+                } else if (f == 3) { //U
+                    offx *= size;
+                    offy *= 0;
+                } else if (f == 4) { //R
+                    offx *= size * 2;
+                    offy *= size;
+                } else if (f == 5) { //F
+                    offx *= size;
+                    offy *= size;
+                }
+
+                for (var i = 0; i < size; i++) {
+                    var x = (f == 1 || f == 2) ? size - 1 - i : i;
+                    for (var j = 0; j < size; j++) {
+                        var y = (f == 0) ? size - 1 - j : j;
+                        if ((i == 1) && (j == 1)) { continue; }
+
+                        var posit_index = (f * size + y) * size + x;
+                        var color = colors[posit[posit_index]];
+
+                        if (DINO_EDGE_INDICES.includes(posit_index)) {
+                            if (i == 0 && j == 1) {
+                                drawPolygon(ctx, color, [
+                                    [i,     i + 1.5, i],
+                                    [j - 1, j + 0.5, j + 2]
+                                ], [width, offx, offy]);
+                            } else if (i == 1 && j == 0) {
+                                drawPolygon(ctx, color, [
+                                    [i - 1, i + 0.5, i + 2],
+                                    [j,     j + 1.5, j]
+                                ], [width, offx, offy]);
+                            } else if (i == 2 && j == 1) {
+                                drawPolygon(ctx, color, [
+                                    [i + 1 , i + 1 , i - 0.5],
+                                    [j - 1 , j + 2 , j + 0.5]
+                                ], [width, offx, offy]);
+                            } else {
+                                drawPolygon(ctx, color, [
+                                    [i + 0.5, i + 2, i - 1],
+                                    [j - 0.5, j + 1, j + 1]
+                                ], [width, offx, offy]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return function(moveseq) {
+                var cnt = 0;
+                for (var i = 0; i < 6; i++) {
+                    for (var f = 0; f < 9; f++) {
+                        posit[cnt++] = i;
+                    }
+                }
+
+                var scramble = moveseq.split(' ');
+                for (var i = 0; i < scramble.length; i++) {
+                    doMove(scramble[i]);
+                }
+
+                var imgSize = scalingFactor / 50;
+                canvas.width(39 * imgSize + 'em');
+                canvas.height(29 * imgSize + 'em');
+
+                canvas.attr('width', 39 * 3 / 9 * width + 1);
+                canvas.attr('height', 29 * 3 / 9 * width + 1);
+
+                for (var i = 0; i < 6; i++) {
+                    face(i);
+                }
+            }
+        })();
+
+        var image334 = (function() {
+            var width = 24;
+            var posit = [];
+            var colors = null;
+
+            function doMove(move) {
+                if (move == 'M2') {
+                    mathlib.circle(posit, 37, 4); // U -> D center
+                    mathlib.circle(posit, 36, 3); // U -> D edges top
+                    mathlib.circle(posit, 38, 5); // U -> D edges bottom
+                    mathlib.circle(posit, 58, 28); // F -> B top
+                    mathlib.circle(posit, 59, 27); // F -> B top edges
+                    mathlib.circle(posit, 60, 26); // F -> B bottom edges
+                    mathlib.circle(posit, 61, 25); // F -> B bottom
+                }
+                if (move == 'S2') {
+                    mathlib.circle(posit, 37, 4); // U -> D center
+                    mathlib.circle(posit, 34, 7); // U -> D edges left
+                    mathlib.circle(posit, 40, 1); // U -> D edges right
+                    mathlib.circle(posit, 13, 49); // L -> R top
+                    mathlib.circle(posit, 14, 48); // L -> R top edges
+                    mathlib.circle(posit, 15, 47); // L -> R bottom edges
+                    mathlib.circle(posit, 16, 46); // L -> R bottom
+                    
+                }
+                if (move == 'U') {
+                    mathlib.circle(posit, 36, 40, 38, 34); // U edges
+                    mathlib.circle(posit, 33, 39, 41, 35); // U corners
+                    mathlib.circle(posit, 13, 25, 46, 58); // U-adjacent edges
+                    mathlib.circle(posit, 9, 21, 42, 54); // U-adjacent left corners
+                    mathlib.circle(posit, 17, 29, 50, 62); // U-adjacent right corners
+                }
+                if (move == 'U2') {
+                    for (var v = 0; v < 2; v++) {
+                        mathlib.circle(posit, 36, 40, 38, 34); // U edges
+                        mathlib.circle(posit, 33, 39, 41, 35); // U corners
+                        mathlib.circle(posit, 13, 25, 46, 58); // U-adjacent edges
+                        mathlib.circle(posit, 9, 21, 42, 54); // U-adjacent left corners
+                        mathlib.circle(posit, 17, 29, 50, 62); // U-adjacent right corners
+                    }
+                }
+                if (move == "U'") {
+                    for (var v = 0; v < 3; v++) {
+                        mathlib.circle(posit, 36, 40, 38, 34); // U edges
+                        mathlib.circle(posit, 33, 39, 41, 35); // U corners
+                        mathlib.circle(posit, 13, 25, 46, 58); // U-adjacent edges
+                        mathlib.circle(posit, 9, 21, 42, 54); // U-adjacent left corners
+                        mathlib.circle(posit, 17, 29, 50, 62); // U-adjacent right corners
+                    }
+                }
+                if (move == 'u') {
+                    mathlib.circle(posit, 59, 14, 26, 47); // u centers
+                    mathlib.circle(posit, 55, 10, 22, 43); // u left edges
+                    mathlib.circle(posit, 63, 18, 30, 51); // u right edges
+                }
+                if (move == 'u2') {
+                    for (var v = 0; v < 2; v++) {
+                        mathlib.circle(posit, 59, 14, 26, 47); // u centers
+                        mathlib.circle(posit, 55, 10, 22, 43); // u left edges
+                        mathlib.circle(posit, 63, 18, 30, 51); // u right edges
+                    }
+                }
+                if (move == "u'") {
+                    for (var v = 0; v < 3; v++) {
+                        mathlib.circle(posit, 59, 14, 26, 47); // u centers
+                        mathlib.circle(posit, 55, 10, 22, 43); // u left edges
+                        mathlib.circle(posit, 63, 18, 30, 51); // u right edges
+                    }
+                }
+                if (move == 'D') {
+                    mathlib.circle(posit, 3, 7, 5, 1); // D edges
+                    mathlib.circle(posit, 0, 6, 8, 2); // D corners
+                    mathlib.circle(posit, 61, 49, 28, 16); // D-adjacent edges
+                    mathlib.circle(posit, 57, 45, 24, 12); // D-adjacent left corners
+                    mathlib.circle(posit, 65, 53, 32, 20); // D-adjacent right corners
+                }
+                if (move == 'D2') {
+                    for (var v = 0; v < 2; v++) {
+                        mathlib.circle(posit, 3, 7, 5, 1); // D edges
+                        mathlib.circle(posit, 0, 6, 8, 2); // D corners
+                        mathlib.circle(posit, 61, 49, 28, 16); // D-adjacent edges
+                        mathlib.circle(posit, 57, 45, 24, 12); // D-adjacent left corners
+                        mathlib.circle(posit, 65, 53, 32, 20); // D-adjacent right corners
+                    }
+                }
+                if (move == "D'") {
+                    for (var v = 0; v < 3; v++) {
+                        mathlib.circle(posit, 3, 7, 5, 1); // D edges
+                        mathlib.circle(posit, 0, 6, 8, 2); // D corners
+                        mathlib.circle(posit, 61, 49, 28, 16); // D-adjacent edges
+                        mathlib.circle(posit, 57, 45, 24, 12); // D-adjacent left corners
+                        mathlib.circle(posit, 65, 53, 32, 20); // D-adjacent right corners
+                    }
+                }
+                if (move == 'R2') {
+                    mathlib.circle(posit, 40, 7); // U -> D edges
+                    mathlib.circle(posit, 39, 6); // U -> D corners top
+                    mathlib.circle(posit, 41, 8); // U -> D corners bottom
+                    mathlib.circle(posit, 62, 24); // F -> B top corners
+                    mathlib.circle(posit, 65, 21); // F -> B bottom corners
+                    mathlib.circle(posit, 63, 23); // F -> B top edges
+                    mathlib.circle(posit, 64, 22); // F -> B bottom edges
+                    mathlib.circle(posit, 42, 53); // R corners top-left to bottom-right
+                    mathlib.circle(posit, 50, 45); // R corners top-right to bottom-left
+                    mathlib.circle(posit, 46, 49); // R top/bottom edges
+                    mathlib.circle(posit, 43, 52); // R edges #1
+                    mathlib.circle(posit, 51, 44); // R edges #2
+                    mathlib.circle(posit, 47, 48); // R centers
+                }
+                if (move == 'L2') {
+                    mathlib.circle(posit, 34, 1); // U -> D edges
+                    mathlib.circle(posit, 33, 0); // U -> D corners top
+                    mathlib.circle(posit, 35, 2); // U -> D corners bottom
+                    mathlib.circle(posit, 54, 32); // F -> B top corners
+                    mathlib.circle(posit, 57, 29); // F -> B bottom corners
+                    mathlib.circle(posit, 55, 31); // F -> B top edges
+                    mathlib.circle(posit, 56, 30); // F -> B bottom edges
+                    mathlib.circle(posit, 9, 20); // L corners top-left to bottom-right
+                    mathlib.circle(posit, 17, 12); // L corners top-right to bottom-left
+                    mathlib.circle(posit, 13, 16); // L top/bottom edges
+                    mathlib.circle(posit, 10, 19); // L edges #1
+                    mathlib.circle(posit, 11, 18); // L edges #2
+                    mathlib.circle(posit, 14, 15); // L centers
+                }
+                if (move == 'F2') {
+                    mathlib.circle(posit, 38, 3); // U -> D edges
+                    mathlib.circle(posit, 35, 6); // U -> D corners left
+                    mathlib.circle(posit, 41, 0); // U -> D corners right
+                    mathlib.circle(posit, 17, 45); // L -> R top corners
+                    mathlib.circle(posit, 20, 42); // L -> R bottom corners
+                    mathlib.circle(posit, 18, 44); // L -> R top edges
+                    mathlib.circle(posit, 19, 43); // L -> R bottom edges
+                    mathlib.circle(posit, 54, 65); // F corners top-left to bottom-right
+                    mathlib.circle(posit, 57, 62); // F corners top-right to bottom-left
+                    mathlib.circle(posit, 58, 61); // F top/bottom edges
+                    mathlib.circle(posit, 55, 64); // F edges #1
+                    mathlib.circle(posit, 56, 63); // F edges #2
+                    mathlib.circle(posit, 59, 60); // F centers
+                }
+                if (move == 'B2') {
+                    mathlib.circle(posit, 36, 5); // U -> D edges
+                    mathlib.circle(posit, 33, 8); // U -> D corners left
+                    mathlib.circle(posit, 39, 2); // U -> D corners right
+                    mathlib.circle(posit, 9, 53); // L -> R top corners
+                    mathlib.circle(posit, 12, 50); // L -> R bottom corners
+                    mathlib.circle(posit, 10, 52); // L -> R top edges
+                    mathlib.circle(posit, 11, 51); // L -> R bottom edges
+                    mathlib.circle(posit, 21, 32); // B corners top-left to bottom-right
+                    mathlib.circle(posit, 29, 24); // B corners top-right to bottom-left
+                    mathlib.circle(posit, 25, 28); // B top/bottom edges
+                    mathlib.circle(posit, 22, 31); // B edges #1
+                    mathlib.circle(posit, 23, 30); // B edges #2
+                    mathlib.circle(posit, 26, 27); // B centers
+                }
+            }
+
+            function face(f) {
+
+                size = 3;
+                longSize = 4;
+
+                if (!colors) {
+                    setColors();
+                    colors = cube_colors;
+                }
+
+                var offx = 10 / 9,
+                    offy = 10 / 9;
+                if (f == 0) { //D
+                    offx *= size;
+                    offy *= size * 2.33;
+                } else if (f == 1) { //L
+                    offx *= 0;
+                    offy *= size;
+                } else if (f == 2) { //B
+                    offx *= size * 3;
+                    offy *= size;
+                } else if (f == 3) { //U
+                    offx *= size;
+                    offy *= 0;
+                } else if (f == 4) { //R
+                    offx *= size * 2;
+                    offy *= size;
+                } else if (f == 5) { //F
+                    offx *= size;
+                    offy *= size;
+                }
+
+                var topOffset = 1;
+                offy += topOffset;
+
+                if (f == 3 || f == 0) {
+
+                    var cnt = 0;
+                    if (f == 3) {
+                        cnt = 33;
+                    } else {
+                        cnt = 0;
+                    }
+
+                    for (var i = 0; i < size; i++) {
+                        for (var j = 0; j < size; j++) {
+                            drawPolygon(ctx, colors[posit[cnt]], [
+                                [i, i, i + 1, i + 1],
+                                [j, j + 1, j + 1, j]
+                            ], [width, offx, offy]);
+                            cnt += 1;
+                        }
+                    }
+                } else {
+
+                    var cnt = 0;
+                    if (f == 1) {
+                        cnt = 9;
+                    } else if (f == 5) {
+                        cnt = 54;
+                    } else if (f == 4) {
+                        cnt = 42;
+                    } else {
+                        cnt = 21;
+                    }
+
+                    for (var i = 0; i < size; i++) {
+                        for (var j = 0; j < longSize; j++) {
+                            drawPolygon(ctx, colors[posit[cnt]], [
+                                [i, i, i + 1, i + 1],
+                                [j, j + 1, j + 1, j]
+                            ], [width, offx, offy]);
+                            cnt += 1;
+                        }
+                    }
+                }
+            }
+
+            return function(moveseq) {
+                var cnt = 0;
+                for (var i = 0; i < 6; i++) {
+                    var faceSize = (i == 3 || i == 0) ? 9 : 12;
+                    for (var f = 0; f < faceSize; f++) {
+                        posit[cnt++] = i;
+                    }
+                }
+
+                var scramble = moveseq.split(' ');
+                for (var i = 0; i < scramble.length; i++) {
+                    doMove(scramble[i]);
+                }
+
+                var imgSize = scalingFactor / 50;
+                canvas.width(39 * imgSize + 'em');
+                canvas.height((29 * imgSize)*1.33 + 'em');
+
+                canvas.attr('width', 39 * 3 / 9 * width + 1);
+                canvas.attr('height', 29 * 4 / 9 * width + 1);
+
+                for (var i = 0; i < 6; i++) {
+                    face(i);
+                }
+            }
+        })();
+
+        var image223 = (function() {
+            var width = 30;
+            var posit = [];
+            var colors = null;
+
+            function doMove(move) {
+                if (move == 'U') {
+                    mathlib.circle(posit, 16, 18, 19, 17); // U corners
+                    mathlib.circle(posit, 26, 4, 10, 20); // U-adjacent left corners
+                    mathlib.circle(posit, 29, 7, 13, 23); // U-adjacent right corners
+                }
+                if (move == 'U2') {
+                    for (var v = 0; v < 2; v++) {
+                        mathlib.circle(posit, 16, 18, 19, 17); // U corners
+                        mathlib.circle(posit, 26, 4, 10, 20); // U-adjacent left corners
+                        mathlib.circle(posit, 29, 7, 13, 23); // U-adjacent right corners
+                    }
+                }
+                if (move == "U'") {
+                    for (var v = 0; v < 3; v++) {
+                        mathlib.circle(posit, 16, 18, 19, 17); // U corners
+                        mathlib.circle(posit, 26, 4, 10, 20); // U-adjacent left corners
+                        mathlib.circle(posit, 29, 7, 13, 23); // U-adjacent right corners
+                    }
+                }
+                if (move == 'D') {
+                    mathlib.circle(posit, 0, 2, 3, 1); // D corners
+                    mathlib.circle(posit, 28, 22, 12, 6); // D-adjacent left corners
+                    mathlib.circle(posit, 31, 25, 15, 9); // D-adjacent right corners
+                }
+                if (move == 'D2') {
+                    for (var v = 0; v < 2; v++) {
+                        mathlib.circle(posit, 0, 2, 3, 1); // D corners
+                        mathlib.circle(posit, 28, 22, 12, 6); // D-adjacent left corners
+                        mathlib.circle(posit, 31, 25, 15, 9); // D-adjacent right corners
+                    }
+                }
+                if (move == "D'") {
+                    for (var v = 0; v < 3; v++) {
+                        mathlib.circle(posit, 0, 2, 3, 1); // D corners
+                        mathlib.circle(posit, 28, 22, 12, 6); // D-adjacent left corners
+                        mathlib.circle(posit, 31, 25, 15, 9); // D-adjacent right corners
+                    }
+                }
+                if (move == 'R2') {
+                    mathlib.circle(posit, 18, 2); // U -> D corners top
+                    mathlib.circle(posit, 19, 3); // U -> D corners bottom
+                    mathlib.circle(posit, 29, 12); // F -> B corners top
+                    mathlib.circle(posit, 31, 10); // F -> B corners bottom
+                    mathlib.circle(posit, 30, 11); // F -> B edge
+                    mathlib.circle(posit, 20, 25); // R corners #1
+                    mathlib.circle(posit, 22, 23); // R corners #2
+                    mathlib.circle(posit, 21, 24); // R edges
+                }
+                if (move == 'F2') {
+                    mathlib.circle(posit, 17, 2); // U -> D corners left
+                    mathlib.circle(posit, 19, 0); // U -> D corners right
+                    mathlib.circle(posit, 7, 22); // L -> R corners top
+                    mathlib.circle(posit, 9, 20); // L -> R corners bottom
+                    mathlib.circle(posit, 8, 21); // L -> R edges
+                    mathlib.circle(posit, 27, 30); // F edges
+                    mathlib.circle(posit, 26, 31); // F corners #1
+                    mathlib.circle(posit, 28, 29); // F corners #2
+                }
+            }
+
+            function face(f) {
+
+                size = 2;
+                longSize = 3;
+
+                if (!colors) {
+                    setColors();
+                    colors = cube_colors;
+                }
+
+                var leftOffset = 1;
+                var topOffset = 2;
+
+                var offx = 10 / 8,
+                    offy = 10 / 8;
+                if (f == 0) { //D
+                    offx *= size;
+                    offx += leftOffset;
+                    offy *= size * 2.4
+                    offy += topOffset;
+                } else if (f == 1) { //L
+                    offx *= 0;
+                    offx += leftOffset;
+                    offy *= size;
+                    offy += topOffset;
+                } else if (f == 2) { //B
+                    offx *= size * 3;
+                    offx += leftOffset;
+                    offy *= size;
+                    offy += topOffset;
+                } else if (f == 3) { //U
+                    offx *= size;
+                    offx += leftOffset;
+                    offy *= 0;
+                    offy += topOffset;
+                } else if (f == 4) { //R
+                    offx *= size * 2;
+                    offx += leftOffset;
+                    offy *= size;
+                    offy += topOffset;
+                } else if (f == 5) { //F
+                    offx *= size;
+                    offx += leftOffset;
+                    offy *= size;
+                    offy += topOffset;
+                }
+
+                if (f == 3 || f == 0) {
+
+                    var cnt = 0;
+                    if (f == 3) {
+                        cnt = 16;
+                    } else {
+                        cnt = 0;
+                    }
+
+                    for (var i = 0; i < size; i++) {
+                        for (var j = 0; j < size; j++) {
+                            drawPolygon(ctx, colors[posit[cnt]], [
+                                [i, i, i + 1, i + 1],
+                                [j, j + 1, j + 1, j]
+                            ], [width, offx, offy]);
+                            cnt += 1;
+                        }
+                    }
+                } else {
+
+                    var cnt = 0;
+                    if (f == 1) {
+                        cnt = 4;
+                    } else if (f == 5) {
+                        cnt = 26;
+                    } else if (f == 4) {
+                        cnt = 20;
+                    } else {
+                        cnt = 10;
+                    }
+
+                    for (var i = 0; i < size; i++) {
+                        for (var j = 0; j < longSize; j++) {
+                            drawPolygon(ctx, colors[posit[cnt]], [
+                                [i, i, i + 1, i + 1],
+                                [j, j + 1, j + 1, j]
+                            ], [width, offx, offy]);
+                            cnt += 1;
+                        }
+                    }
+                }
+            }
+
+            return function(moveseq) {
+                var cnt = 0;
+                for (var i = 0; i < 6; i++) {
+                    var faceSize = (i == 3 || i == 0) ? 4 : 6;
+                    for (var f = 0; f < faceSize; f++) {
+                        posit[cnt++] = i;
+                    }
+                }
+
+                var scramble = moveseq.split(' ');
+                for (var i = 0; i < scramble.length; i++) {
+                    doMove(scramble[i]);
+                }
+
+                var imgSize = scalingFactor / 40;
+                canvas.width(35 * imgSize + 'em');
+                canvas.height((25 * imgSize)*1.25 + 'em');
+
+                canvas.attr('width', 35 * 3 / 9 * width + 1);
+                canvas.attr('height', 25 * 4 / 9 * width + 1);
+
+                for (var i = 0; i < 6; i++) {
+                    face(i);
+                }
+            }
+        })();
+
         var nnnImage = (function() {
             var width = 30;
 
@@ -1673,10 +2441,11 @@
                 }
             }
 
-            return function(size, moveseq, isVoidCube, is332) {
+            return function(size, moveseq, isVoidCube, is332, returnCubeState) {
 
                 isVoidCube = isVoidCube || false; // default value of false
                 is332 = is332 || false; // default value of false
+                returnCubeState = returnCubeState || false; // default value of false
 
                 var cnt = 0;
                 for (var i = 0; i < 6; i++) {
@@ -1697,6 +2466,8 @@
                     }
                 }
 
+                if (returnCubeState) { return posit; }
+
                 var imgSize = scalingFactor / 50;
                 canvas.width(39 * imgSize + 'em');
                 canvas.height(29 * imgSize + 'em');
@@ -1712,9 +2483,17 @@
 
         var types_nnn = ['', '', '2x2', '3x3', '4x4', '5x5', '6x6', '7x7', '8x8', '9x9'];
 
-        function genImage(scramble) {
+        function setBorderRadius(type, canvasSize) {
+            cornerRadiusOptions = cornerRadiusMap[type] || defaultCornerRadiusOptions;
+            eventCornerRadius = cornerRadiusOptions[canvasSize];
+        }
+
+        function genImage(scramble, canvasSize) {
 
             var type = scramble[0];
+
+            setBorderRadius(type, canvasSize);
+
             var size;
             for (size = 0; size <= 9; size++) {
                 if (type == types_nnn[size]) {
@@ -1736,6 +2515,18 @@
             }
             if (type == "Redi Cube") {
                 rediImage(scramble[1]);
+                return true;
+            }
+            if (type == "Dino Cube") {
+                dinoImage(scramble[1]);
+                return true;
+            }
+            if (type == "3x3x4") {
+                image334(scramble[1]);
+                return true;
+            }
+            if (type == "2x2x3") {
+                image223(scramble[1]);
                 return true;
             }
             if (type == "4x4 OH") {
@@ -1762,7 +2553,15 @@
                 mgmImage(scramble[1]);
                 return true;
             }
+            if (type == "Kilominx") {
+                kilominxImage(scramble[1]);
+                return true;
+            }
             return false;
+        }
+
+        function getCubeState(scramble) {
+            return nnnImage(3, scramble, false, false, true);
         }
 
         function getCanvasWidth() {
@@ -1801,6 +2600,7 @@
             setScalingFactorDirectly: setScalingFactorDirectly,
             getCanvasWidth: getCanvasWidth,
             getCanvasHeight: getCanvasHeight,
+            getCubeState: getCubeState
         }
     })();
 
@@ -1845,6 +2645,42 @@
         this.showNormalImage();
     };
 
+    ScrambleImageGenerator.prototype.getCubeState = function(scramble) {
+        return image.getCubeState(scramble).join('');
+    }
+
+    ScrambleImageGenerator.prototype.getAllSolvedCubeStates = function(scramble) {
+        var states = [];
+        
+        // top, front
+        states.push(image.getCubeState("").join(''));      // white, green
+        states.push(image.getCubeState("y").join(''));     // white, red 
+        states.push(image.getCubeState("y2").join(''));    // white, blue
+        states.push(image.getCubeState("y'").join(''));    // white, orange
+        states.push(image.getCubeState("x").join(''));     // green, yellow
+        states.push(image.getCubeState("x y").join(''));   // green, red 
+        states.push(image.getCubeState("x y2").join(''));  // green, white
+        states.push(image.getCubeState("x y'").join(''));  // green, orange
+        states.push(image.getCubeState("x2").join(''));    // yellow, blue
+        states.push(image.getCubeState("x2 y").join(''));  // yellow, red 
+        states.push(image.getCubeState("x2 y2").join('')); // yellow, green
+        states.push(image.getCubeState("x2 y'").join('')); // yellow, orange
+        states.push(image.getCubeState("x'").join(''));    // blue, white
+        states.push(image.getCubeState("x' y").join(''));  // blue, red 
+        states.push(image.getCubeState("x' y2").join('')); // blue, yellow
+        states.push(image.getCubeState("x' y'").join('')); // blue, orange
+        states.push(image.getCubeState("z").join(''));     // orange, green
+        states.push(image.getCubeState("z y").join(''));   // orange, white
+        states.push(image.getCubeState("z y2").join(''));  // orange, blue
+        states.push(image.getCubeState("z y'").join(''));  // orange, yellow
+        states.push(image.getCubeState("z'").join(''));    // red, green
+        states.push(image.getCubeState("z' y").join(''));  // red, yellow
+        states.push(image.getCubeState("z' y2").join('')); // red, blue
+        states.push(image.getCubeState("z' y'").join('')); // red, white
+
+        return states;
+    }
+
     ScrambleImageGenerator.prototype.showNormalImage = function() {
         // If the canvas doesn't exist, we shouldn't be trying to show the image, just bail
         if (!image.findCanvas(this.normalCanvasId)) { return; }
@@ -1853,7 +2689,7 @@
         // on this window size, just go ahead and draw the image that was prepped
         if (this.haveEstablishedDesktopScalingFactor) {
             image.setScalingFactorDirectly(this.desktopScalingFactor);
-            return image.draw([this.savedEventName, this.savedScramble]);
+            return image.draw([this.savedEventName, this.savedScramble], CANVAS_SMALL_RADIUS_IDX);
         }
 
         // Find the correct scaling factor and remember that we've done so
@@ -1863,7 +2699,7 @@
 
         // Finally draw the preview at the correct scaling factor
         image.setScalingFactorDirectly(this.desktopScalingFactor);
-        return image.draw([this.savedEventName, this.savedScramble]);
+        return image.draw([this.savedEventName, this.savedScramble], CANVAS_SMALL_RADIUS_IDX);
     };
 
     ScrambleImageGenerator.prototype.showLargeImage = function() {
@@ -1874,7 +2710,7 @@
         // on this device, just go ahead and draw the image that was prepped
         if (this.haveEstablishedLargeScalingFactor) {
             image.setScalingFactorDirectly(this.largeScalingFactor);
-            return image.draw([this.savedEventName, this.savedScramble]);
+            return image.draw([this.savedEventName, this.savedScramble], CANVAS_LARGE_RADIUS_IDX);
         }
 
         // Target width & height is 20 less than device/browser width & height, so there's a ~10px buffer on either side
@@ -1885,7 +2721,7 @@
 
         // Finally draw the preview at the correct scaling factor
         image.setScalingFactorDirectly(this.largeScalingFactor);
-        return image.draw([this.savedEventName, this.savedScramble]);
+        return image.draw([this.savedEventName, this.savedScramble], CANVAS_LARGE_RADIUS_IDX);
     };
 
     ScrambleImageGenerator.prototype.determineScalingFactorAndDraw = function(targetWidth) {
@@ -1894,7 +2730,7 @@
         while (true) {
 
             image.setScalingFactorDirectly(testScalingFactor);
-            image.draw([this.savedEventName, this.savedScramble]);
+            image.draw([this.savedEventName, this.savedScramble], CANVAS_SMALL_RADIUS_IDX);
 
             if (testScalingFactor >= 50) {
                 testScalingFactor = 50;

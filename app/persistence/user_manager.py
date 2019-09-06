@@ -3,7 +3,7 @@
 from typing import Optional
 
 from app import DB
-from app.persistence.models import User
+from app.persistence.models import User, UserEventResults
 from app.persistence.weekly_metrics_manager import increment_new_user_count
 
 # -------------------------------------------------------------------------------------------------
@@ -24,6 +24,19 @@ def get_all_users():
     """ Get all users. """
 
     return User.query.all()
+
+
+def get_all_active_usernames():
+    """ Get all usernames for users with at least one UserEventResults. """
+
+    # list of 1-tuples of usernames
+    usernames = User.query.with_entities(User.username).\
+        join(UserEventResults).\
+        filter(UserEventResults.is_blacklisted.isnot(True)).\
+        distinct(User.id).\
+        all()
+
+    return sorted([r[0] for r in usernames])
 
 
 def get_user_count():

@@ -16,6 +16,20 @@
     background-color: white;
 }
 
+.versus-container {
+    min-height: 100%;
+    padding-top: 63px; // 48 navbar + 15 for room
+    background-color: white;
+}
+
+.versus-search {
+    height: ~"calc(100% - 72px)";
+}
+
+.vs_winner {
+    background-color: #9afaca;
+}
+
 .nav-link {
     padding: 8px;
 }
@@ -63,8 +77,18 @@
     thead > tr > th {
         vertical-align: middle;
     }
-    th[colspan="3"] {
-        border-bottom: none;
+    th,td {
+        &.spacer {
+            width: 45px;
+        }
+    }
+}
+
+.no-glow {
+    &:focus {
+        outline: none;
+        box-shadow: none;
+        border-color: #ced4da;
     }
 }
 

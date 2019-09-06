@@ -11,7 +11,7 @@
     data-compete_url="{{ url_for('timer_page', comp_event_id=competition_event.id)}}">
 
     <div class="event-image-container">
-        <img class="event-image" src="./static/images/cube-{{ competition_event.Event.id }}.png">
+        <img class="event-image" src="./static/images/cube-{{ competition_event.Event.name | slugify }}.png">
         <div class="overlay complete-overlay">
             <a href="#" class="icon"><i class="fas fa-check"></i></a>
         </div>

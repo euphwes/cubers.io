@@ -50,13 +50,13 @@ def attack_scrambler():
     return scramble
 
 
-def redi_scrambler():
+def redi_scrambler(total_faces=7):
     """ Returns a scramble for a Redi cube in MoYu notation. """
 
     scramble = list()
     possible_moves = [["R", "R'"], ["L", "L'"]]
 
-    for _ in range(7):
+    for _ in range(total_faces):
         i = choice([0, 1])  # start each chunk with either R-moves or L-moves at random
         for n in range(choice([3, 4, 5])):  # either 3, 4, or 5 moves between each 'x'
             ix = (i + n) % 2  # alternate between R-moves and L-moves each time
@@ -156,7 +156,7 @@ EVENT_4BLD      = EventResource("4BLD", scrambler444.get_4BLD_scramble, 3, True,
 EVENT_5BLD      = EventResource("5BLD", scrambler555.get_5BLD_scramble, 3, True, True)
 EVENT_MBLD      = EventResource("MBLD", mbld_scrambler, 3, True, True)
 
-# Bonus event definitions (current count = 14)
+# Bonus event definitions (current count = 16)
 EVENT_COLL      = EventResource("COLL", COLL_scrambler, 5, False, False, is_rotating=True)
 EVENT_F2L       = EventResource("F2L", scrambler333.get_WCA_scramble, 5, False, False, is_rotating=True)
 EVENT_Void      = EventResource("Void Cube", scrambler333.get_3BLD_scramble, 5, False, False, is_rotating=True)
@@ -171,9 +171,11 @@ EVENT_333Relay  = EventResource("3x3 Relay of 3", scrambler_333_relay, 1, False,
 EVENT_PLLAttack = EventResource("PLL Time Attack", attack_scrambler, 1, False, False, is_rotating=True)
 EVENT_2BLD      = EventResource("2BLD", scrambler222.get_WCA_scramble, 3, False, False, is_rotating=True)
 EVENT_REDI      = EventResource("Redi Cube", redi_scrambler, 5, False, False, is_rotating=True)
+EVENT_DINO      = EventResource("Dino Cube", lambda: redi_scrambler(5), 5, False, False, is_rotating=True)
+EVENT_2x2x3     = EventResource("2x2x3", cuboidsScrambler.get_2x2x3_scramble, 5, False, False, is_rotating=True)
 
-# Special event definitions, like bonus except they don't rotate over the weeks, they only
-# come up when it's an "all events" competition
+# Special event definitions, like bonus except they don't rotate over the weeks,
+# they only come up when it's an "all events" competition
 EVENT_8x8 = EventResource("8x8", bigCubesScrambler.get_8x8x8_scramble, 1, False, False, is_rotating=False)
 EVENT_9x9 = EventResource("9x9", bigCubesScrambler.get_9x9x9_scramble, 1, False, False, is_rotating=False)
 
@@ -217,7 +219,9 @@ __ALL_EVENTS = [
     EVENT_REDI,
     EVENT_8x8,
     EVENT_9x9,
-    EVENT_MBLD
+    EVENT_MBLD,
+    EVENT_DINO,
+    EVENT_2x2x3
 ]
 
 # Important! Don't change how these weekly and bonus lists are built, we rely on the order
@@ -277,6 +281,7 @@ __GLOBAL_SORT_ORDER = [
     EVENT_Mirror,
     EVENT_Void,
     EVENT_4x4OH,
+    EVENT_2x2x3,
     EVENT_3x3x2,
     EVENT_3x3x4,
     EVENT_3x3x5,
@@ -286,6 +291,7 @@ __GLOBAL_SORT_ORDER = [
     EVENT_COLL,
     EVENT_F2L,
     EVENT_REDI,
+    EVENT_DINO,
     EVENT_8x8,
     EVENT_9x9,
 ]
@@ -334,6 +340,18 @@ def sort_site_rankings_by_global_sort_order(site_rankings, event_id_name_map):
             ordered_rankings[k] = v
 
     return ordered_rankings
+
+
+def sort_event_id_name_map_by_global_sort_order(event_id_name_map):
+
+    ordered_map = OrderedDict()
+
+    for event in __GLOBAL_SORT_ORDER:
+        for mapped_event_id, mapped_event_name in event_id_name_map.items():
+            if mapped_event_name == event.name:
+                ordered_map[mapped_event_id] = mapped_event_name
+
+    return ordered_map
 
 # -------------------------------------------------------------------------------------------------
 

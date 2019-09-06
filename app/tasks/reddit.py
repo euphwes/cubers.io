@@ -1,5 +1,6 @@
 """ Tasks related to interacting with Reddit. """
 
+from app import app
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp_and_user
 from app.persistence.comp_manager import get_competition, get_all_comp_events_for_comp,\
     get_participants_in_competition_as_user_ids
@@ -9,6 +10,8 @@ from app.util.reddit import send_PM_to_user_with_title_and_body
 from app.util.events.resources import get_all_bonus_events_names
 
 from . import huey
+
+IS_DEVO = app.config['IS_DEVO']
 
 # -------------------------------------------------------------------------------------------------
 
@@ -64,6 +67,9 @@ def prepare_new_competition_notification(comp_id, is_all_events):
     """ Builds a new competition notification message, looks up all users who want to receive
     this sort of message, and queues up tasks to send those users PMs. """
 
+    if IS_DEVO:
+        return
+
     competition = get_competition(comp_id)
 
     if is_all_events:
@@ -89,6 +95,9 @@ def prepare_new_competition_notification(comp_id, is_all_events):
 def send_competition_notification_pm(username, message_body):
     """ Sends a new competition notification PM to the specified user. """
 
+    if IS_DEVO:
+        return
+
     send_PM_to_user_with_title_and_body(username, NEW_COMP_TITLE, message_body)
 
 
@@ -96,6 +105,9 @@ def send_competition_notification_pm(username, message_body):
 def prepare_end_of_competition_info_notifications(comp_id):
     """ Prepares a list of end-of-competition stats and info for users who have both opted in
     and participated in the specified competition. """
+
+    if IS_DEVO:
+        return
 
     users_in_comp = get_participants_in_competition_as_user_ids(comp_id)
     opted_in = get_all_user_ids_with_setting_value(SettingCode.REDDIT_RESULTS_NOTIFY, TRUE_STR)
@@ -114,6 +126,9 @@ def prepare_end_of_competition_info_notifications(comp_id):
 def send_end_of_competition_message(user_id, comp_id, comp_title):
     """ Sends a report to the specified user with info about their participation
     in the competition. """
+
+    if IS_DEVO:
+        return
 
     user = get_user_by_id(user_id)
     all_results = get_all_complete_user_results_for_comp_and_user(comp_id, user_id, include_blacklisted=False)

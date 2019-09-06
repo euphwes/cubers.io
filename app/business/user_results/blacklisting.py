@@ -52,14 +52,17 @@ __AUTO_BLACKLIST_THRESHOLDS = {
     '3x3 With Feet': (1696, 2222),
     'MBLD':          48,            # points
 
-    # Below are thresholds for "reasonable" times for bonus events, based on times that have been
-    # submitted for bonus events over the last few months. Mostly gave a few seconds of buffer underneath
-    # what the current site records are for these events.
+    # "Reasonable values" sourced from
+    # https://www.speedsolving.com/wiki/index.php/List_of_Unofficial_World_Records
+    # with a little bit of wiggle room. Events which aren't there are based on times that have been
+    # submitted to the site over the months before the auto-blacklist concept was implemented.
     'Kilominx':        (1400, 1600),
     '2BLD':            (350, 450),
     'Redi Cube':       (400, 600),
+    'Dino Cube':       (198, 465),
     'Void Cube':       (500, 700),
     '4x4 OH':          (4500, 5000),
+    '2x2x3':           (199, 783),
     '3x3x2':           (250, 400),
     '3x3x4':           (2200, 2800),
     '3x3x5':           (3500, 4000),
@@ -69,10 +72,6 @@ __AUTO_BLACKLIST_THRESHOLDS = {
     '3x3 Relay of 3':  (2000, 1),
     'PLL Time Attack': (2200, 1),
     '3x3 Mirror Blocks/Bump': (2000, 2500),
-
-    # "Reasonable values" sourced from
-    # https://www.speedsolving.com/wiki/index.php/List_of_Unofficial_World_Records
-    # and then rounded down another 15s or so just in case
     '8x8': (21000, 1),
     '9x9': (31500, 1),
 }

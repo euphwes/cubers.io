@@ -62,6 +62,16 @@ def unblacklist_results(results_id):
     return results
 
 
+def get_user_event_results_by_id(user_event_results_id):
+    """ Returns a specific UserEventResults record by ID. """
+
+    return DB.session.\
+        query(UserEventResults).\
+        filter(UserEventResults.is_complete).\
+        filter(UserEventResults.id == user_event_results_id).\
+        first()
+
+
 def get_user_completed_solves_count(user_id):
     """ Returns a count of the number of solves for completed events for the given user. """
 
@@ -72,6 +82,28 @@ def get_user_completed_solves_count(user_id):
         filter(UserEventResults.user_id == user_id).\
         distinct(UserSolve.id).\
         count()
+
+
+def get_user_medals_count(user_id):
+    """ Returns a tuple containing the counts of the number of gold, silver, and bronze medals
+    this user has. """
+
+    bronze_count = DB.session.query(UserEventResults).\
+        filter(UserEventResults.user_id == user_id).\
+        filter(UserEventResults.was_bronze_medal).\
+        count()
+
+    silver_count = DB.session.query(UserEventResults).\
+        filter(UserEventResults.user_id == user_id).\
+        filter(UserEventResults.was_silver_medal).\
+        count()
+
+    gold_count = DB.session.query(UserEventResults).\
+        filter(UserEventResults.user_id == user_id).\
+        filter(UserEventResults.was_gold_medal).\
+        count()
+
+    return (gold_count, silver_count, bronze_count)
 
 
 def get_user_solve_for_scramble_id(user_id, scramble_id):

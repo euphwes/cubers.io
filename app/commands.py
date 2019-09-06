@@ -3,6 +3,8 @@
 import click
 from random import randrange, choice
 
+from slugify import slugify
+
 from app import app
 from app.persistence.models import UserSolve, UserEventResults
 from app.business.user_results.blacklisting import __AUTO_BLACKLIST_THRESHOLDS
@@ -271,3 +273,14 @@ def generate_fake_comp_results():
 
             process_event_results(results, comp_event, user)
             save_event_results(results)
+
+# -------------------------------------------------------------------------------------------------
+# Other useful stuff
+# -------------------------------------------------------------------------------------------------
+
+@app.cli.command()
+def show_slugified_event_names():
+    """ Utility command to slugify all event names and display them in the terminal. """
+
+    for event in get_all_events():
+        print(slugify(event.name))

@@ -94,7 +94,11 @@
                         <td scope="col">{{ result.average | format_fmc_result }}</td>
                         <td scope="col" class="font-weight-bold">{{ result.single | format_fmc_result }}</td>
                         {% for solve in result.solves_helper %}
-                        <td scope="col" class="d-none d-md-table-cell">{{ solve }}</td>
+                        <td scope="col" class="d-none d-md-table-cell">
+                            {% if solve[0] %}
+                            {{ link_to_algcubingnet(solve[0], solve[1], solve[2]) | safe }}
+                            {% endif %}
+                        </td>
                         {% endfor %}
                     {% else %}
                         {% if comp_event.Event.name == "MBLD" %}
