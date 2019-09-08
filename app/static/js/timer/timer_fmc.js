@@ -184,11 +184,14 @@
     // Gets a move count in Outer Block Turn Metric for a given solution
     function getOBTMMoveCount(moves) {
         var sliceMoves = ["E", "E2", "E'", "M", "M2", "M'", "S", "S2", "S'"];
+        var rotations  = ["x", "x2", "x'", "y", "y2", "y'", "z", "z2", "z'"];
 
         var moveCount = 0;
         $.each(moves, function(i, move) {
             if (sliceMoves.includes(move)) {
                 moveCount += 2;
+            } else if (rotations.includes(move)) {
+                moveCount += 0;
             } else {
                 moveCount += 1;
             }
