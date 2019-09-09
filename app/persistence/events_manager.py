@@ -58,7 +58,6 @@ def get_all_bonus_events():
     return [e for e in get_all_events() if e.name in bonus_event_names]
 
 
-@lru_cache()
 def get_events_id_name_mapping():
     """ Returns a dictionary of event ID to name mappings. """
 
@@ -69,7 +68,6 @@ def get_events_id_name_mapping():
     return mapping
 
 
-@lru_cache()
 def get_events_name_id_mapping():
     """ Returns a dictionary of event name to ID mappings. """
 
