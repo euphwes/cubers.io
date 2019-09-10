@@ -72,7 +72,7 @@
 
     // Determine if a given solution solves a given scramble
     function doesSolutionSolveScramble(solution, scramble) {
-        var combined_scramble_solution = solution + ' ' + scramble;
+        var combined_scramble_solution = scramble + ' ' + solution;
         var state_post_solution = (new window.app.ScrambleImageGenerator()).getCubeState(combined_scramble_solution);
 
         var solved_states = (new window.app.ScrambleImageGenerator()).getAllSolvedCubeStates();
