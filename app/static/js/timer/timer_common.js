@@ -228,6 +228,8 @@
             }
         };
 
+        // If this is for FMC, don't display the menu things for modifying solves
+        // Also alter the delete menu text to say "delete solution" instead of "delete time"
         if (window.app.eventName == 'FMC') {
             delete menuItems.clear;
             delete menuItems.dnf;
@@ -236,6 +238,8 @@
             delete menuItems.sep1;
             delete menuItems.manual_entry;
             delete menuItems.sep2;
+
+            menuItems.delete.name = "Delete solution";
         }
 
         $.contextMenu({
