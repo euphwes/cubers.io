@@ -179,57 +179,70 @@
     };
 
     var wireContextMenu = function() {
+
+        var menuItems = {
+            "clear": {
+                name: "Clear penalty",
+                icon: "far fa-thumbs-up",
+                callback: function(itemKey, opt, e) { 
+                    applySolveModification($(opt.$trigger), MOD_CLEAR_PENALTY); 
+                },
+                disabled: function(key, opt) { return !(hasDNF(this) || hasPlusTwo(this)); }
+            },
+            "dnf": {
+                name: "DNF",
+                icon: "fas fa-ban",
+                callback: function(itemKey, opt, e) { 
+                    applySolveModification($(opt.$trigger), MOD_APPLY_DNF); 
+                },
+                // TODO can I clean up this disabled function by just passing hasDNF directly? test
+                disabled: function(key, opt) { return hasDNF(this); }
+            },
+            "plusTwo": {
+                name: "+2",
+                icon: "fas fa-plus",
+                callback: function(itemKey, opt, e) { 
+                    applySolveModification($(opt.$trigger), MOD_APPLY_PLUS_TWO); 
+                },
+                disabled: function(key, opt) { return hasPlusTwo(this); }
+            },
+            "sep1": "---------",
+            "manual_entry": {
+                name: "Manual time entry",
+                icon: "fas fa-edit",
+                callback: function(itemKey, opt, e) { manualTimeEntry($(opt.$trigger)); },
+            },
+            "sep2": "---------",
+            "copy_scramble" : {
+                name: "Copy scramble",
+                icon: "fas fa-clipboard",
+                callback: function(itemKey, opt, e) { copyScramble($(opt.$trigger)); }
+            },
+            "sep3": "---------",
+            "delete": {
+                name: "Delete time",
+                icon: "fas fa-trash",
+                callback: function(itemKey, opt, e) { 
+                    applySolveModification($(opt.$trigger), MOD_DELETE_SOLVE); 
+                },
+            }
+        };
+
+        if (window.app.eventName == 'FMC') {
+            delete menuItems.clear;
+            delete menuItems.dnf;
+            delete menuItems.plusTwo;
+            delete menuItems.clear;
+            delete menuItems.sep1;
+            delete menuItems.manual_entry;
+            delete menuItems.sep2;
+        }
+
         $.contextMenu({
             selector: '.single_time.ctx_menu',
             trigger: 'left',
             hideOnSecondTrigger: true,
-            items: {
-                "clear": {
-                    name: "Clear penalty",
-                    icon: "far fa-thumbs-up",
-                    callback: function(itemKey, opt, e) { 
-                        applySolveModification($(opt.$trigger), MOD_CLEAR_PENALTY); 
-                    },
-                    disabled: function(key, opt) { return !(hasDNF(this) || hasPlusTwo(this)); }
-                },
-                "dnf": {
-                    name: "DNF",
-                    icon: "fas fa-ban",
-                    callback: function(itemKey, opt, e) { 
-                        applySolveModification($(opt.$trigger), MOD_APPLY_DNF); 
-                    },
-                    // TODO can I clean up this disabled function by just passing hasDNF directly? test
-                    disabled: function(key, opt) { return hasDNF(this); }
-                },
-                "+2": {
-                    name: "+2",
-                    icon: "fas fa-plus",
-                    callback: function(itemKey, opt, e) { 
-                        applySolveModification($(opt.$trigger), MOD_APPLY_PLUS_TWO); 
-                    },
-                    disabled: function(key, opt) { return hasPlusTwo(this); }
-                },
-                "sep1": "---------",
-                "manual_entry": {
-                    name: "Manual time entry",
-                    icon: "fas fa-edit",
-                    callback: function(itemKey, opt, e) { manualTimeEntry($(opt.$trigger)); },
-                },
-                "sep2": "---------",
-                "copy_scramble" : {
-                    name: "Copy scramble",
-                    icon: "fas fa-clipboard",
-                    callback: function(itemKey, opt, e) { copyScramble($(opt.$trigger)); }
-                },
-                "sep3": "---------",
-                "delete": {
-                    name: "Delete time",
-                    icon: "fas fa-trash",
-                    callback: function(itemKey, opt, e) { 
-                        applySolveModification($(opt.$trigger), MOD_DELETE_SOLVE); 
-                    },
-                },
-            }
+            items: menuItems,
         });
     };
 
