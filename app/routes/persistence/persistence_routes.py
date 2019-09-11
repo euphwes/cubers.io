@@ -59,6 +59,7 @@ ERR_MSG_INACTIVE_COMP = 'This event belongs to a competition which has ended.'
 ERR_MSG_NO_RESULTS    = "Can't find user results for competition event with ID {}."
 ERR_MSG_NO_SOLVE      = "Can't find solve with ID {} that belongs to {}."
 ERR_MSG_MBLD_TOO_FEW_ATTEMPTED = "You must attempt at least 2 cubes for MBLD!"
+ERR_MSG_NOT_VALID_FOR_FMC = 'This operation is not valid for FMC!'
 
 # -------------------------------------------------------------------------------------------------
 # Below are routes called during standard usage of the timer pages
@@ -145,6 +146,10 @@ def toggle_prev_penalty():
     comp_event = get_comp_event_by_id(comp_event_id)
     if not comp_event:
         return (ERR_MSG_NO_SUCH_EVENT.format(comp_event_id), HTTPStatus.NOT_FOUND)
+
+    # If this is FMC, this isn't valid
+    if comp_event.Event.name == 'FMC':
+        return (ERR_MSG_NOT_VALID_FOR_FMC, HTTPStatus.BAD_REQUEST)
 
     # Verify that the competition event belongs to the active competition.
     comp = comp_event.Competition
@@ -281,6 +286,10 @@ def set_time():
     # Extract the target solve, user's event results, and the associated competition event
     target_solve, user_event_results, comp_event = target_solve_data
 
+    # If this is FMC, this isn't valid
+    if comp_event.Event.name == 'FMC':
+        return (ERR_MSG_NOT_VALID_FOR_FMC, HTTPStatus.BAD_REQUEST)
+
     # Extract JSON solve data, deserialize to dict, and verify that all expected fields are present
     # This is slightly redundant given the call to __retrieve_target_solve, but we also need to pull
     # the centiseconds value which that doesn't do.
@@ -313,6 +322,10 @@ def set_plus_two():
     # Extract the target solve, user's event results, and the associated competition event
     target_solve, user_event_results, comp_event = target_solve_data
 
+    # If this is FMC, this isn't valid
+    if comp_event.Event.name == 'FMC':
+        return (ERR_MSG_NOT_VALID_FOR_FMC, HTTPStatus.BAD_REQUEST)
+
     # Make the target solve +2, and ensure it's not DNF
     target_solve.is_plus_two = True
     target_solve.is_dnf = False
@@ -335,6 +348,10 @@ def set_dnf():
     # Extract the target solve, user's event results, and the associated competition event
     target_solve, user_event_results, comp_event = target_solve_data
 
+    # If this is FMC, this isn't valid
+    if comp_event.Event.name == 'FMC':
+        return (ERR_MSG_NOT_VALID_FOR_FMC, HTTPStatus.BAD_REQUEST)
+
     # Make the target solve DNF, and ensure it's not +2
     target_solve.is_dnf = True
     target_solve.is_plus_two = False
@@ -356,6 +373,10 @@ def clear_penalty():
 
     # Extract the target solve, user's event results, and the associated competition event
     target_solve, user_event_results, comp_event = target_solve_data
+
+    # If this is FMC, this isn't valid
+    if comp_event.Event.name == 'FMC':
+        return (ERR_MSG_NOT_VALID_FOR_FMC, HTTPStatus.BAD_REQUEST)
 
     # Clear penalties
     target_solve.is_plus_two = False
