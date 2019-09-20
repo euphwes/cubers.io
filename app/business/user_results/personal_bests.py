@@ -110,8 +110,10 @@ def recalculate_user_pbs_for_event(user_id, event_id):
 # A DNF is a PB if no other PBs have been set, so <DNF-as-a-PB> is represented as a really slow time
 # that's faster than <no PBs yet>.
 
-__PB_DNF    = 88888888  # In centiseconds, this is ~246 hours. Slower than any conceivable real time
-__NO_PB_YET = 99999999
+# In centiseconds, this is ~28 years. Slower than any conceivable real time. Also this is "slower" by
+# integer sorting than slower, low cube count MBLD results.
+__PB_DNF    = 88888888888
+__NO_PB_YET = 99999999999
 
 def __pb_representation(time):
     """ Takes a `time` value from a user solve and converts it into a representation useful for
