@@ -16,6 +16,7 @@ Enum       = DB.Enum
 Model      = DB.Model
 Column     = DB.Column
 String     = DB.String
+Float      = DB.Float
 Boolean    = DB.Boolean
 Integer    = DB.Integer
 DateTime   = DB.DateTime
@@ -289,6 +290,8 @@ class UserSiteRankings(Model):
     sum_wca_average     = Column(Integer)
     sum_non_wca_single  = Column(Integer)
     sum_non_wca_average = Column(Integer)
+    wca_kinchrank       = Column(Float)
+    all_kinchrank       = Column(Float)
 
     # Save the data as a dict so we don't have to deserialize it every time it's
     # retrieved for the same object
