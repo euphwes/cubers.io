@@ -80,8 +80,8 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
     user_site_rankings = UserSiteRankings()
 
     # Calculate site-wide Kinchrank (for both WCA-only and all events) for this user
-    overall_kinchrank = 0
-    wca_kinchrank     = 0
+    overall_kinchranks = list()
+    wca_kinchranks     = list()
 
     for event in all_events:
         pb_single    = ''
@@ -136,15 +136,15 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
             pass
         elif event.eventFormat in (EventFormat.Bo1, EventFormat.Bo3):
             if pb_single and not pb_single == 'DNF':
-                event_kinch = round(int(ranked_singles[0].personal_best) / int(pb_single), 4)
+                event_kinch = round(int(ranked_singles[0].personal_best) / int(pb_single) * 100, 2)
         else:
             if pb_average and not pb_average == 'DNF':
-                event_kinch = round(int(ranked_averages[0].personal_best) / int(pb_average), 4)
+                event_kinch = round(int(ranked_averages[0].personal_best) / int(pb_average) * 100, 2)
 
         # Accumulate Kinchranks
-        overall_kinchrank += event_kinch
+        overall_kinchranks.append(event_kinch)
         if event_is_wca:
-            wca_kinchrank += event_kinch
+            wca_kinchranks.append(event_kinch)
 
         # Records the user's rankings, PBs, and Kinchrank component for this event
         user_rankings_data[event.id] = (pb_single, single_rank, pb_average, average_rank, event_kinch)
@@ -169,8 +169,8 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
     user_site_rankings.sum_wca_average     = sor_wca[1]
     user_site_rankings.sum_non_wca_single  = sor_non_wca[0]
     user_site_rankings.sum_non_wca_average = sor_non_wca[1]
-    user_site_rankings.all_kinchrank       = round(overall_kinchrank, 4)
-    user_site_rankings.wca_kinchrank       = round(wca_kinchrank, 4)
+    user_site_rankings.all_kinchrank       = round(sum(overall_kinchranks) / (len(overall_kinchranks) + 0.0), 2)
+    user_site_rankings.wca_kinchrank       = round(sum(wca_kinchranks) / (len(wca_kinchranks) + 0.0), 2)
 
     return user_site_rankings
 
