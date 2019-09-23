@@ -53,6 +53,21 @@ def get_mbld_total_points(coded_value):
     return num_successful - (num_attempted - num_successful)
 
 
+def get_mbld_fraction_of_hour_remaining(coded_value):
+    """ Returns the fraction of the hour remaining for the MBLD results. """
+
+    coded_result = str(coded_value)
+
+    if coded_result == 'DNF':
+        return 0
+
+    _, _, elapsed_seconds = __parse_mbld_coded_value(coded_result)
+    elapsed_minutes = elapsed_seconds / 60.0
+
+    return (60 - elapsed_minutes) / 60.0
+
+
+
 def __parse_mbld_coded_value(coded_value):
     """ Parses a coded integer representation of MBLD results, returning a tuple of
     (num_successful, num_attempted, time_seconds). """
