@@ -8,7 +8,7 @@ from ranking import Ranking
 
 from app import DB
 from app.persistence.models import Competition, CompetitionEvent, Event, UserEventResults, User,\
-    UserSiteRankings
+    UserSiteRankings, EventFormat
 from app.persistence.events_manager import get_all_events, get_all_WCA_events
 from app.persistence.user_manager import get_all_users
 from app.persistence.user_site_rankings_manager import save_or_update_site_rankings_for_user
@@ -52,14 +52,14 @@ def precalculate_user_site_rankings():
     for user in get_all_users():
         # Calculate site rankings for the user
         # pylint: disable=C0301
-        rankings = _calculate_site_rankings_for_user(user.id, events_pb_singles, events_pb_averages, wca_events, events_list=all_events)
+        rankings = _calculate_site_rankings_for_user(user.id, events_pb_singles, events_pb_averages, wca_events, all_events)
 
         # Save to the database
         save_or_update_site_rankings_for_user(user.id, rankings)
 
 
 # pylint: disable=C0301
-def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages_map, wca_events, event_override=None, events_list=None):
+def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages_map, wca_events, all_events):
     """ Returns a dict of the user's PB singles and averages for all events they've participated in,
     as well as their rankings amongst the site's users. Format is:
     dict[event ID][(single, single_site_ranking, average, average_site_ranking)] """
@@ -70,14 +70,6 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
     # for the various sum of ranks status
     wca_event_ids = set(e.id for e in wca_events)
 
-    # If an event_override is specified, only calculate rankings for that specific event
-    if event_override:
-        events_to_consider = [event_override]
-
-    # Otherwise work through all events for this user
-    else:
-        events_to_consider = events_list if events_list else get_all_events()
-
     # Start off all sum of ranks stats at 0
     # [single, average]
     sor_all     = [0, 0]
@@ -87,11 +79,18 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
     # Create the actual UserSiteRankings object to stick the data in when we're done
     user_site_rankings = UserSiteRankings()
 
-    for event in events_to_consider:
+    # Calculate site-wide Kinchrank (for both WCA-only and all events) for this user
+    overall_kinchrank = 0
+    wca_kinchrank     = 0
+
+    for event in all_events:
         pb_single    = ''
         single_rank  = ''
         pb_average   = ''
         average_rank = ''
+        event_kinch  = 0
+
+        event_is_wca = event.id in wca_event_ids
 
         # It doesn't make sense to keep COLL records, since it's a single alg that changes weekly
         if event.name == "COLL":
@@ -130,13 +129,30 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
         if not pb_single:
             average_rank = len(ranked_averages) + 1
 
-        # Records the user's rankings and PBs for this event
-        user_rankings_data[event.id] = (pb_single, single_rank, pb_average, average_rank)
+        # Determine Kinchrank component for this event
+        if event.name == 'MBLD':
+            pass
+        elif event.name in ('FMC', '3BLD'):
+            pass
+        elif event.eventFormat in (EventFormat.Bo1, EventFormat.Bo3):
+            if pb_single and not pb_single == 'DNF':
+                event_kinch = round(int(ranked_singles[0].personal_best) / int(pb_single), 4)
+        else:
+            if pb_average and not pb_average == 'DNF':
+                event_kinch = round(int(ranked_averages[0].personal_best) / int(pb_average), 4)
+
+        # Accumulate Kinchranks
+        overall_kinchrank += event_kinch
+        if event_is_wca:
+            wca_kinchrank += event_kinch
+
+        # Records the user's rankings, PBs, and Kinchrank component for this event
+        user_rankings_data[event.id] = (pb_single, single_rank, pb_average, average_rank, event_kinch)
 
         # Accumulate sum of ranks
         sor_all[0] += single_rank
         sor_all[1] += average_rank if average_rank else 0
-        if event.id in wca_event_ids:
+        if event_is_wca:
             sor_wca[0] += single_rank
             sor_wca[1] += average_rank if average_rank else 0
         else:
@@ -153,6 +169,8 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
     user_site_rankings.sum_wca_average     = sor_wca[1]
     user_site_rankings.sum_non_wca_single  = sor_non_wca[0]
     user_site_rankings.sum_non_wca_average = sor_non_wca[1]
+    user_site_rankings.all_kinchrank       = round(overall_kinchrank, 4)
+    user_site_rankings.wca_kinchrank       = round(wca_kinchrank, 4)
 
     return user_site_rankings
 
