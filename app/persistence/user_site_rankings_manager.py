@@ -120,6 +120,42 @@ def get_user_site_rankings_non_wca_sorted_average():
         all()
 
 
+def get_user_kinchranks_wca_sorted():
+    """ Retrieves all Kinchranks sorted by WCA Kinchrank, except those with a value of 0.
+    These indicate users who haven't participated at all. """
+
+    return DB.session.\
+        query(UserSiteRankings.wca_kinchrank, User.username).\
+        join(User).\
+        filter(UserSiteRankings.wca_kinchrank != 0).\
+        order_by(UserSiteRankings.wca_kinchrank.desc()).\
+        all()
+
+
+def get_user_kinchranks_non_wca_sorted():
+    """ Retrieves all Kinchranks sorted by non-WCA Kinchrank, except those with a value of 0.
+    These indicate users who haven't participated at all. """
+
+    return DB.session.\
+        query(UserSiteRankings.non_wca_kinchrank, User.username).\
+        join(User).\
+        filter(UserSiteRankings.non_wca_kinchrank != 0).\
+        order_by(UserSiteRankings.non_wca_kinchrank.desc()).\
+        all()
+
+
+def get_user_kinchranks_all_sorted():
+    """ Retrieves all Kinchranks sorted by combined Kinchrank, except those with a value of 0.
+    These indicate users who haven't participated at all. """
+
+    return DB.session.\
+        query(UserSiteRankings.all_kinchrank, User.username).\
+        join(User).\
+        filter(UserSiteRankings.all_kinchrank != 0).\
+        order_by(UserSiteRankings.all_kinchrank.desc()).\
+        all()
+
+
 def save_or_update_site_rankings_for_user(user_id, new_user_site_rankings):
     """ Create or update a UserSiteRankings record for the specified user. """
 

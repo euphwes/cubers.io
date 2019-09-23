@@ -23,9 +23,6 @@ def sum_of_ranks(sor_type):
     if sor_type not in (SOR_TYPE_ALL, SOR_TYPE_WCA, SOR_TYPE_NON_WCA):
         return ("I don't know what kind of Sum of Ranks this is.", 404)
 
-    singles  = get_user_site_rankings_all_sorted_single()
-    averages = get_user_site_rankings_all_sorted_average()
-
     # If "all", get combined Sum of Ranks
     if sor_type == SOR_TYPE_ALL:
         title = "Sum of Ranks – Combined"

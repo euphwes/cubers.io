@@ -1,0 +1,79 @@
+{% extends "common/base.html" %}
+
+{% block head %}
+{{ super() }}
+    {% block additional_styles %}
+        {% assets "app_css" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}" />
+        {% endassets %}
+    {% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid cubers-container sum-of-ranks-container">
+    <div class="row">
+        <div class="col-12">
+            <h3 class="text-center">
+                {{ title }}
+            </h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-md-6 offset-md-3">
+            <div class="tab-content justify-content-center pt-3">
+                <div class="tab-pane active" id="tab_single">
+                    <table class="table table-sm table-striped table-cubersio">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Rank</th>
+                                {% if current_user.is_authenticated %}
+                                <th scope="col">
+                                    User
+                                    <i class="fas fa-arrow-down" style="padding-left: 5px; color: white; cursor: pointer;" id="scroll"></i>
+                                </th>
+                                {% else %}
+                                <th scope="col">User</th>
+                                {% endif %}
+                                <th scope="col">Sum of Ranks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for kinchrank in sorted_kinchranks %}
+                            {% if current_user.is_authenticated and current_user.username == kinchrank[1] %}
+                                {% set its_me = 'hey-its-me' %}
+                                {% set me_id = 'thisIsMeSingle' %}
+                            {% else %}
+                                {% set its_me = '' %}
+                                {% set me_id = '' %}
+                            {% endif %}
+                            <tr class="{{ its_me }}" id="{{ me_id }}">
+                                <td>{{ loop.index }}</td>
+                                <td>
+                                    <a href="{{ url_for('profile', username=kinchrank[1]) }}">/u/{{ kinchrank[1] }}</a>
+                                </td>
+                                <td>{{ kinchrank[0] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_script %}
+<script>
+    $(function () {
+
+        $('#scroll').click(function(){
+            $('html, body').animate({
+                scrollTop: $("#thisIsMeSingle").offset().top - 80
+            }, 1000);
+            return false;
+        });
+
+    })
+</script>
+{% endblock %}
