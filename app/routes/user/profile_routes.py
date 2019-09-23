@@ -60,6 +60,11 @@ def profile(username):
         sor_wca     = site_rankings_record.get_WCA_sum_of_ranks()
         sor_non_wca = site_rankings_record.get_non_WCA_sum_of_ranks()
 
+        # Get Kinchranks
+        kinch_all     = site_rankings_record.get_combined_kinchrank()
+        kinch_wca     = site_rankings_record.get_WCA_kinchrank()
+        kinch_non_wca = site_rankings_record.get_non_WCA_kinchrank()
+
         # If it exists, get the timestamp formatted like "2019 Jan 11"
         if site_rankings_record.timestamp:
             rankings_ts = site_rankings_record.timestamp.strftime('%Y %b %d')
@@ -85,7 +90,8 @@ def profile(username):
         event_id_name_map=event_id_name_map, rankings_ts=rankings_ts,
         is_admin_viewing=current_user.is_admin, sor_all=sor_all, sor_wca=sor_wca,
         sor_non_wca=sor_non_wca, gold_count=gold_count, silver_count=silver_count,
-        bronze_count=bronze_count, viewing_other_user=viewing_other_user)
+        bronze_count=bronze_count, viewing_other_user=viewing_other_user,
+        kinch_all=kinch_all, kinch_wca=kinch_wca, kinch_non_wca=kinch_non_wca)
 
 # -------------------------------------------------------------------------------------------------
 

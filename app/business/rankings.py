@@ -132,27 +132,28 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
             average_rank = len(ranked_averages) + 1
 
         # Determine Kinchrank component for this event
+        # TODO: add explanations below
         if event.name == 'MBLD':
             best_mbld = int(ranked_singles[0].personal_best)
             baseline_mbld = get_mbld_total_points(best_mbld) + get_mbld_fraction_of_hour_remaining(best_mbld)
             if pb_single and not pb_single == 'DNF':
                 coded_mbld = int(ranked_singles[0].personal_best)
                 this_mbld  = get_mbld_total_points(coded_mbld) + get_mbld_fraction_of_hour_remaining(coded_mbld)
-                single_kinch = round(baseline_mbld / this_mbld * 100, 3)
+                single_kinch = round(baseline_mbld / this_mbld * 100, 2)
         elif event.name in ('FMC', '3BLD'):
             single_kinch = 0
             average_kinch = 0
             if pb_single and not pb_single == 'DNF':
-                single_kinch = round(int(ranked_singles[0].personal_best) / int(pb_single) * 100, 3)
+                single_kinch = round(int(ranked_singles[0].personal_best) / int(pb_single) * 100, 2)
             if pb_average and not pb_average == 'DNF':
-                average_kinch = round(int(ranked_averages[0].personal_best) / int(pb_average) * 100, 3)
+                average_kinch = round(int(ranked_averages[0].personal_best) / int(pb_average) * 100, 2)
             event_kinch = max([single_kinch, average_kinch])
         elif event.eventFormat in (EventFormat.Bo1, EventFormat.Bo3):
             if pb_single and not pb_single == 'DNF':
-                event_kinch = round(int(ranked_singles[0].personal_best) / int(pb_single) * 100, 3)
+                event_kinch = round(int(ranked_singles[0].personal_best) / int(pb_single) * 100, 2)
         else:
             if pb_average and not pb_average == 'DNF':
-                event_kinch = round(int(ranked_averages[0].personal_best) / int(pb_average) * 100, 3)
+                event_kinch = round(int(ranked_averages[0].personal_best) / int(pb_average) * 100, 2)
 
         # Accumulate Kinchranks
         overall_kinchranks.append(event_kinch)
@@ -162,7 +163,7 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
             non_wca_kinchranks.append(event_kinch)
 
         # Records the user's rankings, PBs, and Kinchrank component for this event
-        user_rankings_data[event.id] = (pb_single, single_rank, pb_average, average_rank, event_kinch)
+        user_rankings_data[event.id] = (pb_single, single_rank, pb_average, average_rank, format(event_kinch, '.2f'))
 
         # Accumulate sum of ranks
         sor_all[0] += single_rank
@@ -185,9 +186,9 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
     user_site_rankings.sum_wca_average     = sor_wca[1]
     user_site_rankings.sum_non_wca_single  = sor_non_wca[0]
     user_site_rankings.sum_non_wca_average = sor_non_wca[1]
-    user_site_rankings.all_kinchrank       = round(sum(overall_kinchranks) / (len(overall_kinchranks) + 0.0), 3)
-    user_site_rankings.wca_kinchrank       = round(sum(wca_kinchranks) / (len(wca_kinchranks) + 0.0), 3)
-    user_site_rankings.non_wca_kinchrank   = round(sum(non_wca_kinchranks) / (len(non_wca_kinchranks) + 0.0), 3)
+    user_site_rankings.all_kinchrank       = round(sum(overall_kinchranks) / (len(overall_kinchranks) + 0.0), 2)
+    user_site_rankings.wca_kinchrank       = round(sum(wca_kinchranks) / (len(wca_kinchranks) + 0.0), 2)
+    user_site_rankings.non_wca_kinchrank   = round(sum(non_wca_kinchranks) / (len(non_wca_kinchranks) + 0.0), 2)
 
     return user_site_rankings
 

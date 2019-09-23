@@ -11,6 +11,8 @@
 
 {% set sor_explanation = "The sum of site rankings across all events. Lower is better.\nEvents not participated in give a (number of participants + 1) rank." %}
 
+{% set kinch_explanation = "Kinchranks are a system to rank all-round ability. Higher is better.\nEvery event is graded on a 0-100 scale, based on your performance relative to the site record for that event. Events not participated in count as 0.\nYour Kinchrank is the average of your score for all events." %}
+
 {% set show_medals = gold_count + silver_count + bronze_count > 0 %}
 
 {% block content %}
@@ -52,24 +54,31 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-12 col-md-6 offset-md-3">
+        <div class="col-12 col-md-8 offset-md-2">
             <table class="table table-sm table-striped table-cubersio text-center">
                 <thead class="thead-dark">
                     <tr>
                         <th rowspan="2">Competitions</th>
                         <th rowspan="2">Completed Solves</th>
-                        <th colspan="3">
+                        <th colspan="3" class="d-none d-md-table-cell">
                             Sum of Ranks (Single, Average)
                             <span style="font-weight: normal; padding-left: 5px;" class="fas fa-question-circle spacer" data-toggle="tooltip" data-placement="bottom" title="{{ sor_explanation }}"></span>
+                        </th>
+                        <th colspan="3" class="d-none d-md-table-cell">
+                            Kinchranks
+                            <span style="font-weight: normal; padding-left: 5px;" class="fas fa-question-circle spacer" data-toggle="tooltip" data-placement="bottom" title="{{ kinch_explanation }}"></span>
                         </th>
                         {% if show_medals %}
                         <th class="d-none d-md-table-cell" colspan="3">Medal Collection</th>
                         {% endif %}
                     </tr>
                     <tr>
-                        <th>Combined</th>
-                        <th>WCA Events</th>
-                        <th>Non-WCA Events</th>
+                        <th class="d-none d-md-table-cell">Combined</th>
+                        <th class="d-none d-md-table-cell">WCA Events</th>
+                        <th class="d-none d-md-table-cell">Non-WCA Events</th>
+                        <th class="d-none d-md-table-cell">Combined</th>
+                        <th class="d-none d-md-table-cell">WCA Events</th>
+                        <th class="d-none d-md-table-cell">Non-WCA Events</th>
                         {% if show_medals %}
                         <th class="d-none d-md-table-cell"><span class="fas fa-medal gold"></span></th>
                         <th class="d-none d-md-table-cell"><span class="fas fa-medal silver"></span></th>
@@ -83,11 +92,19 @@
                         <td>{{ solve_count }}</td>
 
                         {% if sor_all %}
-                            <td>{{sor_all.single}}, {{sor_all.average}}</td>
-                            <td>{{sor_wca.single}}, {{sor_wca.average}}</td>
-                            <td>{{sor_non_wca.single}}, {{sor_non_wca.average}}</td>
+                            <td class="d-none d-md-table-cell">{{sor_all.single}}, {{sor_all.average}}</td>
+                            <td class="d-none d-md-table-cell">{{sor_wca.single}}, {{sor_wca.average}}</td>
+                            <td class="d-none d-md-table-cell">{{sor_non_wca.single}}, {{sor_non_wca.average}}</td>
                         {% else %}
-                            <td colspan="3">Not yet calculated</td>
+                            <td class="d-none d-md-table-cell" colspan="3">Not yet calculated</td>
+                        {% endif %}
+
+                        {% if kinch_all %}
+                            <td class="d-none d-md-table-cell">{{kinch_all.display}}</td>
+                            <td class="d-none d-md-table-cell">{{kinch_wca.display}}</td>
+                            <td class="d-none d-md-table-cell">{{kinch_non_wca.display}}</td>
+                        {% else %}
+                            <td class="d-none d-md-table-cell" colspan="3">Not yet calculated</td>
                         {% endif %}
 
                         {% if show_medals %}
@@ -102,7 +119,7 @@
     </div>
     {% if rankings %}
     <div class="row pt-4">
-        <div class="col-12 col-md-6 offset-md-3">
+        <div class="col-12 col-md-8 offset-md-2">
             <h4 class="text-center">Personal Records as of {{rankings_ts}}</h4>
             {% if viewing_other_user %}
             <p class="text-center">
@@ -119,12 +136,14 @@
                         <th scope="col">Single</th>
                         <th scope="col">Average</th>
                         <th scope="col">Site rank</th>
+                        <th scope="col">Site Kinchrank</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for event_id, rank_info in rankings.items() if rank_info[0] %}
                     {% set single_rank = rank_info[1] %}
                     {% set average_rank = rank_info[3] %}
+                    {% set kinchrank = rank_info[4] %}
                     {% if event_id_name_map[event_id] == "FMC" %}
                         {% set single_val = rank_info[0] | format_fmc_result %}
                         {% set average_val = rank_info[2] | format_fmc_result %}
@@ -148,6 +167,7 @@
                         <td>{{ single_val }}</td>
                         <td>{{ average_val }}</td>
                         <td>{{ average_rank }}</td>
+                        <td>{{ kinchrank }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

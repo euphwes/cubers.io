@@ -31,6 +31,7 @@ class EventFormat():
 
 # Container for sum of ranks data
 SumOfRanks = namedtuple('SumOfRanks', ['username', 'single', 'average'])
+Kinchranks = namedtuple('KinchRanks', ['username', 'value', 'display'])
 
 # -------------------------------------------------------------------------------------------------
 
@@ -342,6 +343,27 @@ class UserSiteRankings(Model):
 
         return SumOfRanks(single=self.sum_non_wca_single, average=self.sum_non_wca_average,
             username=self.user.username)
+
+
+    def get_combined_kinchrank(self):
+        """ Returns Kinchranks data structure for combined Kinchrank (WCA + non-WCA). """
+
+        return Kinchranks(username=self.user.username, value=self.all_kinchrank,
+            display=format(self.all_kinchrank, '.2f'))
+
+
+    def get_WCA_kinchrank(self):
+        """ Returns Kinchranks data structure for WCA event Kinchrank. """
+
+        return Kinchranks(username=self.user.username, value=self.wca_kinchrank,
+            display=format(self.wca_kinchrank, '.2f'))
+
+
+    def get_non_WCA_kinchrank(self):
+        """ Returns Kinchranks data structure for non-WCA event Kinchrank. """
+
+        return Kinchranks(username=self.user.username, value=self.non_wca_kinchrank,
+            display=format(self.non_wca_kinchrank, '.2f'))
 
 
 class UserSolve(Model):

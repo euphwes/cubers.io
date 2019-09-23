@@ -133,16 +133,17 @@ def save_or_update_site_rankings_for_user(user_id, new_user_site_rankings):
 
     # If this user already has a site rankings record, just update it
     if rankings_record:
-        rankings_record.data = new_user_site_rankings.data
-        rankings_record.timestamp = new_user_site_rankings.timestamp
-        rankings_record.sum_all_single = new_user_site_rankings.sum_all_single
-        rankings_record.sum_all_average = new_user_site_rankings.sum_all_average
-        rankings_record.sum_wca_single = new_user_site_rankings.sum_wca_single
-        rankings_record.sum_wca_average = new_user_site_rankings.sum_wca_average
-        rankings_record.sum_non_wca_single = new_user_site_rankings.sum_non_wca_single
+        rankings_record.data                = new_user_site_rankings.data
+        rankings_record.timestamp           = new_user_site_rankings.timestamp
+        rankings_record.sum_all_single      = new_user_site_rankings.sum_all_single
+        rankings_record.sum_all_average     = new_user_site_rankings.sum_all_average
+        rankings_record.sum_wca_single      = new_user_site_rankings.sum_wca_single
+        rankings_record.sum_wca_average     = new_user_site_rankings.sum_wca_average
+        rankings_record.sum_non_wca_single  = new_user_site_rankings.sum_non_wca_single
         rankings_record.sum_non_wca_average = new_user_site_rankings.sum_non_wca_average
         rankings_record.all_kinchrank       = new_user_site_rankings.all_kinchrank
         rankings_record.wca_kinchrank       = new_user_site_rankings.wca_kinchrank
+        rankings_record.non_wca_kinchrank   = new_user_site_rankings.non_wca_kinchrank
         DB.session.add(rankings_record)
 
     # If not, create a new one
