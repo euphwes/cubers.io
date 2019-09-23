@@ -291,6 +291,7 @@ class UserSiteRankings(Model):
     sum_non_wca_single  = Column(Integer)
     sum_non_wca_average = Column(Integer)
     wca_kinchrank       = Column(Float)
+    non_wca_kinchrank   = Column(Float)
     all_kinchrank       = Column(Float)
 
     # Save the data as a dict so we don't have to deserialize it every time it's

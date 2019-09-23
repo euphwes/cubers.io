@@ -80,9 +80,10 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
     # Create the actual UserSiteRankings object to stick the data in when we're done
     user_site_rankings = UserSiteRankings()
 
-    # Calculate site-wide Kinchrank (for both WCA-only and all events) for this user
+    # Hold site-wide Kinchrank (for WCA-only, non-WCA-only, and all events) for this user
     overall_kinchranks = list()
     wca_kinchranks     = list()
+    non_wca_kinchranks = list()
 
     for event in all_events:
         pb_single    = ''
@@ -157,6 +158,8 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
         overall_kinchranks.append(event_kinch)
         if event_is_wca:
             wca_kinchranks.append(event_kinch)
+        else:
+            non_wca_kinchranks.append(event_kinch)
 
         # Records the user's rankings, PBs, and Kinchrank component for this event
         user_rankings_data[event.id] = (pb_single, single_rank, pb_average, average_rank, event_kinch)
@@ -173,6 +176,7 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
 
     # Save the event site rankings data as serialized json into the UserSiteRankigns
     # Set values for Sum Of Ranks, single and average, for combined, WCA, and non-WCA
+    # Set values for Kinchranks, for combined, WCA, and non-WCA
     user_site_rankings.data                = json.dumps(user_rankings_data)
     user_site_rankings.timestamp           = datetime.now()
     user_site_rankings.sum_all_single      = sor_all[0]
@@ -183,6 +187,7 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
     user_site_rankings.sum_non_wca_average = sor_non_wca[1]
     user_site_rankings.all_kinchrank       = round(sum(overall_kinchranks) / (len(overall_kinchranks) + 0.0), 3)
     user_site_rankings.wca_kinchrank       = round(sum(wca_kinchranks) / (len(wca_kinchranks) + 0.0), 3)
+    user_site_rankings.non_wca_kinchrank   = round(sum(non_wca_kinchranks) / (len(non_wca_kinchranks) + 0.0), 3)
 
     return user_site_rankings
 
