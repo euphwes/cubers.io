@@ -27,7 +27,7 @@
         </div>
     </div>
     <div class="row pt-4">
-        <div class="col-12 col-md-8">
+        <div class="col-12 col-md-6">
             <h4 class="text-center" style="font-size: 16px;">Event Records</h4>
             <table class="table table-sm table-striped table-cubersio">
                 <thead class="thead-dark">
@@ -121,7 +121,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-6">
             <div class="row">
                 <div class="col-12 col-md-12">
                     <h4 class="text-center" style="font-size: 16px;">Solve Statistics</h4>
@@ -181,6 +181,108 @@
                                 <td>{{ user2_stats['medals_count']['gold'] }}</td>
                                 <td>{{ user2_stats['medals_count']['silver'] }}</td>
                                 <td>{{ user2_stats['medals_count']['bronze'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>    
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-12">
+                    <h4 class="text-center" style="font-size: 16px;">Kinchranks</h4>
+                    <table class="table table-sm table-striped table-cubersio text-center">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th colspan="3">{{ username1 }}</th>
+                                <th class="spacer"></th>
+                                <th colspan="3">{{ username2 }}</th>
+                            </tr>
+                            <tr>
+                                <th>Combined</span></th>
+                                <th>WCA</span></th>
+                                <th>Non-WCA</span></th>
+                                <th class="spacer"></th>
+                                <th>Combined</span></th>
+                                <th>WCA</span></th>
+                                <th>Non-WCA</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ user1_stats['kinchranks']['all'].display }}</td>
+                                <td>{{ user1_stats['kinchranks']['wca'].display }}</td>
+                                <td>{{ user1_stats['kinchranks']['non_wca'].display }}</td>
+                                <td class="spacer"></td>
+                                <td>{{ user2_stats['kinchranks']['all'].display }}</td>
+                                <td>{{ user2_stats['kinchranks']['wca'].display }}</td>
+                                <td>{{ user2_stats['kinchranks']['non_wca'].display }}</td>
+                            </tr>
+                        </tbody>
+                    </table>    
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-12">
+                    <h4 class="text-center" style="font-size: 16px;">Sum of Ranks (Single)</h4>
+                    <table class="table table-sm table-striped table-cubersio text-center">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th colspan="3">{{ username1 }}</th>
+                                <th class="spacer"></th>
+                                <th colspan="3">{{ username2 }}</th>
+                            </tr>
+                            <tr>
+                                <th>Combined</span></th>
+                                <th>WCA</span></th>
+                                <th>Non-WCA</span></th>
+                                <th class="spacer"></th>
+                                <th>Combined</span></th>
+                                <th>WCA</span></th>
+                                <th>Non-WCA</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ user1_stats['sum_of_ranks']['all'].single }}</td>
+                                <td>{{ user1_stats['sum_of_ranks']['wca'].single }}</td>
+                                <td>{{ user1_stats['sum_of_ranks']['non_wca'].single }}</td>
+                                <td class="spacer"></td>
+                                <td>{{ user2_stats['sum_of_ranks']['all'].single }}</td>
+                                <td>{{ user2_stats['sum_of_ranks']['wca'].single }}</td>
+                                <td>{{ user2_stats['sum_of_ranks']['non_wca'].single }}</td>
+                            </tr>
+                        </tbody>
+                    </table>    
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-12">
+                    <h4 class="text-center" style="font-size: 16px;">Sum of Ranks (Average)</h4>
+                    <table class="table table-sm table-striped table-cubersio text-center">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th colspan="3">{{ username1 }}</th>
+                                <th class="spacer"></th>
+                                <th colspan="3">{{ username2 }}</th>
+                            </tr>
+                            <tr>
+                                <th>Combined</span></th>
+                                <th>WCA</span></th>
+                                <th>Non-WCA</span></th>
+                                <th class="spacer"></th>
+                                <th>Combined</span></th>
+                                <th>WCA</span></th>
+                                <th>Non-WCA</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ user1_stats['sum_of_ranks']['all'].average }}</td>
+                                <td>{{ user1_stats['sum_of_ranks']['wca'].average }}</td>
+                                <td>{{ user1_stats['sum_of_ranks']['non_wca'].average }}</td>
+                                <td class="spacer"></td>
+                                <td>{{ user2_stats['sum_of_ranks']['all'].average }}</td>
+                                <td>{{ user2_stats['sum_of_ranks']['wca'].average }}</td>
+                                <td>{{ user2_stats['sum_of_ranks']['non_wca'].average }}</td>
                             </tr>
                         </tbody>
                     </table>    

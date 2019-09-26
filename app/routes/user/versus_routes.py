@@ -163,6 +163,25 @@ def __get_user_site_stats(user_id):
     """ Retrieves a user's stats related to their usage of the site: """
 
     medals_count = get_user_medals_count(user_id)
+
+    site_rankings_record = get_site_rankings_for_user(user_id)
+    if site_rankings_record:
+        sor_all     = site_rankings_record.get_combined_sum_of_ranks()
+        sor_wca     = site_rankings_record.get_WCA_sum_of_ranks()
+        sor_non_wca = site_rankings_record.get_non_WCA_sum_of_ranks()
+
+        kinch_all     = site_rankings_record.get_combined_kinchrank()
+        kinch_wca     = site_rankings_record.get_WCA_kinchrank()
+        kinch_non_wca = site_rankings_record.get_non_WCA_kinchrank()
+    else:
+        sor_all     = 0
+        sor_wca     = 0
+        sor_non_wca = 0
+
+        kinch_all     = 0
+        kinch_wca     = 0
+        kinch_non_wca = 0
+
     return {
         'solve_count':  get_user_completed_solves_count(user_id),
         'comps_count':  get_user_participated_competitions_count(user_id),
@@ -171,6 +190,16 @@ def __get_user_site_stats(user_id):
             'silver': medals_count[1],
             'bronze': medals_count[2]
         },
+        'kinchranks': {
+            'all': kinch_all,
+            'wca': kinch_wca,
+            'non_wca': kinch_non_wca
+        },
+        'sum_of_ranks': {
+            'all': sor_all,
+            'wca': sor_wca,
+            'non_wca': sor_non_wca
+        }
     }
 
 

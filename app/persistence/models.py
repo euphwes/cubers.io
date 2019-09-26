@@ -349,21 +349,21 @@ class UserSiteRankings(Model):
         """ Returns Kinchranks data structure for combined Kinchrank (WCA + non-WCA). """
 
         return Kinchranks(username=self.user.username, value=self.all_kinchrank,
-            display=format(self.all_kinchrank, '.2f'))
+            display=format(self.all_kinchrank, '.3f'))
 
 
     def get_WCA_kinchrank(self):
         """ Returns Kinchranks data structure for WCA event Kinchrank. """
 
         return Kinchranks(username=self.user.username, value=self.wca_kinchrank,
-            display=format(self.wca_kinchrank, '.2f'))
+            display=format(self.wca_kinchrank, '.3f'))
 
 
     def get_non_WCA_kinchrank(self):
         """ Returns Kinchranks data structure for non-WCA event Kinchrank. """
 
         return Kinchranks(username=self.user.username, value=self.non_wca_kinchrank,
-            display=format(self.non_wca_kinchrank, '.2f'))
+            display=format(self.non_wca_kinchrank, '.3f'))
 
 
 class UserSolve(Model):
