@@ -81,6 +81,9 @@ def profile(username):
         sor_all       = None
         sor_wca       = None
         sor_non_wca   = None
+        kinch_all     = None
+        kinch_wca     = None
+        kinch_non_wca = None
 
     # Set a flag indicating if this page view is for a user viewing another user's page
     viewing_other_user = user.username != current_user.username
