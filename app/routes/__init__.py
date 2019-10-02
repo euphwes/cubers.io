@@ -1,5 +1,27 @@
 """ Root of routes package. """
 
+from functools import wraps
+
+from http import HTTPStatus
+
+from flask import abort
+from flask_login import current_user
+
+# -------------------------------------------------------------------------------------------------
+
+def api_login_required(func):
+
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return abort(HTTPStatus.UNAUTHORIZED)
+
+        return func(*args, **kwargs)
+
+    return decorated_function
+
+# -------------------------------------------------------------------------------------------------
+
 from .auth import login, logout, authorize
 from .home import index
 from .admin import gc_select, gc_select_user

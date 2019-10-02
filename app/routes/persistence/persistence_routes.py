@@ -2,11 +2,9 @@
 
 import json
 
-from functools import wraps
-
 from http import HTTPStatus
 
-from flask import request, abort
+from flask import request
 from flask_login import current_user
 
 from app import app
@@ -17,19 +15,7 @@ from app.persistence.user_results_manager import save_event_results, get_event_r
     delete_user_solve, delete_event_results, get_user_solve_for_scramble_id
 from app.util.events import get_mbld_successful_and_attempted
 from app.routes.timer import timer_page
-
-# -------------------------------------------------------------------------------------------------
-
-def api_login_required(func):
-
-    @wraps(func)
-    def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated:
-            return abort(HTTPStatus.UNAUTHORIZED)
-
-        return func(*args, **kwargs)
-
-    return decorated_function
+from app.routes import api_login_required
 
 # -------------------------------------------------------------------------------------------------
 
