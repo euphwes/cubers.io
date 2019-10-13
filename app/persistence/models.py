@@ -370,7 +370,11 @@ class UserSolve(Model):
     """ A user's solve for a specific scramble, in a specific event, at a competition.
     Solve times are in centiseconds (ex: 1234 = 12.34s)."""
 
-    __tablename__         = 'user_solves'
+    __tablename__  = 'user_solves'
+    __table_args__ = (
+        DB.UniqueConstraint('scramble_id', 'user_event_results_id', name='unique_scramble_user_results'),
+    )
+
     id                    = Column(Integer, primary_key=True)
     time                  = Column(Integer)
     is_dnf                = Column(Boolean, default=False)
