@@ -7,6 +7,8 @@ from app.persistence.comp_manager import get_active_competition
 from app.persistence.models import Competition, CompetitionEvent, Event, UserEventResults,\
     User, UserSolve
 
+from psycopg2.errors import UniqueViolation
+
 # -------------------------------------------------------------------------------------------------
 
 class UserEventResultsDoesNotExistException(Exception):
@@ -300,7 +302,17 @@ def save_event_results(comp_event_results):
     """ Saves a UserEventResults record. """
 
     DB.session.add(comp_event_results)
-    DB.session.commit()
+
+    try:
+        DB.session.commit()
+    except UniqueViolation as ex:
+        # This is probably because of duplicate UserSolve records with same scramble_id
+        # and user_event_results_id.
+        # Since we're rewriting all this soon anyway, this is good enough for now.
+        # Let's do it better next time.
+        print(str(ex))
+        pass
+
     DB.session.expunge(comp_event_results)
 
     return comp_event_results
