@@ -15,18 +15,16 @@
         }
     };
 
-    function verifyAndProcessFMCEntry() {
+    function verifyAndProcessFMCEntry(e, isDNFByButton) {
         var currentValue = $('#manualEntryInput').val();
-        var isDNF = false;
+        var isDNF = isDNFByButton || false;
         var asInt = 99900;
 
         var showInvalid = function() {;
             bootbox.alert('Please use the "solution" button below to enter a solution for this scramble.');
         }
 
-        if (currentValue.toUpperCase() == 'DNF') {
-            isDNF = true;
-        } else {
+        if (!isDNF) {
             if (currentValue.includes('.') || currentValue.includes(':')) {
                 showInvalid();
                 return false;
@@ -205,6 +203,21 @@
 
         return moveCount;
     };
+
+    // Wire up the FMC comment button
+    $('#BTN_FMC_DNF').click(function() {
+        $('#BTN_FMC_DNF').blur();
+        bootbox.confirm({
+            message: "Are you sure you want to submit a DNF result?",
+            callback: function(result) {
+                // Confirm box was closed/canceled, so don't take any action
+                if (!result) { return; }
+
+                // Submit results with DNF flag
+                verifyAndProcessFMCEntry(null, true);
+            }
+        });
+    });
 
     // Wire up the FMC comment button
     $('#BTN_FMC_COMMENT').click(function () {
