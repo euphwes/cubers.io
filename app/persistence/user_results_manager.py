@@ -298,6 +298,22 @@ def get_all_complete_user_results_for_user_and_event(user_id, event_id):
         all()
 
 
+def get_all_user_results_for_user(user_id):
+    """ Gets all UserEventResults for the specified user. """
+
+    return DB.session.\
+        query(UserEventResults).\
+        join(User).\
+        join(CompetitionEvent).\
+        join(Competition).\
+        join(Event).\
+        options(joinedload(UserEventResults.CompetitionEvent).joinedload(CompetitionEvent.Event)).\
+        options(joinedload(UserEventResults.CompetitionEvent).joinedload(CompetitionEvent.Competition)).\
+        options(joinedload(UserEventResults.solves).joinedload(UserSolve.Scramble)).\
+        filter(User.id == user_id).\
+        all()
+
+
 def save_event_results(comp_event_results):
     """ Saves a UserEventResults record. """
 

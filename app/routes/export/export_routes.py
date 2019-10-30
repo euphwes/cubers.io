@@ -1,23 +1,22 @@
 """ Routes related to displaying competition results. """
 
+import arrow
+
 from flask import request, Response
 from flask_login import current_user
 
 from app import app
-from app.business.user_results import set_medals_on_best_event_results
-from app.business.user_results.personal_bests import recalculate_user_pbs_for_event
-from app.persistence.comp_manager import get_active_competition, get_complete_competitions,\
-    get_previous_competition, get_competition, get_all_comp_events_for_comp, get_comp_event_by_id
-from app.persistence.user_results_manager import get_all_complete_user_results_for_comp_event,\
-    blacklist_results, unblacklist_results, UserEventResultsDoesNotExistException
-from app.util.sorting import sort_user_results_with_rankings
-from app.util.events.resources import sort_comp_events_by_global_sort_order
+from app.persistence.user_results_manager import get_all_user_results_for_user
 from app.routes import api_login_required
 
 # -------------------------------------------------------------------------------------------------
 
 class TwistyTimerResultsExporter:
-    """ Exports a user's solves to a format that can be imported into TwistyTimer. """
+    """ Exports a user's solves to a format that can be imported into TwistyTimer."""
+
+    tt_csv_header     = 'Puzzle,Category,Time(millis),Date(millis),Scramble,Penalty,Comment\n'
+    tt_csv_template   = '"{puzzle}";"{category}";"{time}";"{date}";"{scramble}";"{penalty}";""\n'
+    filename_template = "{username}_twistytimer_export_{date}.txt"
 
     # Maps the cubers.io event name to a puzzle/category that will be recognized by TwistyTimer
     # Not all cubers.io events will be exported to TwistyTimer, since there's not really a
@@ -59,18 +58,71 @@ class TwistyTimerResultsExporter:
 
 
     def __init__(self, username, event_name_results_map):
-        self.event_name_results_map = event_name_results_map
         self.username = username
+        self.event_name_results_map = event_name_results_map
+
+
+    def get_filename(self):
+        """ Returns the file name for the solves export. """
+
+        return self.filename_template.format(
+            username = self.username,
+            date = arrow.utcnow().format('YYYY_MM_DD HH:mm:ss')
+        )
 
 
     def generate_results(self):
-        """ Returns a generator (TODO is this right?) which yield TwistyTimer-flavor CSV lines
-        containing the user's solve info. """
+        """ Returns a generator which yield TwistyTimer-flavor CSV lines containing the user's
+        solve info. """
 
         def gen_results():
-            yield '1'
-            yield '2'
-            yield "3"
+            """ Generator which yields the TwistyTimer CSV lines solve by solve. """
+
+            # The CSV header line
+            yield self.tt_csv_header
+
+            for event_name, results_list in self.event_name_results_map.items():
+
+                # Skip events which don't naturally map to a puzzle/category in TwistyTimer
+                if event_name not in self.event_name_to_category_map.keys():
+                    continue
+
+                # Grab the TwistyTimer puzzle and category mapping for this event
+                puzzle, category = self.event_name_to_category_map[event_name]
+
+                for results in results_list:
+                    # Grab the timestamp from each solve's associated competition, convert to millis
+                    # A little messy, since we'll have a handful of solves with the same start time,
+                    # but it's the best we can do since I didn't think to save actual timestamp with
+                    # each solve... oops.
+                    date = int(results.CompetitionEvent.Competition.start_timestamp.timestamp()) * 1000
+
+                    for solve in results.solves:
+
+                        # Extract scramble text for this solve
+                        scramble = solve.Scramble.scramble
+
+                        # Determine penalty flag (0 = no penalty, 1 = +2, 2 = DNF)
+                        penalty = "0"  # default to no penalty
+                        if solve.is_dnf:
+                            penalty = "2"
+                        elif solve.is_plus_two:
+                            penalty = "1"
+
+                        # Get solve time in millis -- skip the solve if there's no time for some reason
+                        if not solve.time:
+                            continue
+                        time = solve.time * 10
+
+                        # Yield the actual CSV line for this solve
+                        yield self.tt_csv_template.format(
+                            puzzle   = puzzle,
+                            category = category,
+                            time     = time,
+                            date     = date,
+                            scramble = scramble,
+                            penalty  = penalty
+                        )
 
         return gen_results()
 
@@ -81,5 +133,17 @@ class TwistyTimerResultsExporter:
 def export():
     """ A route for exporting a user's results. """
 
-    return Response(TwistyTimerResultsExporter(None, None).generate_results(), mimetype="text/plain",
-            headers={"Content-Disposition": "attachment;filename=test.txt"})
+    event_name_results_map = dict()
+    for result in get_all_user_results_for_user(current_user.id):
+        event_name = result.CompetitionEvent.Event.name
+        if event_name in event_name_results_map.keys():
+            event_name_results_map[event_name].append(result)
+        else:
+            event_name_results_map[event_name] = [result]
+
+    solves_exporter = TwistyTimerResultsExporter(current_user.username, event_name_results_map)
+    filename = solves_exporter.get_filename()
+
+    return Response(solves_exporter.generate_results(),
+            mimetype = "text/plain",
+            headers  = {"Content-Disposition": "attachment;filename={}".format(filename)})
