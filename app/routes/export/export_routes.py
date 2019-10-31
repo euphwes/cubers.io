@@ -2,6 +2,8 @@
 
 import arrow
 
+from http import HTTPStatus
+
 from flask import request, Response
 from flask_login import current_user
 
@@ -137,7 +139,9 @@ EXPORTER_TYPE_MAP = {
 def export():
     """ A route for exporting a user's results. """
 
-    request.args.get('type')
+    export_type = request.args.get('type')
+    if export_type not in EXPORTER_TYPE_MAP.keys():
+        return HTTPStatus.NOT_IMPLEMENTED
 
     event_name_results_map = dict()
     for result in get_all_user_results_for_user(current_user.id):
