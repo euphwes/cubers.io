@@ -128,10 +128,16 @@ class TwistyTimerResultsExporter:
 
 # -------------------------------------------------------------------------------------------------
 
+EXPORTER_TYPE_MAP = {
+    'twisty_timer': TwistyTimerResultsExporter
+}
+
 @app.route('/api/export')
 @api_login_required
 def export():
     """ A route for exporting a user's results. """
+
+    request.args.get('type')
 
     event_name_results_map = dict()
     for result in get_all_user_results_for_user(current_user.id):

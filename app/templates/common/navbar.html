@@ -106,13 +106,23 @@
                 </li>
                 {% if current_user.is_authenticated %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle py-0" role="button" data-toggle="dropdown" href="#">
+                    <a class="nav-link dropdown-toggle py-0" role="button" data-toggle="dropdown" data-submenu href="#">
                         {{ current_user.username }}
                     </a>
                     <div class="dropdown-menu dropdown-menu-right">
                         <a class="dropdown-item" href="{{ url_for('profile', username=current_user.username) }}">Profile</a>
-                        <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{{ url_for('versus_search') }}">Competitor Showdown</a>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown dropleft dropdown-submenu">
+                            <button class="dropdown-item dropdown-toggle" type="button">
+                                Solves Export
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('export', type='twisty_timer') }}">Twisty Timer</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item disabled" style="opacity: 0.5;">More coming soon!</a>
+                            </div>
+                        </div>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
                     </div>
