@@ -69,7 +69,7 @@ class TwistyTimerResultsExporter:
 
         return self.filename_template.format(
             username = self.username,
-            date = arrow.utcnow().format('YYYY_MM_DD HH:mm:ss')
+            date = arrow.utcnow().format('YYYY-MM-DD_HH-mm')
         )
 
 
