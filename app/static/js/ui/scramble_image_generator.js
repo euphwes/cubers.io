@@ -2491,70 +2491,77 @@
         function genImage(scramble, canvasSize) {
 
             var type = scramble[0];
+            var scrambleText = scramble[1];
+
+            // If the event is complete, don't event bother trying to parse
+            // a real scramble. Just use an empty string in place of scramble.
+            if (window.app.isComplete) {
+                scrambleText = '';
+            }
 
             setBorderRadius(type, canvasSize);
 
             var size;
             for (size = 0; size <= 9; size++) {
                 if (type == types_nnn[size]) {
-                    nnnImage(size, scramble[1]);
+                    nnnImage(size, scrambleText);
                     return true;
                 }
             }
             if (type == "3x3OH" || type == "2GEN" || type == "LSE" || type == "F2L" || type == "3x3 With Feet" || type == "FMC" || type == "COLL") {
-                nnnImage(3, scramble[1]);
+                nnnImage(3, scrambleText);
                 return true;
             }
             if (type == "Void Cube") {
-                nnnImage(3, scramble[1], true);
+                nnnImage(3, scrambleText, true);
                 return true;
             }
             if (type == "3x3x2") {
-                nnnImage(3, scramble[1], false, true);
+                nnnImage(3, scrambleText, false, true);
                 return true;
             }
             if (type == "Redi Cube") {
-                rediImage(scramble[1]);
+                rediImage(scrambleText);
                 return true;
             }
             if (type == "Dino Cube") {
-                dinoImage(scramble[1]);
+                dinoImage(scrambleText);
                 return true;
             }
             if (type == "3x3x4") {
-                image334(scramble[1]);
+                image334(scrambleText);
                 return true;
             }
             if (type == "2x2x3") {
-                image223(scramble[1]);
+                image223(scrambleText);
                 return true;
             }
             if (type == "4x4 OH") {
-                nnnImage(4, scramble[1]);
+                nnnImage(4, scrambleText);
                 return true;
             }
             if (type == "Pyraminx") {
-                pyraImage(scramble[1]);
+                pyraImage(scrambleText);
                 return true;
             }
             if (type == "Skewb") {
-                skewbImage(scramble[1]);
+                skewbImage(scrambleText);
                 return true;
             }
             if (type == "Square-1") {
-                sq1Image(scramble[1]);
+                sq1Image(scrambleText);
                 return true;
             }
             if (type == "Clock") {
-                clkImage(scramble[1]);
+                clkImage(scrambleText);
                 return true;
             }
             if (type == "Megaminx") {
-                mgmImage(scramble[1]);
+                mgmImage(scrambleText);
                 return true;
             }
             if (type == "Kilominx") {
-                kilominxImage(scramble[1]);
+                kilominxImage(scrambleText);
                 return true;
             }
             return false;
