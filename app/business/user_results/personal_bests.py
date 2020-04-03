@@ -12,7 +12,6 @@ from app.business.user_results import DNF
 # -------------------------------------------------------------------------------------------------
 
 EVENT_FORMATS_TO_SKIP_PB_AVERAGE_CHECK = [EventFormat.Bo1]
-EVENT_IDS_TO_SKIP_PB_AVERAGE_CHECK = [get_events_name_id_mapping()[EVENT_MBLD.name]]
 
 # -------------------------------------------------------------------------------------------------
 # Functions and types below are intended to be used directly.
@@ -32,7 +31,7 @@ def set_pb_flags(user_id, event_result, event_id, event_format):
 
     # PB average flag isn't valid for Bo1, so don't bother checking
     # PB average flag isn't valid for MBLD, so don't bother checking
-    if (event_format in EVENT_FORMATS_TO_SKIP_PB_AVERAGE_CHECK) or (event_id in EVENT_IDS_TO_SKIP_PB_AVERAGE_CHECK):
+    if (event_format in EVENT_FORMATS_TO_SKIP_PB_AVERAGE_CHECK) or (event_id in [get_events_name_id_mapping()[EVENT_MBLD.name]]):
         event_result.was_pb_average = False
     else:
         if pb_average == __DNF_AS_PB and __pb_representation(event_result.average) == pb_average:
