@@ -36,14 +36,16 @@ Kinchranks = namedtuple('KinchRanks', ['username', 'value', 'display'])
 # -------------------------------------------------------------------------------------------------
 
 class User(UserMixin, Model):
-    """ A simple model of a user. We know these will only be created either through OAuth-ing with
-    Reddit, or by uploading solve records via API call, so all we really need is a username and
-    a Reddit refresh token. WCA ID is optional for user profiles. """
+    """ A simple model of a user, which can be associated with one or both of Reddit and WCA.
+    Username is populated with either WCA ID or Reddit username at first login, when the account is
+    created. """
     __tablename__    = 'users'
     id               = Column(Integer, primary_key=True)
     username         = Column(String(64), index=True, unique=True)
+    reddit_id        = Column(String(64))
+    reddit_token     = Column(String(64))
     wca_id           = Column(String(10))
-    refresh_token    = Column(String(64))
+    wca_token        = Column(String(64))
     is_admin         = Column(Boolean)
     is_results_mod   = Column(Boolean)
     is_verified      = Column(Boolean)
