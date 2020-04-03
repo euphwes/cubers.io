@@ -22,7 +22,7 @@ def api_login_required(func):
 
 # -------------------------------------------------------------------------------------------------
 
-from .auth import login, logout, authorize, wca_login, wca_authorize
+from .auth import reddit_login, reddit_authorize, wca_login, wca_authorize, logout
 from .home import index
 from .admin import gc_select, gc_select_user
 from .util import prev_results

@@ -28,6 +28,13 @@ class Config(object):
     DEVO_CUBERSIO_ACCT   = environ.get('DEVO_CUBERSIO_ACCT', DEFAULT_DEVO_ACCOUNT)
 
     # ------------------------------------------------------
+    # WCA OAuth config
+    # ------------------------------------------------------
+    WCA_CLIENT_ID     = environ.get('WCA_CLIENT_ID')
+    WCA_CLIENT_SECRET = environ.get('WCA_SECRET')
+    WCA_REDIRECT_URI  = environ.get('WCA_OAUTH_REDIRECT_URI')
+
+    # ------------------------------------------------------
     # Config related which subreddit to target, the URL to
     # the web app to drop into the Reddit comment body, etc
     # ------------------------------------------------------
