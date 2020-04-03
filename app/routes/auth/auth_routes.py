@@ -1,7 +1,11 @@
 """ Routes related to authentication. """
 
+from json import loads as json_loads
+
 from flask import request, redirect, url_for, render_template
 from flask_login import current_user, login_user, logout_user
+
+from requests import post as post_request, get as get_request
 
 from app import app
 from app.persistence import comp_manager
@@ -28,6 +32,47 @@ def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     return redirect(get_user_auth_url())
+
+
+@app.route('/wca_login')
+def wca_login():
+    """ Log in a user via WCA. """
+
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+
+    return redirect("https://www.worldcubeassociation.org/oauth/authorize?client_id= ?? &redirect_uri=http%3A%2F%2Flocalhost%3A5000%2Fwca_authorize&response_type=code&scope=public")
+
+
+@app.route('/wca_authorize')
+def wca_authorize():
+    """ TODO """
+
+    error = request.args.get('error', None)
+    if error == 'access_denied':
+        return redirect(url_for('denied'))
+
+    auth_code = request.args.get('code')
+
+    payload = {
+        'grant_type': 'authorization_code',
+        'code': auth_code,
+        'client_id': '',
+        'client_secret': '',
+        'redirect_uri': 'http://localhost:5000/wca_authorize',
+    }
+
+    url = 'https://www.worldcubeassociation.org/oauth/token'
+
+    response = post_request(url, data=payload)
+    access_token = json_loads(response.text)['access_token']
+
+    # TODO or check for error, maybe redirect back to login
+
+    headers = {"Authorization": "Bearer " + access_token}
+    me_data = get_request("https://www.worldcubeassociation.org/api/v0/me", headers=headers)
+
+    return str(me_data.json())
 
 
 @app.route('/admin_login')
