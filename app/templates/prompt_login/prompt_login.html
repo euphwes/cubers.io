@@ -6,50 +6,19 @@
 
 {% block content %}
 
-<div class="cubers-container center-container blue-background">
-    <img src="./static/images/snoo_logo.png" style="position: absolute; text-align: center; height:300px">
-    <div class="center-wrapper">
-    <a href= "{{ url_for('login') }}"><button class = "btn btn-lrg btn-login"><img src="./static/images/snoo_white.png" style="height:32px; padding-right: 5px">Login With Reddit</button></a>
-    </div>
-    <!--<p class="font-weight-bold">Sign in with Reddit using the menu above for the best user experience.</p>
-    <p>
-        Here are some of the benefits you'll see if you log in:
-        <ul>
-            <li>Solves are automatically saved.</li>
-            <li>Return later and pick up where you left off.</li>
-            <li>Automatic Reddit comment generation and submission.</li>
-            <li>Personal profile, timer settings, and competition participation history.</li>
-            <li>[Coming soon] Optional notification when new competitions are posted.</li>
-        </ul>
-    </p>-->
-    <!-- Modal -->
-    <div id="noLogin" class="modal fade" role="dialog" style="position:fixed; vertical-align: middle">
-      <div class="modal-dialog modal-dialog-centered">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Continue without logging in?</h4>
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-          </div>
-          <div class="modal-body">
-            <p>
-            If you continue without logging in you'll miss out on these awesome benefits:
-              <ul>
-              <li>Pick up where you left off in the competition on any device.</li>
-              <li>Automatic submission of all your times.</li>
-              <li>Personal profile showing your results and PBs across all competitions.</li>
-              <li>A place on the cubers.io leaderboards.</li></ul>
-            Are you sure you want to continue without logging in?
-              </p>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-lrg drop-shadow" data-dismiss="modal">No</button>
-            <a href="/?nologin"><button class="btn btn-lrg drop-shadow" style="background-color: #3A8AAF">Yes</button></a>
-          </div>
-        </div>
-
-      </div>
-    </div>
+<div class="center-container blue-background">
+  <div class="logo-holder">
+    <img class="main-logo" src="./static/images/cubersio_logo_light.png">
+  </div>
+  <div class="login_button_holder">
+    <a href="{{ url_for('reddit_login') }}" class="btn btn-lg btn-block btn-social btn-github">
+      <span class="fab fa-reddit-alien"></span>
+      Sign in with Reddit
+    </a>
+    <a href="{{ url_for('wca_login') }}" class="btn btn-lg btn-block btn-social btn-wca">
+      <span><img class="wca-login-img" src="./static/images/wca_color.png" /></span>
+      Sign in with WCA
+    </a>
+  </div>
 </div>
 {% endblock %}

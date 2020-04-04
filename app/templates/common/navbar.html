@@ -134,7 +134,10 @@
                 </li>
                 {% else %}
                 <li class="nav-item">
-                    <a class="nav-link py-0" href="{{ url_for('login') }}">Login with Reddit</a>
+                    <a class="nav-link py-0" href="{{ url_for('reddit_login') }}">Sign in with Reddit</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link py-0" href="{{ url_for('wca_login') }}">Sign in with WCA</a>
                 </li>
                 {% endif %}
             </ul>

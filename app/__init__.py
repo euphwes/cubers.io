@@ -158,6 +158,7 @@ ASSETS.register({
         'less/user.less',
         'less/event_results.less',
         'less/settings.less',
+        'css/bootstrap-social.min.css',
         filters="less,cssmin",
         output='gen/app.css'),
 })
