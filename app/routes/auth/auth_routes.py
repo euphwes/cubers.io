@@ -1,18 +1,17 @@
 """ Routes related to authentication. """
 
-from json import loads as json_loads
-
 from flask import request, redirect, url_for, render_template
 from flask_login import current_user, login_user, logout_user
-
-from requests import post as post_request, get as get_request
 
 from app import app
 from app.persistence import comp_manager
 from app.persistence.user_manager import update_or_create_user
 
-from app.util.reddit import get_username_refresh_token_from_code, get_user_auth_url,\
+from app.util.reddit import get_username_refresh_token_from_code, get_reddit_auth_url,\
     get_app_account_auth_url
+
+from app.util.wca import get_wca_auth_url, get_wca_access_token_from_auth_code,\
+    get_wca_id_from_access_token, WCAAuthException
 
 # -------------------------------------------------------------------------------------------------
 # Reddit auth routes
@@ -20,12 +19,12 @@ from app.util.reddit import get_username_refresh_token_from_code, get_user_auth_
 
 @app.route('/reddit_login')
 def reddit_login():
-    """ Log in a user. """
+    """ Log in a user via Reddit. """
 
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
-    return redirect(get_user_auth_url())
+    return redirect(get_reddit_auth_url())
 
 
 @app.route('/authorize')
@@ -52,13 +51,13 @@ def reddit_authorize():
 
 @app.route('/admin_login')
 def admin_login():
-    """ Log in a an admin user account.
+    """ Log in an admin user account via Reddit.
 
     HACK alert: this is a workaround to get the app Reddit accounts the privileges required to send
     PMs. It's safe that this is exposed, because if a regular user logs in from here, nothing
     changes from their POV except it asks for one more permission. It doesn't otherwise give the
     regular user account any special powers or anything.
-    
+
     TODO: figure out the right way to do this. """
 
     if current_user.is_authenticated:
@@ -78,12 +77,13 @@ def wca_login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
-    return redirect("https://www.worldcubeassociation.org/oauth/authorize?client_id= ?? &redirect_uri=http%3A%2F%2Flocalhost%3A5000%2Fwca_authorize&response_type=code&scope=public")
+    return redirect(get_wca_auth_url())
 
 
 @app.route('/wca_authorize')
 def wca_authorize():
-    """ TODO """
+    """ Handle the callback from WCA's OAuth. Create a user if necessary, update their refresh
+    token, and log the user in. """
 
     error = request.args.get('error', None)
     if error == 'access_denied':
@@ -91,25 +91,21 @@ def wca_authorize():
 
     auth_code = request.args.get('code')
 
-    payload = {
-        'grant_type': 'authorization_code',
-        'code': auth_code,
-        'client_id': '',
-        'client_secret': '',
-        'redirect_uri': 'http://localhost:5000/wca_authorize',
-    }
+    try:
+        access_token = get_wca_access_token_from_auth_code(auth_code)
+    except WCAAuthException as wca_error:
+        err = str(wca_error)
 
-    url = 'https://www.worldcubeassociation.org/oauth/token'
+        # "invalid_grant" indicates hitting the access token url with an expired auth code,
+        # probably just me refreshing on /wca_authorize?... during testing
+        if err == 'invalid_grant':
+            return redirect(url_for('wca_login'))
 
-    response = post_request(url, data=payload)
-    access_token = json_loads(response.text)['access_token']
+        return "Something went wrong, sorry! Please show this to /u/euphwes: " + str(wca_error)
 
-    # TODO or check for error, maybe redirect back to login
+    wca_id = get_wca_id_from_access_token(access_token)
 
-    headers = {"Authorization": "Bearer " + access_token}
-    me_data = get_request("https://www.worldcubeassociation.org/api/v0/me", headers=headers)
-
-    return str(me_data.json())
+    return wca_id
 
 
 # -------------------------------------------------------------------------------------------------

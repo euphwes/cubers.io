@@ -73,6 +73,7 @@ def get_permalink_for_thread_id(reddit_thread_id):
     try:
         comp = get_non_user_reddit().submission(id=reddit_thread_id)
         return __REDDIT_URL_ROOT + comp.permalink
+        
     except Exception:
         return "Oops, no thread exists with that ID."
 
@@ -82,6 +83,7 @@ def submit_post(title, post_body):
 
     r = get_authed_reddit_for_cubersio_acct()
     cubers = r.subreddit(__TARGET_SUBREDDIT)
+
     return cubers.submit(title=title, selftext=post_body, send_replies=False).id
 
 
@@ -91,6 +93,7 @@ def update_post(post_body, thread_id):
     r = get_authed_reddit_for_cubersio_acct()
     submission = r.submission(id=thread_id)
     submission.edit(post_body)
+
     return submission.id
 
 
@@ -100,19 +103,22 @@ def get_username_refresh_token_from_code(code):
     reddit = get_new_reddit()
     refresh_token = reddit.auth.authorize(code)
     username = reddit.user.me().name
+
     return username, refresh_token
 
 
-def get_user_auth_url(state='...'):
-    """ Returns a url for authenticating with Reddit. """
+def get_reddit_auth_url(state='...'):
+    """ Returns a url for authentication with Reddit. """
 
     return get_new_reddit().auth.url(__USER_ACCT_OAUTH_SCOPES, state, __PERMANENT_LOGIN)
 
 
 def get_app_account_auth_url(state='...'):
     """ Returns a url for authentication with Reddit.
+
     HACK ALERT: this is a special endpoint intended to be used just for cubers_io/cubers_io_test,
-    to gain sufficient privileges to submit PMs from that account. TODO: figure out the right way
-    of doing this. """
+    to gain sufficient privileges to submit PMs from that account.
+    
+    TODO: figure out the right wayof doing this. """
 
     return get_new_reddit().auth.url(__APP_ACCT_OAUTH_SCOPES, state, __PERMANENT_LOGIN)
