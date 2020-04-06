@@ -1,7 +1,5 @@
 """ Utility module for persisting and retrieving users. """
 
-from typing import Optional
-
 from app import DB
 from app.persistence.models import User, UserEventResults
 from app.persistence.weekly_metrics_manager import increment_new_user_count
@@ -45,15 +43,16 @@ def get_user_count():
     return User.query.count()
 
 
-def update_or_create_user(username, refresh_token):
-    """ Creates or updates a user with the provided refresh token. Returns the user. """
+def update_or_create_user_for_reddit(reddit_id, token):
+    """ Creates or updates a user logged in via Reddit. Returns the user. """
 
-    user = get_user_by_username(username)
+    user = get_user_by_reddit_id(reddit_id)
 
     if user:
-        user.refresh_token = refresh_token
+        user.reddit_id = reddit_id
+        user.reddit_token = token
     else:
-        user = User(username=username, refresh_token=refresh_token)
+        user = User(username=reddit_id, reddit_id=reddit_id, reddit_token=token)
         DB.session.add(user)
         increment_new_user_count()
 
@@ -61,13 +60,42 @@ def update_or_create_user(username, refresh_token):
     return user
 
 
-def get_user_by_username(username) -> Optional[User]:
+def update_or_create_user_for_wca(wca_id, token):
+    """ Creates or updates a user logged in via WCA. Returns the user. """
+
+    user = get_user_by_wca_id(wca_id)
+
+    if user:
+        user.wca_id = wca_id
+        user.wca_token = token
+    else:
+        user = User(username=wca_id, wca_id=wca_id, wca_token=token)
+        DB.session.add(user)
+        increment_new_user_count()
+
+    DB.session.commit()
+    return user
+
+
+def get_user_by_username(username):
     """ Returns the user with this username, or else `None` if no such user exists. """
 
     return User.query.filter_by(username=username).first()
 
 
-def get_user_by_id(user_id) -> Optional[User]:
+def get_user_by_reddit_id(reddit_id):
+    """ Returns the user with this reddit_id, or else `None` if no such user exists. """
+
+    return User.query.filter_by(reddit_id=reddit_id).first()
+
+
+def get_user_by_wca_id(wca_id):
+    """ Returns the user with this wca_id, or else `None` if no such user exists. """
+
+    return User.query.filter_by(wca_id=wca_id).first()
+
+
+def get_user_by_id(user_id):
     """ Returns the user with this user_id, or else `None` if no such user exists. """
 
     return User.query.filter_by(id=user_id).first()

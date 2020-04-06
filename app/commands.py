@@ -16,7 +16,7 @@ from app.persistence.events_manager import get_all_events
 from app.persistence.user_results_manager import get_event_results_for_user, save_event_results
 from app.persistence.user_manager import get_all_users, get_all_admins, set_user_as_admin,\
     unset_user_as_admin, UserDoesNotExistException, set_user_as_results_moderator, unset_user_as_results_moderator,\
-    get_user_by_username, update_or_create_user
+    get_user_by_username, update_or_create_user_for_reddit
 from app.business.user_results import set_medals_on_best_event_results
 from app.business.user_results.creation import process_event_results
 from app.tasks.competition_management import post_results_thread_task,\
@@ -260,7 +260,7 @@ def __build_solve(user_num, wr_average, event_name, scramble_id):
 def generate_fake_comp_results():
     """ Generates a bunch of fake results for the current competition with realistic-ish results. """
 
-    test_users = [update_or_create_user(__TEST_USER_NAMES[i], '') for i in range(10)]
+    test_users = [update_or_create_user_for_reddit(__TEST_USER_NAMES[i], '') for i in range(10)]
 
     for comp_event in get_all_comp_events_for_comp(get_active_competition().id):
         event_name = comp_event.Event.name

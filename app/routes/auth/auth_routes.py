@@ -5,7 +5,8 @@ from flask_login import current_user, login_user, logout_user
 
 from app import app
 from app.persistence import comp_manager
-from app.persistence.user_manager import update_or_create_user
+from app.persistence.user_manager import update_or_create_user_for_reddit,\
+    update_or_create_user_for_wca
 
 from app.util.reddit import get_username_refresh_token_from_code, get_reddit_auth_url,\
     get_app_account_auth_url
@@ -39,14 +40,11 @@ def reddit_authorize():
     auth_code = request.args.get('code')
 
     username, refresh_token = get_username_refresh_token_from_code(auth_code)
-    user = update_or_create_user(username, refresh_token)
+    user = update_or_create_user_for_reddit(username, refresh_token)
 
     login_user(user, True)
 
-    if comp_manager.get_active_competition():
-        return redirect(url_for('index'))
-
-    return "Successfully logged in as {}. There are no competitions created yet. Go make one!".format(username)
+    return redirect(url_for('index'))
 
 
 @app.route('/admin_login')
@@ -104,8 +102,11 @@ def wca_authorize():
         return "Something went wrong, sorry! Please show this to /u/euphwes: " + str(wca_error)
 
     wca_id = get_wca_id_from_access_token(access_token)
+    user = update_or_create_user_for_wca(wca_id, access_token)
 
-    return wca_id
+    login_user(user, True)
+
+    return redirect(url_for('index'))
 
 
 # -------------------------------------------------------------------------------------------------
