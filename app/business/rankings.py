@@ -186,9 +186,21 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
     user_site_rankings.sum_wca_average     = sor_wca[1]
     user_site_rankings.sum_non_wca_single  = sor_non_wca[0]
     user_site_rankings.sum_non_wca_average = sor_non_wca[1]
-    user_site_rankings.all_kinchrank       = round(sum(overall_kinchranks) / (len(overall_kinchranks) + 0.0), 3)
-    user_site_rankings.wca_kinchrank       = round(sum(wca_kinchranks) / (len(wca_kinchranks) + 0.0), 3)
-    user_site_rankings.non_wca_kinchrank   = round(sum(non_wca_kinchranks) / (len(non_wca_kinchranks) + 0.0), 3)
+
+    if overall_kinchranks:
+        user_site_rankings.all_kinchrank = round(sum(overall_kinchranks) / (len(overall_kinchranks) + 0.0), 3)
+    else:
+        user_site_rankings.all_kinchrank = 0
+
+    if wca_kinchranks:
+        user_site_rankings.wca_kinchrank = round(sum(wca_kinchranks) / (len(wca_kinchranks) + 0.0), 3)
+    else:
+        user_site_rankings.wca_kinchrank = 0
+
+    if non_wca_kinchranks:
+        user_site_rankings.non_wca_kinchrank = round(sum(non_wca_kinchranks) / (len(non_wca_kinchranks) + 0.0), 3)
+    else:
+        user_site_rankings.non_wca_kinchrank = 0
 
     return user_site_rankings
 
