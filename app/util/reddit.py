@@ -45,16 +45,16 @@ def get_authed_reddit_for_user(user):
     """ Returns a PRAW instance for this user using their refresh token. """
 
     return Reddit(client_id=__CLIENT_ID, client_secret=__CLIENT_SECRET,
-                  refresh_token=user.refresh_token, user_agent=__USER_AGENT)
+                  refresh_token=user.reddit_token, user_agent=__USER_AGENT)
 
 
 def get_authed_reddit_for_cubersio_acct():
     """ Returns a PRAW instance for the Reddit account to post the competition under. """
 
     if __IS_DEVO:
-        token = get_user_by_username(__DEVO_CUBERSIO_ACCT).refresh_token
+        token = get_user_by_username(__DEVO_CUBERSIO_ACCT).reddit_token
     else:
-        token = get_user_by_username(__PROD_CUBERSIO_ACCT).refresh_token
+        token = get_user_by_username(__PROD_CUBERSIO_ACCT).reddit_token
 
     return Reddit(client_id=__CLIENT_ID, client_secret=__CLIENT_SECRET,
                   refresh_token=token, user_agent=__USER_AGENT)
