@@ -77,6 +77,20 @@ def update_or_create_user_for_wca(wca_id, token):
     return user
 
 
+def add_wca_info_to_user(username, wca_id, wca_token):
+    """ Adds WCA info to a user that already exists. """
+
+    user = get_user_by_username(username)
+    if not user:
+        raise UserDoesNotExistException(username)
+
+    user.wca_id = wca_id
+    user.wca_token = wca_token
+
+    DB.session.add(user)
+    DB.session.commit()
+
+
 def get_user_by_username(username):
     """ Returns the user with this username, or else `None` if no such user exists. """
 

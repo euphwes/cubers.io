@@ -6,13 +6,17 @@ from flask_login import current_user, login_user, logout_user
 from app import app
 from app.persistence import comp_manager
 from app.persistence.user_manager import update_or_create_user_for_reddit,\
-    update_or_create_user_for_wca
+    update_or_create_user_for_wca, add_wca_info_to_user, get_user_by_wca_id
 
 from app.util.reddit import get_username_refresh_token_from_code, get_reddit_auth_url,\
     get_app_account_auth_url
 
 from app.util.wca import get_wca_auth_url, get_wca_access_token_from_auth_code,\
     get_wca_id_from_access_token, WCAAuthException
+
+# -------------------------------------------------------------------------------------------------
+
+STATE_WCA_ASSOC_HEADER = 'wca_assoc'
 
 # -------------------------------------------------------------------------------------------------
 # Reddit auth routes
@@ -34,7 +38,7 @@ def reddit_assoc():
 
     # TODO
 
-    if current_user.is_authenticated:
+    if not current_user.is_authenticated:
         return redirect(url_for('index'))
 
     return redirect(get_reddit_auth_url())
@@ -94,12 +98,12 @@ def wca_login():
 def wca_assoc():
     """ Associate the logged-in user with a WCA account. """
 
-    # TODO
+    if not current_user.is_authenticated:
+        return redirect(url_for('prompt_login'))
 
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
+    state = "{}|{}".format(STATE_WCA_ASSOC_HEADER, current_user.username)
 
-    return redirect(get_wca_auth_url())
+    return redirect(get_wca_auth_url(state=state))
 
 
 @app.route('/wca_authorize')
@@ -112,6 +116,7 @@ def wca_authorize():
         return redirect(url_for('denied'))
 
     auth_code = request.args.get('code')
+    state = request.args.get('state')
 
     try:
         access_token = get_wca_access_token_from_auth_code(auth_code)
@@ -126,11 +131,36 @@ def wca_authorize():
         return "Something went wrong, sorry! Please show this to /u/euphwes: " + str(wca_error)
 
     wca_id = get_wca_id_from_access_token(access_token)
+
+    if state.startswith(STATE_WCA_ASSOC_HEADER):
+        return complete_wca_assoc(state, wca_id, access_token)
+
     user = update_or_create_user_for_wca(wca_id, access_token)
 
     login_user(user, True)
 
     return redirect(url_for('index'))
+
+
+def complete_wca_assoc(oauth_state, wca_id, wca_access_token):
+    """ Completes WCA account association following a successful WCA OAuth login. """
+
+    # state should look like: STATE_WCA_ASSOC_HEADER|username
+
+    if not current_user.is_authenticated:
+        return redirect(url_for('prompt_login'))
+
+    reddit_user_to_associate = oauth_state.split('|')[1]
+
+    if not current_user.username == reddit_user_to_associate:
+        return 'Oops! This WCA association attempt appears to be for a different user.'
+
+    prexisting_wca_user = get_user_by_wca_id(wca_id)
+    if prexisting_wca_user:
+        return "An account for WCA ID {} already exists! Support for merging accounts coming soon.".format(wca_id)
+
+    add_wca_info_to_user(current_user.username, wca_id, wca_access_token)
+    return redirect(url_for('profile', username=current_user.username))
 
 
 # -------------------------------------------------------------------------------------------------
