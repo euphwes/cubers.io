@@ -28,6 +28,18 @@ def reddit_login():
     return redirect(get_reddit_auth_url())
 
 
+@app.route('/reddit_assoc')
+def reddit_assoc():
+    """ Associate the logged-in user with a Reddit account. """
+
+    # TODO
+
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+
+    return redirect(get_reddit_auth_url())
+
+
 @app.route('/authorize')
 def reddit_authorize():
     """ Handle the callback from Reddit's OAuth. Create a user if necessary, update their refresh
@@ -71,6 +83,18 @@ def admin_login():
 @app.route('/wca_login')
 def wca_login():
     """ Log in a user via WCA. """
+
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+
+    return redirect(get_wca_auth_url())
+
+
+@app.route('/wca_assoc')
+def wca_assoc():
+    """ Associate the logged-in user with a WCA account. """
+
+    # TODO
 
     if current_user.is_authenticated:
         return redirect(url_for('index'))
