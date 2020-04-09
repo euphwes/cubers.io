@@ -91,6 +91,20 @@ def add_wca_info_to_user(username, wca_id, wca_token):
     DB.session.commit()
 
 
+def add_reddit_info_to_user(username, reddit_id, reddit_token):
+    """ Adds Reddit info to a user that already exists. """
+
+    user = get_user_by_username(username)
+    if not user:
+        raise UserDoesNotExistException(username)
+
+    user.reddit_id = reddit_id
+    user.reddit_token = reddit_token
+
+    DB.session.add(user)
+    DB.session.commit()
+
+
 def get_user_by_username(username):
     """ Returns the user with this username, or else `None` if no such user exists. """
 

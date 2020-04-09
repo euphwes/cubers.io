@@ -6,7 +6,8 @@ from flask_login import current_user, login_user, logout_user
 from app import app
 from app.persistence import comp_manager
 from app.persistence.user_manager import update_or_create_user_for_reddit,\
-    update_or_create_user_for_wca, add_wca_info_to_user, get_user_by_wca_id
+    update_or_create_user_for_wca, add_wca_info_to_user, get_user_by_wca_id,\
+    add_reddit_info_to_user, get_user_by_reddit_id
 
 from app.util.reddit import get_username_refresh_token_from_code, get_reddit_auth_url,\
     get_app_account_auth_url
@@ -17,6 +18,7 @@ from app.util.wca import get_wca_auth_url, get_wca_access_token_from_auth_code,\
 # -------------------------------------------------------------------------------------------------
 
 STATE_WCA_ASSOC_HEADER = 'wca_assoc'
+STATE_REDDIT_ASSOC_HEADER = 'reddit_assoc'
 
 # -------------------------------------------------------------------------------------------------
 # Reddit auth routes
@@ -36,12 +38,12 @@ def reddit_login():
 def reddit_assoc():
     """ Associate the logged-in user with a Reddit account. """
 
-    # TODO
-
     if not current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('prompt_login'))
 
-    return redirect(get_reddit_auth_url())
+    state = "{}|{}".format(STATE_REDDIT_ASSOC_HEADER, current_user.username)
+
+    return redirect(get_reddit_auth_url(state=state))
 
 
 @app.route('/authorize')
@@ -54,13 +56,39 @@ def reddit_authorize():
         return redirect(url_for('denied'))
 
     auth_code = request.args.get('code')
+    state = request.args.get('state')
 
-    username, refresh_token = get_username_refresh_token_from_code(auth_code)
-    user = update_or_create_user_for_reddit(username, refresh_token)
+    reddit_id, refresh_token = get_username_refresh_token_from_code(auth_code)
+
+    if state.startswith(STATE_REDDIT_ASSOC_HEADER):
+        return complete_reddit_assoc(state, reddit_id, refresh_token)
+
+    user = update_or_create_user_for_reddit(reddit_id, refresh_token)
 
     login_user(user, True)
 
     return redirect(url_for('index'))
+
+
+def complete_reddit_assoc(oauth_state, reddit_id, reddit_token):
+    """ Completes Reddit account association following a successful Reddit OAuth login. """
+
+    # state should look like: STATE_REDDIT_ASSOC_HEADER|username
+
+    if not current_user.is_authenticated:
+        return redirect(url_for('prompt_login'))
+
+    wca_user_to_associate = oauth_state.split('|')[1]
+
+    if not current_user.username == wca_user_to_associate:
+        return 'Oops! This Reddit association attempt appears to be for a different user.'
+
+    prexisting_reddit_user = get_user_by_reddit_id(reddit_id)
+    if prexisting_reddit_user:
+        return "An account for Reddit user {} already exists! Support for merging accounts coming soon.".format(reddit_id)
+
+    add_reddit_info_to_user(current_user.username, reddit_id, reddit_token)
+    return redirect(url_for('profile', username=current_user.username))
 
 
 @app.route('/admin_login')
