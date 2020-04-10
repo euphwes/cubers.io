@@ -1,5 +1,7 @@
 """ Routes related to authentication. """
 
+from base64 import urlsafe_b64decode, urlsafe_b64encode
+
 from flask import request, redirect, url_for, render_template
 from flask_login import current_user, login_user, logout_user
 
@@ -15,10 +17,27 @@ from app.util.reddit import get_username_refresh_token_from_code, get_reddit_aut
 from app.util.wca import get_wca_auth_url, get_wca_access_token_from_auth_code,\
     get_wca_id_from_access_token, WCAAuthException
 
+from app.util.simplecrypt import encrypt, decrypt
+
 # -------------------------------------------------------------------------------------------------
 
 STATE_WCA_ASSOC_HEADER = 'wca_assoc'
 STATE_REDDIT_ASSOC_HEADER = 'reddit_assoc'
+
+SECRET_KEY = app.config['FLASK_SECRET_KEY']
+
+def __encrypt_oauth_state(state):
+    """ Encrypts a given string using simple-crypt, and then base64 encodes the value to make it
+    url-safe. """
+
+    return urlsafe_b64encode(encrypt(SECRET_KEY, state))
+
+
+def __decrypt_oauth_state(state):
+    """ Base64 decodes a given string into a byte array, which is decrypted using simple-crypt to
+    return the original string and converted back to a string. """
+
+    return decrypt(SECRET_KEY, urlsafe_b64decode(state)).decode('utf-8')
 
 # -------------------------------------------------------------------------------------------------
 # Reddit auth routes
@@ -31,7 +50,7 @@ def reddit_login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
-    return redirect(get_reddit_auth_url())
+    return redirect(get_reddit_auth_url(state=__encrypt_oauth_state('login')))
 
 
 @app.route('/reddit_assoc')
@@ -42,6 +61,7 @@ def reddit_assoc():
         return redirect(url_for('prompt_login'))
 
     state = "{}|{}".format(STATE_REDDIT_ASSOC_HEADER, current_user.username)
+    state = __encrypt_oauth_state(state)
 
     return redirect(get_reddit_auth_url(state=state))
 
@@ -56,7 +76,7 @@ def reddit_authorize():
         return redirect(url_for('denied'))
 
     auth_code = request.args.get('code')
-    state = request.args.get('state')
+    state = __decrypt_oauth_state(request.args.get('state'))
 
     reddit_id, refresh_token = get_username_refresh_token_from_code(auth_code)
 
@@ -119,7 +139,8 @@ def wca_login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
-    return redirect(get_wca_auth_url())
+    state = __encrypt_oauth_state('login')
+    return redirect(get_wca_auth_url(state=state))
 
 
 @app.route('/wca_assoc')
@@ -130,6 +151,7 @@ def wca_assoc():
         return redirect(url_for('prompt_login'))
 
     state = "{}|{}".format(STATE_WCA_ASSOC_HEADER, current_user.username)
+    state = __encrypt_oauth_state(state)
 
     return redirect(get_wca_auth_url(state=state))
 
@@ -144,7 +166,7 @@ def wca_authorize():
         return redirect(url_for('denied'))
 
     auth_code = request.args.get('code')
-    state = request.args.get('state')
+    state = __decrypt_oauth_state(request.args.get('state'))
 
     try:
         access_token = get_wca_access_token_from_auth_code(auth_code)
