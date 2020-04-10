@@ -427,13 +427,3 @@ class UserSetting(Model):
     user          = relationship('User', primaryjoin=user_id == User.id)
     setting_code  = Column(String(128), index=True)
     setting_value = Column(String(128), index=True)
-
-
-class WeeklyBlacklist(Model):
-    """ A record which, if it exists, denotes that the corresponding user should have all their
-    results blacklisted for the current week's competition. """
-
-    __tablename__ = 'weekly_blacklist'
-    id            = Column(Integer, primary_key=True)
-    user_id       = Column(Integer, ForeignKey('users.id'))
-    reason        = Column(String(256))

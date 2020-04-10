@@ -9,7 +9,6 @@ from huey import crontab
 from app import app
 from app.business.rankings import precalculate_user_site_rankings
 from app.business.user_results import set_medals_on_best_event_results
-from app.persistence.weekly_blacklist_manager import clearly_weekly_blacklist
 from app.persistence.comp_manager import get_active_competition, get_all_comp_events_for_comp
 from app.persistence.user_manager import get_user_count
 from app.util.competition.generation import generate_new_competition
@@ -64,7 +63,6 @@ def wrap_weekly_competition():
 
     post_results_thread_task(current_comp.id, current_comp.title)
     generate_new_competition_task()
-    clearly_weekly_blacklist()
     send_weekly_report(current_comp.id)
     prepare_end_of_competition_info_notifications(current_comp.id)
 
