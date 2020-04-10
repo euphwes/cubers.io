@@ -47,7 +47,6 @@ class User(UserMixin, Model):
     wca_id           = Column(String(10))
     wca_token        = Column(String(64))
     is_admin         = Column(Boolean)
-    is_results_mod   = Column(Boolean)
     is_verified      = Column(Boolean)
     always_blacklist = Column(Boolean)
     results          = relationship("UserEventResults", backref="User")
@@ -62,7 +61,6 @@ class Nobody(AnonymousUserMixin):
     def __init__(self, username=None):
         self.username = username if username else '<no_user>'
         self.is_admin = False
-        self.is_results_mod = False
 
     def __bool__(self):
         return False

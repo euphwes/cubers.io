@@ -15,8 +15,8 @@ from app.persistence.comp_manager import get_complete_competitions, get_all_comp
 from app.persistence.events_manager import get_all_events
 from app.persistence.user_results_manager import get_event_results_for_user, save_event_results
 from app.persistence.user_manager import get_all_users, get_all_admins, set_user_as_admin,\
-    unset_user_as_admin, UserDoesNotExistException, set_user_as_results_moderator, unset_user_as_results_moderator,\
-    get_user_by_username, update_or_create_user_for_reddit
+    unset_user_as_admin, UserDoesNotExistException, get_user_by_username,\
+    update_or_create_user_for_reddit
 from app.business.user_results import set_medals_on_best_event_results
 from app.business.user_results.creation import process_event_results
 from app.tasks.competition_management import post_results_thread_task,\
@@ -116,28 +116,6 @@ def remove_admin(username):
 
     try:
         unset_user_as_admin(username)
-    except UserDoesNotExistException as ex:
-        print(ex)
-
-
-@app.cli.command()
-@click.option('--username', '-u', type=str)
-def set_results_mod(username):
-    """ Sets the specified user as a results moderator. """
-
-    try:
-        set_user_as_results_moderator(username)
-    except UserDoesNotExistException as ex:
-        print(ex)
-
-
-@app.cli.command()
-@click.option('--username', '-u', type=str)
-def remove_results_mod(username):
-    """ Removes results moderator status for the specified user. """
-
-    try:
-        unset_user_as_results_moderator(username)
     except UserDoesNotExistException as ex:
         print(ex)
 

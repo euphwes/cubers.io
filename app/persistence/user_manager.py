@@ -201,30 +201,6 @@ def unverify_user(user_id):
     DB.session.commit()
 
 
-def set_user_as_results_moderator(username):
-    """ Sets results moderator status for a user. Raises UserDoesNotExistException if no such user exists. """
-
-    user = get_user_by_username(username)
-    if not user:
-        raise UserDoesNotExistException(username)
-
-    user.is_results_mod = True
-    DB.session.add(user)
-    DB.session.commit()
-
-
-def unset_user_as_results_moderator(username):
-    """ Removes results moderator status for a user. Raises UserDoesNotExistException if user doesn't exist. """
-
-    user = get_user_by_username(username)
-    if not user:
-        raise UserDoesNotExistException(username)
-
-    user.is_results_mod = False
-    DB.session.add(user)
-    DB.session.commit()
-
-
 def get_all_admins():
     """ Returns a list of all admin users. """
 

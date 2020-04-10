@@ -98,7 +98,7 @@ def profile(username):
 def blacklist_user(user_id: int):
     """ Sets the perma-blacklist flag for the specified user. """
 
-    if not (current_user.is_authenticated and (current_user.is_admin or current_user.is_results_moderator)):
+    if not (current_user.is_authenticated and current_user.is_admin):
         return ("Hey, you're not allowed to do that.", 403)
 
     set_perma_blacklist_for_user(user_id)
@@ -114,7 +114,7 @@ def blacklist_user(user_id: int):
 def unblacklist_user(user_id: int):
     """ Unsets the perma-blacklist flag for the specified user. """
 
-    if not (current_user.is_authenticated and (current_user.is_admin or current_user.is_results_moderator)):
+    if not (current_user.is_authenticated and current_user.is_admin):
         return ("Hey, you're not allowed to do that.", 403)
 
     unset_perma_blacklist_for_user(user_id)
@@ -130,7 +130,7 @@ def unblacklist_user(user_id: int):
 def do_verify_user(user_id: int):
     """ Sets the verified flag for the specified user. """
 
-    if not (current_user.is_authenticated and (current_user.is_admin or current_user.is_results_moderator)):
+    if not (current_user.is_authenticated and current_user.is_admin):
         return ("Hey, you're not allowed to do that.", 403)
 
     verify_user(user_id)
@@ -146,7 +146,7 @@ def do_verify_user(user_id: int):
 def do_unverify_user(user_id: int):
     """ Unsets the verified flag for the specified user. """
 
-    if not (current_user.is_authenticated and (current_user.is_admin or current_user.is_results_moderator)):
+    if not (current_user.is_authenticated and current_user.is_admin):
         return ("Hey, you're not allowed to do that.", 403)
 
     unverify_user(user_id)
