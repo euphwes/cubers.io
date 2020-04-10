@@ -11,6 +11,9 @@ from flask_login import current_user
 
 def api_login_required(func):
 
+    # TODO can we use this or similar in profile routes for the admin stuff?
+    # TODO can we use this or similar in leaderboards routes for admin stuff?
+
     @wraps(func)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated:
@@ -22,8 +25,10 @@ def api_login_required(func):
 
 # -------------------------------------------------------------------------------------------------
 
-from .auth import reddit_login, reddit_authorize, wca_login, wca_authorize, logout
-from .home import index
+from .auth import logout
+from .auth.wca import wca_login, wca_authorize, wca_assoc
+from .auth.reddit import reddit_login, reddit_authorize, reddit_assoc, admin_login
+from .home import index, prompt_login
 from .admin import gc_select, gc_select_user
 from .util import prev_results
 from .results import results_list
