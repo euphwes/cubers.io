@@ -15,8 +15,8 @@ from app.persistence.user_site_rankings_manager import get_site_rankings_for_use
 
 # -------------------------------------------------------------------------------------------------
 
-LOG_NO_SUCH_USER = "Oops, can't find a user with username '{}'"
-LOG_PROFILE_VIEW = "{} is viewing {}'s profile"
+MSG_NO_SUCH_USER = "Oops, can't find a user with username '{}'"
+TIMESTAMP_FORMAT = '%Y %b %d'
 
 # -------------------------------------------------------------------------------------------------
 
@@ -26,15 +26,11 @@ def profile(username):
 
     user = get_user_by_username(username)
     if not user:
-        no_user_msg = LOG_NO_SUCH_USER.format(username)
-        app.logger.warning(no_user_msg)
+        no_user_msg = MSG_NO_SUCH_USER.format(username)
         return (no_user_msg, 404)
 
     # Determine whether we're showing blacklisted results
     include_blacklisted = __should_show_blacklisted_results(username, current_user.is_admin)
-
-    app.logger.info(LOG_PROFILE_VIEW.format(current_user.username, username),
-                    extra=__create_profile_view_log_context(current_user.is_admin, include_blacklisted))
 
     # Get the user's competition history
     history = get_user_competition_history(user, include_blacklisted=include_blacklisted)
@@ -65,15 +61,8 @@ def profile(username):
         kinch_wca     = site_rankings_record.get_WCA_kinchrank()
         kinch_non_wca = site_rankings_record.get_non_WCA_kinchrank()
 
-        # If it exists, get the timestamp formatted like "2019 Jan 11"
-        if site_rankings_record.timestamp:
-            rankings_ts = site_rankings_record.timestamp.strftime('%Y %b %d')
-
-        # If there is no timestamp, just say that the rankings as accurate as of the last comp
-        # This should only happen briefly after I add the timestamp to the rankings table,
-        # but before the rankings are re-calculated
-        else:
-            rankings_ts = "last competition-ish"
+        # Timestamp of the last time site rankings were run, formatted like "2019 Jan 11"
+        rankings_ts = site_rankings_record.timestamp.strftime(TIMESTAMP_FORMAT)
 
     else:
         rankings_ts   = None
@@ -187,12 +176,3 @@ def __should_show_blacklisted_results(profile_username, is_admin_here):
 
     # Everybody else can't see blacklisted results
     return False
-
-
-def __create_profile_view_log_context(show_admin, include_blacklisted):
-    """ Builds some logging context related to viewing user profiles. """
-
-    return {
-        'is_admin': show_admin,
-        'include_blacklisted_results': include_blacklisted
-    }

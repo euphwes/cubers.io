@@ -27,15 +27,15 @@ STATE_REDDIT_ASSOC_HEADER = 'reddit_assoc'
 SECRET_KEY = app.config['FLASK_SECRET_KEY']
 
 def __encrypt_oauth_state(state):
-    """ Encrypts a given string using simple-crypt, and then base64 encodes the value to make it
-    url-safe. """
+    """ Encrypts a given string using simple-crypt, resulting in a byte array. Then base64 encodes
+    the byte array to make it a url-safe string. """
 
     return urlsafe_b64encode(encrypt(SECRET_KEY, state))
 
 
 def __decrypt_oauth_state(state):
     """ Base64 decodes a given string into a byte array, which is decrypted using simple-crypt to
-    return the original string and converted back to a string. """
+    and then decoded back to the original string. """
 
     return decrypt(SECRET_KEY, urlsafe_b64decode(state)).decode('utf-8')
 
@@ -211,7 +211,6 @@ def complete_wca_assoc(oauth_state, wca_id, wca_access_token):
 
     add_wca_info_to_user(current_user.username, wca_id, wca_access_token)
     return redirect(url_for('profile', username=current_user.username))
-
 
 # -------------------------------------------------------------------------------------------------
 # Common auth routes

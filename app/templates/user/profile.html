@@ -44,9 +44,9 @@
                 <div class="flex-center-all">
                     <h3 class="text-center">
                     {{ user.username }}
-                    <span class="fas fa-user-check {{verification_class}} ml-3" data-toggle="tooltip" data-placement="top" title="{{verification_class}}"></span>
+                    <span class="fas fa-user-check {{verification_class}} ml-2" data-toggle="tooltip" data-placement="top" title="{{verification_class}}"></span>
                     {% if user.always_blacklist %}
-                        <i class="fas fa-ban blacklisted mx-3"></i>
+                        <i class="fas fa-ban blacklisted mx-1"></i>
                     {% endif %}
                     </h3>
                 </div>
@@ -93,16 +93,6 @@
                         <span class="fab fa-reddit-alien"></span>
                         Associate with Reddit
                     </a>
-                </div>
-                {% endif %}
-                {% if user.reddit_id or user.wca_id %}
-                <div class="flex-center-all">
-                    {% if user.reddit_id %}
-                        <span style="margin: 10px;">{{ user.reddit_id }}@Reddit</span>
-                    {% endif %}
-                    {% if user.wca_id %}
-                        <span style="margin: 10px;">{{ user.wca_id }}@WCA</span>
-                    {% endif %}
                 </div>
                 {% endif %}
             {% endif %}
