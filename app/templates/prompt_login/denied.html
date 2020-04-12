@@ -2,12 +2,15 @@
 
 {% block head %}
     {{ super() }}
+    {% block additional_styles %}
+        {% assets "index_css" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}" />
+        {% endassets %}
+    {% endblock %}
 {% endblock %}
 
 {% block content %}
-<div class="container cubers-container" style="margin-top: 15px;">
-    <div class="flex-center-all">
-        <img src="./static/images/denied.png">
-    </div>
+<div class="container cubers-container flex-center-all" style="background: #ECECEC; width: 100%; height: 100%;">
+    <img src="./static/images/denied.png">
 </div>
 {% endblock %}
