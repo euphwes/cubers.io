@@ -107,7 +107,7 @@ def get_username_refresh_token_from_code(code):
     return username, refresh_token
 
 
-def get_reddit_auth_url(state='...'):
+def get_reddit_auth_url(state):
     """ Returns a url for authentication with Reddit. """
 
     return get_new_reddit().auth.url(__USER_ACCT_OAUTH_SCOPES, state, __PERMANENT_LOGIN)

@@ -1,7 +1,5 @@
 """ WCA auth routes. """
 
-from . import __encrypt_state, __decrypt_state
-
 from flask import request, redirect, url_for
 from flask_login import current_user, login_user
 
@@ -11,6 +9,8 @@ from app.persistence.user_manager import update_or_create_user_for_wca, add_wca_
 
 from app.util.wca import get_wca_auth_url, get_wca_access_token_from_auth_code,\
     get_wca_id_from_access_token, WCAAuthException
+
+from . import __encrypt_state, __decrypt_state
 
 # -------------------------------------------------------------------------------------------------
 

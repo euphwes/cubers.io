@@ -10,6 +10,32 @@ from app import app
 from app.util.simplecrypt import encrypt, decrypt
 
 # -------------------------------------------------------------------------------------------------
+
+__SECRET_KEY = app.config['FLASK_SECRET_KEY']
+__LOGIN_DENIED_TEMPLATE_PATH = 'prompt_login/denied.html'
+
+__OAUTH_CODE = 'code'
+__OAUTH_DENIED = 'access_denied'
+__OAUTH_ERROR = 'error'
+__OAUTH_STATE = 'state'
+__OAUTH_STATE_ARG_DELIMITER = '|'
+
+# -------------------------------------------------------------------------------------------------
+
+def __encrypt_state(state):
+    """ Encrypts a given string using simple-crypt (resulting in a byte array), then base64 encodes
+    the byte array to make it a URL-safe string. """
+
+    return urlsafe_b64encode(encrypt(__SECRET_KEY, state))
+
+
+def __decrypt_state(state):
+    """ Base64 decodes a given string into a byte array, which is decrypted using simple-crypt and
+    then decoded back to the original string. """
+
+    return decrypt(__SECRET_KEY, urlsafe_b64decode(state)).decode('utf-8')
+
+# -------------------------------------------------------------------------------------------------
 # Common auth routes
 # -------------------------------------------------------------------------------------------------
 
@@ -28,23 +54,3 @@ def denied():
     """ When the user declines OAuth, acknowledge and show that. """
 
     return render_template(__LOGIN_DENIED_TEMPLATE_PATH)
-
-# -------------------------------------------------------------------------------------------------
-
-__SECRET_KEY = app.config['FLASK_SECRET_KEY']
-__LOGIN_DENIED_TEMPLATE_PATH = 'prompt_login/denied.html'
-
-# -------------------------------------------------------------------------------------------------
-
-def __encrypt_state(state):
-    """ Encrypts a given string using simple-crypt (resulting in a byte array), then base64 encodes
-    the byte array to make it a URL-safe string. """
-
-    return urlsafe_b64encode(encrypt(__SECRET_KEY, state))
-
-
-def __decrypt_state(state):
-    """ Base64 decodes a given string into a byte array, which is decrypted using simple-crypt and
-    then decoded back to the original string. """
-
-    return decrypt(__SECRET_KEY, urlsafe_b64decode(state)).decode('utf-8')
