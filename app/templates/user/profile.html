@@ -13,6 +13,10 @@
 
 {% set kinch_explanation = "Kinchranks are a system to rank all-round ability. Higher is better.\nEvery event is graded on a 0-100 scale, based on your performance relative to the site record for that event. Events not participated in count as 0.\nYour Kinchrank is the average of your score for all events." %}
 
+{% set wca_assoc_explanation = "Associating with your WCA profile will allow you to login to this cubers.io account with both Reddit and WCA, and will make it easier for results moderators to verify your results." %}
+
+{% set reddit_assoc_explanation = "Associating with your Reddit profile will allow you to login to this cubers.io account with both Reddit and WCA, and will make it easier for results moderators to verify your results." %}
+
 {% set show_medals = gold_count + silver_count + bronze_count > 0 %}
 
 {% block content %}
@@ -57,6 +61,7 @@
                         <span><img class="wca-login-img" src="/static/images/wca_color.png" /></span>
                         Associate with WCA
                     </a>
+                    <span style="font-weight: normal; padding-left: 5px;" class="fas fa-question-circle spacer" data-toggle="tooltip" data-placement="bottom" title="{{ wca_assoc_explanation }}"></span>
                 </div>
                 {% endif %}
                 {% if missing_reddit_association %}
@@ -65,6 +70,7 @@
                         <span class="fab fa-reddit-alien"></span>
                         Associate with Reddit
                     </a>
+                    <span style="font-weight: normal; padding-left: 5px;" class="fas fa-question-circle spacer" data-toggle="tooltip" data-placement="bottom" title="{{ reddit_assoc_explanation }}"></span>
                 </div>
                 {% endif %}
                 {% if user.reddit_id or user.wca_id %}
@@ -85,6 +91,7 @@
                         <span><img class="wca-login-img" src="/static/images/wca_color.png" /></span>
                         Associate with WCA
                     </a>
+                    <span style="font-weight: normal; padding-left: 5px;" class="fas fa-question-circle spacer" data-toggle="tooltip" data-placement="bottom" title="{{ wca_assoc_explanation }}"></span>
                 </div>
                 {% endif %}
                 {% if missing_reddit_association %}
@@ -93,6 +100,7 @@
                         <span class="fab fa-reddit-alien"></span>
                         Associate with Reddit
                     </a>
+                    <span style="font-weight: normal; padding-left: 5px;" class="fas fa-question-circle spacer" data-toggle="tooltip" data-placement="bottom" title="{{ reddit_assoc_explanation }}"></span>
                 </div>
                 {% endif %}
             {% endif %}
