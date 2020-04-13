@@ -19,6 +19,7 @@ __OAUTH_DENIED = 'access_denied'
 __OAUTH_ERROR = 'error'
 __OAUTH_STATE = 'state'
 __OAUTH_STATE_ARG_DELIMITER = '|'
+__OAUTH_INVALID_GRANT = 'invalid_grant'
 
 # -------------------------------------------------------------------------------------------------
 

@@ -20,10 +20,10 @@ __REDDIT_ASSOC_STATE_FORMAT = '{assoc_state_prefix}|{username}'
 
 __REDDIT_LOGIN_STATE_PREFIX = 'login'
 
-_ERR_WRONG_USER = 'Oops! This Reddit association attempt appears to be for a different user.'
+__ERR_WRONG_USER = 'Oops! This Reddit association attempt appears to be for a different user.'
 
-_ERR_ACCOUNT_ALREADY_EXISTS = 'An account for Reddit user {} already exists! '
-_ERR_ACCOUNT_ALREADY_EXISTS += 'Support for merging accounts is coming soon.'
+__ERR_ACCOUNT_ALREADY_EXISTS = 'An account for Reddit user {} already exists! '
+__ERR_ACCOUNT_ALREADY_EXISTS += 'Support for merging accounts is coming soon.'
 
 # -------------------------------------------------------------------------------------------------
 
@@ -54,15 +54,15 @@ def __handle_assoc_state(state_params, reddit_id, token):
     if not current_user.is_authenticated:
         return redirect(url_for('prompt_login'))
 
-    # If the user's logged in already, it's in a WCA account. Double-check the currently logged-in
-    # user is the same username that kicked off the request.
+    # If the user's logged in already, it's in a WCA account.
+    # Double-check the currently logged-in user is the same username that kicked off the request.
     wca_user_to_associate = state_params[0]
     if not current_user.username == wca_user_to_associate:
-        return render_template('error.html', error_message=_ERR_WRONG_USER)
+        return render_template('error.html', error_message=__ERR_WRONG_USER)
 
     # Make sure we don't already have an account for this Reddit ID
     if get_user_by_reddit_id(reddit_id):
-        msg = _ERR_ACCOUNT_ALREADY_EXISTS.format(reddit_id)
+        msg = __ERR_ACCOUNT_ALREADY_EXISTS.format(reddit_id)
         return render_template('error.html', error_message=msg)
 
     # Associate the Reddit login info with the current user, and redirect to their profile
