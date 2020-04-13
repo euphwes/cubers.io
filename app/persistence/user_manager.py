@@ -1,5 +1,7 @@
 """ Utility module for persisting and retrieving users. """
 
+from sqlalchemy import func
+
 from app import DB
 from app.persistence.models import User, UserEventResults
 from app.persistence.weekly_metrics_manager import increment_new_user_count
@@ -109,6 +111,20 @@ def get_user_by_username(username):
     """ Returns the user with this username, or else `None` if no such user exists. """
 
     return User.query.filter_by(username=username).first()
+
+
+def get_user_by_username_case_insensitive(username):
+    """ Case-insensitive query to return the user with this username, or else `None` if no such
+    user exists. """
+
+    # Let's try regular query first, assuming the username is cased correctly, so we're making
+    # use of the fact the username column is indexed
+    user = get_user_by_username(username)
+    if user:
+        return user
+
+    # otherwise let's fall back on the case-insensitive query
+    return User.query.filter(func.lower(User.username) == func.lower(username)).first()
 
 
 def get_user_by_reddit_id(reddit_id):

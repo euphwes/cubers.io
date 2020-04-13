@@ -1,5 +1,7 @@
 """ Routes related to a user's profile. """
 
+from http import HTTPStatus
+
 from flask import render_template, redirect, url_for
 from flask_login import current_user
 
@@ -7,7 +9,8 @@ from app import app
 from app.business.user_history import get_user_competition_history
 from app.persistence.comp_manager import get_user_participated_competitions_count
 from app.persistence.user_manager import get_user_by_username, verify_user, unverify_user,\
-    set_perma_blacklist_for_user, unset_perma_blacklist_for_user, get_user_by_id
+    set_perma_blacklist_for_user, unset_perma_blacklist_for_user, get_user_by_id,\
+    get_user_by_username_case_insensitive
 from app.persistence.user_results_manager import get_user_completed_solves_count,\
     get_user_medals_count
 from app.persistence.events_manager import get_events_id_name_mapping
@@ -24,10 +27,14 @@ TIMESTAMP_FORMAT = '%Y %b %d'
 def profile(username):
     """ A route for showing a user's profile. """
 
-    user = get_user_by_username(username)
+    user = get_user_by_username_case_insensitive(username)
     if not user:
         no_user_msg = MSG_NO_SUCH_USER.format(username)
-        return (no_user_msg, 404)
+        return render_template('error.html', error_message=no_user_msg), HTTPStatus.NOT_FOUND
+
+    # Pull username from the user itself, so we know it's cased correctly for comparisons and
+    # queries later
+    username = user.username
 
     # Determine whether we're showing blacklisted results
     include_blacklisted = __should_show_blacklisted_results(username, current_user.is_admin)
