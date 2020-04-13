@@ -7,17 +7,12 @@ from flask_assets import Bundle, Environment
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_mobility import Mobility
-from flask.logging import default_handler
 
 from babel.dates import format_date
 
 from slugify import slugify
 
 from config import Config
-
-import logging
-
-from timber.formatter import TimberFormatter
 
 from app.util.events import build_mbld_results
 
@@ -162,16 +157,6 @@ ASSETS.register({
         filters="less,cssmin",
         output='gen/app.css'),
 })
-
-# -------------------------------------------------------------------------------------------------
-
-stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(TimberFormatter())
-
-app.logger.setLevel(logging.INFO)
-
-app.logger.removeHandler(default_handler)
-app.logger.addHandler(stream_handler)
 
 # -------------------------------------------------------------------------------------------------
 

@@ -4,11 +4,11 @@ from os import environ
 
 from arrow import utcnow
 
-from . import huey
-
 from app import app
 from app.persistence.comp_manager import get_participants_in_competition, get_competition
 from app.persistence.weekly_metrics_manager import get_weekly_metrics
+
+from . import huey
 
 # -------------------------------------------------------------------------------------------------
 
@@ -35,7 +35,7 @@ if not PUSHBULLET_ADMIN_NOTIFICATION_ENABLED:
     MSG = "Can't set up admin notifications: "
     MSG += "missing one or more of the following environment variables -- "
     MSG += 'PUSHBULLET_API_KEY, PUSHBULLET_TARGET_CHANNEL'
-    app.logger.error(MSG)
+    print(MSG)
 
 # Starting with the assumption we'll be able to send notifications over Pushbullet
 # instantiate a Pushbullet client and look for the channel specified
@@ -54,7 +54,7 @@ if PUSHBULLET_ADMIN_NOTIFICATION_ENABLED:
         PUSHBULLET_ADMIN_NOTIFICATION_ENABLED = False
         MSG = "Can't set up admin notifications: "
         MSG += "couldn't find Pushbullet channel for tag {}".format(PUSHBULLET_TARGET_CHANNEL)
-        app.logger.error(MSG)
+        print(MSG)
 
     # Otherwise if we found the channel, create a map between notification type and functions
     # bound to the Pushbullet channel itself

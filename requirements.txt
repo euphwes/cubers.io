@@ -52,6 +52,7 @@ ptyprocess==0.6.0
 pushbullet.py==0.11.0
 pycodestyle==2.5.0
 pycparser==2.18
+pycryptodome==3.9.7
 PyExecJS==1.5.1
 pyflakes==2.1.1
 Pygments==2.2.0
@@ -70,7 +71,6 @@ requests-toolbelt==0.8.0
 simplegeneric==0.8.1
 six==1.11.0
 SQLAlchemy==1.3.15
-timber==2.1.0
 tqdm==4.23.4
 traitlets==4.3.3
 twine==1.11.0

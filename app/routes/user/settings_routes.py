@@ -12,11 +12,6 @@ from app.persistence.user_manager import get_user_by_username
 
 # -------------------------------------------------------------------------------------------------
 
-LOG_USER_VIEWED_SETTINGS  = '{} viewed settings page'
-LOG_USER_UPDATED_SETTINGS = '{} updated settings'
-
-# -------------------------------------------------------------------------------------------------
-
 # These are the settings we want the user to be able to see on the settings edit page
 
 TIMER_SETTINGS = [
@@ -109,8 +104,6 @@ def __handle_get(user):
 
     default_colors = get_color_defaults()
 
-    app.logger.info(LOG_USER_VIEWED_SETTINGS.format(user.username))
-
     return render_template("user/settings.html", settings_sections=settings_sections,
                            disabled_settings=disabled_settings, default_colors=default_colors,
                            alternative_title="Preferences", is_mobile=request.MOBILE)
@@ -123,7 +116,5 @@ def __handle_post(user, form):
 
     new_settings = { code: form.get(code) for code in __ALL_SETTINGS }
     set_new_settings_for_user(user.id, new_settings)
-
-    app.logger.info(LOG_USER_UPDATED_SETTINGS.format(user.username), extra=new_settings)
 
     return redirect(url_for('index'))
