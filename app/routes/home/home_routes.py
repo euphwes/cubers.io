@@ -58,8 +58,7 @@ def index():
 def prompt_login():
     """ Prompts the user to login for the best experience. """
 
-    comp = comp_manager.get_active_competition()
-    return render_template('prompt_login/prompt_login.html', current_competition=comp)
+    return render_template('prompt_login/prompt_login.html')
 
 # -------------------------------------------------------------------------------------------------
 

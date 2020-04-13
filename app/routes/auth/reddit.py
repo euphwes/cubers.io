@@ -1,6 +1,6 @@
 """ Reddit auth routes. """
 
-from flask import request, redirect, url_for
+from flask import request, redirect, url_for, render_template
 from flask_login import current_user, login_user
 
 from app import app
@@ -58,11 +58,12 @@ def __handle_assoc_state(state_params, reddit_id, token):
     # user is the same username that kicked off the request.
     wca_user_to_associate = state_params[0]
     if not current_user.username == wca_user_to_associate:
-        return _ERR_WRONG_USER
+        return render_template('error.html', error_message=_ERR_WRONG_USER)
 
     # Make sure we don't already have an account for this Reddit ID
     if get_user_by_reddit_id(reddit_id):
-        return _ERR_ACCOUNT_ALREADY_EXISTS.format(reddit_id)
+        msg = _ERR_ACCOUNT_ALREADY_EXISTS.format(reddit_id)
+        return render_template('error.html', error_message=msg)
 
     # Associate the Reddit login info with the current user, and redirect to their profile
     add_reddit_info_to_user(current_user.username, reddit_id, token)

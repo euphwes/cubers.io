@@ -1,0 +1,25 @@
+{% extends "common/base.html" %}
+
+{% block head %}
+{{ super() }}
+    {% block additional_styles %}
+        {% assets "app_css" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}" />
+        {% endassets %}
+    {% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid cubers-container records-container">
+    <div class="row">
+        <div class="col-12">
+            <div class="flex-center-all" style="margin-top: 25px; font-size: 20px;">
+                <i class="fas fa-exclamation-triangle" style="margin-right: 10px; color: #ff6961;"></i>
+                <span>
+                    {{ error_message }}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
