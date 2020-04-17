@@ -20,7 +20,6 @@ __WCA_ASSOC_STATE_FORMAT = '{assoc_state_prefix}|{username}'
 
 __WCA_LOGIN_STATE_PREFIX = 'login'
 
-
 __ERR_WRONG_USER = 'Oops! This WCA association attempt appears to be for a different user.'
 
 __ERR_ACCOUNT_ALREADY_EXISTS = 'An account for WCA user {} already exists! '
@@ -122,6 +121,10 @@ def wca_authorize():
     try:
         token = get_wca_access_token_from_auth_code(code)
         wca_id = get_wca_id_from_access_token(token)
+
+        if not wca_id:
+            raise WCAAuthException('empty WCA ID response from /me API endpoint')
+
     except WCAAuthException as wca_error:
         err = str(wca_error)
 
