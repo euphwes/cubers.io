@@ -25,6 +25,9 @@ __ERR_WRONG_USER = 'Oops! This WCA association attempt appears to be for a diffe
 __ERR_ACCOUNT_ALREADY_EXISTS = 'An account for WCA user {} already exists! '
 __ERR_ACCOUNT_ALREADY_EXISTS += 'Support for merging accounts is coming soon.'
 
+__ERR_NO_WCA_ID = "You don't have a WCA ID. "
+__ERR_NO_WCA_ID += "Please try logging in again after you have been assigned a WCA ID."
+
 __ERR_UNKNOWN = 'Something went wrong, sorry! Please show this to /u/euphwes: {}'
 
 # -------------------------------------------------------------------------------------------------
@@ -123,7 +126,7 @@ def wca_authorize():
         wca_id = get_wca_id_from_access_token(token)
 
         if not wca_id:
-            raise WCAAuthException('empty WCA ID response from /me API endpoint')
+            return render_template('error.html', error_message=__ERR_NO_WCA_ID)
 
     except WCAAuthException as wca_error:
         err = str(wca_error)
