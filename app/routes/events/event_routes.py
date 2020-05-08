@@ -32,7 +32,7 @@ def event_results(event_name):
         return ("I don't know what {} is.".format(event_name), 404)
 
     singles  = get_ordered_pb_singles_for_event(event.id)
-    averages = get_ordered_pb_averages_for_event(event.id)
+    averages = get_ordered_pb_averages_for_event(event.id) if event.name != 'MBLD' else list()
 
     title = "{} Records".format(event.name)
 
