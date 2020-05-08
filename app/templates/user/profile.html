@@ -265,14 +265,15 @@
                                 <th scope="col">Competition</th>
                                 <th scope="col">Single</th>
                                 <th scope="col">Average</th>
+                                <th scope="col" class="d-none d-md-table-cell" style="width: 20px;";></th>
                                 <th scope="col" colspan="5" class="d-none d-md-table-cell">Solves</th>
                                 <th scope="col"></th>
                             </tr>
                             <tr class="event_name_row">
                                 {% if show_medals %}
-                                <th scope="col" colspan="11">
+                                <th scope="col" colspan="12">
                                 {% else %}
-                                <th scope="col" colspan="10">
+                                <th scope="col" colspan="11">
                                 {% endif %}
                                     <img class="event-image" src="/static/images/cube-{{event_item.name | slugify}}.png">
                                     {{ event_item.name }}
@@ -335,6 +336,7 @@
                                     <td><a href="/leaderboards/{{ comp.id }}">{{ comp.title }}</a></td>
                                     <td class="{{single_class}}">{{ single_val }}</td>
                                     <td class="{{average_class}}">{{ average_val }}</td>
+                                    <td scope="col" class="d-none d-md-table-cell" style="width: 20px;";></td>
                                     {% if event_item.name == "FMC" %}
                                         {% for solve in results.solves_helper %}
                                         <td class="d-none d-md-table-cell">
