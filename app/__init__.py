@@ -160,19 +160,19 @@ ASSETS.register({
 
 # -------------------------------------------------------------------------------------------------
 
-from app.tasks import *               # noqa
+from app.tasks import *
 
-from app.persistence import models    # noqa
-from app.routes.admin import *        # noqa
-from app.routes.auth import *         # noqa
-from app.routes.events import *       # noqa
-from app.routes.home import *         # noqa
-from app.routes.persistence import *  # noqa
-from app.routes.results import *      # noqa
-from app.routes.user import *         # noqa
-from app.routes.util import *         # noqa
-from app.commands import *            # noqa
-from app.util.times import convert_centiseconds_to_friendly_time  # noqa
+from app.persistence import models
+from app.routes.admin import *
+from app.routes.auth import *
+from app.routes.events import *
+from app.routes.home import *
+from app.routes.persistence import *
+from app.routes.results import *
+from app.routes.user import *
+from app.routes.util import *
+from app.commands import *
+from app.util.times import convert_centiseconds_to_friendly_time
 
 # -------------------------------------------------------------------------------------------------
 

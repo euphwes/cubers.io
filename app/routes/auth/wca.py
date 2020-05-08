@@ -1,4 +1,5 @@
 """ WCA auth routes. """
+# pylint: disable=invalid-name
 
 from flask import request, redirect, url_for, render_template
 from flask_login import current_user, login_user

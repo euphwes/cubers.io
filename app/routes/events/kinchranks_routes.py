@@ -1,5 +1,7 @@
 """ Routes related to displaying overall Kinchranks results. """
 
+from http import HTTPStatus
+
 from flask import render_template
 
 from app import app
@@ -8,9 +10,24 @@ from app.persistence.user_site_rankings_manager import get_user_kinchranks_all_s
 
 # -------------------------------------------------------------------------------------------------
 
-KINCH_TYPE_ALL     = 'all'
-KINCH_TYPE_WCA     = 'wca'
-KINCH_TYPE_NON_WCA = 'non_wca'
+__KINCH_TYPE_ALL     = 'all'
+__KINCH_TYPE_WCA     = 'wca'
+__KINCH_TYPE_NON_WCA = 'non_wca'
+__VALID_KINCH_TYPES = (__KINCH_TYPE_ALL, __KINCH_TYPE_WCA, __KINCH_TYPE_NON_WCA)
+
+__TITLE_MAP = {
+    __KINCH_TYPE_ALL:     'Kinchranks – Combined',
+    __KINCH_TYPE_WCA:     'Kinchranks – WCA',
+    __KINCH_TYPE_NON_WCA: 'Kinchranks – Non-WCA',
+}
+
+__RESULTS_RETRIEVER_MAP = {
+    __KINCH_TYPE_ALL:     get_user_kinchranks_all_sorted,
+    __KINCH_TYPE_WCA:     get_user_kinchranks_wca_sorted,
+    __KINCH_TYPE_NON_WCA: get_user_kinchranks_non_wca_sorted,
+}
+
+__INVALID_KINCH_TYPE = "\"{}\" isn't a valid Kinchranks type."
 
 # -------------------------------------------------------------------------------------------------
 
@@ -18,25 +35,12 @@ KINCH_TYPE_NON_WCA = 'non_wca'
 def kinchranks(rank_type):
     """ A route for showing Kinchranks. """
 
-    if rank_type not in (KINCH_TYPE_ALL, KINCH_TYPE_WCA, KINCH_TYPE_NON_WCA):
-        return ("I don't know what kind of Kinchranks this is.", 404)
+    if rank_type not in __VALID_KINCH_TYPES:
+        err_msg = __INVALID_KINCH_TYPE.format(rank_type)
+        return render_template('error.html', error_message=err_msg), HTTPStatus.NOT_FOUND
 
-    # If "all", get combined Kinchranks
-    if rank_type == KINCH_TYPE_ALL:
-        title = "Kinchranks – Combined"
-        sorted_kinchranks = get_user_kinchranks_all_sorted()
+    sorted_kinchranks = __RESULTS_RETRIEVER_MAP[rank_type]()
+    formatted_kinchranks = [(format(kr[0], '.3f'), kr[1]) for kr in sorted_kinchranks]
 
-    # If "wca", get WCA Kinchranks
-    elif rank_type == KINCH_TYPE_WCA:
-        title = "Kinchranks – WCA"
-        sorted_kinchranks = get_user_kinchranks_wca_sorted()
-
-    # Otherwise must be "non_wca", so get non-WCA Kinchranks
-    else:
-        title = "Kinchranks – Non-WCA"
-        sorted_kinchranks = get_user_kinchranks_non_wca_sorted()
-
-    sorted_kinchranks = [(format(kr[0], '.3f'), kr[1]) for kr in sorted_kinchranks]
-
-    return render_template("records/kinchranks.html", title=title,
-        alternative_title="Kinchranks", sorted_kinchranks=sorted_kinchranks)
+    return render_template("records/kinchranks.html", alternative_title="Kinchranks",
+                            title=__TITLE_MAP[rank_type], sorted_kinchranks=formatted_kinchranks)

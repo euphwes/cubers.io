@@ -37,8 +37,8 @@ def event_results(event_name):
     title = "{} Records".format(event.name)
 
     return render_template("records/event.html", event_id=event.id, event_name=event.name,
-        singles=singles, averages=averages, alternative_title=title,
-        show_admin=current_user.is_admin)
+                           singles=singles, averages=averages, alternative_title=title,
+                           show_admin=current_user.is_admin)
 
 
 @app.route('/event/<event_name>/export/')

@@ -1,1 +1,3 @@
-from .gc_select import *  # noqa
+# pylint: disable=missing-docstring
+
+from .gc_select import *
