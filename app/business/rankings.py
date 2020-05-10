@@ -136,23 +136,23 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
         if event.name == 'MBLD':
             best_mbld = int(ranked_singles[0].personal_best)
             baseline_mbld = get_mbld_total_points(best_mbld) + get_mbld_fraction_of_hour_remaining(best_mbld)
-            if pb_single and not pb_single == 'DNF':
-                coded_mbld = int(ranked_singles[0].personal_best)
+            if pb_single and pb_single != 'DNF':
+                coded_mbld = int(pb_single)
                 this_mbld  = get_mbld_total_points(coded_mbld) + get_mbld_fraction_of_hour_remaining(coded_mbld)
-                single_kinch = round(baseline_mbld / this_mbld * 100, 3)
+                event_kinch = round((this_mbld / baseline_mbld) * 100, 3)
         elif event.name in ('FMC', '3BLD'):
             single_kinch = 0
             average_kinch = 0
-            if pb_single and not pb_single == 'DNF':
+            if pb_single and pb_single != 'DNF':
                 single_kinch = round(int(ranked_singles[0].personal_best) / int(pb_single) * 100, 3)
-            if pb_average and not pb_average == 'DNF':
+            if pb_average and pb_average != 'DNF':
                 average_kinch = round(int(ranked_averages[0].personal_best) / int(pb_average) * 100, 3)
             event_kinch = max([single_kinch, average_kinch])
         elif event.eventFormat in (EventFormat.Bo1, EventFormat.Bo3):
-            if pb_single and not pb_single == 'DNF':
+            if pb_single and pb_single != 'DNF':
                 event_kinch = round(int(ranked_singles[0].personal_best) / int(pb_single) * 100, 3)
         else:
-            if pb_average and not pb_average == 'DNF':
+            if pb_average and pb_average != 'DNF':
                 event_kinch = round(int(ranked_averages[0].personal_best) / int(pb_average) * 100, 3)
 
         # Accumulate Kinchranks
