@@ -207,7 +207,96 @@
     // Normalizes a move sequence by reducing pairs of face turns (e.g. R R --> R2)
     // and removing rotations and adjusting later moves to account for that
     function normalizeMoveSequence(moveSequence) {
+
+        console.log('\nnormalizing: ' + moveSequence);
+
+        // Brute force, expand all variants of x, y, z into repeated rotations
+        // x' --> x x x
+        // y2 --> y y
+        // etc
+        //
+        // We don't need to worry about rotations outside this hardcoded list, because we
+        // filtered those out as invalid moves earlier.
+        moveSequence = moveSequence.replace(/x2/g, 'x x');
+        moveSequence = moveSequence.replace(/x'/g, 'x x x');
+        moveSequence = moveSequence.replace(/y2/g, 'y y');
+        moveSequence = moveSequence.replace(/y'/g, 'y y y');
+        moveSequence = moveSequence.replace(/z2/g, 'z z');
+        moveSequence = moveSequence.replace(/z'/g, 'z z z');
+
+        console.log('expanded rotations: ' + moveSequence);
+
         var moves = moveSequence.split(/\s+/);
+
+        var rotation_transforms = {
+            'x': {
+                'U': 'F',
+                'B': 'U',
+                'D': 'B',
+                'F': 'D',
+                'L': 'L',
+                'R': 'R',
+            },
+            'y': {
+                'L': 'F',
+                'B': 'L',
+                'R': 'B',
+                'F': 'R',
+                'U': 'U',
+                'D': 'D',
+            },
+            'z': {
+                'R': 'U',
+                'D': 'R',
+                'L': 'D',
+                'U': 'L',
+                'F': 'F',
+                'B': 'B',
+            }
+        }
+
+        // Utility function to find the index of the last rotation (x, y, z) in the given
+        // move sequence, as well as which rotation it is
+        var getIndexOfLastRotationAndRotation = function(sequence) {
+            var xLastIndex = sequence.lastIndexOf('x');
+            var yLastIndex = sequence.lastIndexOf('y');
+            var zLastIndex = sequence.lastIndexOf('z');
+
+            var lastRotationIndex = Math.max(xLastIndex, yLastIndex, zLastIndex);
+            if (lastRotationIndex == -1) {
+                return [-1, null];
+            }
+
+            if (lastRotationIndex == xLastIndex) { return [lastRotationIndex, 'x']; }
+            if (lastRotationIndex == yLastIndex) { return [lastRotationIndex, 'y']; }
+            if (lastRotationIndex == zLastIndex) { return [lastRotationIndex, 'z']; }
+        };
+
+        // While the move sequence still contains a rotation, get the last rotation in the sequence,
+        // remove it, and apply the appropriate transformations to the moves that come after it.
+        while(true) {
+            var lastRotationIndexInfo = getIndexOfLastRotationAndRotation(moves);
+            var i = lastRotationIndexInfo[0];
+            var whichRotation = lastRotationIndexInfo[1];
+
+            if (i == -1) { break; }
+
+            var transforms_map = rotation_transforms[whichRotation];
+
+            var toBePreserved = moves.slice(0, i);
+            var toBeTransformed = moves.slice(i+1, moves.length);
+            var transformed = [];
+
+            $.each(toBeTransformed, function(i, move) {
+                var face = move[0];
+                var targetFace = transforms_map[face];
+                transformed.push(move.replace(face, targetFace));
+            });
+
+            moves = toBePreserved.concat(transformed);
+        }
+
+        console.log('after rotation transforms: ' + moves.join(' '));
 
         // Returns a 'count' for a given move
         // 1 for single turn clockwise, 2 for double, 3 for single turn counterclockwise
