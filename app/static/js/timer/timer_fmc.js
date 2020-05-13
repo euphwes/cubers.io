@@ -20,7 +20,7 @@
         var isDNF = isDNFByButton || false;
         var asInt = 99900;
 
-        var showInvalid = function() {;
+        var showInvalid = function() {
             bootbox.alert('Please use the "solution" button below to enter a solution for this scramble.');
         }
 
@@ -204,7 +204,17 @@
         return moveCount;
     };
 
-    // Wire up the FMC comment button
+    // Shamelessy adapted from https://codegolf.stackexchange.com/questions/130191/reverse-a-rubiks-cube-algorithm
+    // Accepts a move sequence string and returns its inverse.
+    function inverseMoveSequence(moveSequence) {
+        return moveSequence
+            .split(/\s+/)
+            .map(([a,b])=>b?+b?a+b:a:a+"'")
+            .reverse()
+            .join(' ');
+    };
+
+    // Wire up the FMC DNF button
     $('#BTN_FMC_DNF').click(function() {
         $('#BTN_FMC_DNF').blur();
         bootbox.confirm({
@@ -248,15 +258,27 @@
 
                 var raw_solution = sanitizeSolutionAndGetRawMoves(result);
                 var solution = raw_solution.join(' ');
+
                 var solution_length = getOBTMMoveCount(raw_solution);
                 console.log('parsed solution: ' + solution);
                 console.log('calculated OTBM solution length: ' + solution_length);
 
                 var solution_is_valid = doesSolutionSolveScramble(solution, window.app.scramble);
 
+                // inverse the scramble, and compare the solution to that
+                var inversed_scramble = inverseMoveSequence(window.app.scramble);
+                var solution_is_inverse_scramble = solution == inversed_scramble;
+
                 if (!solution_is_valid) {
                     var msg = "Your solution doesn't appear to solve the provided scramble!<br>";
                     msg += "Please double-check your solution for correctness and typos.<br><br>";
+                    msg += "Here is how your solution was interpreted:<br><br>";
+                    msg += "<div class=\"code\">" + solution + "</div>";
+                    bootbox.alert(msg);
+                    return;
+                } else if (solution_is_inverse_scramble) {
+                    var msg = "Your solution appears to be the inverse of the scramble!<br>";
+                    msg += "Please submit your own original solution for this scramble.<br><br>";
                     msg += "Here is how your solution was interpreted:<br><br>";
                     msg += "<div class=\"code\">" + solution + "</div>";
                     bootbox.alert(msg);
