@@ -204,6 +204,68 @@
         return moveCount;
     };
 
+    // Normalizes a move sequence by reducing pairs of face turns (e.g. R R --> R2)
+    // and removing rotations and adjusting later moves to account for that
+    function normalizeMoveSequence(moveSequence) {
+        var moves = moveSequence.split(/\s+/);
+
+        // Returns a 'count' for a given move
+        // 1 for single turn clockwise, 2 for double, 3 for single turn counterclockwise
+        // Summing these values up and then mod by 4 gives you a single 0-3 value which can be
+        // turned back into the simplified move
+        var getCountForMove = function(move) {
+            return move.includes("'") ? 3
+                : move.includes("2") ? 2
+                : 1;
+        };
+
+        // Returns the simplified move for the given face and the total sum of turns
+        // R R R R2 R' R2 --> [R, 10] --> R2
+        var getSimplifiedMoveForCount = function(move, count) {
+            count = count % 4;
+            return count == 1 ? move
+                : count == 2 ? move + "2"
+                : move + "'";
+        };
+
+        var currFace = "";
+        var currSum = 0;
+        var moveGroups = [];
+
+        // Iterate through the move sequence, grouping runs of similar moves, maintaining a count
+        // for each, where count indicates a total number of 90 deg clockwise turns for each
+        //
+        // R R R2 R' U U' U2 --> [[R, 7], [U, 6]]
+        $.each(moves, function(i, move) {
+            var face = move[0];
+
+            if (face == currFace) {
+                currSum += getCountForMove(move);
+            } else {
+                if (i > 0) {
+                    moveGroups.push([currFace, currSum]);
+                }
+
+                currFace = face;
+                currSum = getCountForMove(move);
+            }
+        });
+        moveGroups.push([currFace, currSum]);
+
+        // Iterate each group of moves, and push its simplified representation to the
+        // simplified move sequence
+        //
+        // [[R, 7], [U, 6]] --> [R', U2]
+        var simplifiedMoveSequence = [];
+        $.each(moveGroups, function(i, moveGroup) {
+            var simplifiedMove = getSimplifiedMoveForCount(moveGroup[0], moveGroup[1]);
+            simplifiedMoveSequence.push(simplifiedMove);
+        });
+
+        // Join the simplified move sequence back into a string representation
+        return simplifiedMoveSequence.join(' ');
+    };
+
     // Shamelessy adapted from https://codegolf.stackexchange.com/questions/130191/reverse-a-rubiks-cube-algorithm
     // Accepts a move sequence string and returns its inverse.
     function inverseMoveSequence(moveSequence) {
@@ -269,6 +331,10 @@
                 var inversed_scramble = inverseMoveSequence(window.app.scramble);
                 var solution_is_inverse_scramble = solution == inversed_scramble;
 
+                var normalized_solution = normalizeMoveSequence(solution);
+                console.log('normalized solution: ' + normalized_solution);
+                var normalized_solution_is_inverse_scramble = normalized_solution == inversed_scramble;
+
                 if (!solution_is_valid) {
                     var msg = "Your solution doesn't appear to solve the provided scramble!<br>";
                     msg += "Please double-check your solution for correctness and typos.<br><br>";
@@ -277,10 +343,19 @@
                     bootbox.alert(msg);
                     return;
                 } else if (solution_is_inverse_scramble) {
-                    var msg = "Your solution appears to be the inverse of the scramble!<br>";
+                    var msg = "Your solution appears to be the inverse of the scramble.<br>";
                     msg += "Please submit your own original solution for this scramble.<br><br>";
                     msg += "Here is how your solution was interpreted:<br><br>";
                     msg += "<div class=\"code\">" + solution + "</div>";
+                    bootbox.alert(msg);
+                    return;
+                } else if (normalized_solution_is_inverse_scramble) {
+                    var msg = "Your solution appears to be the inverse of the scramble.<br>";
+                    msg += "Please submit your own original solution for this scramble.<br><br>";
+                    msg += "Here is how your solution was interpreted:<br><br>";
+                    msg += "<div class=\"code\">" + solution + "</div><br>";
+                    msg += "Here is your simplified solution, after removing rotations and redundant face turns:<br><br>";
+                    msg += "<div class=\"code\">" + normalized_solution + "</div>";
                     bootbox.alert(msg);
                     return;
                 } else {
