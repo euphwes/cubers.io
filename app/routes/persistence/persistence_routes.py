@@ -46,6 +46,7 @@ ERR_MSG_NO_RESULTS    = "Can't find user results for competition event with ID {
 ERR_MSG_NO_SOLVE      = "Can't find solve with ID {} that belongs to {}."
 ERR_MSG_MBLD_TOO_FEW_ATTEMPTED = "You must attempt at least 2 cubes for MBLD!"
 ERR_MSG_NOT_VALID_FOR_FMC = 'This operation is not valid for FMC!'
+ERR_MSG_NON_POSITIVE_TIME = 'Solve time cannot be zero or negative!'
 
 # -------------------------------------------------------------------------------------------------
 # Below are routes called during standard usage of the timer pages
@@ -70,6 +71,11 @@ def post_solve():
     centiseconds      = solve_data[CENTISECONDS]
     is_inspection_dnf = solve_data.get(IS_INSPECTION_DNF, False)
     fmc_comment       = solve_data.get(FMC_COMMENT, '')
+
+    # If the solve time isn't positive, don't save the solve. Let the user know that a negative
+    # time isn't allowed.
+    if centiseconds <= 0:
+        return (ERR_MSG_NON_POSITIVE_TIME, HTTPStatus.BAD_REQUEST)
 
     # If the submitted solve is for a scramble the user already has a solve for,
     # don't take any further action to persist a solve, just return. User probably
@@ -285,6 +291,11 @@ def set_time():
 
     # Extract all the specific fields out of the solve data dictionary
     target_solve.time = solve_data[CENTISECONDS]
+
+    # If the solve time isn't positive, don't save the solve. Let the user know that a negative
+    # time isn't allowed.
+    if target_solve.time <= 0:
+        return (ERR_MSG_NON_POSITIVE_TIME, HTTPStatus.BAD_REQUEST)
 
     # No penalties on the solve after adjusting time
     target_solve.is_plus_two = False
