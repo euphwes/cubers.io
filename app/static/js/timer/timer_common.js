@@ -228,9 +228,9 @@
             }
         };
 
-        // If this is for FMC, don't display the menu things for modifying solves
+        // If this is for FMC or MBLD, don't display the menu entries. for modifying solves
         // Also alter the delete menu text to say "delete solution" instead of "delete time"
-        if (window.app.eventName == 'FMC') {
+        if (window.app.eventName == 'FMC' || window.app.eventName == 'MBLD') {
             delete menuItems.clear;
             delete menuItems.dnf;
             delete menuItems.plusTwo;
@@ -239,7 +239,13 @@
             delete menuItems.manual_entry;
             delete menuItems.sep2;
 
-            menuItems.delete.name = "Delete solution";
+            if (window.app.eventName == 'FMC') {
+                menuItems.delete.name = "Delete solution";
+            } else {
+                delete menuItems.sep3;
+                delete menuItems.copy_scramble;
+                menuItems.delete.name = "Delete attempt";
+            }
         }
 
         $.contextMenu({
