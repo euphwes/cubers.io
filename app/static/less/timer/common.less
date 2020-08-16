@@ -152,6 +152,13 @@
     &.no_pointer {
         cursor: default;
     }
+    opacity: 1.0;
+    transition: opacity .3s ease-in-out;
+    &.disabled {
+        pointer-events: none;
+        opacity: 0.25;
+        transition: opacity .3s ease-in-out;
+    }
 }
 
 .mods_area {
@@ -194,6 +201,19 @@
 .times {
     width: 100%;
     font-family: 'Roboto Mono', monospace;
+
+    .single_time {
+        opacity: 1.0;
+        transition: opacity .3s ease-in-out;
+    }
+
+    &.disabled {
+        .single_time {
+            pointer-events: none;
+            opacity: 0.25;
+            transition: opacity .3s ease-in-out;
+        }
+    }
 }
 
 .single_time {

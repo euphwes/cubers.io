@@ -61,8 +61,10 @@
      * Event handler for the timer's armed event
      */
     TimerDisplayManager.prototype._handleTimerArmed = function () {
+        $('.times').addClass('disabled');
         $('.timer_text').addClass('fullscreen');
         $('.timer_text').addClass('armed');
+        $('.scramble_preview').addClass('disabled');
         $('.controls_wrapper').addClass('disabled');
         this._showZero();
     };
@@ -71,7 +73,9 @@
      * Event handler for the timer's inspection armed event
      */
     TimerDisplayManager.prototype._handleInspectionArmed = function () {
+        $('.times').addClass('disabled');
         $('.timer_text').addClass('armed');
+        $('.scramble_preview').addClass('disabled');
         if (app.userSettingsManager.get_setting(app.Settings.HIDE_INSPECTION_TIME)) {
             $('.timer_text').removeClass('hidden');
         }
@@ -107,8 +111,10 @@
      * Utility method to revert timer display back to standard, no additional class modification
      */
     TimerDisplayManager.prototype._revertTimerModifications = function() {
+        $('.times').removeClass('disabled');
         $('.timer_text').removeClass('fullscreen');
         $('.timer_text').removeClass('hidden');
+        $('.scramble_preview').removeClass('disabled');
         $('.controls_wrapper').removeClass('disabled');
     };
 
