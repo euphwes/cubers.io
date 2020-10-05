@@ -27,7 +27,8 @@ Thanks for checking out the results for this week's [cubers.io](https://www.cube
 For those who haven't yet joined in, come compete with us! [cubers.io](https://www.cubers.io) is a
 website where you can participate in weekly WCA-style cubing competitions with fellow cubers from
 around the world. You can log in with either your Reddit or your WCA account! To keep things
-fresh, there is a rotating selection of non-WCA bonus events as well.
+fresh, there is a rotating selection of non-WCA bonus events as well. Get more info at
+[GitHub](https://github.com/euphwes/cubers.io#readme)!
 
 This results thread displays the top {event_user_limit} participants in each event,
 as well as the top {point_user_limit} overall points earners.

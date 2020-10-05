@@ -24,7 +24,9 @@ ROTATING_EVENTS_DESC = """This week, the bonus events are {bonus_events_list}.""
 NEW_COMP_TEMPLATE = """Hey there {username}, we wanted to let you know that {comp_title} has
 been posted at [cubers.io](https://www.cubers.io)!
 
-{bonus_events_desc}"""
+{bonus_events_desc}
+
+{opt_out_info}"""
 
 NEW_COMP_TITLE = "A new competition has been posted at cubers.io!"
 
@@ -36,11 +38,18 @@ END_OF_COMP_BODY_TEMPLATE = """Hi, {username}! Here's your report for {comp_titl
 
 You participated in {event_count} events, with a total of {solves_count} solves.
 {pb_info}{podium_info}
+
+{opt_out_info}
+
 We're looking forward to having you back next week!"""
 
 PB_INFO_TEMPLATE = "\nYou set {maybe_pluralized_pbs}! Your PBs were in the the following events: {pb_events_list}\n"
 
 PODIUM_INFO_TEMPLATE = "\nCongrats, you podiumed this week! {events_medal_list}\n"
+
+OPT_OUT_INFO = """If you'd like to opt out of these weekly PMs at any time, please visit the
+[cubers.io settings page](https://www.cubers.io/settings) and turn off the options under the
+"Reddit Preferences" section."""
 
 # -------------------------------------------------------------------------------------------------
 
@@ -68,9 +77,6 @@ def prepare_new_competition_notification(comp_id, is_all_events):
     """ Builds a new competition notification message, looks up all users who want to receive
     this sort of message, and queues up tasks to send those users PMs. """
 
-    if IS_DEVO:
-        return
-
     competition = get_competition(comp_id)
 
     if is_all_events:
@@ -88,16 +94,14 @@ def prepare_new_competition_notification(comp_id, is_all_events):
     for user_id in get_all_user_ids_with_setting_value(SettingCode.REDDIT_COMP_NOTIFY, TRUE_STR):
         username = get_user_by_id(user_id).username
         message_body = NEW_COMP_TEMPLATE.format(comp_title=competition.title,
-                                                bonus_events_desc=event_desc, username=username)
+                                                bonus_events_desc=event_desc, username=username,
+                                                opt_out_info=OPT_OUT_INFO)
         send_competition_notification_pm(username, message_body)
 
 
 @huey.task()
 def send_competition_notification_pm(username, message_body):
     """ Sends a new competition notification PM to the specified user. """
-
-    if IS_DEVO:
-        return
 
     send_PM_to_user_with_title_and_body(username, NEW_COMP_TITLE, message_body)
 
@@ -106,9 +110,6 @@ def send_competition_notification_pm(username, message_body):
 def prepare_end_of_competition_info_notifications(comp_id):
     """ Prepares a list of end-of-competition stats and info for users who have both opted in
     and participated in the specified competition. """
-
-    if IS_DEVO:
-        return
 
     users_in_comp = get_participants_in_competition_as_user_ids(comp_id)
     opted_in = get_all_user_ids_with_setting_value(SettingCode.REDDIT_RESULTS_NOTIFY, TRUE_STR)
@@ -127,9 +128,6 @@ def prepare_end_of_competition_info_notifications(comp_id):
 def send_end_of_competition_message(user_id, comp_id, comp_title):
     """ Sends a report to the specified user with info about their participation
     in the competition. """
-
-    if IS_DEVO:
-        return
 
     user = get_user_by_id(user_id)
     all_results = get_all_complete_user_results_for_comp_and_user(comp_id, user_id, include_blacklisted=False)
@@ -170,7 +168,8 @@ def send_end_of_competition_message(user_id, comp_id, comp_title):
         event_count=total_events_participated_in,
         solves_count=total_solves,
         pb_info=pb_info,
-        podium_info=podium_info
+        podium_info=podium_info,
+        opt_out_info=OPT_OUT_INFO
     )
 
     message_title = END_OF_COMP_TITLE_TEMPLATE.format(comp_title=comp_title)
