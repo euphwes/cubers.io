@@ -15,13 +15,19 @@ from app.util.events.resources import sort_comp_events_by_global_sort_order
 __USER_PER_EVENT_LIMIT = 10
 __USER_LIMIT_IN_POINTS = 50
 
-__RESULTS_TITLE_TEMPLATE = 'Results for {comp_title}'
+__RESULTS_TITLE_TEMPLATE = 'Results for cubers.io weekly competition {comp_title}!'
 __RESULTS_EVENT_HEADER_TEMPLATE = '\n\n---\n\n**{event_name}**\n\n'
 __RESULTS_USER_LINE_TEMPLATE = '1. [{username}]({profile_url}): {result}\n\n'
 __RESULTS_USER_POINTS_TEMPLATE = '1. [{username}]({profile_url}): {points}\n\n'
 
 __RESULTS_BODY_START_TEMPLATE = """
-Thanks for checking out the results for [{comp_title}]({leaderboards_url})!
+Thanks for checking out the results for this week's [cubers.io](https://www.cubers.io) competition
+ [{comp_title}]({leaderboards_url})!
+
+For those who haven't yet joined in, come compete with us! [cubers.io](https://www.cubers.io) is a
+website where you can participate in weekly WCA-style cubing competitions with fellow cubers from
+around the world. You can log in with either your Reddit or your WCA account! To keep things
+fresh, there is a rotating selection of non-WCA bonus events as well.
 
 This results thread displays the top {event_user_limit} participants in each event,
 as well as the top {point_user_limit} overall points earners.

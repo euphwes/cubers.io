@@ -5,7 +5,8 @@ from app.persistence.user_results_manager import get_all_complete_user_results_f
 from app.persistence.comp_manager import get_competition, get_all_comp_events_for_comp,\
     get_participants_in_competition_as_user_ids
 from app.persistence.user_manager import get_user_by_id
-from app.persistence.settings_manager import get_all_user_ids_with_setting_value, SettingCode, TRUE_STR
+from app.persistence.settings_manager import get_all_user_ids_with_setting_value, SettingCode,\
+    TRUE_STR
 from app.util.reddit import send_PM_to_user_with_title_and_body
 from app.util.events.resources import get_all_bonus_events_names
 
