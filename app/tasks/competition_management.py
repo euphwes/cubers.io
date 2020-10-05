@@ -1,8 +1,5 @@
 """ Tasks related to creating and scoring competitions. """
 
-from datetime import datetime
-from pytz import timezone
-
 from arrow import utcnow
 from huey import crontab
 
@@ -21,35 +18,13 @@ from .admin_notification import notify_admin, send_weekly_report, AdminNotificat
 
 # -------------------------------------------------------------------------------------------------
 
-__US_EASTERN_TIMEZONE = 'US/Eastern'
-
-def __is_daylight_savings_in(zonename: str) -> bool:
-    """ Returns whether it's currently daylight savings time in the specified timezone.
-    Shamelessly taken from an answer here: https://stackoverflow.com/questions/19774709 """
-
-    return bool(datetime.now(timezone(zonename)).dst())
-
-
-def __always_false(*args) -> bool:
-    """ Dummy function to always return false. """
-
-    return False
-
-# -------------------------------------------------------------------------------------------------
-
 if app.config['IS_DEVO']:
-    WRAP_WEEKLY_COMP_SCHEDULE = __always_false  # don't run as periodic in devo
+    # don't run as periodic in devo
+    WRAP_WEEKLY_COMP_SCHEDULE = lambda _ : False
 
 else:
-    # We want the comps to be posted on at 10 PM US Eastern on Sundays, but we need to specify the
-    # crontab time in UTC. Since the relationship between UTC and US/Eastern changes depending on
-    # daylight savings time, we need to account for that
-    if __is_daylight_savings_in(__US_EASTERN_TIMEZONE):
-        # Mon 2 AM UTC == Sun 10 PM US/Eastern
-        WRAP_WEEKLY_COMP_SCHEDULE = crontab(day_of_week='1', hour='2', minute='0')
-    else:
-        # Mon 3 AM UTC == Sun 10 PM US/Eastern
-        WRAP_WEEKLY_COMP_SCHEDULE = crontab(day_of_week='1', hour='3', minute='0')
+    # Mon 2 AM UTC == Sun 10 PM US/Eastern (or 11 PM if it's not Daylight Savings Time)
+    WRAP_WEEKLY_COMP_SCHEDULE = crontab(day_of_week='1', hour='2', minute='0')
 
 # -------------------------------------------------------------------------------------------------
 
@@ -58,6 +33,7 @@ def wrap_weekly_competition():
     """ A periodic task to schedule sub-tasks related to wrapping up the weekly competitions. """
 
     current_comp = get_active_competition()
+
     comp_events_in_comp = get_all_comp_events_for_comp(current_comp.id)
     set_medals_on_best_event_results(comp_events_in_comp)
 
