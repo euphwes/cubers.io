@@ -428,7 +428,7 @@ def get_setting_for_user(user_id, setting_code):
 
 
 def get_all_user_ids_with_setting_value(setting_code, setting_value):
-    """ Returns a list of all Users'd IDs that have the specified setting. """
+    """ Returns a list of all Users' IDs that have the specified setting. """
 
     matching_settings = DB.session.\
         query(UserSetting).\

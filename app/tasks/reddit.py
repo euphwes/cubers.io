@@ -3,7 +3,7 @@
 from app import app
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp_and_user
 from app.persistence.comp_manager import get_competition, get_all_comp_events_for_comp,\
-    get_participants_in_competition_as_user_ids
+    get_reddit_participants_in_competition
 from app.persistence.user_manager import get_user_by_id
 from app.persistence.settings_manager import get_all_user_ids_with_setting_value, SettingCode,\
     TRUE_STR
@@ -92,11 +92,15 @@ def prepare_new_competition_notification(comp_id, is_all_events):
         event_desc = ROTATING_EVENTS_DESC.format(bonus_events_list=bonus_event_names)
 
     for user_id in get_all_user_ids_with_setting_value(SettingCode.REDDIT_COMP_NOTIFY, TRUE_STR):
-        username = get_user_by_id(user_id).username
+        reddit_id = get_user_by_id(user_id).reddit_id
+        # If the user doesn't have Reddit info, skip them
+        if not reddit_id:
+            continue
+
         message_body = NEW_COMP_TEMPLATE.format(comp_title=competition.title,
-                                                bonus_events_desc=event_desc, username=username,
+                                                bonus_events_desc=event_desc, username=reddit_id,
                                                 opt_out_info=OPT_OUT_INFO)
-        send_competition_notification_pm(username, message_body)
+        send_competition_notification_pm(reddit_id, message_body)
 
 
 @huey.task()
@@ -111,7 +115,7 @@ def prepare_end_of_competition_info_notifications(comp_id):
     """ Prepares a list of end-of-competition stats and info for users who have both opted in
     and participated in the specified competition. """
 
-    users_in_comp = get_participants_in_competition_as_user_ids(comp_id)
+    users_in_comp = get_reddit_participants_in_competition(comp_id)
     opted_in = get_all_user_ids_with_setting_value(SettingCode.REDDIT_RESULTS_NOTIFY, TRUE_STR)
 
     # Make sure we're only sending messages to users who have both participated in the specified
