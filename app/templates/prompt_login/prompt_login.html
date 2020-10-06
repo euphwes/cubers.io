@@ -10,6 +10,11 @@
   <div class="logo-holder">
     <img class="main-logo" src="./static/images/cubersio_logo_light.png">
   </div>
+
+  <div class="font-weight-bold text-white mb-5 mx-4">
+    <p>cubers.io is a web app where you can participate in WCA-style speedcubing competitions!</p>
+  </div>
+
   <div class="login_button_holder">
     <a href="{{ url_for('reddit_login') }}" class="btn btn-lg btn-block btn-social btn-github">
       <span class="fab fa-reddit-alien"></span>
@@ -19,6 +24,38 @@
       <span><img class="wca-login-img" src="/static/images/wca_color.png" /></span>
       Sign in with WCA
     </a>
+  </div>
+
+  <div class="card-deck text-center my-5 mx-4">
+
+    <div class="card mb-4">
+      <div class="card-header">
+        <h4>Weekly Competitions</h4>
+      </div>
+      <div class="card-body">
+        <ul class="list-group list-group-flush mb-2">
+          <li class="list-group-item">All WCA events.</li>
+          <li class="list-group-item">Rotating selection of bonus non-WCA events.</li>
+          <li class="list-group-item">Leaderboards and Rankings.</li>
+          <li class="list-group-item">Customizable and optional timer. <br>Compete using your favorite timer and only input times.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header">
+        <h4>Ease of use</h4>
+      </div>
+      <div class="card-body">
+        <ul class="list-group list-group-flush mb-2">
+          <li class="list-group-item">Solves are automatically saved.</li>
+          <li class="list-group-item">Return later and pick up where you left off.</li>
+          <li class="list-group-item">Automatic Reddit comment generation and submission.</li>
+          <li class="list-group-item">Track your performance with participation history and PBs.</li>
+        </ul>
+      </div>
+    </div>
+
   </div>
 </div>
 {% endblock %}
