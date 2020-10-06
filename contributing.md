@@ -72,6 +72,16 @@ You should see some startup messages, and within a minute you should see some lo
 
 ## One-time setup pieces
 
+## Flask secret key
+
+Flask expects to find an environment variable called ``FLASK_SECRET_KEY`` to perform encryption tasks. [Flask documentation](https://flask.palletsprojects.com/en/1.1.x/quickstart/) suggests that we generate secret keys using the following command:
+
+```
+$ python3 -c 'import os; print(os.urandom(16).hex())'
+```
+Now you just have to export the env variable with ``export FLASK_SECRET_KEY=some_random_value_python_generated_for_you``
+
+
 ### Reddit API/application setup
 
 For Reddit-related functionality, you'll need to create your own "application" on Reddit to receive a Reddit API key.
