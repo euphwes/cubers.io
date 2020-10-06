@@ -92,6 +92,10 @@ def __handle_get(user):
         ("Megaminx Color Preferences",  [s for s in all_settings if s.code in set(CUSTOM_MEGAMINX_COLOR_SETTINGS)]),
     ])
 
+    # If the user doesn't have Reddit account info, omit the Reddit Preferences section
+    if not user.reddit_id:
+        del settings_sections['Reddit Preferences']
+
     disabled_settings = list()
     for setting in all_settings:
         if setting.type != SettingType.BOOLEAN:
