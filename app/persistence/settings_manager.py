@@ -10,6 +10,7 @@ from app.persistence.models import UserSetting
 # Constants which correspond to a `setting_code` in the UserSettings database table
 # pylint: disable=R0903,C0111
 class SettingCode():
+    # Timer settings
     USE_INSPECTION_TIME     = 'use_inspection_time'
     HIDE_INSPECTION_TIME    = 'hide_inspection_time'
     HIDE_RUNNING_TIMER      = 'hide_running_timer'
@@ -17,9 +18,12 @@ class SettingCode():
     HIDE_SCRAMBLE_PREVIEW   = 'hide_scramble_preview'
     ENABLE_MOVING_SHAPES_BG = 'enable_moving_shapes_bg'
 
+    # Hidden events
+    HIDDEN_EVENTS = 'hidden_events'
+
     # Reddit related settings
-    REDDIT_COMP_NOTIFY     = 'reddit_comp_notify'
-    REDDIT_RESULTS_NOTIFY  = 'reddit_results_notify'
+    REDDIT_COMP_NOTIFY    = 'reddit_comp_notify'
+    REDDIT_RESULTS_NOTIFY = 'reddit_results_notify'
 
     # Custom cube colors
     USE_CUSTOM_CUBE_COLORS = 'use_custom_cube_colors'
@@ -54,8 +58,9 @@ class SettingCode():
 
 # Denotes the type of setting, aka boolean, free-form text, etc
 class SettingType():
-    BOOLEAN   = 'boolean'
-    HEX_COLOR = 'hex_color'  # hex color code aka "#FFC1D2"
+    BOOLEAN        = 'boolean'
+    HEX_COLOR      = 'hex_color'      # hex color code aka "#FFC1D2"
+    EVENT_ID_LIST  = 'event_id_list'  # comma-delimited list of integers
 
 # Encapsulates necessary information about each setting
 class SettingInfo():
@@ -129,9 +134,29 @@ def hex_color_validator(value):
 
     return value
 
+
+def int_list_validator(value):
+    """ Validates a string which should be a comma-delimited list of integers """
+
+    for char in value.split(','):
+        try:
+            int(char)
+        except ValueError:
+            msg = '{} is not an integer, and so {} is not a valid integer list'.format(char, value)
+            raise ValueError(msg)
+
+    return value
+
 # -------------------------------------------------------------------------------------------------
 
 SETTING_INFO_MAP = {
+    SettingCode.HIDDEN_EVENTS: SettingInfo(
+        title         = "Hide Selected Events",
+        validator     = int_list_validator,
+        setting_type  = SettingType.EVENT_ID_LIST,
+        default_value = ""
+    ),
+
     SettingCode.HIDE_SCRAMBLE_PREVIEW: SettingInfo(
         title         = "Hide Scramble Preview",
         validator     = boolean_validator,
