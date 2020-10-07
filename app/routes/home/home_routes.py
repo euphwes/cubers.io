@@ -48,6 +48,11 @@ def index():
     show_shapes_background = get_setting_for_user(current_user.id, SettingCode.ENABLE_MOVING_SHAPES_BG)
     show_shapes_background = show_shapes_background == TRUE_STR
 
+    # Filter out events the user doesn't want to see
+    hidden_event_ids = get_setting_for_user(current_user.id, SettingCode.HIDDEN_EVENTS)
+    hidden_event_ids = set(int(i) for i in hidden_event_ids.split(',')) if hidden_event_ids else set()
+    comp_events = [c for c in comp_events if c.event_id not in hidden_event_ids]
+
     # Phew, finally we can render the page
     return render_template('index.html', current_competition=comp, comp_events=comp_events,
         complete_events=complete_events, incomplete_events=incomplete_event_ids, bonus_events_ids=bonus_events_ids,
