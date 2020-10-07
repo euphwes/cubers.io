@@ -138,6 +138,10 @@ def hex_color_validator(value):
 def int_list_validator(value):
     """ Validates a string which should be a comma-delimited list of integers """
 
+    # Empty string or None is ok, that means an empty list
+    if not value:
+        return ""
+
     for char in value.split(','):
         try:
             int(char)

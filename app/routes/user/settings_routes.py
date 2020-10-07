@@ -6,6 +6,7 @@ from flask import render_template, redirect, url_for, request
 from flask_login import current_user
 
 from app import app
+from app.persistence.events_manager import get_all_events
 from app.persistence.settings_manager import get_settings_for_user_for_edit,\
     set_new_settings_for_user, SettingCode, SettingType, FALSE_STR, TRUE_STR, get_color_defaults
 from app.persistence.user_manager import get_user_by_username
@@ -21,6 +22,10 @@ TIMER_SETTINGS = [
     SettingCode.HIDE_RUNNING_TIMER,
     SettingCode.HIDE_SCRAMBLE_PREVIEW,
     SettingCode.ENABLE_MOVING_SHAPES_BG,
+]
+
+HIDDEN_EVENT_SETTING = [
+    SettingCode.HIDDEN_EVENTS
 ]
 
 CUSTOM_CUBE_COLOR_SETTINGS = [
@@ -63,7 +68,7 @@ REDDIT_SETTINGS = [
 ]
 
 __ALL_SETTINGS = REDDIT_SETTINGS + CUSTOM_CUBE_COLOR_SETTINGS + CUSTOM_PYRAMINX_COLOR_SETTINGS
-__ALL_SETTINGS += CUSTOM_MEGAMINX_COLOR_SETTINGS + TIMER_SETTINGS
+__ALL_SETTINGS += HIDDEN_EVENT_SETTING + CUSTOM_MEGAMINX_COLOR_SETTINGS + TIMER_SETTINGS
 
 # -------------------------------------------------------------------------------------------------
 
@@ -85,17 +90,23 @@ def __handle_get(user):
 
     # pylint: disable=line-too-long
     settings_sections = OrderedDict([
-        ("Timer Page Preferences",      [s for s in all_settings if s.code in set(TIMER_SETTINGS)]),
-        ("Reddit Preferences",          [s for s in all_settings if s.code in set(REDDIT_SETTINGS)]),
-        ("Cube Color Preferences",      [s for s in all_settings if s.code in set(CUSTOM_CUBE_COLOR_SETTINGS)]),
-        ("Pyraminx Color Preferences",  [s for s in all_settings if s.code in set(CUSTOM_PYRAMINX_COLOR_SETTINGS)]),
-        ("Megaminx Color Preferences",  [s for s in all_settings if s.code in set(CUSTOM_MEGAMINX_COLOR_SETTINGS)]),
+        ("Timer Settings",        [s for s in all_settings if s.code in set(TIMER_SETTINGS)]),
+        ("Reddit Settings",       [s for s in all_settings if s.code in set(REDDIT_SETTINGS)]),
+        ("Hidden Events",         [s for s in all_settings if s.code in set(HIDDEN_EVENT_SETTING)]),
+        ("Custom Cube Color",     [s for s in all_settings if s.code in set(CUSTOM_CUBE_COLOR_SETTINGS)]),
+        ("Custom Pyraminx Color", [s for s in all_settings if s.code in set(CUSTOM_PYRAMINX_COLOR_SETTINGS)]),
+        ("Custom Megaminx Color", [s for s in all_settings if s.code in set(CUSTOM_MEGAMINX_COLOR_SETTINGS)]),
     ])
 
-    # If the user doesn't have Reddit account info, omit the Reddit Preferences section
-    if not user.reddit_id:
-        del settings_sections['Reddit Preferences']
+    # Parse out the hidden event IDs into a separate list so we handle that separately
+    hidden_event_setting = [s for s in all_settings if s.code == SettingCode.HIDDEN_EVENTS][0]
+    hidden_event_ids = set([int(s) for s in hidden_event_setting.value.split(',')]) if hidden_event_setting.value else set()
 
+    # If the user doesn't have Reddit account info, omit the Reddit Settings section
+    if not user.reddit_id:
+        del settings_sections['Reddit Settings']
+
+    # Disable the relevant settings, if other setting values affect them
     disabled_settings = list()
     for setting in all_settings:
         if setting.type != SettingType.BOOLEAN:
@@ -110,15 +121,24 @@ def __handle_get(user):
 
     return render_template("user/settings.html", settings_sections=settings_sections,
                            disabled_settings=disabled_settings, default_colors=default_colors,
-                           alternative_title="Preferences", is_mobile=request.MOBILE)
+                           alternative_title="Preferences", is_mobile=request.MOBILE,
+                           hidden_event_ids=hidden_event_ids, events=get_all_events())
 
 
 def __handle_post(user, form):
     """ Handles editing a user's settings. """
 
-    # TODO: will need to handle validation errors on non-boolean settings in the future
-
     new_settings = { code: form.get(code) for code in __ALL_SETTINGS }
+
+    # TODO comment this part a little better
+    hidden_event_ids = list()
+    for event_id, _ in [(k, v) for k, v in form.items() if k.startswith('hidden_event_') and v == 'true']:
+        hidden_event_ids.append(event_id.replace('hidden_event_', ''))
+
+    hidden_event_ids = ','.join(hidden_event_ids)
+    new_settings[SettingCode.HIDDEN_EVENTS] = hidden_event_ids
+
+    # TODO: handle validators failing here
     set_new_settings_for_user(user.id, new_settings)
 
     return redirect(url_for('index'))

@@ -9,6 +9,7 @@
         {% for setting in section_settings %}
             {% if setting.type == 'boolean' %}{% include 'user/boolean_setting.html' %}{% endif %}
             {% if setting.type == 'hex_color' %}{% include 'user/color_setting.html' %}{% endif %}
+            {% if setting.type == 'event_id_list' %}{% include 'user/hidden_events_setting.html' %}{% endif %}
         {% endfor %}
     </div>
 </div>
