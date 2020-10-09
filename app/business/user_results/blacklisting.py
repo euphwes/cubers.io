@@ -39,7 +39,7 @@ __AUTO_BLACKLIST_THRESHOLDS = {
     '5x5':           (3728, 4236),
     '6x6':           (7382, 7710),
     '7x7':           (10789, 11163),
-    '3BLD':          (1655, 2012),
+    '3BLD':          (1450, 1800),
     '4BLD':          (8641, 1),   # very low dummy average because WCA doesn't track 4BLD WR average
     '5BLD':          (16942, 1),  # very low dummy average because WCA doesn't track 5BLD WR average
     'Square-1':      (500, 673),
