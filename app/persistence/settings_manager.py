@@ -21,6 +21,9 @@ class SettingCode():
     # Hidden events
     HIDDEN_EVENTS = 'hidden_events'
 
+    # WCA id settings
+    SHOW_WCA_ID = 'show_wca_id'
+
     # Reddit related settings
     REDDIT_COMP_NOTIFY    = 'reddit_comp_notify'
     REDDIT_RESULTS_NOTIFY = 'reddit_results_notify'
@@ -159,6 +162,13 @@ SETTING_INFO_MAP = {
         validator     = int_list_validator,
         setting_type  = SettingType.EVENT_ID_LIST,
         default_value = ""
+    ),
+
+    SettingCode.SHOW_WCA_ID: SettingInfo(
+        title         = "Show WCA ID on public profile",
+        validator     = boolean_validator,
+        setting_type  = SettingType.BOOLEAN,
+        default_value = FALSE_STR
     ),
 
     SettingCode.HIDE_SCRAMBLE_PREVIEW: SettingInfo(
