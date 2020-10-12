@@ -71,7 +71,7 @@ __AUTO_BLACKLIST_THRESHOLDS = {
     '2-3-4 Relay':     (3200, 1),
     '3x3 Relay of 3':  (2000, 1),
     'PLL Time Attack': (2200, 1),
-    '3x3 Mirror Blocks/Bump': (2000, 2500),
+    '3x3 Mirror Blocks/Bump': (800, 1100),
     '8x8': (21000, 1),
     '9x9': (31500, 1),
 }
