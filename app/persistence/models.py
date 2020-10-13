@@ -427,3 +427,34 @@ class UserSetting(Model):
     user          = relationship('User', primaryjoin=user_id == User.id)
     setting_code  = Column(String(128), index=True)
     setting_value = Column(String(128), index=True)
+
+
+class SCSGiftCodePool(Model):
+    """ A pool of SCS gift codes to be used for sending to weekly competition winners. """
+
+    __tablename__ = 'scs_gift_codes'
+    id            = Column(Integer, primary_key=True)
+    gift_code     = Column(String(32))
+    used          = Column(Boolean)
+
+
+class WeeklyCodeRecipientResolution():
+    """ Possible status values for deciding to award a gift code to a weekly comp participant. """
+    Pending    = 'pending'
+    Confirmed  = 'confirmed'
+    Denied     = 'denied'
+
+
+class WeeklyCodeRecipientConfirmDeny(Model):
+    """ A record that tracks a specific user potentially chosen as the winner of the SCS gift code
+    for participating in weekly competitions. This can be confirmed, denied, or still pending
+    review by an admin. """
+
+    __tablename__ = 'weekly_code_recipient_confirm_deny'
+    id            = Column(Integer, primary_key=True)
+    user_id       = Column(Integer, ForeignKey('users.id'), index=True)
+    comp_id       = Column(Integer, ForeignKey('competitions.id'), index=True)
+    gift_code_id  = Column(Integer, ForeignKey('scs_gift_codes.id'), index=True)
+    confirm_code  = Column(String(36))
+    deny_code     = Column(String(36))
+    resolution    = Column(Enum("pending", "confirmed", "denied", name="resolution"), default="pending")

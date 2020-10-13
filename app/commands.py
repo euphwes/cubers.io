@@ -1,7 +1,8 @@
 """ Utility Flask commands for administrating the app. """
 
-import click
 from random import randrange, choice
+
+import click
 
 from slugify import slugify
 
