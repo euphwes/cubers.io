@@ -466,6 +466,11 @@ def get_setting_for_user(user_id, setting_code):
         else __create_unset_setting(user_id, setting_code).setting_value
 
 
+def get_boolean_setting_for_user(user_id, setting_code):
+    """ Retrieves a boolean setting for the user, and converts it to a bool type. """
+    return get_setting_for_user(user_id, setting_code) == TRUE_STR
+
+
 def get_all_user_ids_with_setting_value(setting_code, setting_value):
     """ Returns a list of all Users' IDs that have the specified setting. """
 

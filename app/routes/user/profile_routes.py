@@ -15,7 +15,7 @@ from app.persistence.user_results_manager import get_user_completed_solves_count
     get_user_medals_count
 from app.persistence.events_manager import get_events_id_name_mapping
 from app.persistence.user_site_rankings_manager import get_site_rankings_for_user
-from app.persistence.settings_manager import get_setting_for_user, SettingCode
+from app.persistence.settings_manager import get_boolean_setting_for_user, SettingCode
 
 # -------------------------------------------------------------------------------------------------
 
@@ -86,8 +86,7 @@ def profile(username):
     viewing_self = user.username == current_user.username
 
     # Check if user has set WCA ID to be public
-    show_wca_id_str = get_setting_for_user(user.id, SettingCode.SHOW_WCA_ID)
-    show_wca_id_bool = True if show_wca_id_str == 'true' else False
+    show_wca_id_str = get_boolean_setting_for_user(user.id, SettingCode.SHOW_WCA_ID)
 
     # Set flags to indicate if user is missing a Reddit/WCA profile association
     missing_wca_association = viewing_self and username == user.reddit_id and not user.wca_id
