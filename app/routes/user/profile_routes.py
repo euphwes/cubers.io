@@ -86,7 +86,7 @@ def profile(username):
     viewing_self = user.username == current_user.username
 
     # Check if user has set WCA ID to be public
-    show_wca_id_str = get_boolean_setting_for_user(user.id, SettingCode.SHOW_WCA_ID)
+    show_wca_id = get_boolean_setting_for_user(user.id, SettingCode.SHOW_WCA_ID)
 
     # Set flags to indicate if user is missing a Reddit/WCA profile association
     missing_wca_association = viewing_self and username == user.reddit_id and not user.wca_id
@@ -99,7 +99,7 @@ def profile(username):
                            sor_wca=sor_wca, sor_non_wca=sor_non_wca, gold_count=gold_count,
                            silver_count=silver_count, bronze_count=bronze_count,
                            viewing_self=viewing_self, kinch_all=kinch_all, kinch_wca=kinch_wca,
-                           kinch_non_wca=kinch_non_wca, show_wca_id=show_wca_id_bool,
+                           kinch_non_wca=kinch_non_wca, show_wca_id=show_wca_id,
                            missing_wca_association=missing_wca_association,
                            missing_reddit_association=missing_reddit_association)
 

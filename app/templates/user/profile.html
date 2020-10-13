@@ -85,7 +85,7 @@
                 {% endif %}
             {% else %}
                 <div class="flex-center-all"><h3 class="text-center">{{ user.username }}</h3></div>
-                {% if missing_wca_association and viewing_self %}
+                {% if missing_wca_association %}
                 <div class="flex-center-all">
                     <a href="{{ url_for('wca_assoc') }}" class="btn btn-lg btn-block btn-social btn-wca btn-force-btn-width">
                         <span><img class="wca-login-img" src="/static/images/wca_color.png" /></span>
@@ -93,7 +93,7 @@
                     </a>
                     <span style="font-weight: normal; padding-left: 5px;" class="fas fa-question-circle spacer" data-toggle="tooltip" data-placement="bottom" title="{{ wca_assoc_explanation }}"></span>
                 </div>
-                {% elif not missing_wca_association and (viewing_self or show_wca_id) %}
+                {% elif (viewing_self or show_wca_id) and user.wca_id %}
                 <div class="flex-center-all">
                     <span><img class="wca-login-img" src="/static/images/wca_color.png" /></span>
                     <h3 class="text-center ml-2">{{ user.wca_id }}</h3>
