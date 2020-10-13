@@ -93,7 +93,13 @@
                     </a>
                     <span style="font-weight: normal; padding-left: 5px;" class="fas fa-question-circle spacer" data-toggle="tooltip" data-placement="bottom" title="{{ wca_assoc_explanation }}"></span>
                 </div>
+                {% elif (viewing_self or show_wca_id) and user.wca_id %}
+                <div class="flex-center-all">
+                    <span><img class="wca-login-img" src="/static/images/wca_color.png" /></span>
+                    <h3 class="text-center ml-2">{{ user.wca_id }}</h3>
+                </div>
                 {% endif %}
+
                 {% if missing_reddit_association %}
                 <div class="flex-center-all">
                     <a href="{{ url_for('reddit_assoc') }}" class="btn btn-lg btn-block btn-social btn-github btn-force-btn-width">

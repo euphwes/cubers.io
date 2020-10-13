@@ -28,6 +28,10 @@ HIDDEN_EVENT_SETTING = [
     SettingCode.HIDDEN_EVENTS
 ]
 
+SHOW_WCA_ID_SETTING = [
+    SettingCode.SHOW_WCA_ID
+]
+
 CUSTOM_CUBE_COLOR_SETTINGS = [
     SettingCode.USE_CUSTOM_CUBE_COLORS,
     SettingCode.CUSTOM_CUBE_COLOR_U,
@@ -68,7 +72,7 @@ REDDIT_SETTINGS = [
 ]
 
 __ALL_SETTINGS = REDDIT_SETTINGS + CUSTOM_CUBE_COLOR_SETTINGS + CUSTOM_PYRAMINX_COLOR_SETTINGS
-__ALL_SETTINGS += HIDDEN_EVENT_SETTING + CUSTOM_MEGAMINX_COLOR_SETTINGS + TIMER_SETTINGS
+__ALL_SETTINGS += HIDDEN_EVENT_SETTING + SHOW_WCA_ID_SETTING + CUSTOM_MEGAMINX_COLOR_SETTINGS + TIMER_SETTINGS
 
 # -------------------------------------------------------------------------------------------------
 
@@ -92,6 +96,7 @@ def __handle_get(user):
     settings_sections = OrderedDict([
         ("Timer Settings",        [s for s in all_settings if s.code in set(TIMER_SETTINGS)]),
         ("Reddit Settings",       [s for s in all_settings if s.code in set(REDDIT_SETTINGS)]),
+        ("WCA Settings",         [s for s in all_settings if s.code in set(SHOW_WCA_ID_SETTING)]),
         ("Hidden Events",         [s for s in all_settings if s.code in set(HIDDEN_EVENT_SETTING)]),
         ("Custom Cube Color",     [s for s in all_settings if s.code in set(CUSTOM_CUBE_COLOR_SETTINGS)]),
         ("Custom Pyraminx Color", [s for s in all_settings if s.code in set(CUSTOM_PYRAMINX_COLOR_SETTINGS)]),
@@ -105,6 +110,11 @@ def __handle_get(user):
     # If the user doesn't have Reddit account info, omit the Reddit Settings section
     if not user.reddit_id:
         del settings_sections['Reddit Settings']
+
+    # If the user doesn't have WCA account info, omit the WCA Settings section
+    if not user.wca_id:
+        del settings_sections['WCA Settings']
+    
 
     # Disable the relevant settings, if other setting values affect them
     disabled_settings = list()
