@@ -11,9 +11,10 @@ from app.persistence.models import UserSolve, UserEventResults
 from app.business.user_results.blacklisting import __AUTO_BLACKLIST_THRESHOLDS
 from app.business.user_results.personal_bests import recalculate_user_pbs_for_event
 from app.persistence.comp_manager import get_complete_competitions, get_all_comp_events_for_comp,\
-    get_competition, override_title_for_next_comp, set_all_events_flag_for_next_comp, get_comp_event_by_id,\
-    get_active_competition
+    get_competition, override_title_for_next_comp, set_all_events_flag_for_next_comp,\
+    get_comp_event_by_id, get_active_competition
 from app.persistence.events_manager import get_all_events
+from app.persistence.gift_code_manager import bulk_add_gift_codes
 from app.persistence.user_results_manager import get_event_results_for_user, save_event_results
 from app.persistence.user_manager import get_all_users, get_all_admins, set_user_as_admin,\
     unset_user_as_admin, UserDoesNotExistException, get_user_by_username,\
@@ -98,6 +99,14 @@ def top_off_scrambles():
 # -------------------------------------------------------------------------------------------------
 # Below are admin commands for one-off app administration needs
 # -------------------------------------------------------------------------------------------------
+
+@app.cli.command()
+@click.option('--codes', '-c', type=str)
+def add_gift_codes(codes : str):
+    """ Adds gift codes to the database. `codes` is a comma-delimited list of SCS gift codes. """
+
+    bulk_add_gift_codes(codes.split(','))
+
 
 @app.cli.command()
 @click.option('--username', '-u', type=str)
