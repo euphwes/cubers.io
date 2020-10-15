@@ -20,9 +20,9 @@ ScramblePoolTopOffInfo = namedtuple('ScramblePoolTopOffInfo', ['event_id', 'even
 # In dev environments, run the task to check the scramble pool every minute.
 # In prod, run it every hour (frequently enough so that new events get populated with scrambles quickly)
 if app.config['IS_DEVO']:
-    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(minute="*/1")  # Once every minute
+    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(minute="*/1")
 else:
-    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(hour="*/1", minute="0")   # Once every hour
+    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(hour="*/1", minute="0")
 
 # -------------------------------------------------------------------------------------------------
 
