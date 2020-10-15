@@ -399,8 +399,9 @@ def __build_done_message(user_results, event_name, event_format):
 SETTINGS_TO_POPULATE = [
     SettingCode.DEFAULT_TO_MANUAL_TIME,
     SettingCode.HIDE_RUNNING_TIMER,
-    SettingCode.HIDE_INSPECTION_TIME,
     SettingCode.USE_INSPECTION_TIME,
+    SettingCode.HIDE_INSPECTION_TIME,
+    SettingCode.USE_INSPECTION_AUDIO_WARNING,
     SettingCode.HIDE_SCRAMBLE_PREVIEW,
     SettingCode.ENABLE_MOVING_SHAPES_BG,
     SettingCode.USE_CUSTOM_CUBE_COLORS,

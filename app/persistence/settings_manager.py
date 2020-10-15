@@ -11,12 +11,13 @@ from app.persistence.models import UserSetting
 # pylint: disable=R0903,C0111
 class SettingCode():
     # Timer settings
-    USE_INSPECTION_TIME     = 'use_inspection_time'
-    HIDE_INSPECTION_TIME    = 'hide_inspection_time'
-    HIDE_RUNNING_TIMER      = 'hide_running_timer'
-    DEFAULT_TO_MANUAL_TIME  = 'manual_time_entry_by_default'
-    HIDE_SCRAMBLE_PREVIEW   = 'hide_scramble_preview'
-    ENABLE_MOVING_SHAPES_BG = 'enable_moving_shapes_bg'
+    USE_INSPECTION_TIME          = 'use_inspection_time'
+    HIDE_INSPECTION_TIME         = 'hide_inspection_time'
+    USE_INSPECTION_AUDIO_WARNING = 'use_inspection_audio_warning'
+    HIDE_RUNNING_TIMER           = 'hide_running_timer'
+    DEFAULT_TO_MANUAL_TIME       = 'manual_time_entry_by_default'
+    HIDE_SCRAMBLE_PREVIEW        = 'hide_scramble_preview'
+    ENABLE_MOVING_SHAPES_BG      = 'enable_moving_shapes_bg'
 
     # Hidden events
     HIDDEN_EVENTS = 'hidden_events'
@@ -193,11 +194,18 @@ SETTING_INFO_MAP = {
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
         default_value = FALSE_STR,
-        affects       = [SettingCode.HIDE_INSPECTION_TIME]
+        affects       = [SettingCode.HIDE_INSPECTION_TIME, SettingCode.USE_INSPECTION_AUDIO_WARNING]
     ),
 
     SettingCode.HIDE_INSPECTION_TIME: SettingInfo(
         title         = "Hide Inspection Time Countdown",
+        validator     = boolean_validator,
+        setting_type  = SettingType.BOOLEAN,
+        default_value = FALSE_STR
+    ),
+
+    SettingCode.USE_INSPECTION_AUDIO_WARNING: SettingInfo(
+        title         = "Use Inspection Time Audio Warning",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
         default_value = FALSE_STR
