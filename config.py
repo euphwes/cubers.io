@@ -10,6 +10,10 @@ TEST_SUBREDDIT = 'cubecomps'
 DEFAULT_PROD_ACCOUNT = 'cubers_io'
 DEFAULT_DEVO_ACCOUNT = 'cubers_io_test'
 
+DEFAULT_ADMIN_REDDIT_USER = 'euphwes'
+
+DEFAULT_CODE_TOP_OFF_THRESHOLD = 3
+
 # -------------------------------------------------------------------------------------------------
 
 class Config(object):
@@ -33,6 +37,13 @@ class Config(object):
     WCA_CLIENT_ID     = environ.get('WCA_CLIENT_ID')
     WCA_CLIENT_SECRET = environ.get('WCA_SECRET')
     WCA_REDIRECT_URI  = environ.get('WCA_OAUTH_REDIRECT_URI')
+
+    # ------------------------------------------------------
+    # Config related to weekly SCS gift code recipient admin
+    # ------------------------------------------------------
+    CODE_CONFIRM_REDDIT_USER = environ.get('CODE_CONFIRM_REDDIT_USER', DEFAULT_ADMIN_REDDIT_USER)
+    CODE_TOP_OFF_REDDIT_USER = environ.get('CODE_TOP_OFF_REDDIT_USER', DEFAULT_ADMIN_REDDIT_USER)
+    CODE_TOP_OFF_THRESHOLD   = environ.get('CODE_TOP_OFF_THRESHOLD', DEFAULT_CODE_TOP_OFF_THRESHOLD)
 
     # ------------------------------------------------------
     # Config related which subreddit to target, the URL to
