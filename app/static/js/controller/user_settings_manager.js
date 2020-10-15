@@ -6,6 +6,7 @@
     Settings = {};
     Settings.USE_INSPECTION_TIME    = 'use_inspection_time';
     Settings.HIDE_INSPECTION_TIME   = 'hide_inspection_time';
+    Settings.USE_INSPECTION_AUDIO_WARNING = 'use_inspection_audio_warning'
     Settings.HIDE_RUNNING_TIMER     = 'hide_running_timer';
     Settings.DEFAULT_TO_MANUAL_TIME = 'manual_time_entry_by_default';
 
