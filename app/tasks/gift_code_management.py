@@ -4,6 +4,7 @@ from huey import crontab
 
 from app import app
 from app.persistence.gift_code_manager import get_unused_gift_code_count
+from app.util.reddit import send_PM_to_user_with_title_and_body
 
 from . import huey
 
@@ -17,6 +18,9 @@ from . import huey
 # are too low.
 CODE_TOP_OFF_REDDIT_USER = app.config['CODE_TOP_OFF_REDDIT_USER']
 CODE_TOP_OFF_THRESHOLD   = app.config['CODE_TOP_OFF_THRESHOLD']
+
+CODES_REFILL_TITLE = 'cubers.io gift codes alert'
+CODES_REFILL_TEMPLATE = 'There are only {} SCS gift codes left! Please top off the codes soon.'
 
 # -------------------------------------------------------------------------------------------------
 
@@ -36,5 +40,5 @@ def check_gift_code_pool():
 
     available_code_count = get_unused_gift_code_count()
     if available_code_count < CODE_TOP_OFF_THRESHOLD:
-        # placeholder send message
-        pass
+        msg = CODES_REFILL_TEMPLATE.format(available_code_count)
+        send_PM_to_user_with_title_and_body(CODE_TOP_OFF_REDDIT_USER, CODES_REFILL_TITLE, msg)
