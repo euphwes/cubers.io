@@ -11,7 +11,6 @@ from app.persistence.events_manager import get_all_events, add_scrambles_to_scra
 from app.util.events.resources import get_event_resource_for_name, EVENT_COLL
 
 from . import huey
-from .admin_notification import notify_admin, AdminNotificationType
 
 # -------------------------------------------------------------------------------------------------
 
@@ -53,9 +52,10 @@ def check_scramble_pool():
     if not event_scramble_msgs:
         return
 
-    title = 'Generating scrambles'
-    body  = '\n'.join(event_scramble_msgs)
-    notify_admin(title, body, AdminNotificationType.PUSHBULLET_NOTE)
+    # TODO: I still want this, let's do it via Reddit PM instead
+    # title = 'Generating scrambles'
+    # body  = '\n'.join(event_scramble_msgs)
+    # notify_admin(title, body, AdminNotificationType.PUSHBULLET_NOTE)
 
 
 @huey.task()
