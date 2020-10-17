@@ -429,8 +429,9 @@
 
         if ((inspection_elapsed_seconds >= this.EIGHT_SECS_ELAPSED) && this.use_inspection_audio_warning){
             this._play_inspection_audio_warning(inspection_elapsed_seconds);
-        }
-        else if (seconds_remaining < this.AUTO_DNF_THRESHOLD) {
+        };
+
+        if (seconds_remaining < this.AUTO_DNF_THRESHOLD) {
             this.apply_auto_dnf = true;
             this.apply_auto_plus_two = false;
             this._stop();
