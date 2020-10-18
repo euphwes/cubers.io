@@ -1,6 +1,10 @@
 (function() {
     var app = window.app;
 
+    // constants to control inspection audio warnings
+    var EIGHT_SECS_WARNING_FILE= '../static/audio/timer/eight-seconds-warning.wav';
+    var TWELVE_SECS_WARNING_FILE = '../static/audio/timer/twelve-seconds-warning.wav';
+
     // These are the events that the timer can emit
     var EVENT_TIMER_START          = 'event_timer_start';
     var EVENT_TIMER_INTERVAL       = 'event_timer_interval';
@@ -38,6 +42,7 @@
 
         this._reset();
 
+        this.use_inspection_audio_warning = app.userSettingsManager.get_setting(app.Settings.USE_INSPECTION_AUDIO_WARNING);
         this._determineIfUsingInspectionBasedOnEvent(event_name);
 
         // keydrown.js's keyboard state manager is tick-based
@@ -73,6 +78,12 @@
         this.AUTO_PLUS_TWO_THRESHOLD = 0;
         this.apply_auto_dnf = false;
         this.apply_auto_plus_two = false;
+
+        // values related to inspection time audio warning
+        this.EIGHT_SECS_ELAPSED = 8;
+        this.TWELVE_SECS_ELAPSED = 12;
+        this.eight_secs_warning_has_played = false;
+        this.twelve_secs_warning_has_played = false;
     };
 
     /**
@@ -301,6 +312,22 @@
     };
 
     /**
+     * Play a sound warning when inspection time elapsed 8 seconds and 12 seconds.
+     */
+    Timer.prototype._play_inspection_audio_warning = function(elapsed_time) {
+
+        if(elapsed_time >= this.TWELVE_SECS_ELAPSED && !this.twelve_secs_warning_has_played){
+            new Audio(TWELVE_SECS_WARNING_FILE).play();
+            this.twelve_secs_warning_has_played = true;
+        }
+        else if (elapsed_time >= this.EIGHT_SECS_ELAPSED && !this.eight_secs_warning_has_played){
+            new Audio(EIGHT_SECS_WARNING_FILE).play();
+            this.eight_secs_warning_has_played = true;
+        };
+
+    };
+
+    /**
      * Stops the timer, determines the elapsed time, and updates the attached solve element
      * with a user-friendly representation of the elapsed time. Also marks the solve complete,
      * and sets the data attribute for raw time in centiseconds.
@@ -396,8 +423,13 @@
      * Checks the current time against the start time to determine elapsed time.
      */
     Timer.prototype._inspection_intervalFunction = function() {
+
         var inspection_elapsed_seconds = ((new Date()) - this.inspection_start_time).getSecondsFromMs();
         var seconds_remaining = this.INSPECTION_TIME_AMOUNT - inspection_elapsed_seconds;
+
+        if ((inspection_elapsed_seconds >= this.EIGHT_SECS_ELAPSED) && this.use_inspection_audio_warning){
+            this._play_inspection_audio_warning(inspection_elapsed_seconds);
+        };
 
         if (seconds_remaining < this.AUTO_DNF_THRESHOLD) {
             this.apply_auto_dnf = true;
