@@ -32,3 +32,15 @@ def gc_select_user(comp_id):
 
     return render_template("admin/gc_select/user_list.html", users=users, winner=winner,\
         selected_comp=selected_comp)
+
+
+@app.route("/admin/confirm_code/<confirm_code>/")
+def gc_confirm_recipient(confirm_code):
+    """ TODO """
+    pass
+
+
+@app.route("/admin/deny_code/<deny_code>/")
+def gc_deny_recipient(deny_code):
+    """ TODO """
+    pass

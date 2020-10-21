@@ -3,6 +3,7 @@ to Competitions. """
 
 from datetime import datetime
 from functools import lru_cache
+from random import choice
 
 from sqlalchemy.orm import joinedload
 
@@ -10,6 +11,7 @@ from app import DB
 from app.persistence.models import Competition, CompetitionEvent, Event, Scramble,\
     CompetitionGenResources, UserEventResults, User
 from app.persistence.events_manager import get_event_by_name
+from app.persistence.user_manager import get_user_by_id
 
 # -------------------------------------------------------------------------------------------------
 
@@ -128,6 +130,14 @@ def get_reddit_participants_in_competition(comp_id):
 
     # return just a list of user ids, not the list of 1-tuples from the query
     return [r[0] for r in results]
+
+
+def get_random_reddit_participant_for_competition(comp_id: int) -> User:
+    """ Returns the User for a randomly-selected Reddit participant in the specified
+    competition. """
+
+    user_id = choice(get_reddit_participants_in_competition(comp_id))
+    return get_user_by_id(user_id)
 
 
 def get_complete_competitions():

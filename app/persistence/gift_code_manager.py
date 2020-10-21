@@ -1,9 +1,14 @@
 """ Utility module for adding, retrieving, and updating SCS gift codes in the code pool. """
 
+from uuid import uuid1
 from typing import List
 
 from app import DB
-from app.persistence.models import SCSGiftCodePool
+from app.persistence.models import SCSGiftCodePool, WeeklyCodeRecipientConfirmDeny
+
+#--------------------------------------------------------------------------------------------------
+
+__NEW_UUID = lambda: str(uuid1())
 
 #--------------------------------------------------------------------------------------------------
 
@@ -34,7 +39,7 @@ def get_unused_gift_code_count() -> int:
         count()
 
 
-def mark_gift_code_used(gift_code_id : int) -> None:
+def mark_gift_code_used(gift_code_id: int) -> None:
     """ Marks the gift code with the supplied ID as used and saves the record. """
 
     gift_code = SCSGiftCodePool.query.get(gift_code_id)
@@ -42,3 +47,16 @@ def mark_gift_code_used(gift_code_id : int) -> None:
 
     DB.session.add(gift_code)
     DB.session.commit()
+
+
+def create_confirm_deny_record(gift_code_id: int, user_id: int, comp_id: int) -> WeeklyCodeRecipientConfirmDeny:
+    """ Creates and returns a WeeklyCodeRecipientConfirmDeny record for the specified gift code,
+    user, and competition. """
+
+    confirm_deny_record = WeeklyCodeRecipientConfirmDeny(gift_code_id=gift_code_id, user_id=user_id,
+        comp_id=comp_id, confirm_code=__NEW_UUID(), deny_code=__NEW_UUID())
+
+    DB.session.add(confirm_deny_record)
+    DB.session.commit()
+
+    return confirm_deny_record
