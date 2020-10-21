@@ -66,7 +66,7 @@ def score_comp_only(comp_id, rerun):
     """ Score only the specified competition, optionally as a re-run. """
 
     comp = get_competition(comp_id)
-    post_results_thread_task(comp.id, comp.title, is_rerun=rerun)
+    post_results_thread_task(comp.id, is_rerun=rerun)
 
 
 @app.cli.command()
@@ -205,22 +205,27 @@ def reprocess_results_for_user_and_comp_event(username, comp_event_id):
 # Below are utility commands intended just for development use
 # -------------------------------------------------------------------------------------------------
 
-# This is a list of multiplicative factors for determining "how fast" a given test user is compared
-# to the world record, starting at 1.25x WR at the fastest, and getting slower
-__TEST_USER_SPEEDS = [1.25 + (0.45 * i) for i in range(10)]
-
 __TEST_USER_NAMES = [
     'sonic_the_hedgehog',
     'crash_bandicoot',
-    'Mari0',
-    'Earthworm_Jim',
     'parappa_the_rappa',
+    'RocketLeagueCar',
+    'Mari0',
+    'nuzleaf',
+    'geralt-the-freaking-witcher',
+    'Earthworm_Jim',
     'guile_sonic_BOOM',
     'pacman',
     'lara-croft',
+    'diddy_KONG-187'
     'kirby',
+    'sephir0th',
     'Luigi'
 ]
+
+# This is a list of multiplicative factors for determining "how fast" a given test user is compared
+# to the world record, starting at 1.15x WR at the fastest, and getting slower
+__TEST_USER_SPEEDS = [1.15 + (0.25 * i) for i in range(len(__TEST_USER_NAMES))]
 
 def __build_solve(user_num, wr_average, event_name, scramble_id):
     """ Returns a UserSolve for an event, for the specified test user number, given the WR average
@@ -248,7 +253,7 @@ def __build_solve(user_num, wr_average, event_name, scramble_id):
 def generate_fake_comp_results():
     """ Generates a bunch of fake results for the current competition with realistic-ish results. """
 
-    test_users = [update_or_create_user_for_reddit(__TEST_USER_NAMES[i], '') for i in range(10)]
+    test_users = [update_or_create_user_for_reddit(name, '') for name in __TEST_USER_NAMES]
 
     for comp_event in get_all_comp_events_for_comp(get_active_competition().id):
         event_name = comp_event.Event.name
