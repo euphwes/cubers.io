@@ -41,10 +41,10 @@ As always, full results are available at [cubers.io](https://www.cubers.io) in t
 __RESULTS_POINTS_SECTION_HEADER = '\n\n---\n\n**Total points this week**'
 __RESULTS_POINTS_SECTION_HEADER += '\n\nEach event gives `# of participants - place + 1` points\n\n'
 
-__LEADERBOARDS_URL_TEMPLATE = app.config['APP_URL'] + 'leaderboards/{comp_id}/'
+__URL_ROOT = app.config['APP_URL']
 
-__URL_ROOT = environ.get('APP_URL', 'http://fake.url.com/')
-__PROFILE_URL = __URL_ROOT + 'u/{username}'
+__PROFILE_URL               = __URL_ROOT + 'u/{username}'
+__LEADERBOARDS_URL_TEMPLATE = __URL_ROOT + 'leaderboards/{comp_id}/'
 
 # -------------------------------------------------------------------------------------------------
 

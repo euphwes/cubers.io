@@ -24,14 +24,16 @@ __CODES_REFILL_TEMPLATE = 'There are only {} SCS gift codes left! Please top off
 
 __DENY_URL_TEMPLATE    = app.config['APP_URL'] + 'admin/deny_code/{deny_code}/'
 __CONFIRM_URL_TEMPLATE = app.config['APP_URL'] + 'admin/confirm_code/{confirm_code}/'
+__USER_PROFILE_URL     = app.config['APP_URL'] + 'u/{username}/'
 
 __CODE_CONFIRM_DENY_TITLE = 'Confirm cubers.io gift code recipient'
-__CODE_CONFIRM_DENY_MSG_TEMPLATE = '''
-    {reddit_id} was randomly selected as the SCS gift code recipient for {comp_title}.
+__CODE_CONFIRM_DENY_MSG_TEMPLATE = '''/u/{reddit_id} ([cubers.io profile]({user_profile_url})) was randomly selected as the SCS gift code recipient for {comp_title}.
 
-    To send this user their gift code, [click here to confirm.]({confirm_url})
+To send this user their gift code, [click here to confirm.]({confirm_url})
 
-    To select a different participant, [click here to deny this user.]({deny_url})
+To select a different participant, [click here to deny.]({deny_url})
+
+There are currently {unused_codes_count} unused gift codes (including the one about to be sent).
 '''
 
 # -------------------------------------------------------------------------------------------------
@@ -69,10 +71,12 @@ def send_gift_code_winner_approval_pm(comp_id):
     confirm_deny_record = create_confirm_deny_record(gift_code.id, winner.id, comp_id)
 
     msg = __CODE_CONFIRM_DENY_MSG_TEMPLATE.format(
-        reddit_id   = winner.reddit_id,
-        comp_title  = competition.title,
-        confirm_url = __CONFIRM_URL_TEMPLATE.format(confirm_code=confirm_deny_record.confirm_code),
-        deny_url    = __DENY_URL_TEMPLATE.format(deny_code=confirm_deny_record.deny_code)
+        reddit_id          = winner.reddit_id,
+        comp_title         = competition.title,
+        user_profile_url   = __USER_PROFILE_URL.format(username=winner.username),
+        confirm_url        = __CONFIRM_URL_TEMPLATE.format(confirm_code=confirm_deny_record.confirm_code),
+        deny_url           = __DENY_URL_TEMPLATE.format(deny_code=confirm_deny_record.deny_code),
+        unused_codes_count = get_unused_gift_code_count()
     )
 
     send_PM_to_user_with_title_and_body(__CODE_CONFIRM_REDDIT_USER, __CODE_CONFIRM_DENY_TITLE, msg)

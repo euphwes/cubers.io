@@ -49,7 +49,7 @@ class Config(object):
     # Config related which subreddit to target, the URL to
     # the web app to drop into the Reddit comment body, etc
     # ------------------------------------------------------
-    APP_URL          = environ.get('APP_URL', 'http://fake.url.com/')
+    APP_URL          = environ.get('APP_URL', 'http://localhost:5000/')
     TARGET_SUBREDDIT = environ.get('TARGET_SUBREDDIT', TEST_SUBREDDIT)
     IS_DEVO          = TARGET_SUBREDDIT == TEST_SUBREDDIT
 
