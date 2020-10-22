@@ -19,8 +19,12 @@ from . import huey
 __CODE_TOP_OFF_REDDIT_USER = app.config['CODE_TOP_OFF_REDDIT_USER']
 __CODE_TOP_OFF_THRESHOLD   = app.config['CODE_TOP_OFF_THRESHOLD']
 
+__CODE_REFILL_ADMIN_URL = app.config['APP_URL'] + 'admin/codes/add/'
+
 __CODES_REFILL_TITLE = 'cubers.io gift codes alert'
-__CODES_REFILL_TEMPLATE = 'There are only {} SCS gift codes left! Please top off the codes soon.'
+__CODES_REFILL_TEMPLATE = '''There are only {codes_left} SCS gift codes left!
+
+[Click here]({code_refill_url}) to add more gift codes.'''
 
 # -------------------------------------------------------------------------------------------------
 
@@ -31,7 +35,8 @@ __CONFIRM_URL_TEMPLATE = app.config['APP_URL'] + 'admin/confirm_code/{confirm_co
 __USER_PROFILE_URL     = app.config['APP_URL'] + 'u/{username}/'
 
 __CODE_CONFIRM_DENY_TITLE = 'Confirm cubers.io gift code recipient'
-__CODE_CONFIRM_DENY_MSG_TEMPLATE = '''/u/{reddit_id} ([cubers.io profile]({user_profile_url})) was randomly selected as the SCS gift code recipient for {comp_title}.
+__CODE_CONFIRM_DENY_MSG_TEMPLATE = '''/u/{reddit_id} ([cubers.io profile]({user_profile_url})) was
+randomly selected as the SCS gift code recipient for {comp_title}.
 
 To send this user their gift code, [click here to confirm.]({confirm_url})
 
@@ -69,7 +74,10 @@ def check_gift_code_pool():
 
     available_code_count = get_unused_gift_code_count()
     if available_code_count < __CODE_TOP_OFF_THRESHOLD:
-        msg = __CODES_REFILL_TEMPLATE.format(available_code_count)
+        msg = __CODES_REFILL_TEMPLATE.format(
+            codes_left      = available_code_count,
+            code_refill_url = __CODE_REFILL_ADMIN_URL
+        )
         send_PM_to_user_with_title_and_body(__CODE_TOP_OFF_REDDIT_USER, __CODES_REFILL_TITLE, msg)
 
 
