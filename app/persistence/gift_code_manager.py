@@ -4,7 +4,7 @@ from uuid import uuid1
 from typing import List
 
 from app import DB
-from app.persistence.models import SCSGiftCodePool, WeeklyCodeRecipientConfirmDeny
+from app.persistence.models import SCSGiftCodePool, WeeklyCodeRecipientConfirmDeny, WeeklyCodeRecipientResolution
 
 #--------------------------------------------------------------------------------------------------
 
@@ -19,6 +19,15 @@ def bulk_add_gift_codes(gift_codes: List[str]) -> None:
         DB.session.add(SCSGiftCodePool(gift_code=gift_code, used=False))
 
     DB.session.commit()
+
+
+def get_gift_code_by_id(gift_code_id: int) -> SCSGiftCodePool:
+    """ Retrieves a gift code by ID. """
+
+    return DB.session.\
+        query(SCSGiftCodePool).\
+        filter(SCSGiftCodePool.id == gift_code_id).\
+        first()
 
 
 def get_unused_gift_code() -> SCSGiftCodePool:
@@ -60,3 +69,30 @@ def create_confirm_deny_record(gift_code_id: int, user_id: int, comp_id: int) ->
     DB.session.commit()
 
     return confirm_deny_record
+
+
+def update_confirm_deny_record(confirm_deny_record: WeeklyCodeRecipientConfirmDeny) -> None:
+    """ Updates a WeeklyCodeRecipientConfirmDeny record and saves it to the database. """
+
+    DB.session.add(confirm_deny_record)
+    DB.session.commit()
+
+
+def get_pending_confirm_deny_record_by_deny_code(deny_code: str) -> WeeklyCodeRecipientConfirmDeny:
+    """ Returns the WeeklyCodeRecipientConfirmDeny with the deny_code that matches. """
+
+    return DB.session.\
+        query(WeeklyCodeRecipientConfirmDeny).\
+        filter(WeeklyCodeRecipientConfirmDeny.deny_code == deny_code).\
+        filter(WeeklyCodeRecipientConfirmDeny.resolution == WeeklyCodeRecipientResolution.Pending).\
+        first()
+
+
+def get_pending_confirm_deny_record_by_confirm_code(confirm_code: str) -> WeeklyCodeRecipientConfirmDeny:
+    """ Returns the WeeklyCodeRecipientConfirmDeny with the confirm_code that matches. """
+
+    return DB.session.\
+        query(WeeklyCodeRecipientConfirmDeny).\
+        filter(WeeklyCodeRecipientConfirmDeny.confirm_code == confirm_code).\
+        filter(WeeklyCodeRecipientConfirmDeny.resolution == WeeklyCodeRecipientResolution.Pending).\
+        first()

@@ -15,7 +15,7 @@ from app.persistence.user_manager import get_user_by_id
 
 # -------------------------------------------------------------------------------------------------
 
-def get_competition(competition_id):
+def get_competition(competition_id) -> Competition:
     """ Get a competition by id """
 
     return Competition.query.\

@@ -136,7 +136,7 @@ def get_user_by_wca_id(wca_id):
     return User.query.filter_by(wca_id=wca_id).first()
 
 
-def get_user_by_id(user_id):
+def get_user_by_id(user_id) -> User:
     """ Returns the user with this user_id, or else `None` if no such user exists. """
 
     return User.query.filter_by(id=user_id).first()
