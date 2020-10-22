@@ -35,10 +35,6 @@ def get_user_competition_history(user, include_blacklisted=False):
 
             event = id_to_events[results.CompetitionEvent.event_id]
 
-            # Doesn't make sense to keep COLL records, since it's a single alg that changes weekly
-            if event.name == "COLL":
-                continue
-
             if event.name == 'FMC':
                 solves_helper = list()
                 for i, solve in enumerate(results.solves):
