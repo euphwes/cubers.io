@@ -1,5 +1,6 @@
 """ Business logic for creating a new competition. """
 
+from app.persistence.models import CompetitionGenResources
 from datetime import datetime
 from math import ceil
 
@@ -32,8 +33,8 @@ def generate_new_competition():
     """ Generate a new competition. """
 
     # Get the info required to know what events and COLL to do next
-    comp_gen_data = get_competition_gen_resources()
-    was_all_events = comp_gen_data.all_events
+    comp_gen_data: CompetitionGenResources = get_competition_gen_resources()
+    was_all_events: bool = comp_gen_data.all_events
 
     # Increment competition number. We're not using this anywhere at the moment now that
     # we're not posting competition threads to Reddit, but let's keep track anyway in case

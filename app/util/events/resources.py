@@ -1,4 +1,5 @@
 """ Resources for data related to events. """
+# pylint: disable=invalid-name,line-too-long
 
 from collections import OrderedDict
 from random import choice
@@ -343,6 +344,7 @@ def sort_site_rankings_by_global_sort_order(site_rankings, event_id_name_map):
 
 
 def sort_event_id_name_map_by_global_sort_order(event_id_name_map):
+    """ TODO """
 
     ordered_map = OrderedDict()
 

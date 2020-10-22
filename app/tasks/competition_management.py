@@ -9,7 +9,7 @@ from app.persistence.comp_manager import get_active_competition, get_all_comp_ev
 from app.util.competition.generation import generate_new_competition
 from app.util.competition.scoring import post_results_thread
 from app.tasks.gift_code_management import send_gift_code_winner_approval_pm
-from app.tasks.reddit import prepare_new_competition_notification,\
+from app.tasks.reddit import notify_wes, prepare_new_competition_notification,\
     prepare_end_of_competition_info_notifications
 
 from . import huey
@@ -54,8 +54,13 @@ def generate_new_competition_task():
 
     competition, was_all_events = generate_new_competition()
 
-    run_user_site_rankings()
-    prepare_new_competition_notification(competition.id, was_all_events)
+    # TODO: cleanup try/catch
+    try:
+        prepare_new_competition_notification(competition.id, was_all_events)
+        run_user_site_rankings()
+    except Exception as e:
+        notify_wes('generate_new_competition_task', str(e))
+        
 
 
 @huey.task()
