@@ -58,12 +58,26 @@ you again soon."""
 
 # -------------------------------------------------------------------------------------------------
 
-# In dev environments, run the task to check the gift code pool every minute.
-# In prod, run it every day.
+__NO_CODES_LEFT_TITLE = "No cubers.io gift codes remaining!"
+__NO_CODES_LEFT_TEMPLATE = """Can't choose a winner for {comp_title} because there are no codes
+left, but we'll retry soon.
+
+[Click here]({code_refill_url}) to add more gift codes."""
+
+# -------------------------------------------------------------------------------------------------
+
+# In devo, run the task to check the gift code pool every 5 minutes. In prod, run it every day.
 if app.config['IS_DEVO']:
-    CHECK_GIFT_CODE_POOL_SCHEDULE = crontab(minute="*/1")
+    CHECK_GIFT_CODE_POOL_SCHEDULE = crontab(minute="*/5")
 else:
     CHECK_GIFT_CODE_POOL_SCHEDULE = crontab(day="*/1", hour="0", minute="0")
+
+
+# Retry a failed gift code winner selection in 5 minutes. In prod, retry in 1 day.
+if app.config['IS_DEVO']:
+    __GIFT_CODE_SELECTION_RETRY_DELAY = 60 * 5
+else:
+    __GIFT_CODE_SELECTION_RETRY_DELAY = 60 * 60 * 24
 
 # -------------------------------------------------------------------------------------------------
 
@@ -88,8 +102,17 @@ def send_gift_code_winner_approval_pm(comp_id):
     deny that user. """
 
     winner      = get_random_reddit_participant_for_competition(comp_id)
-    gift_code   = get_unused_gift_code()
     competition = get_competition(comp_id)
+    gift_code   = get_unused_gift_code()
+
+    if not gift_code:
+        msg = __NO_CODES_LEFT_TEMPLATE.format(
+            comp_title      = competition.title,
+            code_refill_url = __CODE_REFILL_ADMIN_URL
+        )
+        send_PM_to_user_with_title_and_body(__CODE_TOP_OFF_REDDIT_USER, __NO_CODES_LEFT_TITLE, msg)
+        send_gift_code_winner_approval_pm.schedule((comp_id,), delay=__GIFT_CODE_SELECTION_RETRY_DELAY)
+        return
 
     confirm_deny_record = create_confirm_deny_record(gift_code.id, winner.id, comp_id)
 
