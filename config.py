@@ -10,6 +10,10 @@ TEST_SUBREDDIT = 'cubecomps'
 DEFAULT_PROD_ACCOUNT = 'cubers_io'
 DEFAULT_DEVO_ACCOUNT = 'cubers_io_test'
 
+DEFAULT_ADMIN_REDDIT_USER = 'euphwes'
+
+DEFAULT_CODE_TOP_OFF_THRESHOLD = 3
+
 # -------------------------------------------------------------------------------------------------
 
 class Config(object):
@@ -35,10 +39,17 @@ class Config(object):
     WCA_REDIRECT_URI  = environ.get('WCA_OAUTH_REDIRECT_URI')
 
     # ------------------------------------------------------
+    # Config related to weekly SCS gift code recipient admin
+    # ------------------------------------------------------
+    CODE_CONFIRM_REDDIT_USER = environ.get('CODE_CONFIRM_REDDIT_USER', DEFAULT_ADMIN_REDDIT_USER)
+    CODE_TOP_OFF_REDDIT_USER = environ.get('CODE_TOP_OFF_REDDIT_USER', DEFAULT_ADMIN_REDDIT_USER)
+    CODE_TOP_OFF_THRESHOLD   = environ.get('CODE_TOP_OFF_THRESHOLD', DEFAULT_CODE_TOP_OFF_THRESHOLD)
+
+    # ------------------------------------------------------
     # Config related which subreddit to target, the URL to
     # the web app to drop into the Reddit comment body, etc
     # ------------------------------------------------------
-    APP_URL          = environ.get('APP_URL', 'http://fake.url.com/')
+    APP_URL          = environ.get('APP_URL', 'http://localhost:5000/')
     TARGET_SUBREDDIT = environ.get('TARGET_SUBREDDIT', TEST_SUBREDDIT)
     IS_DEVO          = TARGET_SUBREDDIT == TEST_SUBREDDIT
 

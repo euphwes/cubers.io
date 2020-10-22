@@ -11,7 +11,6 @@ from app.persistence.events_manager import get_all_events, add_scrambles_to_scra
 from app.util.events.resources import get_event_resource_for_name, EVENT_COLL
 
 from . import huey
-from .admin_notification import notify_admin, AdminNotificationType
 
 # -------------------------------------------------------------------------------------------------
 
@@ -20,9 +19,9 @@ ScramblePoolTopOffInfo = namedtuple('ScramblePoolTopOffInfo', ['event_id', 'even
 # In dev environments, run the task to check the scramble pool every minute.
 # In prod, run it every hour (frequently enough so that new events get populated with scrambles quickly)
 if app.config['IS_DEVO']:
-    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(minute="*/1")  # Once every minute
+    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(minute="*/1")
 else:
-    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(hour="*/1", minute="0")   # Once every hour
+    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(hour="*/1", minute="0")
 
 # -------------------------------------------------------------------------------------------------
 
@@ -53,9 +52,10 @@ def check_scramble_pool():
     if not event_scramble_msgs:
         return
 
-    title = 'Generating scrambles'
-    body  = '\n'.join(event_scramble_msgs)
-    notify_admin(title, body, AdminNotificationType.PUSHBULLET_NOTE)
+    # TODO: I still want this, let's do it via Reddit PM instead
+    # title = 'Generating scrambles'
+    # body  = '\n'.join(event_scramble_msgs)
+    # notify_admin(title, body, AdminNotificationType.PUSHBULLET_NOTE)
 
 
 @huey.task()

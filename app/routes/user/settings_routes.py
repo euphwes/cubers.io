@@ -1,4 +1,5 @@
 """ Routes related to a user's profile. """
+# pylint: disable=line-too-long
 
 from collections import OrderedDict
 
@@ -73,7 +74,8 @@ REDDIT_SETTINGS = [
 ]
 
 __ALL_SETTINGS = REDDIT_SETTINGS + CUSTOM_CUBE_COLOR_SETTINGS + CUSTOM_PYRAMINX_COLOR_SETTINGS
-__ALL_SETTINGS += HIDDEN_EVENT_SETTING + SHOW_WCA_ID_SETTING + CUSTOM_MEGAMINX_COLOR_SETTINGS + TIMER_SETTINGS
+__ALL_SETTINGS += HIDDEN_EVENT_SETTING + SHOW_WCA_ID_SETTING + CUSTOM_MEGAMINX_COLOR_SETTINGS
+__ALL_SETTINGS += TIMER_SETTINGS
 
 # -------------------------------------------------------------------------------------------------
 
@@ -93,11 +95,10 @@ def __handle_get(user):
 
     all_settings = get_settings_for_user_for_edit(user.id, __ALL_SETTINGS)
 
-    # pylint: disable=line-too-long
     settings_sections = OrderedDict([
         ("Timer Settings",        [s for s in all_settings if s.code in set(TIMER_SETTINGS)]),
         ("Reddit Settings",       [s for s in all_settings if s.code in set(REDDIT_SETTINGS)]),
-        ("WCA Settings",         [s for s in all_settings if s.code in set(SHOW_WCA_ID_SETTING)]),
+        ("WCA Settings",          [s for s in all_settings if s.code in set(SHOW_WCA_ID_SETTING)]),
         ("Hidden Events",         [s for s in all_settings if s.code in set(HIDDEN_EVENT_SETTING)]),
         ("Custom Cube Color",     [s for s in all_settings if s.code in set(CUSTOM_CUBE_COLOR_SETTINGS)]),
         ("Custom Pyraminx Color", [s for s in all_settings if s.code in set(CUSTOM_PYRAMINX_COLOR_SETTINGS)]),
@@ -115,7 +116,6 @@ def __handle_get(user):
     # If the user doesn't have WCA account info, omit the WCA Settings section
     if not user.wca_id:
         del settings_sections['WCA Settings']
-    
 
     # Disable the relevant settings, if other setting values affect them
     disabled_settings = list()

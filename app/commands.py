@@ -1,7 +1,8 @@
 """ Utility Flask commands for administrating the app. """
 
-import click
 from random import randrange, choice
+
+import click
 
 from slugify import slugify
 
@@ -10,9 +11,10 @@ from app.persistence.models import UserSolve, UserEventResults
 from app.business.user_results.blacklisting import __AUTO_BLACKLIST_THRESHOLDS
 from app.business.user_results.personal_bests import recalculate_user_pbs_for_event
 from app.persistence.comp_manager import get_complete_competitions, get_all_comp_events_for_comp,\
-    get_competition, override_title_for_next_comp, set_all_events_flag_for_next_comp, get_comp_event_by_id,\
-    get_active_competition
+    get_competition, override_title_for_next_comp, set_all_events_flag_for_next_comp,\
+    get_comp_event_by_id, get_active_competition
 from app.persistence.events_manager import get_all_events
+from app.persistence.gift_code_manager import bulk_add_gift_codes
 from app.persistence.user_results_manager import get_event_results_for_user, save_event_results
 from app.persistence.user_manager import get_all_users, get_all_admins, set_user_as_admin,\
     unset_user_as_admin, UserDoesNotExistException, get_user_by_username,\
@@ -64,7 +66,7 @@ def score_comp_only(comp_id, rerun):
     """ Score only the specified competition, optionally as a re-run. """
 
     comp = get_competition(comp_id)
-    post_results_thread_task(comp.id, comp.title, is_rerun=rerun)
+    post_results_thread_task(comp.id, is_rerun=rerun)
 
 
 @app.cli.command()
@@ -97,6 +99,14 @@ def top_off_scrambles():
 # -------------------------------------------------------------------------------------------------
 # Below are admin commands for one-off app administration needs
 # -------------------------------------------------------------------------------------------------
+
+@app.cli.command()
+@click.option('--codes', '-c', type=str)
+def add_gift_codes(codes : str):
+    """ Adds gift codes to the database. `codes` is a comma-delimited list of SCS gift codes. """
+
+    bulk_add_gift_codes(codes.split(','))
+
 
 @app.cli.command()
 @click.option('--username', '-u', type=str)
@@ -195,22 +205,27 @@ def reprocess_results_for_user_and_comp_event(username, comp_event_id):
 # Below are utility commands intended just for development use
 # -------------------------------------------------------------------------------------------------
 
-# This is a list of multiplicative factors for determining "how fast" a given test user is compared
-# to the world record, starting at 1.25x WR at the fastest, and getting slower
-__TEST_USER_SPEEDS = [1.25 + (0.45 * i) for i in range(10)]
-
 __TEST_USER_NAMES = [
     'sonic_the_hedgehog',
     'crash_bandicoot',
-    'Mari0',
-    'Earthworm_Jim',
     'parappa_the_rappa',
+    'RocketLeagueCar',
+    'Mari0',
+    'nuzleaf',
+    'geralt-the-freaking-witcher',
+    'Earthworm_Jim',
     'guile_sonic_BOOM',
     'pacman',
     'lara-croft',
+    'diddy_KONG-187'
     'kirby',
+    'sephir0th',
     'Luigi'
 ]
+
+# This is a list of multiplicative factors for determining "how fast" a given test user is compared
+# to the world record, starting at 1.15x WR at the fastest, and getting slower
+__TEST_USER_SPEEDS = [1.15 + (0.25 * i) for i in range(len(__TEST_USER_NAMES))]
 
 def __build_solve(user_num, wr_average, event_name, scramble_id):
     """ Returns a UserSolve for an event, for the specified test user number, given the WR average
@@ -238,7 +253,7 @@ def __build_solve(user_num, wr_average, event_name, scramble_id):
 def generate_fake_comp_results():
     """ Generates a bunch of fake results for the current competition with realistic-ish results. """
 
-    test_users = [update_or_create_user_for_reddit(__TEST_USER_NAMES[i], '') for i in range(10)]
+    test_users = [update_or_create_user_for_reddit(name, '') for name in __TEST_USER_NAMES]
 
     for comp_event in get_all_comp_events_for_comp(get_active_competition().id):
         event_name = comp_event.Event.name
