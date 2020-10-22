@@ -29,7 +29,7 @@ from .auth import logout
 from .auth.wca import wca_login, wca_authorize, wca_assoc
 from .auth.reddit import reddit_login, reddit_authorize, reddit_assoc, admin_login
 from .home import index, prompt_login
-from .admin import confirm_gift_code_recipient, deny_gift_code_recipient
+from .admin import confirm_gift_code_recipient, deny_gift_code_recipient, add_gift_codes
 from .util import prev_results
 from .results import results_list
 from .user import profile, edit_settings

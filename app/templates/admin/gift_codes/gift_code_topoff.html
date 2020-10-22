@@ -1,0 +1,33 @@
+{% extends "common/base.html" %}
+
+{% block head %}
+    {{ super() }}
+    {% block additional_styles %}
+        {% assets "index_css" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}" />
+        {% endassets %}
+    {% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="cubers-container container-fluid">
+    <div class="row pt-4">
+        <div class="col-md-8 offset-md-2">
+            <h4>Top-off SCS Gift Codes</h4>
+            <form id="code_topoff_form" method="POST">
+                <div class="form-group">
+                    <textarea class="form-control" name="code_list" rows="5" placeholder="SCS gift codes, 1 per line"></textarea>
+                </div>
+                <div class="row">
+                    {% if is_mobile %}
+                        {% set mobile_class = 'mobile_settings' %}
+                    {% endif %}
+                    <div class="col-12 col-md-8">
+                        <button type="submit" class="btn btn-primary btn-settings-submit {{mobile_class}}">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
