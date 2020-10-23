@@ -68,7 +68,7 @@ def redi_scrambler(total_faces=7):
     return ' '.join(scramble)
 
 
-def fifteen_puzzle_scrambler(total_moves=50):
+def fifteen_puzzle_scrambler(total_moves: int = 50) -> str:
     """ Returns a scramble for a 15 Puzzle.
 
     15 Puzzle is a sliding tile puzzle that looks like this when solved:

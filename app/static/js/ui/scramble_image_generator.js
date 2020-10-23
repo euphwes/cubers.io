@@ -38,6 +38,7 @@
         "COLL":   [nxnRadius, nxnRadius],
         "4x4":    [nxnRadius, nxnRadius],
         "4x4 OH": [nxnRadius, nxnRadius],
+        "15 Puzzle": [nxnRadius, nxnRadius],
         "Void Cube":     [nxnRadius, nxnRadius],
         "3x3 With Feet": [nxnRadius, nxnRadius],
 
@@ -52,7 +53,7 @@
         "3x3x4": [cuboidRadius, cuboidRadius],
 
         "Pyraminx": [8, 8],
-        "Skewb": [5, 5],
+        "Skewb":    [5, 5],
 
         "Megaminx": [5, 5],
         "Kilominx": [8, 8],
@@ -1850,6 +1851,150 @@
             }
         })();
 
+        var fifteenImage = (function() {
+            var posit = [];
+            var colors = null;
+            var empty_ix = null;
+
+            function doMove(move) {
+                console.log(move);
+                if (move == 'R') {
+                    mathlib.circle(posit, empty_ix, empty_ix + 1);
+                    console.log('swapped space with ' + posit[empty_ix + 1]);
+                    empty_ix = empty_ix + 1;
+                    console.log('new empty_ix ' + empty_ix);
+                }
+                if (move == 'L') {
+                    mathlib.circle(posit, empty_ix, empty_ix - 1);
+                    empty_ix = empty_ix - 1;
+                }
+                if (move == 'D') {
+                    mathlib.circle(posit, empty_ix, empty_ix + 4);
+                    empty_ix = empty_ix + 4;
+                }
+                if (move == 'U') {
+                    mathlib.circle(posit, empty_ix, empty_ix - 4);
+                    empty_ix = empty_ix - 4;
+                }
+            }
+
+            function renderNumber(width, x, y, value) {
+                ctx.fillStyle = "#000";
+                ctx.font = "50px Calibri";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(value, width * x, width * y);
+            }
+
+            function render() {
+
+                var width = 110;
+                var offset = 1.05;
+
+                if (!colors) {
+                    setColors();
+                    colors = cube_colors;
+                }
+
+                color = '#fff';
+
+                // I'm aware this is terrible and not abstracted, no need to tell me
+
+                // row 1
+
+                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 0, 0]);
+                renderNumber(width, 0.5, 0.5, posit[0]);
+
+                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 1*offset, 0]);
+                renderNumber(width, offset*1.5, 0.5, posit[1]);
+
+                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 2*offset, 0]);
+                renderNumber(width, offset*2.5, 0.5, posit[2]);
+
+                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 3*offset, 0]);
+                renderNumber(width, offset*3.5, 0.5, posit[3]);
+
+                // row 2
+
+                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 0, 1*offset]);
+                renderNumber(width, 0.5, offset*1.5, posit[4]);
+
+                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 1*offset, 1*offset]);
+                renderNumber(width, offset*1.5, offset*1.5, posit[5]);
+
+                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 2*offset, 1*offset]);
+                renderNumber(width, offset*2.5, offset*1.5, posit[6]);
+
+                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 3*offset, 1*offset]);
+                renderNumber(width, offset*3.5, offset*1.5, posit[7]);
+
+                // row 3
+
+                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 0, 2*offset]);
+                renderNumber(width, 0.5, offset*2.5, posit[8]);
+
+                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 1*offset, 2*offset]);
+                renderNumber(width, offset*1.5, offset*2.5, posit[9]);
+
+                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 2*offset, 2*offset]);
+                renderNumber(width, offset*2.5, offset*2.5, posit[10]);
+
+                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 3*offset, 2*offset]);
+                renderNumber(width, offset*3.5, offset*2.5, posit[11]);
+
+                // row 4
+
+                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 0, 3*offset]);
+                renderNumber(width, 0.5, offset*3.5, posit[12]);
+
+                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 1*offset, 3*offset]);
+                renderNumber(width, offset*1.5, offset*3.5, posit[13]);
+
+                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 2*offset, 3*offset]);
+                renderNumber(width, offset*2.5, offset*3.5, posit[14]);
+
+                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 3*offset, 3*offset]);
+                renderNumber(width, offset*3.5, offset*3.5, posit[15]);
+            }
+
+            return function(moveseq) {
+                empty_ix = 15;
+
+                var cnt = 0;
+                for (var i = 0; i < 15; i++) {
+                    posit[cnt++] = i+1;
+                }
+                posit[15] = '';
+
+                var scramble = moveseq.split(' ');
+                for (var i = 0; i < scramble.length; i++) {
+                    var move_candidate = scramble[i];
+                    if (move_candidate.length == 1) {
+                        doMove(move_candidate);
+                    } else {
+                        var move = move_candidate[0];
+                        var num  = parseInt(move_candidate[1]);
+                        for(var j = 0; j < num; j++) {
+                            doMove(move);
+                        }
+                    }
+                }
+
+                var what1 = 25;
+                var what2 = 25;
+                var width = 20;
+
+                var imgSize = scalingFactor / 50;
+                canvas.width(what1 * imgSize + 'em');
+                canvas.height(what2 * imgSize + 'em');
+
+                canvas.attr('width', what1 * width + 1);
+                canvas.attr('height', what2 * width + 1);
+
+                render();
+            }
+        })();
+
         var image334 = (function() {
             var width = 24;
             var posit = [];
@@ -2562,6 +2707,10 @@
             }
             if (type == "Kilominx") {
                 kilominxImage(scrambleText);
+                return true;
+            }
+            if (type == "15 Puzzle") {
+                fifteenImage(scrambleText);
                 return true;
             }
             return false;

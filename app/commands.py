@@ -1,4 +1,5 @@
 """ Utility Flask commands for administrating the app. """
+# pylint: disable=multiple-statements
 
 from random import randrange, choice
 
