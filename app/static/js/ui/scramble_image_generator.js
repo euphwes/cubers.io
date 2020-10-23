@@ -1853,16 +1853,12 @@
 
         var fifteenImage = (function() {
             var posit = [];
-            var colors = null;
             var empty_ix = null;
 
             function doMove(move) {
-                console.log(move);
                 if (move == 'R') {
                     mathlib.circle(posit, empty_ix, empty_ix + 1);
-                    console.log('swapped space with ' + posit[empty_ix + 1]);
                     empty_ix = empty_ix + 1;
-                    console.log('new empty_ix ' + empty_ix);
                 }
                 if (move == 'L') {
                     mathlib.circle(posit, empty_ix, empty_ix - 1);
@@ -1891,70 +1887,113 @@
                 var width = 110;
                 var offset = 1.05;
 
-                if (!colors) {
-                    setColors();
-                    colors = cube_colors;
-                }
+                var cream = '#d1d1b4';
+                var red = '#b5382f';
 
-                color = '#fff';
+                var colors = {
+                    1: red,
+                    3: red,
+                    6: red,
+                    8: red,
+                    9: red,
+                    11: red,
+                    14: red,
+
+                    2: cream,
+                    4: cream,
+                    5: cream,
+                    7: cream,
+                    10: cream,
+                    12: cream,
+                    13: cream,
+                    15: cream,
+                };
 
                 // I'm aware this is terrible and not abstracted, no need to tell me
 
                 // row 1
+                if (empty_ix != 0) {
+                    drawPolygon(ctx, colors[posit[0]], [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 0, 0]);
+                    renderNumber(width, 0.5, 0.5, posit[0]);
+                }
 
-                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 0, 0]);
-                renderNumber(width, 0.5, 0.5, posit[0]);
+                if (empty_ix != 1) {
+                    drawPolygon(ctx, colors[posit[1]], [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 1*offset, 0]);
+                    renderNumber(width, offset*1.5, 0.5, posit[1]);
+                }
 
-                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 1*offset, 0]);
-                renderNumber(width, offset*1.5, 0.5, posit[1]);
+                if (empty_ix != 2) {
+                    drawPolygon(ctx, colors[posit[2]], [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 2*offset, 0]);
+                    renderNumber(width, offset*2.5, 0.5, posit[2]);
+                }
 
-                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 2*offset, 0]);
-                renderNumber(width, offset*2.5, 0.5, posit[2]);
-
-                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 3*offset, 0]);
-                renderNumber(width, offset*3.5, 0.5, posit[3]);
+                if (empty_ix != 3) {
+                    drawPolygon(ctx, colors[posit[3]], [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 3*offset, 0]);
+                    renderNumber(width, offset*3.5, 0.5, posit[3]);
+                }
 
                 // row 2
+                if (empty_ix != 4) {
+                    drawPolygon(ctx, colors[posit[4]], [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 0, 1*offset]);
+                    renderNumber(width, 0.5, offset*1.5, posit[4]);
+                }
 
-                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 0, 1*offset]);
-                renderNumber(width, 0.5, offset*1.5, posit[4]);
+                if (empty_ix != 5) {
+                    drawPolygon(ctx, colors[posit[5]], [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 1*offset, 1*offset]);
+                    renderNumber(width, offset*1.5, offset*1.5, posit[5]);
+                }
 
-                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 1*offset, 1*offset]);
-                renderNumber(width, offset*1.5, offset*1.5, posit[5]);
+                if (empty_ix != 6) {
+                    drawPolygon(ctx, colors[posit[6]], [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 2*offset, 1*offset]);
+                    renderNumber(width, offset*2.5, offset*1.5, posit[6]);
+                }
 
-                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 2*offset, 1*offset]);
-                renderNumber(width, offset*2.5, offset*1.5, posit[6]);
-
-                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 3*offset, 1*offset]);
-                renderNumber(width, offset*3.5, offset*1.5, posit[7]);
+                if (empty_ix != 7) {
+                    drawPolygon(ctx, colors[posit[7]], [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 3*offset, 1*offset]);
+                    renderNumber(width, offset*3.5, offset*1.5, posit[7]);
+                }
 
                 // row 3
+                if (empty_ix != 8) {
+                    drawPolygon(ctx, colors[posit[8]], [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 0, 2*offset]);
+                    renderNumber(width, 0.5, offset*2.5, posit[8]);
+                }
 
-                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 0, 2*offset]);
-                renderNumber(width, 0.5, offset*2.5, posit[8]);
+                if (empty_ix != 9) {
+                    drawPolygon(ctx, colors[posit[9]], [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 1*offset, 2*offset]);
+                    renderNumber(width, offset*1.5, offset*2.5, posit[9]);
+                }
 
-                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 1*offset, 2*offset]);
-                renderNumber(width, offset*1.5, offset*2.5, posit[9]);
+                if (empty_ix != 10) {
+                    drawPolygon(ctx, colors[posit[10]], [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 2*offset, 2*offset]);
+                    renderNumber(width, offset*2.5, offset*2.5, posit[10]);
+                }
 
-                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 2*offset, 2*offset]);
-                renderNumber(width, offset*2.5, offset*2.5, posit[10]);
-
-                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 3*offset, 2*offset]);
-                renderNumber(width, offset*3.5, offset*2.5, posit[11]);
+                if (empty_ix != 11) {
+                    drawPolygon(ctx, colors[posit[11]], [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 3*offset, 2*offset]);
+                    renderNumber(width, offset*3.5, offset*2.5, posit[11]);
+                }
 
                 // row 4
+                if (empty_ix != 12) {
+                    drawPolygon(ctx, colors[posit[12]], [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 0, 3*offset]);
+                    renderNumber(width, 0.5, offset*3.5, posit[12]);
+                }
 
-                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 0, 3*offset]);
-                renderNumber(width, 0.5, offset*3.5, posit[12]);
+                if (empty_ix != 13) {
+                    drawPolygon(ctx, colors[posit[13]], [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 1*offset, 3*offset]);
+                    renderNumber(width, offset*1.5, offset*3.5, posit[13]);
+                }
 
-                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 1*offset, 3*offset]);
-                renderNumber(width, offset*1.5, offset*3.5, posit[13]);
+                if (empty_ix != 14) {
+                    drawPolygon(ctx, colors[posit[14]], [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 2*offset, 3*offset]);
+                    renderNumber(width, offset*2.5, offset*3.5, posit[14]);
+                }
 
-                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 2*offset, 3*offset]);
-                renderNumber(width, offset*2.5, offset*3.5, posit[14]);
-
-                drawPolygon(ctx, color, [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 3*offset, 3*offset]);
-                renderNumber(width, offset*3.5, offset*3.5, posit[15]);
+                if (empty_ix != 15) {
+                    drawPolygon(ctx, colors[posit[15]], [[0, 1, 1, 0], [0, 0, 1, 1]], [width, 3*offset, 3*offset]);
+                    renderNumber(width, offset*3.5, offset*3.5, posit[15]);
+                }
             }
 
             return function(moveseq) {
