@@ -82,15 +82,14 @@ def fifteen_puzzle_scrambler(total_moves: int = 50) -> str:
     The bottom-right corner is empty, and it's with respect to the current position
     of the empty space that we move other pieces.
 
-    U = up, which indicates the tile above the empty space moves
-    D = down, which indicates the tile below the empty space moves
-    R = right, which indicates the tile to the right of the empty space moves
-    L = left, which indicates the tile to the left of the empty space moves
+    U = up, which indicates the tile below the empty space moves up into the space
+    D = down, which indicates the tile above the empty space moves down into the space
+    R = right, which indicates the tile to the left of the empty space moves right into the space
+    L = left, which indicates the tile to the right of the empty space moves left into the space
     """
 
     # Maintain the position of the empty space, so we know which moves are possible at any given
-    # point in time. For example, the first move of the scramble can only ever be U or L, since
-    # there is not tile in the D or R position to move.
+    # point in time. For example, the first move of the scramble can only ever be D or R
     space_x, space_y = 3, 3
     # space_x... get it? get it?!
     #
@@ -110,8 +109,8 @@ def fifteen_puzzle_scrambler(total_moves: int = 50) -> str:
         excluding the move that's opposite of the previous one so we don't just undo the last. """
 
         moves = list()
-        moves.extend( ['U'] if y == 3 else ['D'] if y == 0 else ['U', 'D'] )
-        moves.extend( ['L'] if x == 3 else ['R'] if x == 0 else ['L', 'R'] )
+        moves.extend( ['D'] if y == 3 else ['U'] if y == 0 else ['U', 'D'] )
+        moves.extend( ['R'] if x == 3 else ['L'] if x == 0 else ['L', 'R'] )
 
         if previous_move:
             opposite_move = {
@@ -132,8 +131,8 @@ def fifteen_puzzle_scrambler(total_moves: int = 50) -> str:
         scramble.append(move)
 
         # Figure out where the space is after the move is applied
-        space_x += 0 if move in 'UD' else -1 if move == 'L' else 1
-        space_y += 0 if move in 'RL' else -1 if move == 'U' else 1
+        space_x += 0 if move in 'UD' else -1 if move == 'R' else 1
+        space_y += 0 if move in 'RL' else -1 if move == 'D' else 1
         prev_move = move
 
     # Reduce the scramble (R R R -> R3, U U -> U2, etc) and turn into a string to return

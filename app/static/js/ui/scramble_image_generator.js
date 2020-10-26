@@ -1856,19 +1856,19 @@
             var empty_ix = null;
 
             function doMove(move) {
-                if (move == 'R') {
+                if (move == 'L') {
                     mathlib.circle(posit, empty_ix, empty_ix + 1);
                     empty_ix = empty_ix + 1;
                 }
-                if (move == 'L') {
+                if (move == 'R') {
                     mathlib.circle(posit, empty_ix, empty_ix - 1);
                     empty_ix = empty_ix - 1;
                 }
-                if (move == 'D') {
+                if (move == 'U') {
                     mathlib.circle(posit, empty_ix, empty_ix + 4);
                     empty_ix = empty_ix + 4;
                 }
-                if (move == 'U') {
+                if (move == 'D') {
                     mathlib.circle(posit, empty_ix, empty_ix - 4);
                     empty_ix = empty_ix - 4;
                 }
