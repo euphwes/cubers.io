@@ -2,15 +2,14 @@
 # pylint: disable=invalid-name,line-too-long,too-many-arguments,too-few-public-methods
 
 from collections import OrderedDict
-from itertools import groupby
 from random import choice
-from typing import List
 
 from pyTwistyScrambler import scrambler333, scrambler222, scrambler444, scrambler555,\
     scrambler666, scrambler777, squareOneScrambler, megaminxScrambler, pyraminxScrambler,\
     cuboidsScrambler, skewbScrambler, clockScrambler, bigCubesScrambler
 
 from .coll import get_coll_scramble
+from .sliding_tile import get_sliding_tile_puzzle_scramble
 
 # -------------------------------------------------------------------------------------------------
 
@@ -68,16 +67,15 @@ def redi_scrambler(total_faces=7):
     return ' '.join(scramble)
 
 
-def fifteen_puzzle_scrambler(total_moves: int = 50) -> str:
+def fifteen_puzzle_scrambler() -> str:
     """ Returns a scramble for a 15 Puzzle.
 
     15 Puzzle is a sliding tile puzzle that looks like this when solved:
 
-        y  x  0    1    2    3
-        0   [ 1] [ 2] [ 3] [ 4]
-        1   [ 5] [ 6] [ 7] [ 8]
-        2   [ 9] [10] [11] [12]
-        3   [13] [14] [15] [  ]
+    [ 1] [ 2] [ 3] [ 4]
+    [ 5] [ 6] [ 7] [ 8]
+    [ 9] [10] [11] [12]
+    [13] [14] [15] [  ]
 
     The bottom-right corner is empty, and it's with respect to the current position
     of the empty space that we move other pieces.
@@ -88,59 +86,7 @@ def fifteen_puzzle_scrambler(total_moves: int = 50) -> str:
     L = left, which indicates the tile to the right of the empty space moves left into the space
     """
 
-    # Maintain the position of the empty space, so we know which moves are possible at any given
-    # point in time. For example, the first move of the scramble can only ever be D or R
-    space_x, space_y = 3, 3
-    # space_x... get it? get it?!
-    #
-    #         |
-    #        / \
-    #       / _ \
-    #      |.' '.|
-    #      |'._.'|
-    #      |  o  |
-    #    ,'|  |  |`.
-    #   /  |  |  |  \
-    #   |,-'--|--'-.|
-    #
-
-    def __get_possible_moves(x: int, y: int, previous_move: str) -> List[str]:
-        """ Return a list of possible moves based the x, y coordinates of the empty space,
-        excluding the move that's opposite of the previous one so we don't just undo the last. """
-
-        moves = list()
-        moves.extend( ['D'] if y == 3 else ['U'] if y == 0 else ['U', 'D'] )
-        moves.extend( ['R'] if x == 3 else ['L'] if x == 0 else ['L', 'R'] )
-
-        if previous_move:
-            opposite_move = {
-                'U': 'D',
-                'D': 'U',
-                'R': 'L',
-                'L': 'R'
-            }[previous_move]
-            moves.remove(opposite_move)
-        return moves
-
-    scramble = list()
-    prev_move = None
-
-    for _ in range(total_moves):
-        # Choose the next move based on the last move, and where the empty space currently is
-        move = choice(__get_possible_moves(space_x, space_y, prev_move))
-        scramble.append(move)
-
-        # Figure out where the space is after the move is applied
-        space_x += 0 if move in 'UD' else -1 if move == 'R' else 1
-        space_y += 0 if move in 'RL' else -1 if move == 'D' else 1
-        prev_move = move
-
-    # Reduce the scramble (R R R -> R3, U U -> U2, etc) and turn into a string to return
-    def __smart_reduce(grouping):
-        group_sum = sum(1 for _ in grouping)
-        return '' if group_sum == 1 else group_sum
-
-    return ' '.join(f"{x}{__smart_reduce(y)}" for x, y in groupby(scramble))
+    return get_sliding_tile_puzzle_scramble(4)
 
 
 def COLL_scrambler(coll_num):
@@ -233,7 +179,7 @@ EVENT_4BLD      = EventResource("4BLD", scrambler444.get_4BLD_scramble, 3, True,
 EVENT_5BLD      = EventResource("5BLD", scrambler555.get_5BLD_scramble, 3, True, True)
 EVENT_MBLD      = EventResource("MBLD", mbld_scrambler, 3, True, True)
 
-# Bonus event definitions (current count = 16)
+# Bonus event definitions (current count = 17)
 EVENT_COLL      = EventResource("COLL", COLL_scrambler, 5, False, False, is_rotating=True)
 EVENT_F2L       = EventResource("F2L", scrambler333.get_WCA_scramble, 5, False, False, is_rotating=True)
 EVENT_Void      = EventResource("Void Cube", scrambler333.get_3BLD_scramble, 5, False, False, is_rotating=True)
@@ -252,8 +198,8 @@ EVENT_DINO      = EventResource("Dino Cube", lambda: redi_scrambler(5), 5, False
 EVENT_2x2x3     = EventResource("2x2x3", cuboidsScrambler.get_2x2x3_scramble, 5, False, False, is_rotating=True)
 EVENT_Fifteen   = EventResource("15 Puzzle", fifteen_puzzle_scrambler, 3, False, False, is_rotating=True)
 
-# Special event definitions, like bonus except they don't rotate over the weeks,
-# they only come up when it's an "all events" competition
+# Special event definitions, like bonus events except they aren't in the weekly rotation.
+# They only come up when it's an "all events" competition.
 EVENT_8x8 = EventResource("8x8", bigCubesScrambler.get_8x8x8_scramble, 1, False, False, is_rotating=False)
 EVENT_9x9 = EventResource("9x9", bigCubesScrambler.get_9x9x9_scramble, 1, False, False, is_rotating=False)
 
