@@ -1,4 +1,5 @@
 """ Contains all the config values for this web app. """
+# pylint: disable=line-too-long
 
 from os import environ
 from os.path import abspath, dirname, join as path_join
@@ -43,7 +44,11 @@ class Config(object):
     # ------------------------------------------------------
     CODE_CONFIRM_REDDIT_USER = environ.get('CODE_CONFIRM_REDDIT_USER', DEFAULT_ADMIN_REDDIT_USER)
     CODE_TOP_OFF_REDDIT_USER = environ.get('CODE_TOP_OFF_REDDIT_USER', DEFAULT_ADMIN_REDDIT_USER)
-    CODE_TOP_OFF_THRESHOLD   = environ.get('CODE_TOP_OFF_THRESHOLD', DEFAULT_CODE_TOP_OFF_THRESHOLD)
+
+    try:
+        CODE_TOP_OFF_THRESHOLD = int(environ.get('CODE_TOP_OFF_THRESHOLD', DEFAULT_CODE_TOP_OFF_THRESHOLD))
+    except ValueError:
+        CODE_TOP_OFF_THRESHOLD = DEFAULT_CODE_TOP_OFF_THRESHOLD
 
     # ------------------------------------------------------
     # Config related which subreddit to target, the URL to
