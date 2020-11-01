@@ -110,10 +110,8 @@ def delete_from_scramble_pool(scrambles):
     DB.session.commit()
 
 
-def add_scrambles_to_scramble_pool(scrambles, event_id):
-    """ Adds scrambles to the scramble pool for the specified event. """
+def add_scramble_to_scramble_pool(scramble, event_id):
+    """ Adds a scramble to the scramble pool for the specified event. """
 
-    for scramble in scrambles:
-        DB.session.add(ScramblePool(scramble=scramble, event_id=event_id))
-
+    DB.session.add(ScramblePool(scramble=scramble, event_id=event_id))
     DB.session.commit()

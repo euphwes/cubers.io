@@ -7,7 +7,7 @@ from collections import namedtuple
 from huey import crontab
 
 from app import app
-from app.persistence.events_manager import get_all_events, add_scrambles_to_scramble_pool
+from app.persistence.events_manager import get_all_events, add_scramble_to_scramble_pool
 from app.util.events.resources import get_event_resource_for_name, EVENT_COLL
 
 from . import huey
@@ -64,6 +64,6 @@ def top_off_scramble_pool(top_off_info):
     various events. """
 
     event_resource = get_event_resource_for_name(top_off_info.event_name)
-    scrambles = [event_resource.get_scramble() for _ in range(top_off_info.num_scrambles)]
 
-    add_scrambles_to_scramble_pool(scrambles, top_off_info.event_id)
+    for _ in range(top_off_info.num_scrambles):
+        add_scramble_to_scramble_pool(event_resource.get_scramble(), top_off_info.event_id)
