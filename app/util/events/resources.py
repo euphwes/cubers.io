@@ -196,7 +196,7 @@ EVENT_2BLD      = EventResource("2BLD", scrambler222.get_WCA_scramble, 3, False,
 EVENT_REDI      = EventResource("Redi Cube", redi_scrambler, 5, False, False, is_rotating=True)
 EVENT_DINO      = EventResource("Dino Cube", lambda: redi_scrambler(5), 5, False, False, is_rotating=True)
 EVENT_2x2x3     = EventResource("2x2x3", cuboidsScrambler.get_2x2x3_scramble, 5, False, False, is_rotating=True)
-EVENT_Fifteen   = EventResource("15 Puzzle", fifteen_puzzle_scrambler, 3, False, False, is_rotating=True)
+EVENT_Fifteen   = EventResource("15 Puzzle", fifteen_puzzle_scrambler, 5, False, False, is_rotating=True)
 
 # Special event definitions, like bonus events except they aren't in the weekly rotation.
 # They only come up when it's an "all events" competition.
