@@ -65,7 +65,7 @@
   
       // TODO: use this.___ in here instead of local variables.
   
-      ctx.fillStyle = 'rgba(0, 0, 0, ' + this.opacity + ')';
+      ctx.fillStyle = 'rgba(255, 255, 255, ' + this.opacity + ')';
       ctx.beginPath();
       for (var i = 0; i < numSides; ++i) {
         var ang = rotation + i * Math.PI * 2 / numSides;
