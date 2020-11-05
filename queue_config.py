@@ -26,5 +26,5 @@ else:
         MSG += "Install peewee directly, don't add to requirements.txt"
         raise RuntimeError(MSG)
 
-    from huey.contrib.sqlitedb import SqliteHuey
+    from huey import SqliteHuey
     huey = SqliteHuey(filename='huey.db')
