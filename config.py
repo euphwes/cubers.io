@@ -50,6 +50,12 @@ class Config(object):
     except ValueError:
         CODE_TOP_OFF_THRESHOLD = DEFAULT_CODE_TOP_OFF_THRESHOLD
 
+
+    # ------------------------------------------------------
+    # Config related to notifying an admin of task status
+    # ------------------------------------------------------
+    TASK_STATUS_REDDIT_USER = environ.get('TASK_STATUS_REDDIT_USER', DEFAULT_ADMIN_REDDIT_USER)
+
     # ------------------------------------------------------
     # Config related which subreddit to target, the URL to
     # the web app to drop into the Reddit comment body, etc
