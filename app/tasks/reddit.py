@@ -1,6 +1,5 @@
 """ Tasks related to interacting with Reddit. """
 
-from app import app
 from app.persistence.user_results_manager import get_all_complete_user_results_for_comp_and_user
 from app.persistence.comp_manager import get_competition, get_all_comp_events_for_comp,\
     get_reddit_participants_in_competition
@@ -71,47 +70,34 @@ def naturally_join(values):
 # -------------------------------------------------------------------------------------------------
 
 @huey.task()
-def notify_wes(task_name, error):
-    """ Notify me that something broken. TODO remove or generify """
-
-    msg = "{} task broke with '{}'".format(task_name, error)
-    send_PM_to_user_with_title_and_body('euphwes', 'cubers.io task broke', msg)
-
-
-@huey.task()
 def prepare_new_competition_notification(comp_id, is_all_events):
     """ Builds a new competition notification message, looks up all users who want to receive
     this sort of message, and queues up tasks to send those users PMs. """
 
-    # TODO: cleanup try/catch
-    try:
-        competition = get_competition(comp_id)
+    competition = get_competition(comp_id)
 
-        if is_all_events:
-            event_desc = ALL_EVENTS_DESC
-        else:
-            all_events = get_all_comp_events_for_comp(comp_id)
-            all_event_names = [event.Event.name for event in all_events]
+    if is_all_events:
+        event_desc = ALL_EVENTS_DESC
+    else:
+        all_events = get_all_comp_events_for_comp(comp_id)
+        all_event_names = [event.Event.name for event in all_events]
 
-            all_bonus_event_names = get_all_bonus_events_names()
-            bonus_event_names = [name for name in all_event_names if name in all_bonus_event_names]
-            bonus_event_names = naturally_join(bonus_event_names)
+        all_bonus_event_names = get_all_bonus_events_names()
+        bonus_event_names = [name for name in all_event_names if name in all_bonus_event_names]
+        bonus_event_names = naturally_join(bonus_event_names)
 
-            event_desc = ROTATING_EVENTS_DESC.format(bonus_events_list=bonus_event_names)
+        event_desc = ROTATING_EVENTS_DESC.format(bonus_events_list=bonus_event_names)
 
-        for user_id in get_all_user_ids_with_setting_value(SettingCode.REDDIT_COMP_NOTIFY, TRUE_STR):
-            reddit_id = get_user_by_id(user_id).reddit_id
-            # If the user doesn't have Reddit info, skip them
-            if not reddit_id:
-                continue
+    for user_id in get_all_user_ids_with_setting_value(SettingCode.REDDIT_COMP_NOTIFY, TRUE_STR):
+        reddit_id = get_user_by_id(user_id).reddit_id
+        # If the user doesn't have Reddit info, skip them
+        if not reddit_id:
+            continue
 
-            message_body = NEW_COMP_TEMPLATE.format(comp_title=competition.title,
-                                                    bonus_events_desc=event_desc, username=reddit_id,
-                                                    opt_out_info=OPT_OUT_INFO)
-            send_competition_notification_pm(reddit_id, message_body)
-
-    except Exception as e:
-        notify_wes('prepare_new_competition_notification', str(e))
+        message_body = NEW_COMP_TEMPLATE.format(comp_title=competition.title,
+                                                bonus_events_desc=event_desc, username=reddit_id,
+                                                opt_out_info=OPT_OUT_INFO)
+        send_competition_notification_pm(reddit_id, message_body)
 
 
 @huey.task()
@@ -141,56 +127,52 @@ def prepare_end_of_competition_info_notifications(comp_id):
 
 @huey.task()
 def send_end_of_competition_message(user_id, comp_id, comp_title):
-    """ Sends a report to the specified user with info about their participation
-    in the competition. """
+    """ Sends a report to the specified user with info about their participation in the
+    competition. """
 
-    # TODO Clean up try/catch
-    try:
-        user = get_user_by_id(user_id)
-        all_results = get_all_complete_user_results_for_comp_and_user(comp_id, user_id, include_blacklisted=False)
+    user = get_user_by_id(user_id)
+    all_results = get_all_complete_user_results_for_comp_and_user(comp_id, user_id, include_blacklisted=False)
 
-        total_solves = 0
-        events_with_pbs = list()
-        events_with_podium = list()
-        total_events_participated_in = len(all_results)
+    total_solves = 0
+    events_with_pbs = list()
+    events_with_podium = list()
+    total_events_participated_in = len(all_results)
 
-        for event_results in all_results:
-            if event_results.was_bronze_medal:
-                medal_desc = "{} (bronze)".format(event_results.CompetitionEvent.Event.name)
-                events_with_podium.append(medal_desc)
-            if event_results.was_silver_medal:
-                medal_desc = "{} (silver)".format(event_results.CompetitionEvent.Event.name)
-                events_with_podium.append(medal_desc)
-            if event_results.was_gold_medal:
-                medal_desc = "{} (gold)".format(event_results.CompetitionEvent.Event.name)
-                events_with_podium.append(medal_desc)
-            if event_results.was_pb_average or event_results.was_pb_single:
-                events_with_pbs.append(event_results.CompetitionEvent.Event.name)
-            total_solves += len(event_results.solves)
+    for event_results in all_results:
+        if event_results.was_bronze_medal:
+            medal_desc = "{} (bronze)".format(event_results.CompetitionEvent.Event.name)
+            events_with_podium.append(medal_desc)
+        if event_results.was_silver_medal:
+            medal_desc = "{} (silver)".format(event_results.CompetitionEvent.Event.name)
+            events_with_podium.append(medal_desc)
+        if event_results.was_gold_medal:
+            medal_desc = "{} (gold)".format(event_results.CompetitionEvent.Event.name)
+            events_with_podium.append(medal_desc)
+        if event_results.was_pb_average or event_results.was_pb_single:
+            events_with_pbs.append(event_results.CompetitionEvent.Event.name)
+        total_solves += len(event_results.solves)
 
-        podium_info = ''
-        if events_with_podium:
-            events_medal_list = naturally_join(events_with_podium)
-            podium_info = PODIUM_INFO_TEMPLATE.format(events_medal_list=events_medal_list)
+    podium_info = ''
+    if events_with_podium:
+        events_medal_list = naturally_join(events_with_podium)
+        podium_info = PODIUM_INFO_TEMPLATE.format(events_medal_list=events_medal_list)
 
-        pb_info = ''
-        if events_with_pbs:
-            maybe_pluralized_pbs = "some PBs" if len(events_with_pbs) > 1 else "a PB"
-            pb_events_list = naturally_join(events_with_pbs)
-            pb_info = PB_INFO_TEMPLATE.format(pb_events_list=pb_events_list, maybe_pluralized_pbs=maybe_pluralized_pbs)
+    pb_info = ''
+    if events_with_pbs:
+        maybe_pluralized_pbs = "some PBs" if len(events_with_pbs) > 1 else "a PB"
+        pb_events_list = naturally_join(events_with_pbs)
+        pb_info = PB_INFO_TEMPLATE.format(pb_events_list=pb_events_list, maybe_pluralized_pbs=maybe_pluralized_pbs)
 
-        message_body = END_OF_COMP_BODY_TEMPLATE.format(
-            username=user.username,
-            comp_title=comp_title,
-            event_count=total_events_participated_in,
-            solves_count=total_solves,
-            pb_info=pb_info,
-            podium_info=podium_info,
-            opt_out_info=OPT_OUT_INFO
-        )
+    message_body = END_OF_COMP_BODY_TEMPLATE.format(
+        username=user.username,
+        comp_title=comp_title,
+        event_count=total_events_participated_in,
+        solves_count=total_solves,
+        pb_info=pb_info,
+        podium_info=podium_info,
+        opt_out_info=OPT_OUT_INFO
+    )
 
-        message_title = END_OF_COMP_TITLE_TEMPLATE.format(comp_title=comp_title)
+    message_title = END_OF_COMP_TITLE_TEMPLATE.format(comp_title=comp_title)
 
-        send_PM_to_user_with_title_and_body(user.username, message_title, message_body)
-    except Exception as e:
-        notify_wes('send_end_of_competition_message', str(e))
+    send_PM_to_user_with_title_and_body(user.username, message_title, message_body)
