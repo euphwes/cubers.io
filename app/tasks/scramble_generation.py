@@ -1,5 +1,4 @@
 """ Tasks related to pre-generating scrambles for competitions. """
-
 # pylint: disable=line-too-long
 
 from collections import namedtuple
@@ -17,11 +16,11 @@ from . import huey
 ScramblePoolTopOffInfo = namedtuple('ScramblePoolTopOffInfo', ['event_id', 'event_name', 'num_scrambles'])
 
 # In dev environments, run the task to check the scramble pool every minute.
-# In prod, run it every hour (frequently enough so that new events get populated with scrambles quickly)
+# In prod, run it every 3 hours (frequently enough so that new events get populated with scrambles quickly)
 if app.config['IS_DEVO']:
     CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(minute="*/1")
 else:
-    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(hour="*/1", minute="0")
+    CHECK_SCRAMBLE_POOL_SCHEDULE = crontab(hour="*/3", minute="0")
 
 # -------------------------------------------------------------------------------------------------
 
