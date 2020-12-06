@@ -89,6 +89,31 @@ def fifteen_puzzle_scrambler() -> str:
     return get_sliding_tile_puzzle_scramble(4)
 
 
+def fto_scrambler(scramble_length = 30) -> str:
+    """ Returns a random-moves scramble of length `scramble_length` for FTO. """
+
+    def __except(n):
+        """ Returns a list range 0-7 except the specified number. """
+        if n == -1:
+            return range(8)
+        values = list(range(8))
+        values.remove(n)
+        return values
+
+    moves = ['F', 'U', 'R', 'L', 'D', 'B', 'BL', 'BR']
+
+    scramble = list()
+    move_ix = -1
+
+    for _ in range(scramble_length):
+        # Randomly choose a move, making sure we don't choose the face we just did.
+        # Randomly decide if that turn is clockwise or counterclockwise and apply prime if needed.
+        move_ix = choice(__except(move_ix))
+        scramble.append(moves[move_ix] + choice(["", "'"]))
+
+    return ' '.join(scramble)
+
+
 def COLL_scrambler(coll_num):
     """ Get a scramble for the current COLL. """
 
@@ -157,7 +182,7 @@ def scrambler_333_relay():
 
 # -------------------------------------------------------------------------------------------------
 
-# Weekly event definitions (current count = 20)
+# Weekly event definitions (current count = 21)
 EVENT_2x2       = EventResource("2x2", scrambler222.get_WCA_scramble, 5, True, True)
 EVENT_3x3       = EventResource("3x3", scrambler333.get_WCA_scramble, 5, True, True)
 EVENT_4x4       = EventResource("4x4", scrambler444.get_random_state_scramble, 5, True, True)
@@ -178,6 +203,7 @@ EVENT_LSE       = EventResource("LSE", scrambler333.get_2genMU_scramble, 5, True
 EVENT_4BLD      = EventResource("4BLD", scrambler444.get_4BLD_scramble, 3, True, True)
 EVENT_5BLD      = EventResource("5BLD", scrambler555.get_5BLD_scramble, 3, True, True)
 EVENT_MBLD      = EventResource("MBLD", mbld_scrambler, 3, True, True)
+EVENT_FTO       = EventResource("FTO", fto_scrambler, 5, True, False)
 
 # Bonus event definitions (current count = 17)
 EVENT_COLL      = EventResource("COLL", COLL_scrambler, 5, False, False, is_rotating=True)
@@ -246,7 +272,8 @@ __ALL_EVENTS = [
     EVENT_MBLD,
     EVENT_DINO,
     EVENT_2x2x3,
-    EVENT_Fifteen
+    EVENT_Fifteen,
+    EVENT_FTO
 ]
 
 # Important! Don't change how these weekly and bonus lists are built, we rely on the order
@@ -297,6 +324,7 @@ __GLOBAL_SORT_ORDER = [
     EVENT_FMC,
 
     # Weekly non-WCA
+    EVENT_FTO,
     EVENT_2GEN,
     EVENT_LSE,
 
