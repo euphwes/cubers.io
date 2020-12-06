@@ -74,6 +74,7 @@ __AUTO_BLACKLIST_THRESHOLDS = {
     '8x8':             (21000, 1),
     '9x9':             (31500, 1),
     '15 Puzzle':       (125, 250),
+    'FTO':             (1300, 1800),
     '3x3 Mirror Blocks/Bump': (800, 1100)
 }
 
