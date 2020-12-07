@@ -2043,22 +2043,133 @@
             var colors = null;
 
             function doMove(move) {
-                // if (move == 'L') {
-                //     mathlib.circle(posit, empty_ix, empty_ix + 1);
-                //     empty_ix = empty_ix + 1;
-                // }
-                // if (move == 'R') {
-                //     mathlib.circle(posit, empty_ix, empty_ix - 1);
-                //     empty_ix = empty_ix - 1;
-                // }
-                // if (move == 'U') {
-                //     mathlib.circle(posit, empty_ix, empty_ix + 4);
-                //     empty_ix = empty_ix + 4;
-                // }
-                // if (move == 'D') {
-                //     mathlib.circle(posit, empty_ix, empty_ix - 4);
-                //     empty_ix = empty_ix - 4;
-                // }
+                if (move == 'U') {
+                    var stripL = [9, 10, 14, 15, 17];  // L face strip shared with U
+                    var stripB = [36, 37, 38, 39, 40]; // B face strip shared with U
+                    var stripR = [27, 29, 28, 32, 31]; // R face strip shared with U
+
+                    for (var i = 0; i < 5; i++) {
+                        mathlib.circle(posit, stripL[i], stripB[i], stripR[i]);
+                    }
+
+                    mathlib.circle(posit, 18, 67, 45); // Shared-colors corner triangles
+                    mathlib.circle(posit, 0, 4, 8);    // Face corners
+                    mathlib.circle(posit, 1, 3, 6);    // Face centers
+                    mathlib.circle(posit, 2, 7, 5);    // Face edges
+                }
+
+                if (move == 'L') {
+                    var stripU  = [0, 1, 5, 6, 8];      // U face strip shared with L
+                    var stripF  = [18, 20, 19, 23, 22]; // F face strip shared with L
+                    var stripBL = [71, 70, 69, 68, 67]; // BL face strip shared with L
+
+                    for (var i = 0; i < 5; i++) {
+                        mathlib.circle(posit, stripU[i], stripF[i], stripBL[i]);
+                    }
+
+                    mathlib.circle(posit, 27, 62, 40); // Shared-colors corner triangles
+                    mathlib.circle(posit, 9, 17, 13);  // Face corners
+                    mathlib.circle(posit, 10, 15, 12); // Face centers
+                    mathlib.circle(posit, 14, 16, 11); // Face edges
+                }
+
+                if (move == 'R') {
+                    var stripU  = [8, 6, 7, 3, 4];      // U face strip shared with R
+                    var stripBR = [45, 46, 47, 48, 49]; // BR face strip shared with R
+                    var stripF  = [26, 25, 21, 20, 18]; // F face strip shared with R
+
+                    for (var i = 0; i < 5; i++) {
+                        mathlib.circle(posit, stripU[i], stripBR[i], stripF[i]);
+                    }
+
+                    mathlib.circle(posit, 17, 36, 58); // Shared-colors corner triangles
+                    mathlib.circle(posit, 27, 31, 35);  // Face corners
+                    mathlib.circle(posit, 29, 32, 34); // Face centers
+                    mathlib.circle(posit, 28, 33, 30); // Face edges
+                }
+
+                if (move == 'F') {
+                    var stripR = [27, 29, 30, 34, 35]; // R face strip shared with F
+                    var stripD = [58, 59, 60, 61, 62]; // D face strip shared with F
+                    var stripL = [13, 12, 16, 15, 17]; // L face strip shared with F
+
+                    for (var i = 0; i < 5; i++) {
+                        mathlib.circle(posit, stripR[i], stripD[i], stripL[i]);
+                    }
+
+                    mathlib.circle(posit, 8, 49, 71);  // Shared-colors corner triangles
+                    mathlib.circle(posit, 18, 26, 22); // Face corners
+                    mathlib.circle(posit, 20, 25, 23); // Face centers
+                    mathlib.circle(posit, 19, 21, 24); // Face edges
+                }
+
+                if (move == 'B') {
+                    var stripU  = [4, 3, 2, 1, 0];      // U face strip shared with B
+                    var stripBL = [67, 68, 64, 65, 63]; // BL face strip shared with B
+                    var stripBR = [53, 51, 50, 46, 45]; // BR face strip shared with B
+
+                    for (var i = 0; i < 5; i++) {
+                        mathlib.circle(posit, stripU[i], stripBL[i], stripBR[i]);
+                    }
+
+                    mathlib.circle(posit, 54, 31, 9);  // Shared-colors corner triangles
+                    mathlib.circle(posit, 36, 40, 44); // Face corners
+                    mathlib.circle(posit, 37, 39, 42); // Face centers
+                    mathlib.circle(posit, 38, 43, 41); // Face edges
+                }
+
+                if (move == 'BR') {
+                    var stripB = [36, 37, 41, 42, 44]; // B face strip shared with BR
+                    var stripD = [54, 56, 55, 59, 58]; // D face strip shared with BR
+                    var stripR = [35, 34, 33, 32, 31]; // R face strip shared with BR
+
+                    for (var i = 0; i < 5; i++) {
+                        mathlib.circle(posit, stripB[i], stripD[i], stripR[i]);
+                    }
+
+                    mathlib.circle(posit, 63, 26, 4);  // Shared-colors corner triangles
+                    mathlib.circle(posit, 45, 53, 49); // Face corners
+                    mathlib.circle(posit, 46, 51, 48); // Face centers
+                    mathlib.circle(posit, 50, 52, 47); // Face edges
+                }
+
+                if (move == 'BL') {
+                    var stripB = [44, 42, 43, 39, 40]; // B face strip shared with BL
+                    var stripL = [9, 10, 11, 12, 13];  // L face strip shared with BL
+                    var stripD = [62, 61, 57, 56, 54]; // D face strip shared with BL
+
+                    for (var i = 0; i < 5; i++) {
+                        mathlib.circle(posit, stripB[i], stripL[i], stripD[i]);
+                    }
+
+                    mathlib.circle(posit, 53, 0, 22);  // Shared-colors corner triangles
+                    mathlib.circle(posit, 63, 67, 71); // Face corners
+                    mathlib.circle(posit, 65, 68, 70); // Face centers
+                    mathlib.circle(posit, 64, 69, 66); // Face edges
+                }
+
+                if (move == 'D') {
+                    var stripBR = [49, 48, 52, 51, 53]; // BR face strip shared with D
+                    var stripBL = [63, 65, 66, 70, 71];  // BL face strip shared with D
+                    var stripF = [22, 23, 24, 25, 26];  // F face strip shared with D
+
+                    for (var i = 0; i < 5; i++) {
+                        mathlib.circle(posit, stripBR[i], stripBL[i], stripF[i]);
+                    }
+
+                    mathlib.circle(posit, 44, 13, 35);  // Shared-colors corner triangles
+                    mathlib.circle(posit, 54, 62, 58); // Face corners
+                    mathlib.circle(posit, 56, 61, 59); // Face centers
+                    mathlib.circle(posit, 55, 57, 60); // Face edges
+                }
+            }
+
+            function renderNumber(width, x, y, value) {
+                ctx.fillStyle = "#000";
+                ctx.font = "25px Calibri";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(value, width * x, width * y);
             }
 
             function render() {
@@ -2070,8 +2181,8 @@
                     colors = fto_colors;
                 }
 
-                var half1_coords = {
-                    // U
+                var half_coords = {
+                    // U (or B with +36)
                     1: [[0, 2, 1], [0, 0, 1]],
                     2: [[2, 3, 1], [0, 1, 1]],
                     3: [[2, 4, 3], [0, 0, 1]],
@@ -2082,7 +2193,7 @@
                     8: [[3, 5, 4], [1, 1, 2]],
                     9: [[2, 4, 3], [2, 2, 3]],
 
-                    // L
+                    // L (or BR with +36)
                     10: [[0, 1, 0], [0, 1, 2]],
                     11: [[0, 1, 1], [2, 1, 3]],
                     12: [[0, 1, 0], [2, 3, 4]],
@@ -2093,7 +2204,7 @@
                     17: [[1, 2, 1], [3, 4, 5]],
                     18: [[2, 3, 2], [2, 3, 4]],
 
-                    // F
+                    // F (or D with +36)
                     19: [[2, 3, 4], [4, 3, 4]],
                     20: [[1, 2, 3], [5, 4, 5]],
                     21: [[2, 4, 3], [4, 4, 5]],
@@ -2104,7 +2215,7 @@
                     26: [[3, 5, 4], [5, 5, 6]],
                     27: [[4, 5, 6], [6, 5, 6]],
 
-                    // R
+                    // R (or BL with +36)
                     28: [[3, 4, 4], [3, 2, 4]],
                     29: [[4, 5, 5], [2, 1, 3]],
                     30: [[4, 5, 4], [2, 3, 4]],
@@ -2117,21 +2228,29 @@
                 }
 
                 for (var i = 1; i < 37; i++) {
-                    var coords = half1_coords[i];
+                    var coords = half_coords[i];
                     var x = coords[0];
                     var y = coords[1];
                     var shifted = [[x[0], x[1], x[2]], [y[0]+3, y[1]+3, y[2]+3]];
 
                     drawPolygon(ctx, colors[posit[i-1]], shifted, [fraction, 0, 0]);
+
+                    // var lx = (Math.min(...shifted[0]) + Math.max(...shifted[0])) / 2;
+                    // var ly = (Math.min(...shifted[1]) + Math.max(...shifted[1])) / 2;
+                    // renderNumber(fraction, lx, ly, i-1);
                 }
                 
                 for (var i = 37; i < 73; i++) {
-                    var coords = half1_coords[i-36];
+                    var coords = half_coords[i-36];
                     var x = coords[0];
                     var y = coords[1];
                     var shifted = [[x[0]+6, x[1]+6, x[2]+6], [y[0]+3, y[1]+3, y[2]+3]];
 
                     drawPolygon(ctx, colors[posit[i-1]], shifted, [fraction, 0, 0]);
+
+                    // var lx = (Math.min(...shifted[0]) + Math.max(...shifted[0])) / 2;
+                    // var ly = (Math.min(...shifted[1]) + Math.max(...shifted[1])) / 2;
+                    // renderNumber(fraction, lx, ly, i-1);
                 }
             }
 
@@ -2146,15 +2265,14 @@
 
                 var scramble = moveseq.split(' ');
                 for (var i = 0; i < scramble.length; i++) {
-                    var move_candidate = scramble[i];
-                    if (move_candidate.length == 1) {
-                        doMove(move_candidate);
+                    var move = scramble[i];
+                    if (move.endsWith("'")) {
+                        move = move.replace("'", "");
+                        // U' == U U
+                        doMove(move);
+                        doMove(move);
                     } else {
-                        var move = move_candidate[0];
-                        var num  = parseInt(move_candidate[1]);
-                        for(var j = 0; j < num; j++) {
-                            doMove(move);
-                        }
+                        doMove(move);
                     }
                 }
 
