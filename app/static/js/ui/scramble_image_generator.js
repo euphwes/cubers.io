@@ -925,6 +925,7 @@
 
         // trans: [size, offx, offy] == [size, 0, offx * size, 0, size, offy * size] or [a11 a12 a13 a21 a22 a23]
         function drawPolygon(ctx, color, arr, trans, text) {
+            console.log(arr);
             if (!ctx) {
                 return;
             }
@@ -2034,6 +2035,177 @@
             }
         })();
 
+        var ftoImage = (function() {
+            var posit = [];
+            var empty_ix = null;
+
+            function doMove(move) {
+                if (move == 'L') {
+                    mathlib.circle(posit, empty_ix, empty_ix + 1);
+                    empty_ix = empty_ix + 1;
+                }
+                if (move == 'R') {
+                    mathlib.circle(posit, empty_ix, empty_ix - 1);
+                    empty_ix = empty_ix - 1;
+                }
+                if (move == 'U') {
+                    mathlib.circle(posit, empty_ix, empty_ix + 4);
+                    empty_ix = empty_ix + 4;
+                }
+                if (move == 'D') {
+                    mathlib.circle(posit, empty_ix, empty_ix - 4);
+                    empty_ix = empty_ix - 4;
+                }
+            }
+
+            function render() {
+
+                var width = 250;
+                var fraction = width/6;
+
+                var r = '#b5382f';
+                var b = '#000000';
+
+                var colors = {
+                    1: b,
+                    2: r,
+                    3: b,
+                    4: r,
+                    5: b,
+                    6: b,
+                    7: r,
+                    8: b,
+                    9: b,
+
+                    10: r,
+                    11: b,
+                    12: r,
+                    13: b,
+                    14: r,
+                    15: r,
+                    16: b,
+                    17: r,
+                    18: r,
+
+                    19: b,
+                    20: b,
+                    21: r,
+                    22: b,
+                    23: b,
+                    24: r,
+                    25: b,
+                    26: r,
+                    27: b,
+
+                    28: r,
+                    29: r,
+                    30: b,
+                    31: r,
+                    32: r,
+                    33: b,
+                    34: r,
+                    35: b,
+                    36: r,
+                };
+
+                var half1_coords = {
+                    // U
+                    1: [[0, 2, 1], [0, 0, 1]],
+                    2: [[2, 3, 1], [0, 1, 1]],
+                    3: [[2, 4, 3], [0, 0, 1]],
+                    4: [[4, 5, 3], [0, 1, 1]],
+                    5: [[4, 6, 5], [0, 0, 1]],
+                    6: [[1, 3, 2], [1, 1, 2]],
+                    7: [[3, 4, 2], [1, 2, 2]],
+                    8: [[3, 5, 4], [1, 1, 2]],
+                    9: [[2, 4, 3], [2, 2, 3]],
+
+                    // L
+                    10: [[0, 1, 0], [0, 1, 2]],
+                    11: [[0, 1, 1], [2, 1, 3]],
+                    12: [[0, 1, 0], [2, 3, 4]],
+                    13: [[0, 1, 1], [4, 3, 5]],
+                    14: [[0, 1, 0], [4, 5, 6]],
+                    15: [[1, 2, 1], [1, 2, 3]],
+                    16: [[1, 2, 2], [3, 2, 4]],
+                    17: [[1, 2, 1], [3, 4, 5]],
+                    18: [[2, 3, 2], [2, 3, 4]],
+
+                    // F
+                    19: [[2, 3, 4], [4, 3, 4]],
+                    20: [[1, 2, 3], [5, 4, 5]],
+                    21: [[2, 4, 3], [4, 4, 5]],
+                    22: [[3, 4, 5], [5, 4, 5]],
+                    23: [[0, 1, 2], [6, 5, 6]],
+                    24: [[1, 3, 2], [5, 5, 6]],
+                    25: [[2, 3, 4], [6, 5, 6]],
+                    26: [[3, 5, 4], [5, 5, 6]],
+                    27: [[4, 5, 6], [6, 5, 6]],
+
+                    // R
+                    28: [[3, 4, 4], [3, 2, 4]],
+                    29: [[4, 5, 5], [2, 1, 3]],
+                    30: [[4, 5, 4], [2, 3, 4]],
+                    31: [[4, 5, 5], [4, 3, 5]],
+                    32: [[5, 6, 6], [1, 0, 2]],
+                    33: [[5, 6, 5], [1, 2, 3]],
+                    34: [[5, 6, 6], [3, 2, 4]],
+                    35: [[5, 6, 5], [3, 4, 5]],
+                    36: [[5, 6, 6], [5, 4, 6]],
+                }
+
+                for (var i = 1; i < 37; i++) {
+                    drawPolygon(ctx, colors[i], half1_coords[i], [fraction, 0, 0]);
+                }
+                
+                for (var i = 37; i < 73; i++) {
+                    var coords = half1_coords[i-36];
+                    var x = coords[0];
+                    var y = coords[1];
+                    var shifted = [[x[0]+6, x[1]+6, x[2]+6], [y[0]+6, y[1]+6, y[2]+6]];
+
+                    drawPolygon(ctx, colors[i-36], shifted, [fraction, 0, 0]);
+                }
+            }
+
+            return function(moveseq) {
+                empty_ix = 15;
+
+                var cnt = 0;
+                for (var i = 0; i < 15; i++) {
+                    posit[cnt++] = i+1;
+                }
+                posit[15] = '';
+
+                var scramble = moveseq.split(' ');
+                for (var i = 0; i < scramble.length; i++) {
+                    var move_candidate = scramble[i];
+                    if (move_candidate.length == 1) {
+                        doMove(move_candidate);
+                    } else {
+                        var move = move_candidate[0];
+                        var num  = parseInt(move_candidate[1]);
+                        for(var j = 0; j < num; j++) {
+                            doMove(move);
+                        }
+                    }
+                }
+
+                var what1 = 25;
+                var what2 = 25;
+                var width = 20;
+
+                var imgSize = scalingFactor / 50;
+                canvas.width(what1 * imgSize + 'em');
+                canvas.height(what2 * imgSize + 'em');
+
+                canvas.attr('width', what1 * width + 1);
+                canvas.attr('height', what2 * width + 1);
+
+                render();
+            }
+        })();
+
         var image334 = (function() {
             var width = 24;
             var posit = [];
@@ -2750,6 +2922,10 @@
             }
             if (type == "15 Puzzle") {
                 fifteenImage(scrambleText);
+                return true;
+            }
+            if (type == "FTO") {
+                ftoImage(scrambleText);
                 return true;
             }
             return false;
