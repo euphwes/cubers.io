@@ -429,6 +429,15 @@ SETTINGS_TO_POPULATE = [
     SettingCode.CUSTOM_MEGAMINX_COLOR_10,
     SettingCode.CUSTOM_MEGAMINX_COLOR_11,
     SettingCode.CUSTOM_MEGAMINX_COLOR_12,
+    SettingCode.USE_CUSTOM_FTO_COLORS,
+    SettingCode.CUSTOM_FTO_COLOR_U,
+    SettingCode.CUSTOM_FTO_COLOR_F,
+    SettingCode.CUSTOM_FTO_COLOR_R,
+    SettingCode.CUSTOM_FTO_COLOR_D,
+    SettingCode.CUSTOM_FTO_COLOR_B,
+    SettingCode.CUSTOM_FTO_COLOR_L,
+    SettingCode.CUSTOM_FTO_COLOR_BL,
+    SettingCode.CUSTOM_FTO_COLOR_BR,
 ]
 
 def __get_user_settings(user):

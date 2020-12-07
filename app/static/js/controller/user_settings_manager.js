@@ -41,6 +41,17 @@
     Settings.CUSTOM_MEGAMINX_COLOR_11   = 'custom_mega_color_11'
     Settings.CUSTOM_MEGAMINX_COLOR_12   = 'custom_mega_color_12'
 
+    // Stuff related to custom FTO colors
+    Settings.USE_CUSTOM_FTO_COLORS = 'use_custom_fto_colors';
+    Settings.CUSTOM_FTO_COLOR_U    = 'custom_fto_color_U';
+    Settings.CUSTOM_FTO_COLOR_F    = 'custom_fto_color_F';
+    Settings.CUSTOM_FTO_COLOR_R    = 'custom_fto_color_R';
+    Settings.CUSTOM_FTO_COLOR_D    = 'custom_fto_color_D';
+    Settings.CUSTOM_FTO_COLOR_B    = 'custom_fto_color_B';
+    Settings.CUSTOM_FTO_COLOR_L    = 'custom_fto_color_L';
+    Settings.CUSTOM_FTO_COLOR_BR   = 'custom_fto_color_BR';
+    Settings.CUSTOM_FTO_COLOR_BL   = 'custom_fto_color_BL';
+
     /**
      * Manages user settings
      */

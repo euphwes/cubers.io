@@ -134,8 +134,21 @@
             mega_colors = ['#fff', '#d00', '#060', '#81f', '#fc0', '#00b', '#ffb', '#8df', '#f83', '#7e0', '#f9f', '#999'];
         }
 
-        // Order is    U       L          F       R       B       BR         D       BL
-        fto_colors = ['#fff', '#800080', '#f00', '#0d0', '#00f', '#bebebe', '#ff0', '#fa0'];
+        if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_FTO_COLORS)) {
+            fto_colors = [
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_FTO_COLOR_U),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_FTO_COLOR_L),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_FTO_COLOR_F),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_FTO_COLOR_R),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_FTO_COLOR_B),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_FTO_COLOR_BR),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_FTO_COLOR_D),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_FTO_COLOR_BL)
+            ];
+        } else {
+            // Order is    U       L          F       R       B       BR         D       BL
+            fto_colors = ['#fff', '#800080', '#f00', '#0d0', '#00f', '#bebebe', '#ff0', '#fa0'];
+        }
     };
 
     var mathlib = (function() {
