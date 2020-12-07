@@ -60,6 +60,17 @@ class SettingCode():
     CUSTOM_MEGAMINX_COLOR_11   = 'custom_mega_color_11'
     CUSTOM_MEGAMINX_COLOR_12   = 'custom_mega_color_12'
 
+    # Custom FTO colors
+    USE_CUSTOM_FTO_COLORS = 'use_custom_fto_colors'
+    CUSTOM_FTO_COLOR_U    = 'custom_fto_color_U'
+    CUSTOM_FTO_COLOR_F    = 'custom_fto_color_F'
+    CUSTOM_FTO_COLOR_R    = 'custom_fto_color_R'
+    CUSTOM_FTO_COLOR_D    = 'custom_fto_color_D'
+    CUSTOM_FTO_COLOR_B    = 'custom_fto_color_B'
+    CUSTOM_FTO_COLOR_L    = 'custom_fto_color_L'
+    CUSTOM_FTO_COLOR_BR   = 'custom_fto_color_BR'
+    CUSTOM_FTO_COLOR_BL   = 'custom_fto_color_BL'
+
 # Denotes the type of setting, aka boolean, free-form text, etc
 class SettingType():
     BOOLEAN        = 'boolean'
@@ -110,6 +121,17 @@ DEFAULT_MEGA_COLORS = {
     '10': '#77EE00',
     '11': '#FF99FF',
     '12': '#999999',
+}
+
+DEFAULT_FTO_COLORS = {
+    'U': '#FFFFFF',
+    'R': '#00FF00',
+    'F': '#FF0000',
+    'D': '#FFFF00',
+    'B': '#0000FF',
+    'L':  '#800080',
+    'BL': '#FF8800',
+    'BR': '#BEBEBE',
 }
 
 def boolean_validator(value):
@@ -430,6 +452,73 @@ SETTING_INFO_MAP = {
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_MEGA_COLORS["12"]
+    ),
+
+    SettingCode.USE_CUSTOM_FTO_COLORS: SettingInfo(
+        title         = "Use Custom FTO Colors",
+        validator     = boolean_validator,
+        setting_type  = SettingType.BOOLEAN,
+        default_value = FALSE_STR,
+        affects       = [SettingCode.CUSTOM_FTO_COLOR_B, SettingCode.CUSTOM_FTO_COLOR_D,
+                         SettingCode.CUSTOM_FTO_COLOR_F, SettingCode.CUSTOM_FTO_COLOR_L,
+                         SettingCode.CUSTOM_FTO_COLOR_R, SettingCode.CUSTOM_FTO_COLOR_U,
+                         SettingCode.CUSTOM_FTO_COLOR_BL, SettingCode.CUSTOM_FTO_COLOR_BR]
+    ),
+
+    SettingCode.CUSTOM_FTO_COLOR_U: SettingInfo(
+        title         = "U Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_FTO_COLORS["U"]
+    ),
+
+    SettingCode.CUSTOM_FTO_COLOR_R: SettingInfo(
+        title         = "R Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_FTO_COLORS["R"]
+    ),
+
+    SettingCode.CUSTOM_FTO_COLOR_F: SettingInfo(
+        title         = "F Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_FTO_COLORS["F"]
+    ),
+
+    SettingCode.CUSTOM_FTO_COLOR_L: SettingInfo(
+        title         = "L Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_FTO_COLORS["F"]
+    ),
+
+    SettingCode.CUSTOM_FTO_COLOR_B: SettingInfo(
+        title         = "B Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_FTO_COLORS["B"]
+    ),
+
+    SettingCode.CUSTOM_FTO_COLOR_D: SettingInfo(
+        title         = "D Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_FTO_COLORS["D"]
+    ),
+
+    SettingCode.CUSTOM_FTO_COLOR_BR: SettingInfo(
+        title         = "BR Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_FTO_COLORS["BR"]
+    ),
+
+    SettingCode.CUSTOM_FTO_COLOR_BL: SettingInfo(
+        title         = "BL Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_FTO_COLORS["BL"]
     ),
 }
 

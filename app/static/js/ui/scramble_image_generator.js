@@ -134,8 +134,8 @@
             mega_colors = ['#fff', '#d00', '#060', '#81f', '#fc0', '#00b', '#ffb', '#8df', '#f83', '#7e0', '#f9f', '#999'];
         }
 
-        // Order is    U       L        F       R       B       BR      D       BL
-        fto_colors = ['#fff', 'purple', '#f00', '#0d0', '#00f', 'grey', '#ff0', '#fa0'];
+        // Order is    U       L          F       R       B       BR         D       BL
+        fto_colors = ['#fff', '#800080', '#f00', '#0d0', '#00f', '#bebebe', '#ff0', '#fa0'];
     };
 
     var mathlib = (function() {
