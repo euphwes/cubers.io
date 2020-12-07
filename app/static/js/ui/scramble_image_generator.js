@@ -4,6 +4,7 @@
     var cube_colors = [];
     var skewb_colors = [];
     var sq1_colors = {};
+    var fto_colors = [];
 
     var pyra_colors = [];
 
@@ -132,6 +133,9 @@
         } else {
             mega_colors = ['#fff', '#d00', '#060', '#81f', '#fc0', '#00b', '#ffb', '#8df', '#f83', '#7e0', '#f9f', '#999'];
         }
+
+        // Order is    U       L        F       R       B       BR      D       BL
+        fto_colors = ['#fff', 'purple', '#f00', '#0d0', '#00f', 'grey', '#ff0', '#fa0'];
     };
 
     var mathlib = (function() {
@@ -925,7 +929,6 @@
 
         // trans: [size, offx, offy] == [size, 0, offx * size, 0, size, offy * size] or [a11 a12 a13 a21 a22 a23]
         function drawPolygon(ctx, color, arr, trans, text) {
-            console.log(arr);
             if (!ctx) {
                 return;
             }
@@ -2037,76 +2040,35 @@
 
         var ftoImage = (function() {
             var posit = [];
-            var empty_ix = null;
+            var colors = null;
 
             function doMove(move) {
-                if (move == 'L') {
-                    mathlib.circle(posit, empty_ix, empty_ix + 1);
-                    empty_ix = empty_ix + 1;
-                }
-                if (move == 'R') {
-                    mathlib.circle(posit, empty_ix, empty_ix - 1);
-                    empty_ix = empty_ix - 1;
-                }
-                if (move == 'U') {
-                    mathlib.circle(posit, empty_ix, empty_ix + 4);
-                    empty_ix = empty_ix + 4;
-                }
-                if (move == 'D') {
-                    mathlib.circle(posit, empty_ix, empty_ix - 4);
-                    empty_ix = empty_ix - 4;
-                }
+                // if (move == 'L') {
+                //     mathlib.circle(posit, empty_ix, empty_ix + 1);
+                //     empty_ix = empty_ix + 1;
+                // }
+                // if (move == 'R') {
+                //     mathlib.circle(posit, empty_ix, empty_ix - 1);
+                //     empty_ix = empty_ix - 1;
+                // }
+                // if (move == 'U') {
+                //     mathlib.circle(posit, empty_ix, empty_ix + 4);
+                //     empty_ix = empty_ix + 4;
+                // }
+                // if (move == 'D') {
+                //     mathlib.circle(posit, empty_ix, empty_ix - 4);
+                //     empty_ix = empty_ix - 4;
+                // }
             }
 
             function render() {
-
                 var width = 250;
                 var fraction = width/6;
 
-                var r = '#b5382f';
-                var b = '#000000';
-
-                var colors = {
-                    1: b,
-                    2: r,
-                    3: b,
-                    4: r,
-                    5: b,
-                    6: b,
-                    7: r,
-                    8: b,
-                    9: b,
-
-                    10: r,
-                    11: b,
-                    12: r,
-                    13: b,
-                    14: r,
-                    15: r,
-                    16: b,
-                    17: r,
-                    18: r,
-
-                    19: b,
-                    20: b,
-                    21: r,
-                    22: b,
-                    23: b,
-                    24: r,
-                    25: b,
-                    26: r,
-                    27: b,
-
-                    28: r,
-                    29: r,
-                    30: b,
-                    31: r,
-                    32: r,
-                    33: b,
-                    34: r,
-                    35: b,
-                    36: r,
-                };
+                if (!colors) {
+                    setColors();
+                    colors = fto_colors;
+                }
 
                 var half1_coords = {
                     // U
@@ -2155,27 +2117,32 @@
                 }
 
                 for (var i = 1; i < 37; i++) {
-                    drawPolygon(ctx, colors[i], half1_coords[i], [fraction, 0, 0]);
+                    var coords = half1_coords[i];
+                    var x = coords[0];
+                    var y = coords[1];
+                    var shifted = [[x[0], x[1], x[2]], [y[0]+3, y[1]+3, y[2]+3]];
+
+                    drawPolygon(ctx, colors[posit[i-1]], shifted, [fraction, 0, 0]);
                 }
                 
                 for (var i = 37; i < 73; i++) {
                     var coords = half1_coords[i-36];
                     var x = coords[0];
                     var y = coords[1];
-                    var shifted = [[x[0]+6, x[1]+6, x[2]+6], [y[0]+6, y[1]+6, y[2]+6]];
+                    var shifted = [[x[0]+6, x[1]+6, x[2]+6], [y[0]+3, y[1]+3, y[2]+3]];
 
-                    drawPolygon(ctx, colors[i-36], shifted, [fraction, 0, 0]);
+                    drawPolygon(ctx, colors[posit[i-1]], shifted, [fraction, 0, 0]);
                 }
             }
 
             return function(moveseq) {
-                empty_ix = 15;
-
                 var cnt = 0;
-                for (var i = 0; i < 15; i++) {
-                    posit[cnt++] = i+1;
+                var faceSize = 9;
+                for (var i = 0; i < 8; i++) {
+                    for (var f = 0; f < faceSize; f++) {
+                        posit[cnt++] = i;
+                    }
                 }
-                posit[15] = '';
 
                 var scramble = moveseq.split(' ');
                 for (var i = 0; i < scramble.length; i++) {
