@@ -490,7 +490,7 @@ SETTING_INFO_MAP = {
         title         = "L Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
-        default_value = DEFAULT_FTO_COLORS["F"]
+        default_value = DEFAULT_FTO_COLORS["L"]
     ),
 
     SettingCode.CUSTOM_FTO_COLOR_B: SettingInfo(

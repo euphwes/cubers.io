@@ -68,6 +68,20 @@ CUSTOM_MEGAMINX_COLOR_SETTINGS = [
     SettingCode.CUSTOM_MEGAMINX_COLOR_12,
 ]
 
+
+CUSTOM_FTO_COLOR_SETTINGS = [
+    SettingCode.USE_CUSTOM_FTO_COLORS,
+    SettingCode.CUSTOM_FTO_COLOR_U,
+    SettingCode.CUSTOM_FTO_COLOR_R,
+    SettingCode.CUSTOM_FTO_COLOR_F,
+    SettingCode.CUSTOM_FTO_COLOR_L,
+    SettingCode.CUSTOM_FTO_COLOR_B,
+    SettingCode.CUSTOM_FTO_COLOR_D,
+    SettingCode.CUSTOM_FTO_COLOR_BR,
+    SettingCode.CUSTOM_FTO_COLOR_BL,
+]
+
+
 REDDIT_SETTINGS = [
     SettingCode.REDDIT_COMP_NOTIFY,
     SettingCode.REDDIT_RESULTS_NOTIFY,
@@ -75,7 +89,7 @@ REDDIT_SETTINGS = [
 
 __ALL_SETTINGS = REDDIT_SETTINGS + CUSTOM_CUBE_COLOR_SETTINGS + CUSTOM_PYRAMINX_COLOR_SETTINGS
 __ALL_SETTINGS += HIDDEN_EVENT_SETTING + SHOW_WCA_ID_SETTING + CUSTOM_MEGAMINX_COLOR_SETTINGS
-__ALL_SETTINGS += TIMER_SETTINGS
+__ALL_SETTINGS += CUSTOM_FTO_COLOR_SETTINGS + TIMER_SETTINGS
 
 # -------------------------------------------------------------------------------------------------
 
@@ -103,6 +117,7 @@ def __handle_get(user):
         ("Custom Cube Color",     [s for s in all_settings if s.code in set(CUSTOM_CUBE_COLOR_SETTINGS)]),
         ("Custom Pyraminx Color", [s for s in all_settings if s.code in set(CUSTOM_PYRAMINX_COLOR_SETTINGS)]),
         ("Custom Megaminx Color", [s for s in all_settings if s.code in set(CUSTOM_MEGAMINX_COLOR_SETTINGS)]),
+        ("Custom FTO Color",      [s for s in all_settings if s.code in set(CUSTOM_FTO_COLOR_SETTINGS)]),
     ])
 
     # Parse out the hidden event IDs into a separate list so we handle that separately
