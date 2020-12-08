@@ -294,7 +294,11 @@ __COLL_LIST = [
     'H1', 'H2', 'H3', 'H4'
 ]
 
-# -------------------------------------------------------------------------------------------------
+# Events which do not support scramble preview
+__EVENTS_NO_SCRAMBLE_PREVIEW = [EVENT_2BLD, EVENT_3BLD, EVENT_4BLD, EVENT_5BLD, EVENT_MBLD,
+                                EVENT_Mirror, EVENT_3x3x5, EVENT_234Relay, EVENT_333Relay,
+                                EVENT_PLLAttack]
+
 
 __GLOBAL_SORT_ORDER = [
     # Weekly NxN
@@ -349,6 +353,8 @@ __GLOBAL_SORT_ORDER = [
     EVENT_8x8,
     EVENT_9x9,
 ]
+
+# -------------------------------------------------------------------------------------------------
 
 def sort_comp_events_by_global_sort_order(comp_events):
     """ Sorts a list of competition events by the global event order defined above. """
@@ -482,3 +488,9 @@ def get_event_resource_for_name(event_name):
             return event
 
     return None
+
+
+def get_event_names_without_scramble_previews():
+    """ Returns the names of events without scramble previews. """
+
+    return [e.name for e in __EVENTS_NO_SCRAMBLE_PREVIEW]

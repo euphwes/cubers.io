@@ -12,7 +12,8 @@ from app.persistence.comp_manager import get_comp_event_by_id
 from app.persistence.settings_manager import SettingCode, SettingType, TRUE_STR,\
     get_default_values_for_settings, get_bulk_settings_for_user_as_dict, get_setting_type
 from app.persistence.user_results_manager import get_event_results_for_user
-from app.util.events.resources import EVENT_FMC, EVENT_MBLD
+from app.util.events.resources import get_event_names_without_scramble_previews, EVENT_FMC,\
+    EVENT_MBLD
 
 # -------------------------------------------------------------------------------------------------
 
@@ -25,9 +26,6 @@ TIMER_TEMPLATE_MOBILE_MAP = {
     True:  'timer/mobile/timer_page.html',
     False: 'timer/timer_page.html',
 }
-
-NO_SCRAMBLE_PREVIEW_EVENTS = ["2BLD", "3BLD", "4BLD", "5BLD", "MBLD", "3x3 Mirror Blocks/Bump",
-                              "3x3x5", "2-3-4 Relay", "3x3 Relay of 3", "PLL Time Attack"]
 
 ERR_MSG_NO_SUCH_EVENT = "Can't find a competition event with ID {comp_event_id}."
 ERR_MSG_INACTIVE_COMP = 'This event belongs to a competition which has ended.'
@@ -163,7 +161,7 @@ def timer_page(comp_event_id, gather_info_for_live_refresh=False):
                                                    comp_title=comp.title)
 
     # Determine if we should display a scramble preview for this event
-    show_scramble_preview = event_name not in NO_SCRAMBLE_PREVIEW_EVENTS
+    show_scramble_preview = event_name not in get_event_names_without_scramble_previews()
 
     # Determine button states
     button_state_info = __determine_button_states(user_results, scramble_index)
@@ -210,7 +208,8 @@ def timer_page(comp_event_id, gather_info_for_live_refresh=False):
 
 def __build_user_solves_list(user_results, event_total_solves, scrambles):
     """ Returns a list in user-readable form of the user's current solves as a list of
-    [displayable_time, solve_id, is_dnf, is_plus_two] units, plus the most recent solve's friendly display time. """
+    [displayable_time, solve_id, is_dnf, is_plus_two] units, plus the most recent solve's friendly
+    display time. """
 
     # Begin with an array of 'not yet solved' entries, with a length equal to the number of solves
     # this event has.
@@ -227,7 +226,7 @@ def __build_user_solves_list(user_results, event_total_solves, scrambles):
         for solve in user_results.solves:
             if scramble.id == solve.scramble_id:
                 user_solves[i] = [solve.get_friendly_time(), solve.id, str(solve.is_dnf).lower(),
-                    str(solve.is_plus_two).lower(), scramble.scramble]
+                                  str(solve.is_plus_two).lower(), scramble.scramble]
 
     return user_solves, user_results.solves[-1].get_friendly_time()
 
@@ -353,7 +352,8 @@ def __determine_page_subtype(event_name, settings):
 
 
 def __build_done_message(user_results, event_name, event_format):
-    """ Builds a message to display to the user about their complete results. Mention PBs if any. """
+    """ Builds a message to display to the user about their complete results.
+    Mention PBs if any. """
 
     if user_results.was_pb_single and user_results.was_pb_average:
         return MSG_RESULTS_COMPLETE_TWO_PBS.format(
