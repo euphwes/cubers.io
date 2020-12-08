@@ -68,6 +68,24 @@
         });
     })
 
+
+    $('.partial_scramble').hover(function() {
+        // mouseenter
+        var index = $(this).parent().children('.partial_scramble').index(this);
+        var $scramble_pieces = $(this).parent().children('.partial_scramble').slice(0, index+1);
+        $scramble_pieces.addClass('engaged');
+
+         var partial_scramble_to_render = $scramble_pieces
+                                            .map(function() { return $(this).text(); })
+                                            .get()
+                                            .join(' ');
+    }, function() {
+        // mouseleave
+        $(this).parent().children('.partial_scramble').removeClass('engaged');
+
+        // window.app.scramble to get full scramble
+    })
+
     // Update a button's state based on the button state info dict returned from the front end
     var updateButtonState = function(btnId, btnKey, buttonStateInfo) {
         if (buttonStateInfo[btnKey]['btn_active']) {

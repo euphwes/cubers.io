@@ -32,6 +32,23 @@
     height: 100%;
 
     padding: 10px 20px;
+
+    cursor: default;
+
+    .partial_scramble {
+        -moz-transition: all 0.5s;
+        -webkit-transition: all 0.5s;
+        -o-transition: all 0.5s;
+        transition: all 0.5s;
+
+        &.engaged {
+            -webkit-transform: translate(0px, -10px);
+            -moz-transform: translate(0px, -10px);
+            -o-transform: translate(0px, -10px);
+            transform: translate(0px, -10px);
+            color: rgb(65, 65, 65);
+        }
+    }
 }
 
 .timer_controls_wrapper {
