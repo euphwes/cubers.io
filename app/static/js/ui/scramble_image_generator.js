@@ -2177,12 +2177,21 @@
                 }
             }
 
-            function renderNumber(width, x, y, value) {
+            function renderChar(width, x, y, value) {
                 ctx.fillStyle = "#000";
                 ctx.font = "25px Calibri";
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
                 ctx.fillText(value, width * x, width * y);
+            }
+
+            function drawHeavyLine(x1, y1, x2, y2, scale) {
+                ctx.beginPath();
+                ctx.moveTo(x1*scale, y1*scale);
+                ctx.lineTo(x2*scale, y2*scale);
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                ctx.lineWidth = 1;
             }
 
             function render() {
@@ -2244,27 +2253,46 @@
                     var coords = half_coords[i];
                     var x = coords[0];
                     var y = coords[1];
-                    var shifted = [[x[0], x[1], x[2]], [y[0]+3, y[1]+3, y[2]+3]];
+                    var shifted = [[x[0], x[1], x[2]], [y[0]+5, y[1]+5, y[2]+5]];
 
                     drawPolygon(ctx, colors[posit[i-1]], shifted, [fraction, 0, 0]);
 
                     // var lx = (Math.min(...shifted[0]) + Math.max(...shifted[0])) / 2;
                     // var ly = (Math.min(...shifted[1]) + Math.max(...shifted[1])) / 2;
-                    // renderNumber(fraction, lx, ly, i-1);
+                    // renderChar(fraction, lx, ly, i-1);
                 }
+                drawHeavyLine(0, 5, 6, 11, fraction);
+                drawHeavyLine(6, 5, 0, 11, fraction);
+
                 
                 for (var i = 37; i < 73; i++) {
                     var coords = half_coords[i-36];
                     var x = coords[0];
                     var y = coords[1];
-                    var shifted = [[x[0]+6, x[1]+6, x[2]+6], [y[0]+3, y[1]+3, y[2]+3]];
+                    var shifted = [[x[0]+6, x[1]+6, x[2]+6], [y[0]+5, y[1]+5, y[2]+5]];
 
                     drawPolygon(ctx, colors[posit[i-1]], shifted, [fraction, 0, 0]);
 
                     // var lx = (Math.min(...shifted[0]) + Math.max(...shifted[0])) / 2;
                     // var ly = (Math.min(...shifted[1]) + Math.max(...shifted[1])) / 2;
-                    // renderNumber(fraction, lx, ly, i-1);
+                    // renderChar(fraction, lx, ly, i-1);
                 }
+                drawHeavyLine(6, 5, 12, 11, fraction);
+                drawHeavyLine(12, 5, 6, 11, fraction);
+
+                drawHeavyLine(2, 2, 4, 4, fraction);
+                drawHeavyLine(4, 2, 2, 4, fraction);
+                renderChar(fraction, 3, 2.3, "U");
+                renderChar(fraction, 3.75, 3, "R");
+                renderChar(fraction, 3, 3.7, "F");
+                renderChar(fraction, 2.25, 3, "L");
+
+                drawHeavyLine(8, 2, 10, 4, fraction);
+                drawHeavyLine(8, 4, 10, 2, fraction);
+                renderChar(fraction, 9, 2.3, "B");
+                renderChar(fraction, 9.75, 3, "BL");
+                renderChar(fraction, 9, 3.7, "D");
+                renderChar(fraction, 8.25, 3, "BR");
             }
 
             return function(moveseq) {
