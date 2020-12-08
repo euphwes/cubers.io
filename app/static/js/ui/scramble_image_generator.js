@@ -3126,6 +3126,20 @@
         $(window).resize(resetImageScalingAndRenderAgain.bind(this));
     }
 
+    ScrambleImageGenerator.prototype.replaceScramble = function(newScramble) {
+
+        this.savedScramble = newScramble
+
+        // If the event is COLL, extract the actual scramble part, which should be the final thing after a line break
+        if (this.savedEventName == 'COLL') {
+            this.savedScramble = this.savedScramble.split('<br/>').pop();
+        }
+
+        // Attempt to draw normal image. If we're on mobile, the normal canvas won't exist
+        // and it'll just bail early.
+        this.showNormalImage();
+    };
+
     ScrambleImageGenerator.prototype.prepareNewImage = function() {
 
         // Store these for later in case in case the user takes action to show a bigger scramble image

@@ -68,23 +68,53 @@
         });
     })
 
+    var wirePartialScramblePreviewEvents = function() {
 
-    $('.partial_scramble').hover(function() {
-        // mouseenter
-        var index = $(this).parent().children('.partial_scramble').index(this);
-        var $scramble_pieces = $(this).parent().children('.partial_scramble').slice(0, index+1);
-        $scramble_pieces.addClass('engaged');
+        var resetScrambleTimeout;
 
-         var partial_scramble_to_render = $scramble_pieces
-                                            .map(function() { return $(this).text(); })
-                                            .get()
-                                            .join(' ');
-    }, function() {
-        // mouseleave
-        $(this).parent().children('.partial_scramble').removeClass('engaged');
+        $('.partial_scramble').hover(function() {
+            // Clear the timeout to reset the scramble back to full, so the full scramble
+            // doesn't replace the partial scramble we're about to draw.
+            clearTimeout(resetScrambleTimeout);
 
-        // window.app.scramble to get full scramble
-    })
+            // Figure out the index of the move being hovered over, and then get all moves up to and
+            // including that one.
+            var index = $(this).parent().children('.partial_scramble').index(this);
+            var $scramble_pieces = $(this).parent().children('.partial_scramble').slice(0, index+1);
+
+            // Mark them as 'engaged' to give them visual distinction
+            $scramble_pieces.addClass('engaged');
+
+            // Disengage other pieces of the scramble no longer highlighted
+            var $remaining = $(this).parent().children('.partial_scramble').slice(index+1, $(this).parent().children('.partial_scramble').length);
+            $remaining.removeClass('engaged');
+
+            // Grab all the components of the scramble up to this point and join them together to get
+            // the partial scramble
+            var partial_scramble_to_render = $scramble_pieces
+                                                .map(function() { return $(this).text(); })
+                                                .get()
+                                                .join(' ');
+
+            // Render the partial scramble
+            if (imageGenerator != null) {
+                imageGenerator.replaceScramble(partial_scramble_to_render);
+            }
+        });
+
+        $('.textFitted').mouseleave(function() {
+            // Remove the visual distinction so the user knows they haven't highlighted any more
+            $('.partial_scramble').removeClass('engaged');
+
+            // Set a timeout to redraw the full scramble, if the user doesn't hover another move (and therefore cancel the timeout)
+            // in the next little bit.
+            if (imageGenerator != null) {
+                resetScrambleTimeout = setTimeout(function() { imageGenerator.replaceScramble(window.app.scramble); }, 250);
+            }
+        });
+    };
+
+    wirePartialScramblePreviewEvents();
 
     // Update a button's state based on the button state info dict returned from the front end
     var updateButtonState = function(btnId, btnKey, buttonStateInfo) {
@@ -118,6 +148,7 @@
         }
         prepareSquanScramble();
         fitText();
+        wirePartialScramblePreviewEvents();
     };
 
     // Check if the selected solve has DNF penalty
