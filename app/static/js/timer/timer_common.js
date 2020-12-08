@@ -8,17 +8,32 @@
     // To manage user settings for the UI
     window.app.userSettingsManager = new window.app.UserSettingsManager();
 
+    // Clean-up stray whitespace from template rendering which makes the potential use of lettering.js below gross.
+    $('.scram').text($('.scram').text().trim());
+
+    var prepareSquanScramble = function() {
+        // Chunk Sq-1 scrambles by (u,d) pairs and slice moves, separated by spaces, so lettering.js grabs each "move"
+        // as a "word"
+        if (window.app.eventName == 'Square-1') {
+            var s = $('.scram').text();
+            s = s.replaceAll(', ', ',');
+            s= s.replaceAll('/', ' / ');
+            $('.scram').text(s);
+        }
+    };
+
     // Immediately fit the scramble text to the scramble container, and setup a window resize callback to keep
     // performing that text resize on desktop.
     var fitText = function () {
         textFit($('.scram')[0], { multiLine: true, maxFontSize: 36 });
-        $('.textFitted').text($('.textFitted').text().trim());
         if (window.app.doShowScramble) {
             $('.textFitted').lettering('words').children('span').addClass('partial_scramble');
         }
     };
 
+    prepareSquanScramble();
     fitText();
+
     $(window).resize(fitText);
 
     var imageGenerator = null;
@@ -83,6 +98,7 @@
                 $('.scram').html(scrambleText);
             }
         }
+        prepareSquanScramble();
         fitText();
     };
 
