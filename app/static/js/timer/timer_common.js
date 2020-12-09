@@ -9,7 +9,11 @@
     window.app.userSettingsManager = new window.app.UserSettingsManager();
 
     // Clean-up stray whitespace from template rendering which makes the potential use of lettering.js below gross.
-    $('.scram').text($('.scram').text().trim());
+    // Don't do this clean up on scrambles containing line breaks, usually those are relays and are unsupported by
+    // scramble preview anyway.
+    if ($('.scram').children('br').length == 0) {
+        $('.scram').text($('.scram').text().trim());
+    }
 
     var prepareSquanScramble = function() {
         // Chunk Sq-1 scrambles by (u,d) pairs and slice moves, separated by spaces, so lettering.js grabs each "move"
