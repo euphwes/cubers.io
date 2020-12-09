@@ -1,2 +1,3 @@
 from .reddit_settings_routes import reddit_settings
 from .wca_settings_routes import wca_settings
+from .timer_settings_routes import timer_settings
