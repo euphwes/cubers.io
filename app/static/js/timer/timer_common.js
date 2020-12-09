@@ -34,8 +34,6 @@
     prepareSquanScramble();
     fitText();
 
-    $(window).resize(fitText);
-
     var imageGenerator = null;
 
     // If this event supports scramble previews:
@@ -115,6 +113,8 @@
     };
 
     wirePartialScramblePreviewEvents();
+
+    $(window).resize(function() { fitText(); wirePartialScramblePreviewEvents() });
 
     // Update a button's state based on the button state info dict returned from the front end
     var updateButtonState = function(btnId, btnKey, buttonStateInfo) {
