@@ -16,15 +16,7 @@ from app.persistence.user_manager import get_user_by_username
 
 # These are the settings we want the user to be able to see on the settings edit page
 
-TIMER_SETTINGS = [
-    SettingCode.DEFAULT_TO_MANUAL_TIME,
-    SettingCode.USE_INSPECTION_TIME,
-    SettingCode.HIDE_INSPECTION_TIME,
-    SettingCode.USE_INSPECTION_AUDIO_WARNING,
-    SettingCode.HIDE_RUNNING_TIMER,
-    SettingCode.HIDE_SCRAMBLE_PREVIEW,
-    SettingCode.ENABLE_MOVING_SHAPES_BG,
-]
+
 
 HIDDEN_EVENT_SETTING = [
     SettingCode.HIDDEN_EVENTS
@@ -79,7 +71,7 @@ CUSTOM_FTO_COLOR_SETTINGS = [
 
 __ALL_SETTINGS = CUSTOM_CUBE_COLOR_SETTINGS + CUSTOM_PYRAMINX_COLOR_SETTINGS
 __ALL_SETTINGS += HIDDEN_EVENT_SETTING + CUSTOM_MEGAMINX_COLOR_SETTINGS
-__ALL_SETTINGS += CUSTOM_FTO_COLOR_SETTINGS + TIMER_SETTINGS
+__ALL_SETTINGS += CUSTOM_FTO_COLOR_SETTINGS
 
 # -------------------------------------------------------------------------------------------------
 
