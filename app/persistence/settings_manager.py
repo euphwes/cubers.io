@@ -248,21 +248,14 @@ SETTING_INFO_MAP = {
     ),
 
     SettingCode.REDDIT_RESULTS_NOTIFY: SettingInfo(
-        title         = "Receive Reddit PM with Competition Stats",
+        title         = "Receive PM summarizing competition results",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
         default_value = FALSE_STR
     ),
 
     SettingCode.REDDIT_COMP_NOTIFY: SettingInfo(
-        title         = "Receive Reddit PM for New Competitions",
-        validator     = boolean_validator,
-        setting_type  = SettingType.BOOLEAN,
-        default_value = FALSE_STR
-    ),
-
-    SettingCode.REDDIT_RESULTS_NOTIFY: SettingInfo(
-        title         = "Receive Reddit PM with Weekly Competition Stats",
+        title         = "Receive PM about new competitions",
         validator     = boolean_validator,
         setting_type  = SettingType.BOOLEAN,
         default_value = FALSE_STR

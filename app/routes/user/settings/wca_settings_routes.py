@@ -10,16 +10,15 @@ from app.persistence.user_manager import get_user_by_username
 
 # -------------------------------------------------------------------------------------------------
 
-__REDDIT_SETTINGS = [
-    SettingCode.REDDIT_COMP_NOTIFY,
-    SettingCode.REDDIT_RESULTS_NOTIFY,
+__WCA_SETTINGS = [
+    SettingCode.SHOW_WCA_ID
 ]
 
 # -------------------------------------------------------------------------------------------------
 
-@app.route('/settings/reddit', methods=['GET', 'POST'])
-def reddit_settings():
-    """ A route for showing a editing a user's Reddit settings. """
+@app.route('/settings/wca', methods=['GET', 'POST'])
+def wca_settings():
+    """ A route for showing a editing a user's WCA settings. """
 
     if not current_user.is_authenticated:
         return redirect(url_for('index'))
@@ -29,17 +28,17 @@ def reddit_settings():
 
 
 def __handle_get(user):
-    """ Display's a user's Reddit settings for edit. """
+    """ Display's a user's WCA settings for edit. """
 
-    return render_template("user/settings/reddit_settings.html",
-                           settings = get_settings_for_user_for_edit(user.id, __REDDIT_SETTINGS),
+    return render_template("user/settings/wca_settings.html",
+                           settings = get_settings_for_user_for_edit(user.id, __WCA_SETTINGS),
                            is_mobile = request.MOBILE)
 
 
 def __handle_post(user, form):
-    """ Accept updated values for a user's Reddit settings and persist them. """
+    """ Accept updated values for a user's WCA settings and persist them. """
 
-    new_settings = { code: form.get(code) for code in __REDDIT_SETTINGS }
+    new_settings = { code: form.get(code) for code in __WCA_SETTINGS }
     set_new_settings_for_user(user.id, new_settings)
 
     return redirect(url_for('index'))

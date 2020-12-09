@@ -135,6 +135,9 @@
                         {% if current_user.reddit_id %}
                         <a class="dropdown-item" href="{{ url_for('reddit_settings') }}">Reddit Settings</a>
                         {% endif %}
+                        {% if current_user.wca_id %}
+                        <a class="dropdown-item" href="{{ url_for('wca_settings') }}">WCA Settings</a>
+                        {% endif %}
                         <div class="dropdown-divider"></div>
                         <div class="dropdown dropleft dropdown-submenu">
                             <button class="dropdown-item dropdown-toggle" type="button">
