@@ -129,12 +129,26 @@
                         <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
                     </div>
                 </li>
-                <li class="nav-item nav-settings">
-                    <a class="nav-link py-0" href="{{ url_for('edit_settings')}}">
-                        <i class="fas fa-cog"></i>
-                    </a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle py-0" role="button" data-toggle="dropdown" data-submenu href="#">Settings</a>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        {% if current_user.reddit_id %}
+                        <a class="dropdown-item" href="{{ url_for('reddit_settings') }}">Reddit Settings</a>
+                        {% endif %}
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown dropleft dropdown-submenu">
+                            <button class="dropdown-item dropdown-toggle" type="button">
+                                Solves Export
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item slim-nav-item" href="{{ url_for('export', type='twisty_timer') }}">Twisty Timer</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item disabled" style="opacity: 0.5;">More coming soon!</a>
+                            </div>
+                        </div>
+                    </div>
                 </li>
-                {% else %}
+                   {% else %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle py-0" role="button" data-toggle="dropdown" data-submenu href="#">Sign In</a>
                     <div class="dropdown-menu dropdown-menu-right">

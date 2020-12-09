@@ -1,0 +1,114 @@
+{% extends "common/base.html" %}
+
+{% block head %}
+{{ super() }}
+    {% block additional_styles %}
+        {% assets "app_css" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}" />
+        {% endassets %}
+    {% endblock %}
+{% endblock %}
+
+{% block content %}
+{% endblock %}
+
+{% block additional_script %}
+<script>
+    $(function () {
+
+        var anythingModified = false;
+
+        var disableThese = function(i, codeToDisable) {
+            var $groupToDisable = $("div[data-setting_code='" + codeToDisable + "']");
+            $groupToDisable.addClass('disabled-group');
+            $groupToDisable.find("[data-disable_me='true']").addClass('disabled');
+            $groupToDisable.find("[data-disable_me_as_group='true']").addClass('disabled');
+        };
+
+        var enableThese = function(i, codeToEnable) {
+            var $groupToEnable = $("div[data-setting_code='" + codeToEnable + "']");
+            $groupToEnable.removeClass('disabled-group');
+            $groupToEnable.find("[data-disable_me='true']").removeClass('disabled');
+            $groupToEnable.find("[data-disable_me_as_group='true']").removeClass('disabled');
+        }
+
+        // Disable or enable other settings if this one becomes disabled
+        var handleToggleEnabledForSetting = function($settingFormGroup) {
+
+            anythingModified = true;
+
+            // If this setting in this form group does not have a list of setting codes in its
+            // data-affects attribute, it doesn't affect other settings, so just bail.
+            var affects = $settingFormGroup.data('affects');
+            if (affects == 'None') { return; }
+
+            var oppositeAffects = $settingFormGroup.data('opposite_affects') == "True";
+
+            // Build a list of settings that this one affects
+            var affectedSettingsList = JSON.parse(affects.replace(/'/g, '"'));
+
+            // Get the radio button value for this setting
+            var code = $settingFormGroup.data('setting_code');
+            var radioValue = $("input[name='" + code + "']:checked").val();
+
+            if (radioValue == "false") {
+                if (oppositeAffects) {
+                    $.each(affectedSettingsList, enableThese);
+                } else {
+                    $.each(affectedSettingsList, disableThese);
+                }
+            } else {
+                if (oppositeAffects) {
+                    $.each(affectedSettingsList, disableThese);
+                } else {
+                    $.each(affectedSettingsList, enableThese);
+                }
+            }
+
+            $.each(affectedSettingsList, function(i, childCodeToCheck){
+                var $groupToCheck = $("div[data-setting_code='" + childCodeToCheck + "']");
+                handleToggleEnabledForSetting($groupToCheck);
+            });
+        };
+
+        // Add a click handler to form groups to automatically disable/enable other settings
+        var affectOtherSettings = function(){ handleToggleEnabledForSetting($(this)); };
+        $('.form-group').click(function(){ setTimeout(affectOtherSettings.bind(this), 50); });
+
+        {% if default_colors %}
+        // Enable the color picker controls
+        $('.colorpicker-component').colorpicker({
+            format: 'hex',
+            extensions: [
+                {
+                    name: 'swatches', // extension name to load
+                    options: {        // extension options
+                        colors: {
+                            'white' : "{{ default_colors['white'] }}",
+                            'green' : "{{ default_colors['green'] }}",
+                            'red'   : "{{ default_colors['red'] }}",
+                            'blue'  : "{{ default_colors['blue'] }}",
+                            'yellow': "{{ default_colors['yellow'] }}",
+                            'orange': "{{ default_colors['orange'] }}",
+                            'black' : '#000000',
+                        },
+                        namesAsValues: false,
+                    }
+                }
+            ]
+        });
+        {% endif %}
+
+        // Make sure user wants to navigate away without saving
+        $(window).on("beforeunload", function(e) {
+            if (anythingModified) { return true; }
+        });
+
+        // But if the user is submitting the form, then unbind the beforeunload so we
+        // don't prompt them
+        $('#settingsForm').submit(function() {
+            $(window).unbind('beforeunload');
+        });
+    })
+</script>
+{% endblock %}

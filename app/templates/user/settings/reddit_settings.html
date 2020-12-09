@@ -1,0 +1,32 @@
+{% extends "user/settings/base.html" %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="container cubers-container settings-container">
+    <form id="settingsForm" method="POST">
+        <div class="row mb-3 mt-3">
+            <div class="col-12 col-md-8 offset-md-2">
+                <h4>Reddit Settings</h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-md-8 offset-md-2">
+                {% for setting in settings %}
+                    {% if setting.type == 'boolean' %}{% include 'user/boolean_setting.html' %}{% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="row">
+            {% if is_mobile %}
+                {% set mobile_class = 'mobile_settings' %}
+            {% endif %}
+            <div class="col-12 col-md-8 offset-md-2">
+                <button type="submit" class="btn btn-primary btn-settings-submit {{mobile_class}}">Submit</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
