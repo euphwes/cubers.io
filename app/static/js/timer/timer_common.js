@@ -30,6 +30,9 @@
     // performing that text resize on desktop.
     var fitText = function () {
         textFit($('.scram')[0], { multiLine: true, maxFontSize: 36 });
+        // If the event is complete, don't apply lettering. Don't need partial scramble functionality anyway,
+        // and it'll mess up the whitespace in the "congrats you finished this event" messaging
+        if (window.app.isComplete) { return; }
         if (window.app.doShowScramble) {
             $('.textFitted').lettering('words').children('span').addClass('partial_scramble');
         }
