@@ -30,6 +30,21 @@
                 {% if setting.type == 'hex_color' %}{% include 'user/settings/color_setting.html' %}{% endif %}
             {% endfor %}
         </div>
+        <div class="row flex-center-all mb-3 mt-3">
+            {% if is_mobile %}
+            <div class="col-8 scramble_preview no_pointer">
+                <div style="background-color: white; border-radius: 10px; padding: 20px;">
+                    <canvas id="normal_scramble_image"></canvas>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-5 scramble_preview no_pointer">
+                <div style="background-color: white; border-radius: 10px; padding: 20px;">
+                    <canvas id="normal_scramble_image"></canvas>
+                </div>
+            </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -69,6 +84,16 @@
 
         $(".colorpicker").on('dragstop.spectrum', updateColor);
         $(".colorpicker").on('change', updateColor);
+
+        window.app.settings_data = {};
+        window.app.userSettingsManager = new window.app.UserSettingsManager();
+        window.app.isMobile = {{ is_mobile | tojson }};
+
+        window.app.scramble = "";
+        window.app.eventName = "3x3";
+
+        var imageGenerator = new window.app.ScrambleImageGenerator();
+        imageGenerator.prepareNewImage();
     })
 </script>
 {% endblock %}

@@ -141,7 +141,8 @@ ASSETS.register({
     # --------- user settings page static bundles ------------
 
     'user_settings_js': Bundle(
-        'js/event_emitter.js',
+        'js/controller/user_settings_manager.js',
+        'js/ui/scramble_image_generator.js',
         filters="jsmin",
         output='gen/user_settings.js'),
 

@@ -2,7 +2,12 @@
     {% set group_disabled = 'disabled-group' %}
     {% set sub_disabled   = 'disabled' %}
 {% endif %}
-<div class="col-1 text-center">
+{% if is_mobile %}
+    {% set col_size = 'col-2' %}
+{% else %}
+    {% set col_size = 'col-1' %}
+{% endif %}
+<div class="{{col_size}} text-center">
     <div class="form-group {{group_disabled}}" data-setting_code="{{ setting.code }}" data-affects="{{ setting.affects }}">
         <div class="row flex-center-all">
             <label class="form-label" for="{{ setting.code }}">{{ setting.title }}</label>
