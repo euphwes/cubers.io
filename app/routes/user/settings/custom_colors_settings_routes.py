@@ -68,6 +68,13 @@ __EVENT_SETTINGS_MAPPING = {
     'megaminx': __CUSTOM_MEGAMINX_COLOR_SETTINGS,
 }
 
+__EVENT_SETTINGS_EVENT_NAME_MAPPING = {
+    'fto':      "FTO",
+    'cube':     "3x3",
+    'pyraminx': "Pyraminx",
+    'megaminx': "Megaminx",
+}
+
 __EVENT_MSGS_MAPPING = {
     'fto': [
         'FTO (Face-Turning Octahedron)',
@@ -108,6 +115,7 @@ def colors_settings(event):
                            disabled_settings = __determine_disabled_settings(settings),
                            is_mobile = request.MOBILE,
                            header_msg = __EVENT_MSGS_MAPPING[event],
+                           faux_event_name = __EVENT_SETTINGS_EVENT_NAME_MAPPING[event],
                            default_colors = get_color_defaults())
 
 

@@ -72,7 +72,7 @@
         window.app.isMobile = {{ is_mobile | tojson }};
 
         window.app.scramble = "";
-        window.app.eventName = "3x3";
+        window.app.eventName = {{ faux_event_name | tojson }};
 
         var imageGenerator = new window.app.ScrambleImageGenerator();
 
@@ -101,11 +101,47 @@
                     newColors[settingIndexMap[setting]] = color;
                 }
             }
+            if (window.app.eventName == "Megaminx") {
+                newColors = [
+                    $(".input-group input[name='custom_mega_color_1']").val(), 
+                    $(".input-group input[name='custom_mega_color_2']").val(), 
+                    $(".input-group input[name='custom_mega_color_3']").val(), 
+                    $(".input-group input[name='custom_mega_color_4']").val(), 
+                    $(".input-group input[name='custom_mega_color_5']").val(), 
+                    $(".input-group input[name='custom_mega_color_6']").val(), 
+                    $(".input-group input[name='custom_mega_color_7']").val(), 
+                    $(".input-group input[name='custom_mega_color_8']").val(), 
+                    $(".input-group input[name='custom_mega_color_9']").val(), 
+                    $(".input-group input[name='custom_mega_color_10']").val(), 
+                    $(".input-group input[name='custom_mega_color_11']").val(), 
+                    $(".input-group input[name='custom_mega_color_12']").val(), 
+                ];
+                if (color != null) {
+                    var settingIndexMap = {
+                        'custom_mega_color_1': 0,
+                        'custom_mega_color_2': 1,
+                        'custom_mega_color_3': 2,
+                        'custom_mega_color_4': 3,
+                        'custom_mega_color_5': 4,
+                        'custom_mega_color_6': 5,
+                        'custom_mega_color_7': 6,
+                        'custom_mega_color_8': 7,
+                        'custom_mega_color_9': 8,
+                        'custom_mega_color_10': 9,
+                        'custom_mega_color_11': 10,
+                        'custom_mega_color_12': 11,
+                    }
+                    newColors[settingIndexMap[setting]] = color;
+                }
+            }
         };
 
         var injectColors = function() {
             if (window.app.eventName == "3x3") {
                 imageGenerator.injectCubeColors(newColors);
+            }
+            if (window.app.eventName == "Megaminx") {
+                imageGenerator.injectMegaColors(newColors);
             }
         }
 

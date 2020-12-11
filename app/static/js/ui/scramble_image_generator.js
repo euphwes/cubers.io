@@ -20,7 +20,7 @@
 
     var pyra_colors = [];
 
-    var mega_colors = [];
+    var mega_colors = ['#fff', '#d00', '#060', '#81f', '#fc0', '#00b', '#ffb', '#8df', '#f83', '#7e0', '#f9f', '#999'];
 
     var TRANSPARENT = "rgba(255, 255, 255, 0)";
 
@@ -130,8 +130,6 @@
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_11),
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_MEGAMINX_COLOR_12),
             ];
-        } else {
-            mega_colors = ['#fff', '#d00', '#060', '#81f', '#fc0', '#00b', '#ffb', '#8df', '#f83', '#7e0', '#f9f', '#999'];
         }
 
         if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_FTO_COLORS)) {
@@ -3265,7 +3263,10 @@
 
     ScrambleImageGenerator.prototype.injectCubeColors = function(newColors) {
         cube_colors = newColors;
-        console.log(cube_colors);
+    };
+
+    ScrambleImageGenerator.prototype.injectMegaColors = function(newColors) {
+        mega_colors = newColors;
     };
 
     // Make ScrambleImageGenerator visible at app scope
