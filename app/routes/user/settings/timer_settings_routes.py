@@ -1,13 +1,12 @@
 """ Routes related to a user's timer settings. """
 
-from flask import redirect, url_for, request
+from flask import redirect, url_for
 from flask_login import current_user
 
 from app import app
 from app.persistence.settings_manager import SettingCode
-from app.persistence.user_manager import get_user_by_username
 
-from . import __handle_post, __handle_get
+from . import __handle_get
 
 # -------------------------------------------------------------------------------------------------
 
@@ -23,15 +22,11 @@ __TIMER_SETTINGS = [
 
 # -------------------------------------------------------------------------------------------------
 
-@app.route('/settings/timer', methods=['GET', 'POST'])
+@app.route('/settings/timer', methods=['GET'])
 def timer_settings():
     """ A route for showing a editing a user's timer settings. """
 
     if not current_user.is_authenticated:
         return redirect(url_for('index'))
 
-    user = get_user_by_username(current_user.username)
-    if request.method == 'POST':
-        __handle_post(user, request.form, __TIMER_SETTINGS)
-        
-    return __handle_get(user, __TIMER_SETTINGS, 'user/settings/timer_settings.html')
+    return __handle_get(current_user, __TIMER_SETTINGS, 'user/settings/timer_settings.html')

@@ -102,15 +102,20 @@
         });
         {% endif %}
 
-        // Make sure user wants to navigate away without saving
-        $(window).on("beforeunload", function(e) {
-            if (anythingModified) { return true; }
-        });
+        $('input[type=radio]').change(function() {
+            var new_value = this.value;
+            var radio_setting = {};
+            radio_setting[this.name] = this.value;
 
-        // But if the user is submitting the form, then unbind the beforeunload so we
-        // don't prompt them
-        $('#settingsForm').submit(function() {
-            $(window).unbind('beforeunload');
+            $.ajax({
+                url: '/settings/bool/save',
+                type: "POST",
+                data: JSON.stringify(radio_setting),
+                contentType: "application/json",
+                error: function(xhr) {
+                    bootbox.alert("Something unexpected happened: " + xhr.responseText);
+                }
+            });
         });
     })
 </script>

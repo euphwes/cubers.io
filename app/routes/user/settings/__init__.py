@@ -1,9 +1,15 @@
 """ Common logic for settings-related routes. """
 
-from flask import render_template, redirect, url_for, request
+from http import HTTPStatus
+from json import loads
 
+from flask import render_template, redirect, url_for, request
+from flask_login import current_user
+
+from app import app
 from app.persistence.settings_manager import get_settings_for_user_for_edit,\
     set_new_settings_for_user
+from app.routes import api_login_required
 
 # -------------------------------------------------------------------------------------------------
 
@@ -15,10 +21,10 @@ def __handle_get(user, settings_list, template_path):
                            is_mobile = request.MOBILE)
 
 
-def __handle_post(user, form, settings_list):
-    """ Accept updated values for a user's settings and persist them. """
+@app.route('/settings/bool/save', methods=['POST'])
+@api_login_required
+def save_radio_settings():
+    """ Saves the user's boolean preferences. """
 
-    new_settings = { code: form.get(code) for code in settings_list }
-    set_new_settings_for_user(user.id, new_settings)
-
-    return redirect(url_for('index'))
+    set_new_settings_for_user(current_user.id, loads(request.data))
+    return ('', HTTPStatus.OK)

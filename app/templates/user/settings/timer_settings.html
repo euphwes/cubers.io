@@ -5,28 +5,22 @@
 {% endblock %}
 
 {% block content %}
-<div class="container cubers-container settings-container">
-    <form id="settingsForm" method="POST">
+<canvas id="shapes"></canvas>
+<div class="cubers-container">
+    <div class="container">
         <div class="row mb-3 mt-3">
-            <div class="col-12 col-md-10 offset-md-1">
+            <div class="col-8 offset-2 text-center settings-header">
                 <h3>Timer Settings</h3>
+                <span>Customize the behavior of the timer page.</span>
             </div>
         </div>
         <div class="row">
-            <div class="col-12 col-md-10 offset-md-1">
+            <div class="col-12 col-md-10 offset-md-1" style="color: white;">
                 {% for setting in settings %}
                     {% if setting.type == 'boolean' %}{% include 'user/settings/boolean_setting.html' %}{% endif %}
                 {% endfor %}
             </div>
         </div>
-        <div class="row">
-            {% if is_mobile %}
-                {% set mobile_class = 'mobile_settings' %}
-            {% endif %}
-            <div class="col-12 col-md-10 offset-md-1">
-                <button type="submit" class="btn btn-primary btn-settings-submit {{mobile_class}}">Submit</button>
-            </div>
-        </div>
-    </form>
+    </div>
 </div>
 {% endblock %}

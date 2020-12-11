@@ -44,4 +44,3 @@ def save_events_settings():
     set_new_settings_for_user(current_user.id, new_settings)
 
     return ('', HTTPStatus.OK)
-    
