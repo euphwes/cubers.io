@@ -146,7 +146,7 @@ def boolean_validator(value):
     raise ValueError("{} is not an acceptable value.".format(value))
 
 
-HEX_CHARACTERS = set([c for c in 'ABCDEF0123456789'])
+HEX_CHARACTERS = set([c for c in 'ABCDEFabcdef0123456789'])
 
 def hex_color_validator(value):
     """ Validates a string which represents a color in hex format. """
