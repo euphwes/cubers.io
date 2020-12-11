@@ -19,8 +19,6 @@
 <script>
     $(function () {
 
-        var anythingModified = false;
-
         var disableThese = function(i, codeToDisable) {
             var $groupToDisable = $("div[data-setting_code='" + codeToDisable + "']");
             $groupToDisable.addClass('disabled-group');
@@ -37,8 +35,6 @@
 
         // Disable or enable other settings if this one becomes disabled
         var handleToggleEnabledForSetting = function($settingFormGroup) {
-
-            anythingModified = true;
 
             // If this setting in this form group does not have a list of setting codes in its
             // data-affects attribute, it doesn't affect other settings, so just bail.
@@ -77,30 +73,6 @@
         // Add a click handler to form groups to automatically disable/enable other settings
         var affectOtherSettings = function(){ handleToggleEnabledForSetting($(this)); };
         $('.form-group').click(function(){ setTimeout(affectOtherSettings.bind(this), 50); });
-
-        {% if default_colors %}
-        // Enable the color picker controls
-        $('.colorpicker-component').colorpicker({
-            format: 'hex',
-            extensions: [
-                {
-                    name: 'swatches', // extension name to load
-                    options: {        // extension options
-                        colors: {
-                            'white' : "{{ default_colors['white'] }}",
-                            'green' : "{{ default_colors['green'] }}",
-                            'red'   : "{{ default_colors['red'] }}",
-                            'blue'  : "{{ default_colors['blue'] }}",
-                            'yellow': "{{ default_colors['yellow'] }}",
-                            'orange': "{{ default_colors['orange'] }}",
-                            'black' : '#000000',
-                        },
-                        namesAsValues: false,
-                    }
-                }
-            ]
-        });
-        {% endif %}
 
         $('input[type=radio]').change(function() {
             var new_value = this.value;

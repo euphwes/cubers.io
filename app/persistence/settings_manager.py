@@ -1,6 +1,7 @@
 """ Utility module for persisting and retrieving user settings. """
 
 from collections import namedtuple
+from itertools import zip_longest
 
 from app import DB
 from app.persistence.models import UserSetting
@@ -661,16 +662,13 @@ def get_setting_type(setting_code):
 
 
 def get_color_defaults():
-    """ Returns a dictionary of default color names to their color codes. """
+    """ Returns a list of default colors for use in colors swatches. """
 
-    return {
-        'white':  DEFAULT_CUBE_COLORS['U'],
-        'green':  DEFAULT_CUBE_COLORS['F'],
-        'red':    DEFAULT_CUBE_COLORS['R'],
-        'blue':   DEFAULT_CUBE_COLORS['B'],
-        'orange': DEFAULT_CUBE_COLORS['L'],
-        'yellow': DEFAULT_CUBE_COLORS['D'],
-    }
+    colors = list(DEFAULT_CUBE_COLORS.values())
+    colors.extend(DEFAULT_FTO_COLORS.values())
+
+    args = [iter(list(set(colors)))] * 3
+    return list(zip_longest(*args, fillvalue=None))
 
 
 def __ensure_all_settings_desired_exist(user_id, setting_codes):

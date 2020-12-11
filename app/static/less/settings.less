@@ -1,3 +1,7 @@
+@desktop:   ~"only screen and (min-width: 800px)";
+@tablet:    ~"only screen and (min-width: 420px) and (max-width: 799px)";
+@mobile:    ~"only screen and (max-width: 419px)";
+
 .btn-setting-toggle {
     color: #000000;
     background-color: #f8f9fa;
@@ -59,6 +63,12 @@
     color: white;
     padding: 10px;
     border-radius: 10px;
+
+    @media @mobile {
+        h3 {
+            font-size: 1.25rem;
+        }
+    }
 }
 
 .event-card {

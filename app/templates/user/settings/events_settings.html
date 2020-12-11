@@ -11,7 +11,11 @@
         <div class="row mb-3 mt-3">
             <div class="col-8 offset-2 text-center settings-header">
                 <h3>Events Settings</h3>
+                {% if not is_mobile %}
                 <span>Click to toggle events off/on. Decide which events you want to see on your home page!</span>
+                {% else %}
+                <span>Tap to toggle events off/on.</span>
+                {% endif %}
             </div>
         </div>
         {% include 'user/settings/hidden_events_setting.html' %}

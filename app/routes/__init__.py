@@ -37,6 +37,7 @@ from .user.settings.reddit_settings_routes import reddit_settings
 from .user.settings.wca_settings_routes import wca_settings
 from .user.settings.timer_settings_routes import timer_settings
 from .user.settings.event_settings_routes import events_settings
+from .user.settings.custom_colors_settings_routes import colors_settings
 from .events import event_results, sum_of_ranks, event_results_export
 from .timer import timer_page
 from .export import export

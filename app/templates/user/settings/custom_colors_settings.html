@@ -1,0 +1,53 @@
+{% extends "user/settings/base.html" %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<canvas id="shapes"></canvas>
+<div class="cubers-container">
+    <div class="container">
+        <div class="row mb-3 mt-3">
+            <div class="col-10 offset-1 text-center settings-header">
+                <h3>Custom Color Settings for {{ header_msg[0] }}</h3>
+                {% if not is_mobile %}
+                <span>{{ header_msg[1] }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-10 offset-1">
+                {% for setting in settings %}
+                    {% if setting.type == 'boolean' %}
+                    {% include 'user/settings/boolean_setting.html' %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="row flex-center-all">
+            {% for setting in settings %}
+                {% if setting.type == 'hex_color' %}{% include 'user/settings/color_setting.html' %}{% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block additional_script %}
+{{ super() }}
+<script>
+    $(function () {
+        $(".colorpicker").spectrum({
+            preferredFormat: "hex",
+            allowEmpty: false,
+            showInput: true,
+            showInitial: true,
+            showPalette: true,
+            palette: {{ default_colors | tojson }},
+            showButtons: false
+        });
+    })
+</script>
+{% endblock %}
