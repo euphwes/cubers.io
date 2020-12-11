@@ -45,6 +45,9 @@
             showInput: true,
             showInitial: true,
             showPalette: true,
+            {% if disabled_settings %}
+            disabled: true,
+            {% endif %}
             palette: {{ default_colors | tojson }},
             showButtons: false
         });

@@ -11,6 +11,8 @@ from app.persistence.settings_manager import get_settings_for_user_for_edit, get
     set_new_settings_for_user, SettingCode
 from app.routes import api_login_required
 
+from . import __determine_disabled_settings
+
 # -------------------------------------------------------------------------------------------------
 
 __CUSTOM_CUBE_COLOR_SETTINGS = [
@@ -93,9 +95,6 @@ __ERR_UNSUPPORTED_EVENT = 'Sorry! Custom colors for {} are not yet supported.'
 def colors_settings(event):
     """ A route for editing a user's custom colors for scramble previews. """
 
-    # TODO disabled settings here and all other routes, see disabled settings template checks in
-    # settings type templates
-
     if not current_user.is_authenticated:
         return redirect(url_for('index'))
 
@@ -105,9 +104,10 @@ def colors_settings(event):
     settings = get_settings_for_user_for_edit(current_user.id, __EVENT_SETTINGS_MAPPING[event])
 
     return render_template("user/settings/custom_colors_settings.html",
-                           settings       = settings,
-                           is_mobile      = request.MOBILE,
-                           header_msg     = __EVENT_MSGS_MAPPING[event],
+                           settings = settings,
+                           disabled_settings = __determine_disabled_settings(settings),
+                           is_mobile = request.MOBILE,
+                           header_msg = __EVENT_MSGS_MAPPING[event],
                            default_colors = get_color_defaults())
 
 
