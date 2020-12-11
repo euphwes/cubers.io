@@ -11,6 +11,7 @@ from app.persistence.events_manager import get_all_events
 from app.persistence.settings_manager import get_setting_for_user,\
     set_new_settings_for_user, SettingCode
 from app.routes import api_login_required
+from app.util.events.resources import sort_events_by_global_sort_order
 
 # -------------------------------------------------------------------------------------------------
 
@@ -31,7 +32,7 @@ def events_settings():
     return render_template("user/settings/events_settings.html",
                            is_mobile=request.MOBILE,
                            hidden_event_ids=hidden_event_ids,
-                           events=get_all_events())
+                           events=sort_events_by_global_sort_order(get_all_events()))
 
 
 @app.route('/settings/events/save', methods=['POST'])
