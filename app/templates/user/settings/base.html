@@ -80,7 +80,7 @@
             radio_setting[this.name] = this.value;
 
             $.ajax({
-                url: '/settings/bool/save',
+                url: '/settings/save',
                 type: "POST",
                 data: JSON.stringify(radio_setting),
                 contentType: "application/json",

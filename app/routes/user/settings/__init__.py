@@ -3,7 +3,7 @@
 from http import HTTPStatus
 from json import loads
 
-from flask import render_template, redirect, url_for, request
+from flask import render_template, request
 from flask_login import current_user
 
 from app import app
@@ -21,10 +21,10 @@ def __handle_get(user, settings_list, template_path):
                            is_mobile = request.MOBILE)
 
 
-@app.route('/settings/bool/save', methods=['POST'])
+@app.route('/settings/save', methods=['POST'])
 @api_login_required
-def save_radio_settings():
-    """ Saves the user's boolean preferences. """
+def save_settings():
+    """ Saves the user's provided settings. """
 
     set_new_settings_for_user(current_user.id, loads(request.data))
     return ('', HTTPStatus.OK)

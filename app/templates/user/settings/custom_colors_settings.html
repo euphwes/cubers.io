@@ -48,6 +48,24 @@
             palette: {{ default_colors | tojson }},
             showButtons: false
         });
+
+        var updateColor = function(e, color) {
+            var color_setting = {};
+            color_setting[this.name] = color.toHexString();
+
+            $.ajax({
+                url: '/settings/save',
+                type: "POST",
+                data: JSON.stringify(color_setting),
+                contentType: "application/json",
+                error: function(xhr) {
+                    bootbox.alert("Something unexpected happened: " + xhr.responseText);
+                }
+            });
+        };
+
+        $(".colorpicker").on('dragstop.spectrum', updateColor);
+        $(".colorpicker").on('change', updateColor);
     })
 </script>
 {% endblock %}
