@@ -24,6 +24,9 @@
             $groupToDisable.addClass('disabled-group');
             $groupToDisable.find("[data-disable_me='true']").addClass('disabled');
             $groupToDisable.find("[data-disable_me_as_group='true']").addClass('disabled');
+
+            $groupToDisable.find("[data-disable_me='true']").find('.colorpicker').spectrum("disable");
+            $groupToDisable.find("[data-disable_me_as_group='true']").find('.colorpicker').spectrum("disable");
         };
 
         var enableThese = function(i, codeToEnable) {
@@ -31,6 +34,9 @@
             $groupToEnable.removeClass('disabled-group');
             $groupToEnable.find("[data-disable_me='true']").removeClass('disabled');
             $groupToEnable.find("[data-disable_me_as_group='true']").removeClass('disabled');
+
+            $groupToEnable.find("[data-disable_me='true']").find('.colorpicker').spectrum("enable");
+            $groupToEnable.find("[data-disable_me_as_group='true']").find('.colorpicker').spectrum("enable");
         }
 
         // Disable or enable other settings if this one becomes disabled
