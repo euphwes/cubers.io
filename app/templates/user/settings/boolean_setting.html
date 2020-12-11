@@ -15,10 +15,10 @@
 {% endif %}
 <div class="form-group {{group_disabled}}" data-setting_code="{{ setting.code }}" data-affects="{{ setting.affects }}" data-opposite_affects="{{ setting.opposite_affects }}">
     <div class="row">
-        <div class="col-8 col-md-4">
+        <div class="col-7 text-right">
             <label class="form-check-label" for="{{ setting.code }}">{{ setting.title }}</label>
         </div>
-        <div class="col-4 col-md-8">
+        <div class="col-5">
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
                 <label class="btn btn-setting-toggle {{true_active}} {{sub_disabled}}" data-disable_me="true">
                     <input type="radio" name="{{ setting.code }}" value="true" autocomplete="off" {{true_checked}}> Yes

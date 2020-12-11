@@ -1,0 +1,28 @@
+{% extends "user/settings/base.html" %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<canvas id="shapes"></canvas>
+<div class="cubers-container">
+    <div class="container">
+        <div class="row mb-3 mt-3">
+            <div class="col-8 offset-2 text-center settings-header">
+                <h3>WCA Settings</h3>
+                {% if not is_mobile %}
+                <span>Customize how cubers.io uses with your WCA account.</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-md-10 offset-md-1">
+                {% for setting in settings %}
+                    {% if setting.type == 'boolean' %}{% include 'user/settings/boolean_setting.html' %}{% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

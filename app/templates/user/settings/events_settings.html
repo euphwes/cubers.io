@@ -1,0 +1,59 @@
+{% extends "user/settings/base.html" %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<canvas id="shapes"></canvas>
+<div class="cubers-container">
+    <div class="container">
+        <div class="row mb-3 mt-3">
+            <div class="col-8 offset-2 text-center settings-header">
+                <h3>Events Settings</h3>
+                {% if not is_mobile %}
+                <span>Click to toggle events off/on. Decide which events you want to see on your home page!</span>
+                {% else %}
+                <span>Tap to toggle events off/on.</span>
+                {% endif %}
+            </div>
+        </div>
+        {% include 'user/settings/hidden_events_setting.html' %}
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_script %}
+{{ super() }}
+<script>
+    $(function () {
+
+        window.app = {};
+        window.app.hidden_event_ids = {{ hidden_event_ids | tojson }};
+
+        $('.event-card.card-for-settings').click(function(){
+            var event_id = $(this).data('event_id');
+            if ($(this).hasClass('deselected')) {
+                $(this).removeClass('deselected');
+                var index = window.app.hidden_event_ids.indexOf(event_id);
+                if (index > -1) {
+                    window.app.hidden_event_ids.splice(index, 1);
+                }
+            } else {
+                $(this).addClass('deselected');
+                window.app.hidden_event_ids.push(event_id);
+            }
+
+            $.ajax({
+                url: '/settings/events/save',
+                type: "POST",
+                data: JSON.stringify(window.app.hidden_event_ids),
+                contentType: "application/json",
+                error: function(xhr) {
+                    bootbox.alert("Something unexpected happened: " + xhr.responseText);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

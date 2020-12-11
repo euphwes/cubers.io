@@ -1,0 +1,23 @@
+<div class="row event-cards">
+    {% for event in events %}
+    {% if event.id in hidden_event_ids %}
+        {% set is_deselected = 'deselected' %}
+    {% endif %}
+    <div class="event-card {{ is_deselected }} card-for-settings drop-shadow" data-event_id="{{event.id}}">
+        <div class="event-image-container">
+            <img class="event-image" src="/static/images/cube-{{ event.name | slugify }}.png">
+        </div>
+        <div class="event-name">
+            <hr>
+            {% if event.name == "3x3 Mirror Blocks/Bump" %}
+                {% set name = "Mirror Blocks" %}
+            {% else %}
+                {% set name = event.name %}
+            {% endif %}
+            <div class="row">
+                <div class="col-12"><span class="event-title">{{ name }}</div>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+</div>

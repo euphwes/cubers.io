@@ -16,81 +16,6 @@ from app.persistence.user_manager import get_user_by_username
 
 # These are the settings we want the user to be able to see on the settings edit page
 
-TIMER_SETTINGS = [
-    SettingCode.DEFAULT_TO_MANUAL_TIME,
-    SettingCode.USE_INSPECTION_TIME,
-    SettingCode.HIDE_INSPECTION_TIME,
-    SettingCode.USE_INSPECTION_AUDIO_WARNING,
-    SettingCode.HIDE_RUNNING_TIMER,
-    SettingCode.HIDE_SCRAMBLE_PREVIEW,
-    SettingCode.ENABLE_MOVING_SHAPES_BG,
-]
-
-HIDDEN_EVENT_SETTING = [
-    SettingCode.HIDDEN_EVENTS
-]
-
-SHOW_WCA_ID_SETTING = [
-    SettingCode.SHOW_WCA_ID
-]
-
-CUSTOM_CUBE_COLOR_SETTINGS = [
-    SettingCode.USE_CUSTOM_CUBE_COLORS,
-    SettingCode.CUSTOM_CUBE_COLOR_U,
-    SettingCode.CUSTOM_CUBE_COLOR_F,
-    SettingCode.CUSTOM_CUBE_COLOR_R,
-    SettingCode.CUSTOM_CUBE_COLOR_D,
-    SettingCode.CUSTOM_CUBE_COLOR_B,
-    SettingCode.CUSTOM_CUBE_COLOR_L,
-]
-
-CUSTOM_PYRAMINX_COLOR_SETTINGS = [
-    SettingCode.USE_CUSTOM_PYRAMINX_COLORS,
-    SettingCode.CUSTOM_PYRAMINX_COLOR_F,
-    SettingCode.CUSTOM_PYRAMINX_COLOR_L,
-    SettingCode.CUSTOM_PYRAMINX_COLOR_R,
-    SettingCode.CUSTOM_PYRAMINX_COLOR_D,
-]
-
-CUSTOM_MEGAMINX_COLOR_SETTINGS = [
-    SettingCode.USE_CUSTOM_MEGAMINX_COLORS,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_1,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_2,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_3,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_4,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_5,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_6,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_7,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_8,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_9,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_10,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_11,
-    SettingCode.CUSTOM_MEGAMINX_COLOR_12,
-]
-
-
-CUSTOM_FTO_COLOR_SETTINGS = [
-    SettingCode.USE_CUSTOM_FTO_COLORS,
-    SettingCode.CUSTOM_FTO_COLOR_U,
-    SettingCode.CUSTOM_FTO_COLOR_R,
-    SettingCode.CUSTOM_FTO_COLOR_F,
-    SettingCode.CUSTOM_FTO_COLOR_L,
-    SettingCode.CUSTOM_FTO_COLOR_B,
-    SettingCode.CUSTOM_FTO_COLOR_D,
-    SettingCode.CUSTOM_FTO_COLOR_BR,
-    SettingCode.CUSTOM_FTO_COLOR_BL,
-]
-
-
-REDDIT_SETTINGS = [
-    SettingCode.REDDIT_COMP_NOTIFY,
-    SettingCode.REDDIT_RESULTS_NOTIFY,
-]
-
-__ALL_SETTINGS = REDDIT_SETTINGS + CUSTOM_CUBE_COLOR_SETTINGS + CUSTOM_PYRAMINX_COLOR_SETTINGS
-__ALL_SETTINGS += HIDDEN_EVENT_SETTING + SHOW_WCA_ID_SETTING + CUSTOM_MEGAMINX_COLOR_SETTINGS
-__ALL_SETTINGS += CUSTOM_FTO_COLOR_SETTINGS + TIMER_SETTINGS
-
 # -------------------------------------------------------------------------------------------------
 
 @app.route('/settings', methods=['GET', 'POST'])
@@ -107,18 +32,9 @@ def edit_settings():
 def __handle_get(user):
     """ Handles displaying a user's settings for edit. """
 
-    all_settings = get_settings_for_user_for_edit(user.id, __ALL_SETTINGS)
+    all_settings = get_settings_for_user_for_edit(user.id, list())
 
-    settings_sections = OrderedDict([
-        ("Timer Settings",        [s for s in all_settings if s.code in set(TIMER_SETTINGS)]),
-        ("Reddit Settings",       [s for s in all_settings if s.code in set(REDDIT_SETTINGS)]),
-        ("WCA Settings",          [s for s in all_settings if s.code in set(SHOW_WCA_ID_SETTING)]),
-        ("Hidden Events",         [s for s in all_settings if s.code in set(HIDDEN_EVENT_SETTING)]),
-        ("Custom Cube Color",     [s for s in all_settings if s.code in set(CUSTOM_CUBE_COLOR_SETTINGS)]),
-        ("Custom Pyraminx Color", [s for s in all_settings if s.code in set(CUSTOM_PYRAMINX_COLOR_SETTINGS)]),
-        ("Custom Megaminx Color", [s for s in all_settings if s.code in set(CUSTOM_MEGAMINX_COLOR_SETTINGS)]),
-        ("Custom FTO Color",      [s for s in all_settings if s.code in set(CUSTOM_FTO_COLOR_SETTINGS)]),
-    ])
+    settings_sections = OrderedDict([])
 
     # Parse out the hidden event IDs into a separate list so we handle that separately
     hidden_event_setting = [s for s in all_settings if s.code == SettingCode.HIDDEN_EVENTS][0]
@@ -154,7 +70,7 @@ def __handle_get(user):
 def __handle_post(user, form):
     """ Handles editing a user's settings. """
 
-    new_settings = { code: form.get(code) for code in __ALL_SETTINGS }
+    new_settings = { code: form.get(code) for code in list() }
 
     # TODO comment this part a little better
     hidden_event_ids = list()
