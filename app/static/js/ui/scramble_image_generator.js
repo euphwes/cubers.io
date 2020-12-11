@@ -1,9 +1,21 @@
 (function() {
     var app = window.app;
 
-    var cube_colors = [];
-    var skewb_colors = [];
-    var sq1_colors = {};
+    // Order is         D,      L,      B,      U,      R,      F
+    var cube_colors = ['#ff0', '#fa0', '#00f', '#fff', '#f00', '#0d0'];
+
+    // Order is    U,      B,      R,      D,      F       L
+    var skewb_colors = ['#fff', '#00f', '#f00', '#ff0', '#0f0', '#f80'];
+
+    var sq1_colors = {
+        'U': '#ff0',
+        'R': '#f80',
+        'F': '#0f0',
+        'D': '#fff',
+        'L': '#f00',
+        'B': '#00f'
+    };
+
     var fto_colors = [];
 
     var pyra_colors = [];
@@ -65,6 +77,7 @@
 
     var setColors = function() {
         if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_CUBE_COLORS)) {
+            console.log('in here');
             cube_colors = [
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_D),
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_L),
@@ -88,19 +101,6 @@
                 'D': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_D),
                 'L': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_L),
                 'B': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_B)
-            };
-        } else {
-            // Order is    D,      L,      B,      U,      R,      F
-            cube_colors = ['#ff0', '#fa0', '#00f', '#fff', '#f00', '#0d0'];
-            // Order is    U,      B,      R,      D,      F       L
-            skewb_colors = ['#fff', '#00f', '#f00', '#ff0', '#0f0', '#f80'];
-            sq1_colors = {
-                'U': '#ff0',
-                'R': '#f80',
-                'F': '#0f0',
-                'D': '#fff',
-                'L': '#f00',
-                'B': '#00f'
             };
         }
 
@@ -989,10 +989,8 @@
 
             function drawFace(state, baseIdx, trans, rot) {
 
-                if (!colors) {
-                    setColors();
-                    colors = mega_colors;
-                }
+                setColors();
+                colors = mega_colors;
 
                 for (var i = 0; i < 5; i++) {
                     drawPolygon(ctx, colors[state[baseIdx + i]], Rotate([cornX, cornY], PI * 2 / 5 * i + rot), trans);
@@ -1545,10 +1543,8 @@
 
             function face(f) {
 
-                if (!colors) {
-                    setColors();
-                    colors = pyra_colors;
-                }
+                setColors();
+                colors = pyra_colors;
 
                 var inv = f != 0;
                 var arroffx = [0, -1, 1, 0, 0.5, -0.5, 0, -0.5, 0.5];
@@ -2198,10 +2194,8 @@
                 var width = 250;
                 var fraction = width/6;
 
-                if (!colors) {
-                    setColors();
-                    colors = fto_colors;
-                }
+                setColors();
+                colors = fto_colors;
 
                 var half_coords = {
                     // U (or B with +36)
@@ -2785,10 +2779,8 @@
 
             function face(f, size, isVoidCube, is332) {
 
-                if (!colors) {
-                    setColors();
-                    colors = cube_colors;
-                }
+                setColors();
+                colors = cube_colors;
 
                 var offx = 10 / 9,
                     offy = 10 / 9;
@@ -3269,6 +3261,11 @@
         if (image.findCanvas('#big_scramble_image')) {
             image.clearCanvas();
         }
+    };
+
+    ScrambleImageGenerator.prototype.injectCubeColors = function(newColors) {
+        cube_colors = newColors;
+        console.log(cube_colors);
     };
 
     // Make ScrambleImageGenerator visible at app scope

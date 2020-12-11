@@ -67,7 +67,49 @@
             showButtons: false
         });
 
-        var updateColor = function(e, color) {
+        window.app.settings_data = {};
+        window.app.userSettingsManager = new window.app.UserSettingsManager();
+        window.app.isMobile = {{ is_mobile | tojson }};
+
+        window.app.scramble = "";
+        window.app.eventName = "3x3";
+
+        var imageGenerator = new window.app.ScrambleImageGenerator();
+
+        var newColors = null;
+
+        var setCurrentColors = function(color, setting) {
+            if (window.app.eventName == "3x3") {
+                // [D, L, B, U, R, F];
+                newColors = [
+                    $(".input-group input[name='custom_cube_color_D']").val(), 
+                    $(".input-group input[name='custom_cube_color_L']").val(), 
+                    $(".input-group input[name='custom_cube_color_B']").val(), 
+                    $(".input-group input[name='custom_cube_color_U']").val(), 
+                    $(".input-group input[name='custom_cube_color_R']").val(), 
+                    $(".input-group input[name='custom_cube_color_F']").val(), 
+                ];
+                if (color != null) {
+                    var settingIndexMap = {
+                        'custom_cube_color_D': 0,
+                        'custom_cube_color_L': 1,
+                        'custom_cube_color_B': 2,
+                        'custom_cube_color_U': 3,
+                        'custom_cube_color_R': 4,
+                        'custom_cube_color_F': 5,
+                    }
+                    newColors[settingIndexMap[setting]] = color;
+                }
+            }
+        };
+
+        var injectColors = function() {
+            if (window.app.eventName == "3x3") {
+                imageGenerator.injectCubeColors(newColors);
+            }
+        }
+
+        var updateSavedColor = function(e, color) {
             var color_setting = {};
             color_setting[this.name] = color.toHexString();
 
@@ -82,18 +124,25 @@
             });
         };
 
-        $(".colorpicker").on('dragstop.spectrum', updateColor);
-        $(".colorpicker").on('change', updateColor);
+        var updateScrambleImage = function(e, color) {
+            
+            var update_color = null;
+            var color_setting = null;
 
-        window.app.settings_data = {};
-        window.app.userSettingsManager = new window.app.UserSettingsManager();
-        window.app.isMobile = {{ is_mobile | tojson }};
+            if (color != null) {
+                update_color = color.toHexString();
+                color_setting = this.name;
+            }
 
-        window.app.scramble = "";
-        window.app.eventName = "3x3";
+            setCurrentColors(update_color, color_setting);
+            injectColors();
+            imageGenerator.prepareNewImage();
+        }
 
-        var imageGenerator = new window.app.ScrambleImageGenerator();
-        imageGenerator.prepareNewImage();
+        updateScrambleImage(null, null);
+
+        $(".colorpicker").on('move.spectrum', updateScrambleImage);
+        $(".colorpicker").on('change', updateSavedColor);
     })
 </script>
 {% endblock %}
