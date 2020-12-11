@@ -425,8 +425,7 @@ def __retrieve_target_solve(request_data, user):
         ((target_solve, user_event_results, comp_event), None, None)
             if the solve exists, in the active comp, for the specified user.
         (None, err_msg, http_status_code)
-            if something goes wrong during retrieval.
-    """
+            if something goes wrong during retrieval. """
 
     # Extract JSON solve data, deserialize to dict, and verify that all expected fields are present
     solve_data = json.loads(request_data)

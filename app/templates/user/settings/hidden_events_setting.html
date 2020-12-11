@@ -1,17 +1,9 @@
 <div class="row event-cards">
     {% for event in events %}
     {% if event.id in hidden_event_ids %}
-        {% set true_checked = 'checked' %}
-        {% set true_active = 'active' %}
-        {% set false_checked = '' %}
-        {% set false_active = '' %}
-    {% else %}
-        {% set true_checked = '' %}
-        {% set true_active = '' %}
-        {% set false_checked = 'checked' %}
-        {% set false_active = 'active' %}
+        {% set is_deselected = 'deselected' %}
     {% endif %}
-    <div class="event-card card-for-settings drop-shadow">
+    <div class="event-card {{ is_deselected }} card-for-settings drop-shadow" data-event_id="{{event.id}}">
         <div class="event-image-container">
             <img class="event-image" src="/static/images/cube-{{ event.name | slugify }}.png">
         </div>
@@ -26,9 +18,6 @@
                 <div class="col-12"><span class="event-title">{{ name }}</div>
             </div>
         </div>
-        {% if event.id in bonus_events_ids %}
-        <div class="bonus-event-indicator"><i class="fas fa-gift"></i></div>
-        {% endif %}
     </div>
 {% endfor %}
 </div>
