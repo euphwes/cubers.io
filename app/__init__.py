@@ -143,8 +143,23 @@ ASSETS.register({
     'user_settings_js': Bundle(
         'js/event_emitter.js',
         filters="jsmin",
-        output='gen/user_settings.js'
-    ),
+        output='gen/user_settings.js'),
+
+    'user_settings_css': Bundle(
+        'less/common.less',
+        'less/navbar.less',
+        'less/timer/common.less',
+        'less/timer/desktop.less',
+        'less/timer/mobile.less',
+        'less/events_page.less',
+        'less/results.less',
+        'less/user.less',
+        'less/event_results.less',
+        'less/settings.less',
+        'less/home/common.less',
+        'css/bootstrap-social.min.css',
+        filters="less,cssmin",
+        output='gen/user_settings.css'),
 
     # --------- the rest ------------
 
@@ -159,7 +174,6 @@ ASSETS.register({
         'less/user.less',
         'less/event_results.less',
         'less/settings.less',
-        'less/home/common.less',
         'css/bootstrap-social.min.css',
         filters="less,cssmin",
         output='gen/app.css'),
