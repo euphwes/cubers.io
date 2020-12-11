@@ -5,23 +5,18 @@
 {% endblock %}
 
 {% block content %}
-<div class="container cubers-container settings-container">
-    <form id="settingsForm" method="POST">
-        <div class="row mb-3 mt-3">
-            <div class="col-12">
-                <h3>Events Settings</h3>
-                <span>Click to toggle events from showing up on your main page. Turn off events which you aren't interested in!</span>
+<canvas id="shapes"></canvas>
+<div class="cubers-container">
+    <div class="container">
+        <form id="settingsForm" method="POST">
+            <div class="row mb-3 mt-3">
+                <div class="col-8 offset-2 text-center settings-header">
+                    <h3>Events Settings</h3>
+                    <span>Click to toggle events off/on. Decide which events you want to see on your home page!</span>
+                </div>
             </div>
-        </div>
-                {% include 'user/settings/hidden_events_setting.html' %}
-        <div class="row mb-3 mt-3">
-            {% if is_mobile %}
-                {% set mobile_class = 'mobile_settings' %}
-            {% endif %}
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary btn-settings-submit {{mobile_class}}">Submit</button>
-            </div>
-        </div>
-    </form>
+            {% include 'user/settings/hidden_events_setting.html' %}
+        </form>
+    </div>
 </div>
 {% endblock %}

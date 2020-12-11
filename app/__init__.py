@@ -48,6 +48,12 @@ ASSETS.register({
         output='gen/index.js'
     ),
 
+    'shapes_js': Bundle(
+        'js/ui/shapes.js',
+        filters="jsmin",
+        output='gen/shapes.js'
+    ),
+
     'index_css': Bundle(
         'less/common.less',
         'less/navbar.less',
@@ -153,6 +159,7 @@ ASSETS.register({
         'less/user.less',
         'less/event_results.less',
         'less/settings.less',
+        'less/home/common.less',
         'css/bootstrap-social.min.css',
         filters="less,cssmin",
         output='gen/app.css'),

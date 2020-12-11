@@ -53,3 +53,29 @@
         }
     }
 }
+
+.settings-header {
+    background-color: #042f57;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.event-card {
+    cursor: pointer;
+    &.card-for-settings {
+        &:hover {
+            transform: none;
+        }
+
+        &.deselected {
+            transform: scale(0.75);
+            opacity: 0.50;
+
+            .event-title {
+                text-decoration: line-through;
+            }
+    
+        }
+    }
+}
