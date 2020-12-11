@@ -8,22 +8,17 @@
 <div class="container cubers-container settings-container">
     <form id="settingsForm" method="POST">
         <div class="row mb-3 mt-3">
-            <div class="col-12 col-md-10 offset-md-1">
-                <h3>Reddit Settings</h3>
+            <div class="col-12">
+                <h3>Events Settings</h3>
+                <span>Click to toggle events from showing up on your main page. Turn off events which you aren't interested in!</span>
             </div>
         </div>
-        <div class="row">
-            <div class="col-12 col-md-10 offset-md-1">
-                {% for setting in settings %}
-                    {% if setting.type == 'boolean' %}{% include 'user/settings/boolean_setting.html' %}{% endif %}
-                {% endfor %}
-            </div>
-        </div>
-        <div class="row">
+                {% include 'user/settings/hidden_events_setting.html' %}
+        <div class="row mb-3 mt-3">
             {% if is_mobile %}
                 {% set mobile_class = 'mobile_settings' %}
             {% endif %}
-            <div class="col-12 col-md-10 offset-md-1">
+            <div class="col-12">
                 <button type="submit" class="btn btn-primary btn-settings-submit {{mobile_class}}">Submit</button>
             </div>
         </div>

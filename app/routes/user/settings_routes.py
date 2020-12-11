@@ -16,12 +16,6 @@ from app.persistence.user_manager import get_user_by_username
 
 # These are the settings we want the user to be able to see on the settings edit page
 
-
-
-HIDDEN_EVENT_SETTING = [
-    SettingCode.HIDDEN_EVENTS
-]
-
 CUSTOM_CUBE_COLOR_SETTINGS = [
     SettingCode.USE_CUSTOM_CUBE_COLORS,
     SettingCode.CUSTOM_CUBE_COLOR_U,
@@ -70,7 +64,7 @@ CUSTOM_FTO_COLOR_SETTINGS = [
 ]
 
 __ALL_SETTINGS = CUSTOM_CUBE_COLOR_SETTINGS + CUSTOM_PYRAMINX_COLOR_SETTINGS
-__ALL_SETTINGS += HIDDEN_EVENT_SETTING + CUSTOM_MEGAMINX_COLOR_SETTINGS
+__ALL_SETTINGS += CUSTOM_MEGAMINX_COLOR_SETTINGS
 __ALL_SETTINGS += CUSTOM_FTO_COLOR_SETTINGS
 
 # -------------------------------------------------------------------------------------------------
@@ -92,10 +86,6 @@ def __handle_get(user):
     all_settings = get_settings_for_user_for_edit(user.id, __ALL_SETTINGS)
 
     settings_sections = OrderedDict([
-        ("Timer Settings",        [s for s in all_settings if s.code in set(TIMER_SETTINGS)]),
-        ("Reddit Settings",       [s for s in all_settings if s.code in set(REDDIT_SETTINGS)]),
-        ("WCA Settings",          [s for s in all_settings if s.code in set(SHOW_WCA_ID_SETTING)]),
-        ("Hidden Events",         [s for s in all_settings if s.code in set(HIDDEN_EVENT_SETTING)]),
         ("Custom Cube Color",     [s for s in all_settings if s.code in set(CUSTOM_CUBE_COLOR_SETTINGS)]),
         ("Custom Pyraminx Color", [s for s in all_settings if s.code in set(CUSTOM_PYRAMINX_COLOR_SETTINGS)]),
         ("Custom Megaminx Color", [s for s in all_settings if s.code in set(CUSTOM_MEGAMINX_COLOR_SETTINGS)]),

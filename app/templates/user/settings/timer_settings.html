@@ -9,13 +9,13 @@
     <form id="settingsForm" method="POST">
         <div class="row mb-3 mt-3">
             <div class="col-12 col-md-10 offset-md-1">
-                <h3>Timer Settings</h4>
+                <h3>Timer Settings</h3>
             </div>
         </div>
         <div class="row">
             <div class="col-12 col-md-10 offset-md-1">
                 {% for setting in settings %}
-                    {% if setting.type == 'boolean' %}{% include 'user/boolean_setting.html' %}{% endif %}
+                    {% if setting.type == 'boolean' %}{% include 'user/settings/boolean_setting.html' %}{% endif %}
                 {% endfor %}
             </div>
         </div>
