@@ -33,6 +33,8 @@
 
             $groupToDisable.find("[data-disable_me='true']").find('.colorpicker').spectrum("disable");
             $groupToDisable.find("[data-disable_me_as_group='true']").find('.colorpicker').spectrum("disable");
+
+            window.app.isCustomColorDisabled = true;
         };
 
         var enableThese = function(i, codeToEnable) {
@@ -43,6 +45,8 @@
 
             $groupToEnable.find("[data-disable_me='true']").find('.colorpicker').spectrum("enable");
             $groupToEnable.find("[data-disable_me_as_group='true']").find('.colorpicker').spectrum("enable");
+
+            window.app.isCustomColorDisabled = false;
         }
 
         // Disable or enable other settings if this one becomes disabled

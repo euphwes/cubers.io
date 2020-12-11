@@ -2,6 +2,7 @@
     var app = window.app;
 
     // Order is         D,      L,      B,      U,      R,      F
+    var default_cube_colors = ['#ff0', '#fa0', '#00f', '#fff', '#f00', '#0d0'];
     var cube_colors = ['#ff0', '#fa0', '#00f', '#fff', '#f00', '#0d0'];
 
     // Order is    U,      B,      R,      D,      F       L
@@ -20,6 +21,7 @@
 
     var pyra_colors = [];
 
+    var default_mega_colors = ['#fff', '#d00', '#060', '#81f', '#fc0', '#00b', '#ffb', '#8df', '#f83', '#7e0', '#f9f', '#999'];
     var mega_colors = ['#fff', '#d00', '#060', '#81f', '#fc0', '#00b', '#ffb', '#8df', '#f83', '#7e0', '#f9f', '#999'];
 
     var TRANSPARENT = "rgba(255, 255, 255, 0)";
@@ -77,7 +79,6 @@
 
     var setColors = function() {
         if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_CUBE_COLORS)) {
-            console.log('in here');
             cube_colors = [
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_D),
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_L),
@@ -3267,6 +3268,11 @@
 
     ScrambleImageGenerator.prototype.injectMegaColors = function(newColors) {
         mega_colors = newColors;
+    };
+
+    ScrambleImageGenerator.prototype.resetDefaultColors = function() {
+        cube_colors = default_cube_colors;
+        mega_colors = default_mega_colors;
     };
 
     // Make ScrambleImageGenerator visible at app scope

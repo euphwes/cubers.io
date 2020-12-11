@@ -67,6 +67,12 @@
             showButtons: false
         });
 
+        {% if disabled_settings %}
+        window.app.isCustomColorDisabled = true;
+        {% else %}
+        window.app.isCustomColorDisabled = false;
+        {% endif %}
+
         window.app.settings_data = {};
         window.app.userSettingsManager = new window.app.UserSettingsManager();
         window.app.isMobile = {{ is_mobile | tojson }};
@@ -161,6 +167,10 @@
         };
 
         var updateScrambleImage = function(e, color) {
+
+            if (window.app.isCustomColorDisabled) {
+                return;
+            }
             
             var update_color = null;
             var color_setting = null;
@@ -175,6 +185,32 @@
             imageGenerator.prepareNewImage();
         }
 
+        // TODO comment this check disabled/enabled + timeouts below, it's not intuitive why
+
+        var checkEnabledTimeout = null;
+
+        var checkDisabled = function() {
+            if (window.app.isCustomColorDisabled) {
+                imageGenerator.resetDefaultColors();
+                imageGenerator.prepareNewImage();
+                if (checkEnabledTimeout == null) {
+                    setTimeout(checkEnabled, 125);
+                }
+            }
+            setTimeout(checkDisabled, 125);
+        }
+
+        var checkEnabled = function() {
+            if (!window.app.isCustomColorDisabled) {
+                updateScrambleImage(null, null);
+                clearTimeout(checkEnabledTimeout);
+                checkEnabledTimeout = null;
+            } else {
+                checkEnabledTimeout = setTimeout(checkEnabled, 125);
+            }
+        }
+
+        checkDisabled();
         updateScrambleImage(null, null);
 
         $(".colorpicker").on('move.spectrum', updateScrambleImage);
