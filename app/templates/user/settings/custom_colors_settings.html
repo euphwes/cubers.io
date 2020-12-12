@@ -88,12 +88,12 @@
             if (window.app.eventName == "3x3") {
                 // [D, L, B, U, R, F];
                 newColors = [
-                    $(".input-group input[name='custom_cube_color_D']").val(), 
-                    $(".input-group input[name='custom_cube_color_L']").val(), 
-                    $(".input-group input[name='custom_cube_color_B']").val(), 
-                    $(".input-group input[name='custom_cube_color_U']").val(), 
-                    $(".input-group input[name='custom_cube_color_R']").val(), 
-                    $(".input-group input[name='custom_cube_color_F']").val(), 
+                    $(".input-group input[name='custom_cube_color_D']").val(),
+                    $(".input-group input[name='custom_cube_color_L']").val(),
+                    $(".input-group input[name='custom_cube_color_B']").val(),
+                    $(".input-group input[name='custom_cube_color_U']").val(),
+                    $(".input-group input[name='custom_cube_color_R']").val(),
+                    $(".input-group input[name='custom_cube_color_F']").val(),
                 ];
                 if (color != null) {
                     var settingIndexMap = {
@@ -109,18 +109,18 @@
             }
             if (window.app.eventName == "Megaminx") {
                 newColors = [
-                    $(".input-group input[name='custom_mega_color_1']").val(), 
-                    $(".input-group input[name='custom_mega_color_2']").val(), 
-                    $(".input-group input[name='custom_mega_color_3']").val(), 
-                    $(".input-group input[name='custom_mega_color_4']").val(), 
-                    $(".input-group input[name='custom_mega_color_5']").val(), 
-                    $(".input-group input[name='custom_mega_color_6']").val(), 
-                    $(".input-group input[name='custom_mega_color_7']").val(), 
-                    $(".input-group input[name='custom_mega_color_8']").val(), 
-                    $(".input-group input[name='custom_mega_color_9']").val(), 
-                    $(".input-group input[name='custom_mega_color_10']").val(), 
-                    $(".input-group input[name='custom_mega_color_11']").val(), 
-                    $(".input-group input[name='custom_mega_color_12']").val(), 
+                    $(".input-group input[name='custom_mega_color_1']").val(),
+                    $(".input-group input[name='custom_mega_color_2']").val(),
+                    $(".input-group input[name='custom_mega_color_3']").val(),
+                    $(".input-group input[name='custom_mega_color_4']").val(),
+                    $(".input-group input[name='custom_mega_color_5']").val(),
+                    $(".input-group input[name='custom_mega_color_6']").val(),
+                    $(".input-group input[name='custom_mega_color_7']").val(),
+                    $(".input-group input[name='custom_mega_color_8']").val(),
+                    $(".input-group input[name='custom_mega_color_9']").val(),
+                    $(".input-group input[name='custom_mega_color_10']").val(),
+                    $(".input-group input[name='custom_mega_color_11']").val(),
+                    $(".input-group input[name='custom_mega_color_12']").val(),
                 ];
                 if (color != null) {
                     var settingIndexMap = {
@@ -140,6 +140,50 @@
                     newColors[settingIndexMap[setting]] = color;
                 }
             }
+            if (window.app.eventName == "Pyraminx") {
+                // Order is F, L, R, D
+                newColors = [
+                    $(".input-group input[name='custom_pyra_color_F']").val(),
+                    $(".input-group input[name='custom_pyra_color_L']").val(),
+                    $(".input-group input[name='custom_pyra_color_R']").val(),
+                    $(".input-group input[name='custom_pyra_color_D']").val(),
+                ];
+                if (color != null) {
+                    var settingIndexMap = {
+                        'custom_pyra_color_F': 0,
+                        'custom_pyra_color_L': 1,
+                        'custom_pyra_color_R': 2,
+                        'custom_pyra_color_D': 3,
+                    }
+                    newColors[settingIndexMap[setting]] = color;
+                }
+            }
+            if (window.app.eventName == "FTO") {
+                // Order is  U  L  F  R  B  BR  D BL
+                newColors = [
+                    $(".input-group input[name='custom_fto_color_U']").val(),
+                    $(".input-group input[name='custom_fto_color_L']").val(),
+                    $(".input-group input[name='custom_fto_color_F']").val(),
+                    $(".input-group input[name='custom_fto_color_R']").val(),
+                    $(".input-group input[name='custom_fto_color_B']").val(),
+                    $(".input-group input[name='custom_fto_color_BR']").val(),
+                    $(".input-group input[name='custom_fto_color_D']").val(),
+                    $(".input-group input[name='custom_fto_color_BL']").val(),
+                ];
+                if (color != null) {
+                    var settingIndexMap = {
+                        'custom_fto_color_U': 0,
+                        'custom_fto_color_L': 1,
+                        'custom_fto_color_F': 2,
+                        'custom_fto_color_R': 3,
+                        'custom_fto_color_B': 4,
+                        'custom_fto_color_BR': 5,
+                        'custom_fto_color_D': 6,
+                        'custom_fto_color_BL': 7,
+                    }
+                    newColors[settingIndexMap[setting]] = color;
+                }
+            }
         };
 
         var injectColors = function() {
@@ -148,6 +192,12 @@
             }
             if (window.app.eventName == "Megaminx") {
                 imageGenerator.injectMegaColors(newColors);
+            }
+            if (window.app.eventName == "Pyraminx") {
+                imageGenerator.injectPyraColors(newColors);
+            }
+            if (window.app.eventName == "FTO") {
+                imageGenerator.injectFtoColors(newColors);
             }
         }
 

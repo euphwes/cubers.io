@@ -17,9 +17,13 @@
         'B': '#00f'
     };
 
-    var fto_colors = [];
+    // Order is    U       L          F       R       B       BR         D       BL
+    var default_fto_colors = ['#fff', '#800080', '#f00', '#0d0', '#00f', '#bebebe', '#ff0', '#fa0'];
+    var fto_colors = ['#fff', '#800080', '#f00', '#0d0', '#00f', '#bebebe', '#ff0', '#fa0'];
 
-    var pyra_colors = [];
+    // Order is F, L, R, D
+    var default_pyra_colors = ['#0f0', '#f00', '#00f', '#ff0'];
+    var pyra_colors = ['#0f0', '#f00', '#00f', '#ff0'];
 
     var default_mega_colors = ['#fff', '#d00', '#060', '#81f', '#fc0', '#00b', '#ffb', '#8df', '#f83', '#7e0', '#f9f', '#999'];
     var mega_colors = ['#fff', '#d00', '#060', '#81f', '#fc0', '#00b', '#ffb', '#8df', '#f83', '#7e0', '#f9f', '#999'];
@@ -112,8 +116,6 @@
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_PYRAMINX_COLOR_R),
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_PYRAMINX_COLOR_D)
             ];
-        } else {
-            pyra_colors = ['#0f0', '#f00', '#00f', '#ff0'];
         }
 
         if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_MEGAMINX_COLORS)) {
@@ -144,9 +146,6 @@
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_FTO_COLOR_D),
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_FTO_COLOR_BL)
             ];
-        } else {
-            // Order is    U       L          F       R       B       BR         D       BL
-            fto_colors = ['#fff', '#800080', '#f00', '#0d0', '#00f', '#bebebe', '#ff0', '#fa0'];
         }
     };
 
@@ -3270,9 +3269,19 @@
         mega_colors = newColors;
     };
 
+    ScrambleImageGenerator.prototype.injectPyraColors = function(newColors) {
+        pyra_colors = newColors;
+    };
+
+    ScrambleImageGenerator.prototype.injectFtoColors = function(newColors) {
+        fto_colors = newColors;
+    };
+
     ScrambleImageGenerator.prototype.resetDefaultColors = function() {
         cube_colors = default_cube_colors;
         mega_colors = default_mega_colors;
+        pyra_colors = default_pyra_colors;
+        fto_colors = default_fto_colors;
     };
 
     // Make ScrambleImageGenerator visible at app scope
