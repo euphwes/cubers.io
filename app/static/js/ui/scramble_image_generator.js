@@ -2245,7 +2245,7 @@
                     var coords = half_coords[i];
                     var x = coords[0];
                     var y = coords[1];
-                    var shifted = [[x[0], x[1], x[2]], [y[0]+5, y[1]+5, y[2]+5]];
+                    var shifted = [[x[0], x[1], x[2]], [y[0]+3, y[1]+3, y[2]+3]];
 
                     drawPolygon(ctx, colors[posit[i-1]], shifted, [fraction, 0, 0]);
 
@@ -2253,15 +2253,15 @@
                     // var ly = (Math.min(...shifted[1]) + Math.max(...shifted[1])) / 2;
                     // renderChar(fraction, lx, ly, i-1);
                 }
-                drawHeavyLine(0, 5, 6, 11, fraction);
-                drawHeavyLine(6, 5, 0, 11, fraction);
+                drawHeavyLine(0, 3, 6, 9, fraction);
+                drawHeavyLine(6, 3, 0, 9, fraction);
 
                 
                 for (var i = 37; i < 73; i++) {
                     var coords = half_coords[i-36];
                     var x = coords[0];
                     var y = coords[1];
-                    var shifted = [[x[0]+6, x[1]+6, x[2]+6], [y[0]+5, y[1]+5, y[2]+5]];
+                    var shifted = [[x[0]+6, x[1]+6, x[2]+6], [y[0]+3, y[1]+3, y[2]+3]];
 
                     drawPolygon(ctx, colors[posit[i-1]], shifted, [fraction, 0, 0]);
 
@@ -2269,22 +2269,22 @@
                     // var ly = (Math.min(...shifted[1]) + Math.max(...shifted[1])) / 2;
                     // renderChar(fraction, lx, ly, i-1);
                 }
-                drawHeavyLine(6, 5, 12, 11, fraction);
-                drawHeavyLine(12, 5, 6, 11, fraction);
+                drawHeavyLine(6, 3, 12, 9, fraction);
+                drawHeavyLine(12, 3, 6, 9, fraction);
 
-                drawHeavyLine(2, 2, 4, 4, fraction);
-                drawHeavyLine(4, 2, 2, 4, fraction);
-                renderChar(fraction, 3, 2.3, "U");
-                renderChar(fraction, 3.75, 3, "R");
-                renderChar(fraction, 3, 3.7, "F");
-                renderChar(fraction, 2.25, 3, "L");
+                drawHeavyLine(2, 0, 4, 2, fraction);
+                drawHeavyLine(4, 0, 2, 2, fraction);
+                renderChar(fraction, 3, 0.3, "U");
+                renderChar(fraction, 3.75, 1, "R");
+                renderChar(fraction, 3, 1.7, "F");
+                renderChar(fraction, 2.25, 1, "L");
 
-                drawHeavyLine(8, 2, 10, 4, fraction);
-                drawHeavyLine(8, 4, 10, 2, fraction);
-                renderChar(fraction, 9, 2.3, "B");
-                renderChar(fraction, 9.75, 3, "BL");
-                renderChar(fraction, 9, 3.7, "D");
-                renderChar(fraction, 8.25, 3, "BR");
+                drawHeavyLine(8, 0, 10, 2, fraction);
+                drawHeavyLine(8, 2, 10, 0, fraction);
+                renderChar(fraction, 9, 0.3, "B");
+                renderChar(fraction, 9.75, 1, "BL");
+                renderChar(fraction, 9, 1.7, "D");
+                renderChar(fraction, 8.25, 1, "BR");
             }
 
             return function(moveseq) {
@@ -2310,7 +2310,7 @@
                 }
 
                 var what1 = 25;
-                var what2 = 25;
+                var what2 = 20;
                 var width = 20;
 
                 var imgSize = scalingFactor / 50;
