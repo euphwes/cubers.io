@@ -17,18 +17,50 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-10 offset-1">
+            <div class="col-12">
                 {% for setting in settings %}
                     {% if setting.type == 'boolean' %}
-                    {% include 'user/settings/boolean_setting.html' %}
+                    <div class="form-group {{group_disabled}}" data-setting_code="{{ setting.code }}" data-affects="{{ setting.affects }}" data-opposite_affects="{{ setting.opposite_affects }}">
+                        {% if setting.value == 'true' %}
+                            {% set true_checked = 'checked' %}
+                            {% set true_active = 'active' %}
+                            {% set false_checked = '' %}
+                            {% set false_active = '' %}
+                        {% else %}
+                            {% set true_checked = '' %}
+                            {% set true_active = '' %}
+                            {% set false_checked = 'checked' %}
+                            {% set false_active = 'active' %}
+                        {% endif %}
+                        {% if setting.code in disabled_settings %}
+                            {% set group_disabled = 'disabled-group' %}
+                            {% set sub_disabled   = 'disabled' %}
+                        {% endif %}
+                        <div class="row flex-center-all">
+                            <div>
+                                <div class="col-12">
+                                    <label class="form-check-label" for="{{ setting.code }}">{{ setting.title }}</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-3 mt-3 flex-center-all">
+                            <div>
+                                <div class="col-12">
+                                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                        <label class="btn btn-setting-toggle {{true_active}} {{sub_disabled}}" data-disable_me="true">
+                                            <input type="radio" name="{{ setting.code }}" value="true" autocomplete="off" {{true_checked}}> Yes
+                                        </label>
+                                        <label class="btn btn-setting-toggle {{false_active}} {{sub_disabled}}" data-disable_me="true">
+                                            <input type="radio" name="{{ setting.code }}" value="false" autocomplete="off" {{false_checked}}> No
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     {% endif %}
                 {% endfor %}
             </div>
-        </div>
-        <div class="row flex-center-all">
-            {% for setting in settings %}
-                {% if setting.type == 'hex_color' %}{% include 'user/settings/color_setting.html' %}{% endif %}
-            {% endfor %}
         </div>
         <div class="row flex-center-all mb-3 mt-3">
             {% if is_mobile %}
@@ -44,6 +76,11 @@
                 </div>
             </div>
             {% endif %}
+        </div>
+        <div class="row flex-center-all">
+            {% for setting in settings %}
+                {% if setting.type == 'hex_color' %}{% include 'user/settings/color_setting.html' %}{% endif %}
+            {% endfor %}
         </div>
     </div>
 </div>
