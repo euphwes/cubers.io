@@ -8,8 +8,9 @@ from pyTwistyScrambler import scrambler333, scrambler222, scrambler444, scramble
     scrambler666, scrambler777, squareOneScrambler, megaminxScrambler, pyraminxScrambler,\
     cuboidsScrambler, skewbScrambler, clockScrambler, bigCubesScrambler
 
+from app import app
 from .coll import get_coll_scramble
-from .sliding_tile import get_sliding_tile_puzzle_scramble
+from .sliding_tile import get_random_moves_scramble, get_random_state_scramble
 
 # -------------------------------------------------------------------------------------------------
 
@@ -86,7 +87,10 @@ def fifteen_puzzle_scrambler() -> str:
     L = left, which indicates the tile to the right of the empty space moves left into the space
     """
 
-    return get_sliding_tile_puzzle_scramble(4)
+    if app.config['IS_DEVO']:
+        return get_random_moves_scramble(4)
+    else:
+        return get_random_state_scramble(4)
 
 
 def fto_scrambler(scramble_length = 30) -> str:
