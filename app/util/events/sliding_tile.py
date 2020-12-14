@@ -5,7 +5,8 @@ https://github.com/asarandi/n-puzzle, heavily modified and streamlined for our u
 from collections import deque
 from itertools import groupby
 from math import inf
-from random import shuffle
+from random import shuffle, choice
+from typing import List
 
 # -------------------------------------------------------------------------------------------------
 
@@ -18,7 +19,46 @@ __MOVE_INVERSE_MAP = {
     'R': 'L'
 }
 
-def get_sliding_tile_puzzle_scramble(n):
+
+def get_random_moves_scramble(n: int, total_moves: int = 50) -> str:
+    """ Retrieves a random-move scramble for an `n` x `n` sliding tile puzzle."""
+
+    n -= 1 # Make n zero-indexed
+    # Maintain the position of the empty space, so we know which moves are possible at any given
+    # point in time. For example, the first move of the scramble can only ever be D or R, since
+    # there is not tile in the D or R position to move.
+    space_x, space_y = n, n
+
+    def __get_possible_moves(n:int, x: int, y: int, previous_move: str) -> List[str]:
+        """ Return a list of possible moves based the x, y coordinates of the empty space,
+        excluding the move that's opposite of the previous one so we don't just undo the last. """
+
+        moves = list()
+        moves.extend( ['D'] if y == n else ['U'] if y == 0 else ['D', 'U'] )
+        moves.extend( ['R'] if x == n else ['L'] if x == 0 else ['R', 'L'] )
+
+        if previous_move:
+            opposite_move = __MOVE_INVERSE_MAP[previous_move]
+            moves.remove(opposite_move)
+        return moves
+
+    scramble = list()
+    prev_move = None
+
+    for _ in range(total_moves):
+        # Choose the next move based on the last move, and where the empty space currently is
+        move = choice(__get_possible_moves(n, space_x, space_y, prev_move))
+        scramble.append(move)
+
+        # Figure out where the space is after the move is applied
+        space_x += 0 if move in 'UD' else -1 if move == 'R' else 1
+        space_y += 0 if move in 'RL' else -1 if move == 'D' else 1
+        prev_move = move
+
+    return ' '.join(f"{x}{__smart_reduce(y)}" for x, y in groupby(scramble))
+
+
+def get_random_state_scramble(n):
     """ Retrieves a random-state scramble for an `n` x `n` sliding tile puzzle.
 
     This assumes the solved state for the puzzle is in numerical order, with the blank space in the
@@ -95,10 +135,6 @@ def __convert_steps_to_scramble(steps):
         final_pos = steps[i+1]
         move = __get_move_between(start_pos, final_pos)
         inverse.insert(0, __MOVE_INVERSE_MAP[move])
-
-    def __smart_reduce(grouping):
-        group_sum = sum(1 for _ in grouping)
-        return '' if group_sum == 1 else group_sum
 
     # Turn the inversed solution into a nicely-formatted string.
     # This is the scramble we'll surface to the user.
@@ -205,6 +241,12 @@ def __linear_conflicts(candidate, solved, size):
         conflicts += __count_conflicts(candidate_columns[i], solved_columns[i], size)
 
     return conflicts + __manhattan_distance(candidate, solved, size)
+
+
+def __smart_reduce(grouping):
+    """ Reduce the scramble (R R R -> R3, U U -> U2, etc) and turn into a string to return """
+    group_sum = sum(1 for _ in grouping)
+    return '' if group_sum == 1 else group_sum
 
 
 def __clone_and_swap(data, ix1, ix2):
