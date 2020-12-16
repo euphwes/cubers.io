@@ -4,7 +4,7 @@ from collections import namedtuple, OrderedDict
 from csv import writer as csv_writer
 from io import StringIO
 
-from flask import render_template, make_response
+from flask import render_template, make_response, request
 from flask_login import current_user
 
 from app import app
@@ -31,14 +31,15 @@ def event_results(event_name):
     if not event:
         return ("I don't know what {} is.".format(event_name), 404)
 
-    singles  = get_ordered_pb_singles_for_event(event.id)
-    averages = get_ordered_pb_averages_for_event(event.id) if event.name != 'MBLD' else list()
+    page = request.args.get('page', default=1, type=int)
+    singles, pagination  = get_ordered_pb_singles_for_event(event.id, event.name, page)
+    averages = get_ordered_pb_averages_for_event(event.id, page) if event.name != 'MBLD' else list()
 
     title = "{} Records".format(event.name)
 
     return render_template("records/event.html", event_id=event.id, event_name=event.name,
                            singles=singles, averages=averages, alternative_title=title,
-                           show_admin=current_user.is_admin)
+                           pagination=pagination, show_admin=current_user.is_admin)
 
 
 @app.route('/event/<event_name>/export/')
