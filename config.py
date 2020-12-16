@@ -79,6 +79,8 @@ class Config(object):
     # Other config
     # ------------------------------------------------------
     TEMPLATES_AUTO_RELOAD = True
+    # display 100 records/page on event ranking pages
+    EVENT_ROUTE_PAGE_SIZE = 100
 
     # The factor by which we multiply current WRs to determine whether or not to automatically
     # blacklist results we are assuming to be fake
