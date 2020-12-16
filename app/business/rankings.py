@@ -1,13 +1,14 @@
 """ Business logic for determining user site rankings and PBs. """
 
-from collections import OrderedDict
 from datetime import datetime
 import json
 
 from ranking import Ranking
 
+from app import app
 from app import DB
 from app.util.events import get_mbld_total_points, get_mbld_fraction_of_hour_remaining
+from app.util.events.pagination import _build_pagination
 from app.persistence.models import Competition, CompetitionEvent, Event, UserEventResults, User,\
     UserSiteRankings, EventFormat
 from app.persistence.events_manager import get_all_events, get_all_WCA_events
@@ -227,13 +228,19 @@ class PersonalBestRecord():
         self.numerical_rank   = '-1'
 
 
-def _build_PersonalBestRecord(query_tuple):
+def _build_PersonalBestRecord(record):
     """ Builds a PersonalBestRecord from the 5-tuple returned from the ordered PB queries below.
     The tuple looks like (user_id, single/average, comp_id, comp_title, username). """
 
-    user_id, result, comp_id, comp_title, username, comment, user_is_verified = query_tuple
-    return PersonalBestRecord(personal_best=result, user_id=user_id, username=username, comp_id=comp_id,
-        comp_title=comp_title, comment=comment, user_is_verified=user_is_verified)
+    return PersonalBestRecord(
+        personal_best=record.single,
+        user_id=record.user_id,
+        username=record.username,
+        comp_id=record.id,
+        comp_title=record.title,
+        comment=record.comment,
+        user_is_verified=record.is_verified
+    )
 
 
 def _filter_one_pb_per_user(personal_bests):
@@ -292,7 +299,7 @@ def _determine_ranks(personal_bests):
     return personal_bests
 
 
-def get_ordered_pb_singles_for_event(event_id):
+def get_ordered_pb_singles_for_event(event_id, event_name, page_number):
     """ Gets a list of PersonalBestRecords, comprised of the fastest single which doesn't belong to
     a blacklisted result, one per user, for the specified event, sorted by single value. """
 
@@ -309,22 +316,24 @@ def get_ordered_pb_singles_for_event(event_id):
         filter(UserEventResults.is_blacklisted.isnot(True)).\
         group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username, User.is_verified).\
         order_by(UserEventResults.id.desc()).\
-        values(UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username, UserEventResults.comment, User.is_verified)
+        paginate(page_number, app.config['EVENT_ROUTE_PAGE_SIZE'], error_out=False)
     # pylint: enable=C0301
+
+    pagination = _build_pagination(results, event_name)
 
     # NOTE: if adding anything to this tuple being selected in values(...) above, add it to the
     # end so that code indexing this tuple doesn't get all jacked. Make sure to make an identical
     # addition to `get_ordered_pb_averages_for_event` and update `_build_PersonalBestRecord`
 
-    personal_bests = [_build_PersonalBestRecord(result) for result in results]
+    personal_bests = [_build_PersonalBestRecord(result) for result in results.items]
     personal_bests = _filter_one_pb_per_user(personal_bests)
     personal_bests.sort(key=sort_personal_best_records)
     personal_bests = _determine_ranks(personal_bests)
 
-    return personal_bests
+    return personal_bests, pagination
 
 
-def get_ordered_pb_averages_for_event(event_id):
+def get_ordered_pb_averages_for_event(event_id, page_number):
     """ Gets a list of PersonalBestRecords, comprised of the fastest average which doesn't belong to
     a blacklisted result, one per user, for the specified event, sorted by average value.  """
 
@@ -341,14 +350,14 @@ def get_ordered_pb_averages_for_event(event_id):
         filter(UserEventResults.is_blacklisted.isnot(True)).\
         group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.average, Competition.id, Competition.title, User.username, User.is_verified).\
         order_by(UserEventResults.id.desc()).\
-        values(UserEventResults.user_id, UserEventResults.average, Competition.id, Competition.title, User.username, UserEventResults.comment, User.is_verified)
+        paginate(page_number, app.config['EVENT_ROUTE_PAGE_SIZE'], error_out=False)
     # pylint: enable=C0301
 
     # NOTE: if adding anything to this tuple being selected in values(...) above, add it to the
     # end so that code indexing this tuple doesn't get all jacked. Make sure to make an identical
     # addition to `get_ordered_pb_singles_for_event` and update `_build_PersonalBestRecord`
 
-    personal_bests = [_build_PersonalBestRecord(result) for result in results]
+    personal_bests = [_build_PersonalBestRecord(result) for result in results.items]
 
     # Some events don't have averages, so it's ok to just return an empty list. Checking here
     # instead of checking `results` above, because `results` is a generator and the contents have't
