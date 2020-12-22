@@ -221,6 +221,27 @@
                     newColors[settingIndexMap[setting]] = color;
                 }
             }
+            if (window.app.eventName == "Square-1") {
+                newColors = {
+                    "D": $(".input-group input[name='custom_squan_color_D']").val(),
+                    "L": $(".input-group input[name='custom_squan_color_L']").val(),
+                    "B": $(".input-group input[name='custom_squan_color_B']").val(),
+                    "U": $(".input-group input[name='custom_squan_color_U']").val(),
+                    "R": $(".input-group input[name='custom_squan_color_R']").val(),
+                    "F": $(".input-group input[name='custom_squan_color_F']").val()
+                };
+                if (color != null) {
+                    var settingIndexMap = {
+                        'custom_squan_color_D': "D",
+                        'custom_squan_color_L': "L",
+                        'custom_squan_color_B': "B",
+                        'custom_squan_color_U': "U",
+                        'custom_squan_color_R': "R",
+                        'custom_squan_color_F': "F"
+                    }
+                    newColors[settingIndexMap[setting]] = color;
+                }
+            }
         };
 
         var injectColors = function() {
@@ -235,6 +256,9 @@
             }
             if (window.app.eventName == "FTO") {
                 imageGenerator.injectFtoColors(newColors);
+            }
+            if (window.app.eventName == "Square-1") {
+                imageGenerator.injectSq1Colors(newColors);
             }
         }
 

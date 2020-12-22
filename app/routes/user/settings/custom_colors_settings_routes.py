@@ -61,11 +61,22 @@ __CUSTOM_FTO_COLOR_SETTINGS = [
     SettingCode.CUSTOM_FTO_COLOR_BL,
 ]
 
+__CUSTOM_SQUAN_COLOR_SETTINGS = [
+    SettingCode.USE_CUSTOM_SQUAN_COLORS,
+    SettingCode.CUSTOM_SQUAN_COLOR_U,
+    SettingCode.CUSTOM_SQUAN_COLOR_F,
+    SettingCode.CUSTOM_SQUAN_COLOR_R,
+    SettingCode.CUSTOM_SQUAN_COLOR_D,
+    SettingCode.CUSTOM_SQUAN_COLOR_B,
+    SettingCode.CUSTOM_SQUAN_COLOR_L,
+]
+
 __EVENT_SETTINGS_MAPPING = {
     'fto':      __CUSTOM_FTO_COLOR_SETTINGS,
     'cube':     __CUSTOM_CUBE_COLOR_SETTINGS,
     'pyraminx': __CUSTOM_PYRAMINX_COLOR_SETTINGS,
     'megaminx': __CUSTOM_MEGAMINX_COLOR_SETTINGS,
+    'squan': __CUSTOM_SQUAN_COLOR_SETTINGS,
 }
 
 __EVENT_SETTINGS_EVENT_NAME_MAPPING = {
@@ -73,6 +84,7 @@ __EVENT_SETTINGS_EVENT_NAME_MAPPING = {
     'cube':     "3x3",
     'pyraminx': "Pyraminx",
     'megaminx': "Megaminx",
+    'squan':    "Square-1",
 }
 
 __EVENT_MSGS_MAPPING = {
@@ -81,8 +93,8 @@ __EVENT_MSGS_MAPPING = {
         'Customize the scramble preview for FTO by choosing custom colors below!'
     ],
     'cube': [
-        'Cubes (NxN, Square-1, Skewb, etc)',
-        'Customize the scramble preview for all cube events by choosing custom colors below!'
+        'Cubes (NxN and Skewb)',
+        'Customize the scramble preview for cube events by choosing custom colors below!'
     ],
     'pyraminx': [
         'Pyraminx',
@@ -91,6 +103,10 @@ __EVENT_MSGS_MAPPING = {
     'megaminx': [
         'Megaminx and Kilominx',
         'Customize the scramble preview for Megaminx and Kilominx by choosing custom colors below!'
+    ],
+    'squan': [
+        'Square-1',
+        'Customize the scramble preview for Square-1 by choosing custom colors below!'
     ],
 }
 
