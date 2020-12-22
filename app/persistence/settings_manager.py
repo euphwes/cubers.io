@@ -535,6 +535,11 @@ SETTING_INFO_MAP = {
         default_value = DEFAULT_FTO_COLORS["BL"]
     ),
 
+    # Square-1 colors notes: you might notice the F, R, B, L face titles don't line up with the
+    # the actual setting code. This is on purpose; the scramble image renderer refers to the faces
+    # by F, R, B, L but then renders them on a different face than it claims. I've titled the
+    # settings below so they are labeled how the users are expecting the faces to be labeled.
+
     SettingCode.USE_CUSTOM_SQUAN_COLORS: SettingInfo(
         title         = "Use Custom Square-1 Colors",
         validator     = boolean_validator,
@@ -553,14 +558,14 @@ SETTING_INFO_MAP = {
     ),
 
     SettingCode.CUSTOM_SQUAN_COLOR_F: SettingInfo(
-        title         = "F Face",
+        title         = "R Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_SQUAN_COLORS["F"]
     ),
 
     SettingCode.CUSTOM_SQUAN_COLOR_R: SettingInfo(
-        title         = "R Face",
+        title         = "B Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_SQUAN_COLORS["R"]
@@ -574,14 +579,14 @@ SETTING_INFO_MAP = {
     ),
 
     SettingCode.CUSTOM_SQUAN_COLOR_B: SettingInfo(
-        title         = "B Face",
+        title         = "L Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_SQUAN_COLORS["B"]
     ),
 
     SettingCode.CUSTOM_SQUAN_COLOR_L: SettingInfo(
-        title         = "L Face",
+        title         = "F Face",
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_SQUAN_COLORS["L"]
