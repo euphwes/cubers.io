@@ -438,6 +438,13 @@ SETTINGS_TO_POPULATE = [
     SettingCode.CUSTOM_FTO_COLOR_L,
     SettingCode.CUSTOM_FTO_COLOR_BL,
     SettingCode.CUSTOM_FTO_COLOR_BR,
+    SettingCode.USE_CUSTOM_SQUAN_COLORS,
+    SettingCode.CUSTOM_SQUAN_COLOR_U,
+    SettingCode.CUSTOM_SQUAN_COLOR_F,
+    SettingCode.CUSTOM_SQUAN_COLOR_R,
+    SettingCode.CUSTOM_SQUAN_COLOR_D,
+    SettingCode.CUSTOM_SQUAN_COLOR_B,
+    SettingCode.CUSTOM_SQUAN_COLOR_L,
 ]
 
 def __get_user_settings(user):
