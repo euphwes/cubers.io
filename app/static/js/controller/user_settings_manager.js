@@ -52,6 +52,15 @@
     Settings.CUSTOM_FTO_COLOR_BR   = 'custom_fto_color_BR';
     Settings.CUSTOM_FTO_COLOR_BL   = 'custom_fto_color_BL';
 
+    // Stuff related to custom cube colors
+    Settings.USE_CUSTOM_SQUAN_COLORS = 'use_custom_squan_colors';
+    Settings.CUSTOM_SQUAN_COLOR_U    = 'custom_squan_color_U';
+    Settings.CUSTOM_SQUAN_COLOR_F    = 'custom_squan_color_F';
+    Settings.CUSTOM_SQUAN_COLOR_R    = 'custom_squan_color_R';
+    Settings.CUSTOM_SQUAN_COLOR_D    = 'custom_squan_color_D';
+    Settings.CUSTOM_SQUAN_COLOR_B    = 'custom_squan_color_B';
+    Settings.CUSTOM_SQUAN_COLOR_L    = 'custom_squan_color_L';
+
     /**
      * Manages user settings
      */

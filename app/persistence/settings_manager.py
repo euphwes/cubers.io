@@ -147,12 +147,12 @@ DEFAULT_FTO_COLORS = {
 }
 
 DEFAULT_SQUAN_COLORS = {
-    'U': '#000000',
+    'U': '#333333',
     'D': '#FFFFFF',
-    'F': '#FF8800',
-    'R': '#0000FF',
-    'B': '#FF0000',
-    'L': '#00FF00',
+    'L': '#FF8800',
+    'F': '#0000FF',
+    'R': '#FF0000',
+    'B': '#00FF00',
 }
 
 def boolean_validator(value):

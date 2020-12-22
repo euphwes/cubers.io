@@ -5,16 +5,24 @@
     var default_cube_colors = ['#ff0', '#fa0', '#00f', '#fff', '#f00', '#0d0'];
     var cube_colors = ['#ff0', '#fa0', '#00f', '#fff', '#f00', '#0d0'];
 
-    // Order is    U,      B,      R,      D,      F       L
+    // Order is          U,      B,      R,      D,      F       L
     var skewb_colors = ['#fff', '#00f', '#f00', '#ff0', '#0f0', '#f80'];
 
+    var default_sq1_colors = {
+        'U': '#333333',
+        'D': '#FFFFFF',
+        'L': '#FF8800',
+        'F': '#0000FF',
+        'R': '#FF0000',
+        'B': '#00FF00',
+    };
     var sq1_colors = {
-        'U': '#ff0',
-        'R': '#f80',
-        'F': '#0f0',
-        'D': '#fff',
-        'L': '#f00',
-        'B': '#00f'
+        'U': '#333333',
+        'D': '#FFFFFF',
+        'L': '#FF8800',
+        'F': '#0000FF',
+        'R': '#FF0000',
+        'B': '#00FF00',
     };
 
     // Order is    U       L          F       R       B       BR         D       BL
@@ -99,14 +107,6 @@
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_F),
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_L)
             ];
-            sq1_colors = {
-                'U': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_U),
-                'R': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_R),
-                'F': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_F),
-                'D': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_D),
-                'L': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_L),
-                'B': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_B)
-            };
         }
 
         if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_PYRAMINX_COLORS)) {
@@ -146,6 +146,17 @@
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_FTO_COLOR_D),
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_FTO_COLOR_BL)
             ];
+        }
+
+        if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_SQUAN_COLORS)) {
+            sq1_colors = {
+                'U': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_SQUAN_COLOR_U),
+                'R': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_SQUAN_COLOR_R),
+                'F': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_SQUAN_COLOR_F),
+                'D': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_SQUAN_COLOR_D),
+                'L': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_SQUAN_COLOR_L),
+                'B': window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_SQUAN_COLOR_B)
+            };
         }
     };
 
@@ -1254,6 +1265,7 @@
         var sq1Image = (function() {
             var posit = [];
             var mid = 0;
+            var colors = null;
 
             //(move[0], move[1]) (/ = move[2])
             function doMove(move) {
@@ -1309,10 +1321,8 @@
 
             return function(moveseq) {
 
-                if (!colors) {
-                    setColors();
-                    colors = sq1_colors;
-                }
+                setColors();
+                colors = sq1_colors;
 
                 posit = [0, 0, 1, 2, 2, 3, 4, 4, 5, 6, 6, 7, 8, 8, 9, 10, 10, 11, 12, 12, 13, 14, 14, 15];
                 mid = 0;
@@ -3277,11 +3287,17 @@
         fto_colors = newColors;
     };
 
+    ScrambleImageGenerator.prototype.injectSq1Colors = function(newColors) {
+        sq1_colors = newColors;
+    };
+
+
     ScrambleImageGenerator.prototype.resetDefaultColors = function() {
         cube_colors = default_cube_colors;
         mega_colors = default_mega_colors;
         pyra_colors = default_pyra_colors;
         fto_colors = default_fto_colors;
+        sq1_colors = default_sq1_colors;
     };
 
     // Make ScrambleImageGenerator visible at app scope
