@@ -72,11 +72,22 @@ class SettingCode():
     CUSTOM_FTO_COLOR_BR   = 'custom_fto_color_BR'
     CUSTOM_FTO_COLOR_BL   = 'custom_fto_color_BL'
 
+    # Custom Square-1 colors
+    USE_CUSTOM_SQUAN_COLORS = 'use_custom_squan_colors'
+    CUSTOM_SQUAN_COLOR_U    = 'custom_squan_color_U'
+    CUSTOM_SQUAN_COLOR_F    = 'custom_squan_color_F'
+    CUSTOM_SQUAN_COLOR_R    = 'custom_squan_color_R'
+    CUSTOM_SQUAN_COLOR_D    = 'custom_squan_color_D'
+    CUSTOM_SQUAN_COLOR_B    = 'custom_squan_color_B'
+    CUSTOM_SQUAN_COLOR_L    = 'custom_squan_color_L'
+
+
 # Denotes the type of setting, aka boolean, free-form text, etc
 class SettingType():
     BOOLEAN        = 'boolean'
     HEX_COLOR      = 'hex_color'      # hex color code aka "#FFC1D2"
     EVENT_ID_LIST  = 'event_id_list'  # comma-delimited list of integers
+
 
 # Encapsulates necessary information about each setting
 class SettingInfo():
@@ -133,6 +144,15 @@ DEFAULT_FTO_COLORS = {
     'L':  '#800080',
     'BL': '#FF8800',
     'BR': '#BEBEBE',
+}
+
+DEFAULT_SQUAN_COLORS = {
+    'U': '#000000',
+    'D': '#FFFFFF',
+    'F': '#FF8800',
+    'R': '#0000FF',
+    'B': '#FF0000',
+    'L': '#00FF00',
 }
 
 def boolean_validator(value):
@@ -513,6 +533,58 @@ SETTING_INFO_MAP = {
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_FTO_COLORS["BL"]
+    ),
+
+    SettingCode.USE_CUSTOM_SQUAN_COLORS: SettingInfo(
+        title         = "Use Custom Square-1 Colors",
+        validator     = boolean_validator,
+        setting_type  = SettingType.BOOLEAN,
+        default_value = FALSE_STR,
+        affects       = [SettingCode.CUSTOM_SQUAN_COLOR_B, SettingCode.CUSTOM_SQUAN_COLOR_D,
+                         SettingCode.CUSTOM_SQUAN_COLOR_F, SettingCode.CUSTOM_SQUAN_COLOR_L,
+                         SettingCode.CUSTOM_SQUAN_COLOR_R, SettingCode.CUSTOM_SQUAN_COLOR_U]
+    ),
+
+    SettingCode.CUSTOM_SQUAN_COLOR_U: SettingInfo(
+        title         = "U Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_SQUAN_COLORS["U"]
+    ),
+
+    SettingCode.CUSTOM_SQUAN_COLOR_F: SettingInfo(
+        title         = "F Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_SQUAN_COLORS["F"]
+    ),
+
+    SettingCode.CUSTOM_SQUAN_COLOR_R: SettingInfo(
+        title         = "R Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_SQUAN_COLORS["R"]
+    ),
+
+    SettingCode.CUSTOM_SQUAN_COLOR_D: SettingInfo(
+        title         = "D Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_SQUAN_COLORS["D"]
+    ),
+
+    SettingCode.CUSTOM_SQUAN_COLOR_B: SettingInfo(
+        title         = "B Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_SQUAN_COLORS["B"]
+    ),
+
+    SettingCode.CUSTOM_SQUAN_COLOR_L: SettingInfo(
+        title         = "L Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_SQUAN_COLORS["L"]
     ),
 }
 

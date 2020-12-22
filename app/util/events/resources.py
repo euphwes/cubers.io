@@ -52,7 +52,7 @@ def attack_scrambler():
     return scramble
 
 
-def redi_scrambler(total_faces=7):
+def redi_scrambler(total_faces = 7):
     """ Returns a scramble for a Redi cube in MoYu notation. """
 
     scramble = list()
