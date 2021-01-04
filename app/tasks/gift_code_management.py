@@ -66,18 +66,18 @@ left, but we'll retry soon.
 
 # -------------------------------------------------------------------------------------------------
 
-# In devo, run the task to check the gift code pool every 5 minutes. In prod, run it every day.
+# In devo, run the task to check the gift code pool every 3 days. In prod, run it every 7 days.
 if app.config['IS_DEVO']:
-    CHECK_GIFT_CODE_POOL_SCHEDULE = crontab(minute="*/5")
+    CHECK_GIFT_CODE_POOL_SCHEDULE = crontab(day="*/3")
 else:
-    CHECK_GIFT_CODE_POOL_SCHEDULE = crontab(day="*/1", hour="0", minute="0")
+    CHECK_GIFT_CODE_POOL_SCHEDULE = crontab(day="*/7", hour="0", minute="0")
 
 
-# Retry a failed gift code winner selection in 5 minutes. In prod, retry in 1 day.
+# Retry a failed gift code winner selection in 15 minutes. In prod, retry in 7 days.
 if app.config['IS_DEVO']:
-    __GIFT_CODE_SELECTION_RETRY_DELAY = 60 * 5
+    __GIFT_CODE_SELECTION_RETRY_DELAY = 60 * 15
 else:
-    __GIFT_CODE_SELECTION_RETRY_DELAY = 60 * 60 * 24
+    __GIFT_CODE_SELECTION_RETRY_DELAY = 60 * 60 * 24 * 7
 
 # -------------------------------------------------------------------------------------------------
 

@@ -155,6 +155,7 @@ DEFAULT_SQUAN_COLORS = {
     'B': '#00FF00',
 }
 
+
 def boolean_validator(value):
     """ Validates a boolean setting value as text. """
     if value is None:
