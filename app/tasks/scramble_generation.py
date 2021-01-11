@@ -64,5 +64,12 @@ def top_off_scramble_pool(top_off_info):
 
     event_resource = get_event_resource_for_name(top_off_info.event_name)
 
-    for _ in range(top_off_info.num_scrambles):
-        add_scramble_to_scramble_pool(event_resource.get_scramble(), top_off_info.event_id)
+    if event_resource.name == 'FTO':
+        # FTO's scrambler will actually return multiple scrambles at once, since that's faster than
+        # generating one at a time.
+        scrambles = event_resource.get_scramble(top_off_info.num_scrambles)
+    else:
+        scrambles = [event_resource.get_scramble() for _ in range(top_off_info.num_scrambles)]
+
+    for scramble in scrambles:
+        add_scramble_to_scramble_pool(scramble, top_off_info.event_id)
