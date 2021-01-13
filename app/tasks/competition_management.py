@@ -19,12 +19,32 @@ from . import huey
 if app.config['IS_DEVO']:
     # don't run as periodic in devo
     WRAP_WEEKLY_COMP_SCHEDULE = lambda _ : False
+    RUN_RANKINGS_SCHEDULE = lambda _ : False
 
 else:
-    # Mon 2 AM UTC == Sun 10 PM US/Eastern (or 11 PM if it's not Daylight Savings Time)
+    # Run the rankings task several hours after the comp stuff. I think we're having memory issues.
     WRAP_WEEKLY_COMP_SCHEDULE = crontab(day_of_week='1', hour='2', minute='0')
+    RUN_RANKINGS_SCHEDULE = crontab(day_of_week='1', hour='6', minute='0')
 
 # -------------------------------------------------------------------------------------------------
+
+@huey.periodic_task(RUN_RANKINGS_SCHEDULE)
+def run_weekly_site_rankings():
+    """ A periodic task to run the site rankings stuff weekly. """
+
+    run_user_site_rankings()
+
+
+@huey.task()
+def run_user_site_rankings():
+    """ A task to run the calculations to update user site rankings based on the latest data. """
+
+    # Let's keep the timing stuff handy, I want to probably send this via Reddit PM later
+    # start = utcnow()
+    # user_count = get_user_count()
+    precalculate_user_site_rankings()
+    # end = utcnow()
+
 
 @huey.periodic_task(WRAP_WEEKLY_COMP_SCHEDULE)
 def wrap_weekly_competition():
@@ -36,8 +56,8 @@ def wrap_weekly_competition():
     set_medals_on_best_event_results(comp_events_in_comp)
 
     post_results_thread_task(current_comp.id)
-    generate_new_competition_task()
     prepare_end_of_competition_info_notifications(current_comp.id)
+    generate_new_competition_task()
     send_gift_code_winner_approval_pm(current_comp.id)
 
 
@@ -53,17 +73,4 @@ def generate_new_competition_task():
     """ A task to generate a new competition. """
 
     competition, was_all_events = generate_new_competition()
-
     prepare_new_competition_notification(competition.id, was_all_events)
-    run_user_site_rankings()
-
-
-@huey.task()
-def run_user_site_rankings():
-    """ A task to run the calculations to update user site rankings based on the latest data. """
-
-    # Let's keep the timing stuff handy, I want to probably send this via Reddit PM later
-    # start = utcnow()
-    # user_count = get_user_count()
-    precalculate_user_site_rankings()
-    # end = utcnow()
