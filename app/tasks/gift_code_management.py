@@ -70,7 +70,8 @@ left, but we'll retry soon.
 if app.config['IS_DEVO']:
     CHECK_GIFT_CODE_POOL_SCHEDULE = crontab(day="*/3")
 else:
-    CHECK_GIFT_CODE_POOL_SCHEDULE = crontab(day="*/7", hour="0", minute="0")
+    # CHECK_GIFT_CODE_POOL_SCHEDULE = crontab(day="*/7", hour="0", minute="0")
+    CHECK_GIFT_CODE_POOL_SCHEDULE = lambda _ : False
 
 
 # Retry a failed gift code winner selection in 15 minutes. In prod, retry in 7 days.
@@ -106,13 +107,13 @@ def send_gift_code_winner_approval_pm(comp_id):
     gift_code   = get_unused_gift_code()
 
     if not gift_code:
+        return
         msg = __NO_CODES_LEFT_TEMPLATE.format(
             comp_title      = competition.title,
             code_refill_url = __CODE_REFILL_ADMIN_URL
         )
         send_PM_to_user_with_title_and_body(__CODE_TOP_OFF_REDDIT_USER, __NO_CODES_LEFT_TITLE, msg)
         send_gift_code_winner_approval_pm.schedule((comp_id,), delay=__GIFT_CODE_SELECTION_RETRY_DELAY)
-        return
 
     confirm_deny_record = create_confirm_deny_record(gift_code.id, winner.id, comp_id)
 

@@ -8,7 +8,7 @@ from app.business.user_results import set_medals_on_best_event_results
 from app.persistence.comp_manager import get_active_competition, get_all_comp_events_for_comp
 from app.util.competition.generation import generate_new_competition
 from app.util.competition.scoring import post_results_thread
-from app.tasks.gift_code_management import send_gift_code_winner_approval_pm
+# from app.tasks.gift_code_management import send_gift_code_winner_approval_pm
 from app.tasks.reddit import prepare_new_competition_notification,\
     prepare_end_of_competition_info_notifications
 
@@ -58,7 +58,7 @@ def wrap_weekly_competition():
     post_results_thread_task(current_comp.id)
     prepare_end_of_competition_info_notifications(current_comp.id)
     generate_new_competition_task()
-    send_gift_code_winner_approval_pm(current_comp.id)
+    # send_gift_code_winner_approval_pm(current_comp.id)
 
 
 @huey.task()

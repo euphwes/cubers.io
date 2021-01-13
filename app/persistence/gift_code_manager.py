@@ -4,7 +4,8 @@ from uuid import uuid1
 from typing import List
 
 from app import DB
-from app.persistence.models import SCSGiftCodePool, WeeklyCodeRecipientConfirmDeny, WeeklyCodeRecipientResolution
+from app.persistence.models import SCSGiftCodePool, WeeklyCodeRecipientConfirmDeny,\
+    WeeklyCodeRecipientResolution
 
 #--------------------------------------------------------------------------------------------------
 
