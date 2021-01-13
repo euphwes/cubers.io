@@ -3,6 +3,7 @@
 from urllib.parse import urlencode
 
 from flask import Flask
+from flask.helpers import send_from_directory
 from flask_assets import Bundle, Environment
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -179,6 +180,11 @@ ASSETS.register({
         filters="less,cssmin",
         output='gen/app.css'),
 })
+
+
+@app.route('/robots.txt')
+def static_from_root():
+    return send_from_directory('static', request.path[1:])
 
 # -------------------------------------------------------------------------------------------------
 
