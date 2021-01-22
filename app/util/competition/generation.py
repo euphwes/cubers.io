@@ -16,7 +16,7 @@ from app.util.events.resources import get_all_weekly_events, get_all_bonus_event
 # -------------------------------------------------------------------------------------------------
 
 # This determines how many bonus events are run in a regular weekly competition.
-BONUS_EVENT_COUNT = 7
+BONUS_EVENT_COUNT = 8
 
 # Jan 2019 Week 1
 # Apr 2021 Week 3, etc
