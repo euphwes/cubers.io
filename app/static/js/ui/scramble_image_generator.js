@@ -2790,8 +2790,8 @@
                 setColors();
                 colors = cube_colors;
 
-                var offx = 10 / 9,
-                    offy = 10 / 9;
+                var offx = 9.8 / 9,
+                    offy = 9.8 / 9;
                 if (f == 0) { //D
                     offx *= size;
                     offy *= size * 2;
@@ -2811,6 +2811,9 @@
                     offx *= size;
                     offy *= size;
                 }
+
+                offy += 0.1;
+                offx += 0.1;
 
                 var adjustedOffy = 0;
                 var initialOffy = offy;
