@@ -30,6 +30,9 @@
     // performing that text resize on desktop.
     var fitText = function () {
         textFit($('.scram')[0], { multiLine: true, maxFontSize: 36 });
+        // COLL doesn't really need the partial scramble stuff, and it messes up the "This week we're doing COLL XX"
+        // messaging.
+        if (window.app.eventName == 'COLL') { return; }
         // If the event is complete, don't apply lettering. Don't need partial scramble functionality anyway,
         // and it'll mess up the whitespace in the "congrats you finished this event" messaging
         if (window.app.isComplete) { return; }
