@@ -238,6 +238,7 @@ __ALL_EVENTS = [
     EVENT_333Relay,
     EVENT_F2L,
     EVENT_Mirror,
+    EVENT_8x8,
     EVENT_3x3x4,
     EVENT_Kilominx,
     EVENT_4x4OH,
@@ -249,7 +250,6 @@ __ALL_EVENTS = [
     EVENT_4BLD,
     EVENT_5BLD,
     EVENT_REDI,
-    EVENT_8x8,
     EVENT_9x9,
     EVENT_MBLD,
     EVENT_DINO,
@@ -261,7 +261,6 @@ __ALL_EVENTS = [
 # Important! Don't change how these weekly and bonus lists are built, we rely on the order
 __WEEKLY_EVENTS = [event for event in __ALL_EVENTS if event.is_weekly]
 __BONUS_EVENTS = [event for event in __ALL_EVENTS if (not event.is_weekly) and event.is_rotating]
-__SPECIAL_EVENTS = [event for event in __ALL_EVENTS if (not event.is_weekly) and (not event.is_rotating)]
 __WCA_EVENTS = [event for event in __ALL_EVENTS if event.is_wca]
 __NON_WCA_EVENTS = [event for event in __ALL_EVENTS if not event.is_wca]
 
@@ -417,16 +416,15 @@ def get_all_weekly_events():
 
 
 def get_all_bonus_events():
-    """ Return all the bonus events (rotating and non-rotating ones). """
+    """ Return all the bonus events. """
 
-    return __BONUS_EVENTS + __SPECIAL_EVENTS
+    return __BONUS_EVENTS
 
 
 def get_all_bonus_events_names():
-    """ Return all the bonus events (rotating and non-rotating ones). """
+    """ Return all the bonus events. """
 
-    combined_events = __BONUS_EVENTS + __SPECIAL_EVENTS
-    return [e.name for e in combined_events]
+    return [e.name for e in __BONUS_EVENTS]
 
 
 def get_WCA_event_names():
