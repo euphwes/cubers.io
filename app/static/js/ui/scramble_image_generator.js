@@ -2971,27 +2971,29 @@
 
             /**
              * Mirror blocks geometry notes
-             * 
+             *
              * E/M/S slices are all 19 mm wide.
              * This is the reference width, so the multiplier is 1.
              * Using https://rubiks.fandom.com/wiki/Mirror_Cube as a ref
              * for width values and which face thickness is which.
-             * 
+             *
              * U is  9 mm -->  9/19 = 0.474
              * D is 29 mm --> 29/19 = 1.526
              * L is 13 mm --> 13/19 = 0.684
              * R is 25 mm --> 25/19 = 1.316
              * F is 17 mm --> 17/19 = 0.895
              * B is 21 mm --> 21/19 = 1.105
-             * 
+             *
              * Each edge sticker is a rectangle, 19 x N mm.
              * Each corner sticker is a rectangle, N x M mm.
-             * 
+             *
              * The map below is to hold each sticker's dimensions
              * so we can render the correct size after scrambling.
              * Reference image for each sticker number's starting position:
-             * 
              * https://i.imgur.com/uNliZny.png
+             *
+             * Reference image for i,j coords on each face:
+             * https://i.imgur.com/6MgE7rv.png
              */
 
             var posit = [];
@@ -3063,8 +3065,9 @@
             var centers = [4, 13, 49, 40, 22, 31];
             var edges = [1, 3, 5, 7, 10, 12, 14, 16, 19, 21, 23, 25, 28, 30, 32, 34, 37, 39, 41, 43, 46, 48, 50, 52];
 
-            // corners which "naturally belong" in top-right or bottom-left orbit
-            var primary_orbits = [0, 8, 17, 9, 51, 47, 42, 38, 26, 18, 33, 29];
+            // corners which "naturally belong" in top-right or bottom-left positions
+            // with no face turn or double face turn
+            var corners_primary_pos = [0, 8, 17, 9, 51, 47, 42, 38, 26, 18, 33, 29];
 
             function renderChar(width, x, y, value) {
                 ctx.fillStyle = "#fff";
@@ -3106,15 +3109,53 @@
                     for (var j = 0; j < size; j++) {
                         var y = (f == 0) ? size - 1 - j : j;
 
-                        var whichPiece = posit[(f * size + y) * size + x];
+                        var stickerIndex = (f * size + y) * size + x;
+                        var stickerNum = posit[stickerIndex];
+                        var x_coords;
+                        var y_coords;
 
-                        drawPolygon(ctx, "#787878", [
-                            [i, i, i + 1, i + 1],
-                            [j, j + 1, j + 1, j]
-                        ], [width, offx, offy]);
+                        if (centers.includes(stickerNum)) {
+                            x_coords = [i, i, i + 1, i + 1];
+                            y_coords = [j, j + 1, j + 1, j];
 
-                        renderChar(width, offx + i + 0.5, offy + j + 0.5, (f * size + y) * size + x);
+                            drawPolygon(ctx, "#787878", [
+                                x_coords,
+                                y_coords,
+                            ], [width, offx, offy]);
+                        }
 
+                        if (edges.includes(stickerNum)) {
+                            var alt_w = stickerWidthMap[stickerNum];
+                            // top left
+                            // bottom left
+                            // bottom right
+                            // top right
+
+                            // it's an upper or lower sticker
+                            if (i == 1) {
+                                x_coords = [i, i, i + 1, i + 1];
+                                if (j == 0) {  // upper
+                                    y_coords = [j + 1 - alt_w, j + 1, j + 1, j + 1 - alt_w];
+                                } else {       // lower
+                                   y_coords = [j, j + alt_w, j + alt_w, j];
+                                }
+                            }
+
+                            // else it's a left or right sticker
+                            else {
+                                y_coords = [j, j + 1, j + 1, j];
+                                if (i == 0) {  // left
+                                    x_coords = [i + 1 - alt_w, i + 1 - alt_w, i + 1, i + 1];
+                                } else {      // right
+                                    x_coords = [i, i, i + alt_w, i + alt_w];
+                                }
+                            }
+
+                            drawPolygon(ctx, "#787878", [
+                                x_coords,
+                                y_coords,
+                            ], [width, offx, offy]);
+                        }
                     }
                 }
             }
@@ -3196,7 +3237,8 @@
                 var cnt = 0;
                 for (var i = 0; i < 6; i++) {
                     for (var f = 0; f < size * size; f++) {
-                        posit[cnt++] = i;
+                        posit[cnt] = cnt;
+                        cnt += 1;
                     }
                 }
                 var moves = parseScramble(moveseq, "DLBURF");
