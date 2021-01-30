@@ -2969,7 +2969,110 @@
         var mirrorBlocksImage = (function() {
             var width = 30;
 
+            /**
+             * Mirror blocks geometry notes
+             * 
+             * E/M/S slices are all 19 mm wide.
+             * This is the reference width, so the multiplier is 1.
+             * Using https://rubiks.fandom.com/wiki/Mirror_Cube as a ref
+             * for width values and which face thickness is which.
+             * 
+             * U is  9 mm -->  9/19 = 0.474
+             * D is 29 mm --> 29/19 = 1.526
+             * L is 13 mm --> 13/19 = 0.684
+             * R is 25 mm --> 25/19 = 1.316
+             * F is 17 mm --> 17/19 = 0.895
+             * B is 21 mm --> 21/19 = 1.105
+             * 
+             * Each edge sticker is a rectangle, 19 x N mm.
+             * Each corner sticker is a rectangle, N x M mm.
+             * 
+             * The map below is to hold each sticker's dimensions
+             * so we can render the correct size after scrambling.
+             * Reference image for each sticker number's starting position:
+             * 
+             * https://i.imgur.com/uNliZny.png
+             */
+
             var posit = [];
+
+            var uw = 0.474;
+            var dw = 1.526;
+            var lw = 0.684;
+            var rw = 1.316;
+            var fw = 0.895;
+            var bw = 1.105;
+
+            var stickerWidthMap = {
+                // D-adjacent edge stickers
+                52: dw, 43: dw, 25: dw, 16: dw,
+                // U-adjacent edge stickers
+                46: uw, 37: uw, 19: uw, 10: uw,
+                // L-adjacent edge stickers
+                48: lw, 30: lw, 3: lw, 21: lw,
+                // R-adjacent edge stickers
+                50: rw, 32: rw, 5: rw, 23: rw,
+                // F-adjacent edge stickers
+                34: fw, 12: fw, 7: fw, 39: rw,
+                // B-adjacent edge stickers
+                14: bw, 28: bw, 41: bw, 1: bw,
+
+                // For corners, there isn't a reference 19mm edge
+                // so later we need to know if it's in its "native orientation"
+                // (its home position on each face, or the opposite corner)
+                // or not. Just store (width, height) in that order, and whether it's
+                // in the naturally in the top-right or bottom-left spot.
+
+                // F
+                51: [[dw, lw], true],
+                53: [[dw, rw], false],
+                45: [[uw, lw], false],
+                47: [[uw, rw], true],
+
+                // D
+                0: [[bw, lw], true],
+                2: [[bw, rw], false],
+                6: [[fw, lw], false],
+                8: [[fw, rw], true],
+
+                // R
+                42: [[dw, fw], true],
+                44: [[dw, bw], false],
+                36: [[uw, fw], false],
+                38: [[uw, bw], true],
+
+                // B
+                26: [[dw, rw], true],
+                24: [[dw, lw], false],
+                20: [[uw, rw], false],
+                18: [[uw, lw], true],
+
+                // L
+                17: [[dw, bw], true],
+                15: [[dw, fw], false],
+                11: [[uw, bw], false],
+                 9: [[uw, fw], true],
+
+                 // U
+                 33: [[fw, lw], true],
+                 35: [[fw, rw], false],
+                 27: [[bw, lw], false],
+                 29: [[bw, rw], true]
+            }
+
+            var centers = [4, 13, 49, 40, 22, 31];
+            var edges = [1, 3, 5, 7, 10, 12, 14, 16, 19, 21, 23, 25, 28, 30, 32, 34, 37, 39, 41, 43, 46, 48, 50, 52];
+
+            // corners which "naturally belong" in top-right or bottom-left orbit
+            var primary_orbits = [0, 8, 17, 9, 51, 47, 42, 38, 26, 18, 33, 29];
+
+            function renderChar(width, x, y, value) {
+                ctx.fillStyle = "#fff";
+                ctx.font = "25px Calibri";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(value, width * x, width * y);
+            }
 
             function face(f, size) {
 
@@ -2999,11 +3102,19 @@
                 offx += 0.1;
 
                 for (var i = 0; i < size; i++) {
+                    var x = (f == 1 || f == 2) ? size - 1 - i : i;
                     for (var j = 0; j < size; j++) {
-                        drawPolygon(ctx, color, [
+                        var y = (f == 0) ? size - 1 - j : j;
+
+                        var whichPiece = posit[(f * size + y) * size + x];
+
+                        drawPolygon(ctx, "#787878", [
                             [i, i, i + 1, i + 1],
                             [j, j + 1, j + 1, j]
                         ], [width, offx, offy]);
+
+                        renderChar(width, offx + i + 0.5, offy + j + 0.5, (f * size + y) * size + x);
+
                     }
                 }
             }
@@ -3014,6 +3125,7 @@
              *  q: [  2 ']
              */
             function doslice(f, d, q, size) {
+
                 var f1, f2, f3, f4;
                 var s2 = size * size;
                 var c, i, j, k;
@@ -3081,7 +3193,6 @@
             }
 
             return function(size, moveseq) {
-
                 var cnt = 0;
                 for (var i = 0; i < 6; i++) {
                     for (var f = 0; f < size * size; f++) {
@@ -3109,7 +3220,7 @@
                 canvas.attr('height', 29 * size / 9 * width + 1);
 
                 for (var i = 0; i < 6; i++) {
-                    face(i, size, isVoidCube, is332);
+                    face(i, size);
                 }
             }
         })();
@@ -3151,6 +3262,10 @@
             }
             if (type == "3x3x2") {
                 nnnImage(3, scrambleText, false, true);
+                return true;
+            }
+            if (type == "Mirror Blocks" || type == "3x3 Mirror Blocks/Bump") {
+                mirrorBlocksImage(3, scrambleText);
                 return true;
             }
             if (type == "Redi Cube") {

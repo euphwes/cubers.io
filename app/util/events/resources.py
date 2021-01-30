@@ -277,8 +277,7 @@ __COLL_LIST = [
 
 # Events which do not support scramble preview
 __EVENTS_NO_SCRAMBLE_PREVIEW = [EVENT_2BLD, EVENT_3BLD, EVENT_4BLD, EVENT_5BLD, EVENT_MBLD,
-                                EVENT_Mirror, EVENT_3x3x5, EVENT_234Relay, EVENT_333Relay,
-                                EVENT_PLLAttack]
+                                EVENT_3x3x5, EVENT_234Relay, EVENT_333Relay, EVENT_PLLAttack]
 
 
 __GLOBAL_SORT_ORDER = [
