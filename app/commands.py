@@ -294,4 +294,4 @@ def show_bonus_events_in_order():
     """ Utility command to show all bonus events in rotation order. """
 
     for i, event in enumerate(get_all_bonus_events_names()):
-        print("{}: {}".format(i, event))
+        print("{}: {}".format(i+1, event))
