@@ -19,7 +19,7 @@ depends_on = None
 
 def upgrade():
     events = table('events', column('name', String), column('description', String))
-    op.execute(events.update().where(events.c.name == op.inline_literal('3x3 Mirror Blocks/Bump')).values({'description': op.inline_literal('<p>Please use a Mirror Blocks with a single color. Scramble as you would a standard 3x3, with the thinnest layer on top, and the smallest piece in that layer at the front-right of the cube.</p>')}))
+    op.execute(events.update().where(events.c.name == op.inline_literal('3x3 Mirror Blocks/Bump')).values({'description': op.inline_literal('<p>Please use a Mirror Blocks with a single color. Scramble as you would a standard 3x3, with the thinnest layer on top, and the thickest adjacent layer on the right.</p>')}))
 
 def downgrade():
     events = table('events', column('name', String), column('description', String))

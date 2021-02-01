@@ -2998,12 +2998,12 @@
 
             var posit = [];
 
-            var uw = 0.474;
-            var dw = 1.526;
-            var lw = 0.684;
-            var rw = 1.316;
-            var fw = 0.895;
-            var bw = 1.105;
+            var uw = 9/19;
+            var dw = 29/19;
+            var lw = 13/19;
+            var rw = 25/19;
+            var fw = 17/19;
+            var bw = 21/19;
 
             var stickerWidthMap = {
                 // D-adjacent edge stickers
@@ -3015,14 +3015,14 @@
                 // R-adjacent edge stickers
                 50: rw, 32: rw, 5: rw, 23: rw,
                 // F-adjacent edge stickers
-                34: fw, 12: fw, 7: fw, 39: rw,
+                34: fw, 12: fw, 7: fw, 39: fw,
                 // B-adjacent edge stickers
                 14: bw, 28: bw, 41: bw, 1: bw,
 
                 // For corners, there isn't a reference 19mm edge
                 // so later we need to know if it's in its "native orientation"
                 // (its home position on each face, or the opposite corner)
-                // or not. Just store (width, height) in that order, and whether it's
+                // or not. Just store (height, width) in that order, and whether it's
                 // in the naturally in the top-right or bottom-left spot.
 
                 // F
@@ -3065,22 +3065,13 @@
             var centers = [4, 13, 49, 40, 22, 31];
             var edges = [1, 3, 5, 7, 10, 12, 14, 16, 19, 21, 23, 25, 28, 30, 32, 34, 37, 39, 41, 43, 46, 48, 50, 52];
 
-            // corners which "naturally belong" in top-right or bottom-left positions
-            // with no face turn or double face turn
-            var corners_primary_pos = [0, 8, 17, 9, 51, 47, 42, 38, 26, 18, 33, 29];
-
-            function renderChar(width, x, y, value) {
-                ctx.fillStyle = "#fff";
-                ctx.font = "25px Calibri";
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-                ctx.fillText(value, width * x, width * y);
-            }
-
             function face(f, size) {
 
-                var offx = 9.8 / 9,
-                    offy = 9.8 / 9;
+                var adj_width = width * 0.7;
+
+                var offx = 13 / 9;
+                var offy = 13 / 9;
+
                 if (f == 0) { //D
                     offx *= size;
                     offy *= size * 2;
@@ -3101,8 +3092,10 @@
                     offy *= size;
                 }
 
-                offy += 0.1;
-                offx += 0.1;
+                offy += 0.5;
+                offx += 0.5;
+
+                var polysToDraw = [];
 
                 for (var i = 0; i < size; i++) {
                     var x = (f == 1 || f == 2) ? size - 1 - i : i;
@@ -3114,22 +3107,14 @@
                         var x_coords;
                         var y_coords;
 
-                        if (centers.includes(stickerNum)) {
+                        if (centers.includes(stickerNum))
+                        {
                             x_coords = [i, i, i + 1, i + 1];
                             y_coords = [j, j + 1, j + 1, j];
-
-                            drawPolygon(ctx, "#787878", [
-                                x_coords,
-                                y_coords,
-                            ], [width, offx, offy]);
-                        }
-
-                        if (edges.includes(stickerNum)) {
+                        } 
+                        else if (edges.includes(stickerNum))
+                        {
                             var alt_w = stickerWidthMap[stickerNum];
-                            // top left
-                            // bottom left
-                            // bottom right
-                            // top right
 
                             // it's an upper or lower sticker
                             if (i == 1) {
@@ -3150,13 +3135,105 @@
                                     x_coords = [i, i, i + alt_w, i + alt_w];
                                 }
                             }
-
-                            drawPolygon(ctx, "#787878", [
-                                x_coords,
-                                y_coords,
-                            ], [width, offx, offy]);
                         }
+                        else
+                        {
+                            // [[h, w], belongsInPrimaryPos]
+                            var stickerInfo = stickerWidthMap[stickerNum];
+                            var belongsInPrimaryPos = stickerInfo[1];
+                            var alt_w = stickerInfo[0][1];
+                            var alt_h = stickerInfo[0][0];
+
+                            // i, j
+                            if (i == 0 && j == 0) // upper-left
+                            {
+                                // * not primary pos
+                                if (belongsInPrimaryPos) {
+                                    var tmp = alt_h;
+                                    alt_h = alt_w;
+                                    alt_w = tmp;
+                                }
+
+                                x_coords = [i + 1 - alt_w, i + 1 - alt_w, i + 1, i + 1];
+                                y_coords = [j + 1 - alt_h, j + 1, j + 1, j + 1 - alt_h];
+                            }
+                            else if (i == 2 && j == 0) // upper-right
+                            {
+                                // * primary pos
+                                if (!belongsInPrimaryPos) {
+                                    var tmp = alt_h;
+                                    alt_h = alt_w;
+                                    alt_w = tmp;
+                                }
+
+                                x_coords = [i, i, i + alt_w, i + alt_w];
+                                y_coords = [j + 1 - alt_h, j + 1, j + 1, j + 1 - alt_h];
+                            }
+                            else if (i == 0 && j == 2) // bottom-left
+                            {
+                                // * primary pos
+                                if (!belongsInPrimaryPos) {
+                                    var tmp = alt_h;
+                                    alt_h = alt_w;
+                                    alt_w = tmp;
+                                }
+
+                                x_coords = [i + 1 - alt_w, i + 1 - alt_w, i + 1, i + 1];
+                                y_coords = [j, j + alt_h, j + alt_h, j];
+                            }
+                            else  // bottom-right
+                            {
+                                // * not primary pos
+                                if (belongsInPrimaryPos) {
+                                    var tmp = alt_h;
+                                    alt_h = alt_w;
+                                    alt_w = tmp;
+                                }
+
+                                x_coords = [i, i, i + alt_w, i + alt_w];
+                                y_coords = [j, j + alt_h, j + alt_h, j];
+                            }
+                        }
+                        polysToDraw.push([x_coords, y_coords]);
                     }
+                }
+
+                var all_x = [];
+                var all_y = [];
+                for (var n = 0; n < polysToDraw.length; n++) {
+                    var coords = polysToDraw[n];
+                    var sticker_x = coords[0];
+                    var sticker_y = coords[1];
+                    for (var ni = 0; ni < 4; ni++) {
+                        all_x.push(sticker_x[ni]);
+                        all_y.push(sticker_y[ni]);
+                    }
+                }
+
+                var min_x = Math.min(...all_x);
+                var min_y = Math.min(...all_y);
+                var max_x = Math.max(...all_x);
+                var max_y = Math.max(...all_y);
+
+                var total_width = max_x - min_x;
+                var total_height = max_y - min_y;
+                for (var n = 0; n < polysToDraw.length; n++) {
+                    var coords = polysToDraw[n];
+                    var sticker_x = coords[0];
+                    var sticker_y = coords[1];
+                    for (var ni = 0; ni < 4; ni++) {
+                        // Center faces on x and y axes
+                        sticker_x[ni] = sticker_x[ni] - min_x + ((3 - total_width) / 2);
+                        sticker_y[ni] = sticker_y[ni] - min_y + ((3 - total_height) / 2);
+                    }
+                }
+
+                for (var n = 0; n < polysToDraw.length; n++) {
+                    var coords = polysToDraw[n];
+                    drawPolygon(ctx, "#C0C0C0", [
+                        coords[0],
+                        coords[1],
+                    ], [adj_width, offx, offy]);
                 }
             }
 
