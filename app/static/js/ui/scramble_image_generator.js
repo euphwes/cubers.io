@@ -3210,6 +3210,7 @@
                     }
                 }
 
+                // Do some centering and alignment adjustment of the faces
                 var min_x = Math.min(...all_x);
                 var min_y = Math.min(...all_y);
                 var max_x = Math.max(...all_x);
@@ -3222,9 +3223,14 @@
                     var sticker_x = coords[0];
                     var sticker_y = coords[1];
                     for (var ni = 0; ni < 4; ni++) {
-                        // Center faces on x and y axes
-                        sticker_x[ni] = sticker_x[ni] - min_x + ((3 - total_width) / 2);
-                        sticker_y[ni] = sticker_y[ni] - min_y + ((3 - total_height) / 2);
+                        // Only center vertically and horizontally on the appropriate faces, to make sure the E and M slices
+                        // stay visually aligned.
+                        if (![0, 3, 5].includes(f)) {
+                            sticker_x[ni] = sticker_x[ni] - min_x + ((3 - total_width) / 2);
+                        }
+                        if (![1, 5, 4, 2].includes(f)) {
+                            sticker_y[ni] = sticker_y[ni] - min_y + ((3 - total_height) / 2);
+                        }
                     }
                 }
 
