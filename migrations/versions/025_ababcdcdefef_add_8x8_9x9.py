@@ -6,7 +6,7 @@ Create Date: 2019-03-11 16:39:00.123969
 
 """
 from alembic import op
-from app.persistence.models import EventFormat, Event
+from cubersio.persistence.models import EventFormat, Event
 
 # revision identifiers, used by Alembic.
 revision = 'ababcdcdefef'

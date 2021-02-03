@@ -9,7 +9,7 @@ from alembic import op
 from sqlalchemy.sql import table, column
 from sqlalchemy import String
 
-from app.persistence.models import EventFormat, Event
+from cubersio.persistence.models import EventFormat, Event
 
 # revision identifiers, used by Alembic.
 revision = '050050fe0fe0'

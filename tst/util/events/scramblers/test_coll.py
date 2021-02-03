@@ -1,6 +1,6 @@
 """ Tests for COLL-related scrambles and utility functions. """
 
-from app.util.events.scramblers.coll import get_coll_scramble
+from cubersio.util.events.scramblers.coll import get_coll_scramble
 
 __COLL_NAME = "E1"
 __COLL_RAW_SCRAMBLE = "R' U' R U' R' U2 R2 U R' U R U2 R'"
@@ -9,7 +9,7 @@ __COLL_RAW_SCRAMBLE = "R' U' R U' R' U2 R2 U R' U R U2 R'"
 def test_get_coll_scramble_uses_generated_scramble(mocker):
     """ Tests that get_coll_scramble calls __build_scramble internally and that value is used. """
 
-    mocked_build_scramble = mocker.patch('app.util.events.scramblers.coll.__build_scramble')
+    mocked_build_scramble = mocker.patch('cubersio.util.events.scramblers.coll.__build_scramble')
     mocked_build_scramble.return_value = __COLL_RAW_SCRAMBLE
 
     assert __COLL_RAW_SCRAMBLE in get_coll_scramble(__COLL_NAME)

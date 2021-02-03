@@ -2,7 +2,7 @@
 
 import pytest
 
-from app.util.events.scramblers.internal import mbld_scrambler, attack_scrambler, redi_scrambler, fmc_scrambler,\
+from cubersio.util.events.scramblers.internal import mbld_scrambler, attack_scrambler, redi_scrambler, fmc_scrambler,\
     fifteen_puzzle_scrambler, scrambler_234_relay, scrambler_333_relay, does_fmc_scramble_have_cancellations
 
 
@@ -40,7 +40,7 @@ def test_333_relay_of_3(mocker):
     """ Tests that the 3x3 relay of 3 invokes scrambler333.get_WCA_scramble() and uses the returned values as the
     components of the combined scramble. """
 
-    mocked_scrambler333 = mocker.patch('app.util.events.scramblers.internal.scrambler333')
+    mocked_scrambler333 = mocker.patch('cubersio.util.events.scramblers.internal.scrambler333')
     mocked_scrambler333.get_WCA_scramble.return_value = _333_SCRAMBLE
 
     for scramble_part in scrambler_333_relay().split('\n'):
@@ -53,13 +53,13 @@ def test_234_relay_of_3(mocker):
     """ Tests that the 2-3-4 relay invokes the 2x2, 3x3, and 4x4 scramblers and uses those as the components of the
      combined scramble. """
 
-    mocked_scrambler222 = mocker.patch('app.util.events.scramblers.internal.scrambler222')
+    mocked_scrambler222 = mocker.patch('cubersio.util.events.scramblers.internal.scrambler222')
     mocked_scrambler222.get_WCA_scramble.return_value = _222_SCRAMBLE
 
-    mocked_scrambler333 = mocker.patch('app.util.events.scramblers.internal.scrambler333')
+    mocked_scrambler333 = mocker.patch('cubersio.util.events.scramblers.internal.scrambler333')
     mocked_scrambler333.get_WCA_scramble.return_value = _333_SCRAMBLE
 
-    mocked_scrambler444 = mocker.patch('app.util.events.scramblers.internal.scrambler444')
+    mocked_scrambler444 = mocker.patch('cubersio.util.events.scramblers.internal.scrambler444')
     mocked_scrambler444.get_random_state_scramble.return_value = _444_SCRAMBLE
 
     scramble_parts = scrambler_234_relay().split('\n')
@@ -82,7 +82,7 @@ def test_redi_scrambler_rotations(num_faces):
 def test_fmc_scrambler_calls_wca_333_scrambler(mocker):
     """ Tests that the FMC scrambler defers to the 3x3 WCA scrambler. """
 
-    mocked_scrambler333 = mocker.patch('app.util.events.scramblers.internal.scrambler333')
+    mocked_scrambler333 = mocker.patch('cubersio.util.events.scramblers.internal.scrambler333')
     mocked_scrambler333.get_WCA_scramble.return_value = _333_SCRAMBLE
 
     assert _333_SCRAMBLE in fmc_scrambler()
@@ -93,7 +93,7 @@ def test_fmc_scrambler_calls_wca_333_scrambler(mocker):
 def test_fmc_scrambler_pads_wca_scramble(mocker):
     """ Tests that the FMC scrambler correctly pads the WCA scramble with R' U' F. """
 
-    mocked_scrambler333 = mocker.patch('app.util.events.scramblers.internal.scrambler333')
+    mocked_scrambler333 = mocker.patch('cubersio.util.events.scramblers.internal.scrambler333')
     mocked_scrambler333.get_WCA_scramble.return_value = _333_SCRAMBLE
 
     scramble = fmc_scrambler()
