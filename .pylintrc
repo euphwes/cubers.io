@@ -12,3 +12,6 @@ ignored-classes=scoped_session,SQLAlchemy,alembic.op
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once).
 disable=C0326,C0413
+
+[FORMAT]
+max-line-length=120

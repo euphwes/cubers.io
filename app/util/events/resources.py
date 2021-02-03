@@ -1,18 +1,16 @@
 """ Resources for data related to events. """
-# pylint: disable=invalid-name,line-too-long,too-many-arguments,too-few-public-methods
 
 from collections import OrderedDict
 from random import choice
 
-from pyTwistyScrambler import scrambler333, scrambler222, scrambler444, scrambler555,\
-    scrambler666, scrambler777, squareOneScrambler, megaminxScrambler, pyraminxScrambler,\
-    cuboidsScrambler, skewbScrambler, clockScrambler, bigCubesScrambler, ftoScrambler
+from pyTwistyScrambler import scrambler333, scrambler222, scrambler444, scrambler555, scrambler666, scrambler777,\
+    squareOneScrambler, megaminxScrambler, pyraminxScrambler, cuboidsScrambler, skewbScrambler, clockScrambler,\
+    bigCubesScrambler, ftoScrambler
 
 from app import app
 from .coll import get_coll_scramble
 from .sliding_tile import get_random_moves_scramble, get_random_state_scramble
 
-# -------------------------------------------------------------------------------------------------
 
 class EventResource:
     """ Encapsulates everything we need to know about an event. """
@@ -30,9 +28,8 @@ class EventResource:
 
         return self.scramble_func(*args)
 
-# -------------------------------------------------------------------------------------------------
 
-def mbld_scrambler():
+def mbld_scrambler() -> str:
     """ Returns a 'scramble' for MBLD. """
 
     scramble = 'Scramble as many 3x3s as needed for your MBLD attempt.'
@@ -42,7 +39,7 @@ def mbld_scrambler():
     return scramble
 
 
-def attack_scrambler():
+def attack_scrambler() -> str:
     """ Returns a 'scramble' for PLL Time Attack. """
 
     scramble = 'Do all the PLLs!'
@@ -52,7 +49,7 @@ def attack_scrambler():
     return scramble
 
 
-def redi_scrambler(total_faces = 7):
+def redi_scrambler(total_faces: int = 7) -> str:
     """ Returns a scramble for a Redi cube in MoYu notation. """
 
     scramble = list()
@@ -78,8 +75,8 @@ def fifteen_puzzle_scrambler() -> str:
     [ 9] [10] [11] [12]
     [13] [14] [15] [  ]
 
-    The bottom-right corner is empty, and it's with respect to the current position
-    of the empty space that we move other pieces.
+    The bottom-right corner is empty, and it's with respect to the current position of the empty space that we move
+    other pieces.
 
     U = up, which indicates the tile below the empty space moves up into the space
     D = down, which indicates the tile above the empty space moves down into the space
@@ -93,60 +90,48 @@ def fifteen_puzzle_scrambler() -> str:
         return get_random_state_scramble(4)
 
 
-def fto_scrambler(num_scrambles = 5):
-    """ Returns `num_scrambles` random-state scrambles for FTO. """
-
-    return ftoScrambler.get_multiple_random_state_scrambles(num_scrambles)
-
-
-def COLL_scrambler(coll_num):
-    """ Get a scramble for the current COLL. """
-
-    return get_coll_scramble(coll_num)
-
-
-def FMC_scrambler():
+def fmc_scrambler() -> str:
     """ Returns an FMC scramble, which is just a normal WCA scramble with R' U' F padding. """
 
     scramble = scrambler333.get_WCA_scramble().strip()
-    while does_FMC_scramble_have_cancellations(scramble):
+    while does_fmc_scramble_have_cancellations(scramble):
         scramble = scrambler333.get_WCA_scramble().strip()
     return "R' U' F {} R' U' F".format(scramble)
 
 
-def does_FMC_scramble_have_cancellations(scramble):
-    """ Returns whether the supplied scramble would have cancellations when padding with
-    R' U' F at the beginning and end, as FMC regulations require. """
+def does_fmc_scramble_have_cancellations(scramble: str) -> bool:
+    """ Returns whether the supplied scramble would have cancellations when padding with R' U' F at the beginning
+    and end, as FMC regulations require. """
 
-    scramble = scramble.split(' ')  # turn it into a list of moves
+    # Turn it into a list of moves
+    scramble = scramble.split(' ')
 
-    # check if there are any obvious cancellations: F touch F at the beginning,
-    # or R touching R at the end
+    # Check if there are any obvious cancellations: F touch F at the beginning, or R touching R at the end
     first, last = scramble[0], scramble[-1]
     if first in ("F", "F2", "F'") or last in ("R", "R'", "R2"):
         return True
 
-    # if there are no "obvious" cancellations, next check if there are less obvious ones like:
+    # If there are no "obvious" cancellations, next check if there are less obvious ones like:
     # ex: [R' U' F] B F' <rest>   --> F B F', the F-moves cancel
     # ex: <rest> R' L' [R' U' F]  --> R' L R', the R-moves cancel
 
-    # if the first move is a B, then the following move being an F would result in a cancellation
+    # If the first move is a B, then the following move being an F would result in a cancellation.
     if first in ("B", "B'", "B2"):
-        # if the first or last move is a B or L respectively, it's possible the 2nd
-        # or next-to-last moves form a cancellation with the padding
+        # If the first or last move is a B or L respectively, it's possible the 2nd or next-to-last moves form a
+        # cancellation with the padding
         if scramble[1] in ("F", "F2", "F'"):
             return True
 
-    # if the last move is a L, then the preceding move being an R would result in a cancellation
+    # If the last move is a L, then the preceding move being an R would result in a cancellation.
     if last in ("L", "L'", "L2"):
         if scramble[-2] in ("R", "R'", "R2"):
             return True
 
-    # no cancellations! woohoo, we can use this scramble
+    # No cancellations! Woohoo, we can use this scramble.
     return False
 
 
-def scrambler_234_relay():
+def scrambler_234_relay() -> str:
     """ Get a scramble for the 2-3-4 relay event. """
 
     s222 = scrambler222.get_WCA_scramble()
@@ -156,7 +141,7 @@ def scrambler_234_relay():
     return f'2x2: {s222}\n3x3: {s333}\n4x4: {s444}'
 
 
-def scrambler_333_relay():
+def scrambler_333_relay() -> str:
     """ Get a scramble for the 3x3 relay of 3 event. """
 
     s1 = scrambler333.get_WCA_scramble()
@@ -165,7 +150,6 @@ def scrambler_333_relay():
 
     return f'1: {s1}\n2: {s2}\n3: {s3}'
 
-# -------------------------------------------------------------------------------------------------
 
 # Weekly event definitions (current count = 21)
 EVENT_2x2       = EventResource("2x2", scrambler222.get_WCA_scramble, 5, True, True)
@@ -182,16 +166,16 @@ EVENT_Megaminx  = EventResource("Megaminx", megaminxScrambler.get_WCA_scramble, 
 EVENT_Skewb     = EventResource("Skewb", skewbScrambler.get_WCA_scramble, 5, True, True)
 EVENT_Clock     = EventResource("Clock", clockScrambler.get_WCA_scramble, 5, True, True)
 EVENT_3x3_Feet  = EventResource("3x3 With Feet", scrambler333.get_WCA_scramble, 5, True, True)
-EVENT_FMC       = EventResource("FMC", FMC_scrambler, 3, True, True)
+EVENT_FMC       = EventResource("FMC", fmc_scrambler, 3, True, True)
 EVENT_2GEN      = EventResource("2GEN", scrambler333.get_2genRU_scramble, 5, True, False)
 EVENT_LSE       = EventResource("LSE", scrambler333.get_2genMU_scramble, 5, True, False)
 EVENT_4BLD      = EventResource("4BLD", scrambler444.get_4BLD_scramble, 3, True, True)
 EVENT_5BLD      = EventResource("5BLD", scrambler555.get_5BLD_scramble, 3, True, True)
 EVENT_MBLD      = EventResource("MBLD", mbld_scrambler, 3, True, True)
-EVENT_FTO       = EventResource("FTO", fto_scrambler, 5, True, False)
+EVENT_FTO       = EventResource("FTO", ftoScrambler.get_multiple_random_state_scrambles, 5, True, False)
 
 # Bonus event definitions (current count = 19)
-EVENT_COLL      = EventResource("COLL", COLL_scrambler, 5, False, False, is_rotating=True)
+EVENT_COLL      = EventResource("COLL", get_coll_scramble, 5, False, False, is_rotating=True)
 EVENT_F2L       = EventResource("F2L", scrambler333.get_WCA_scramble, 5, False, False, is_rotating=True)
 EVENT_Void      = EventResource("Void Cube", scrambler333.get_3BLD_scramble, 5, False, False, is_rotating=True)
 EVENT_Mirror    = EventResource("3x3 Mirror Blocks/Bump", scrambler333.get_WCA_scramble, 5, False, False, is_rotating=True)
@@ -211,10 +195,7 @@ EVENT_Fifteen   = EventResource("15 Puzzle", fifteen_puzzle_scrambler, 5, False,
 EVENT_8x8       = EventResource("8x8", bigCubesScrambler.get_8x8x8_scramble, 1, False, False, is_rotating=True)
 EVENT_9x9       = EventResource("9x9", bigCubesScrambler.get_9x9x9_scramble, 1, False, False, is_rotating=True)
 
-# -------------------------------------------------------------------------------------------------
-
-# Important! Only add new events all the way at the end, regardless of WCA or non-WCA status
-# We rely on the order here
+# Important! Only add new events to the end, regardless of WCA or non-WCA status. We rely on the order here.
 __ALL_EVENTS = [
     EVENT_2x2,
     EVENT_3x3,
@@ -258,13 +239,13 @@ __ALL_EVENTS = [
     EVENT_FTO
 ]
 
-# Important! Don't change how these weekly and bonus lists are built, we rely on the order
+# Important! Don't change how these weekly and bonus lists are built, we rely on the order.
 __WEEKLY_EVENTS = [event for event in __ALL_EVENTS if event.is_weekly]
 __BONUS_EVENTS = [event for event in __ALL_EVENTS if (not event.is_weekly) and event.is_rotating]
 __WCA_EVENTS = [event for event in __ALL_EVENTS if event.is_wca]
 __NON_WCA_EVENTS = [event for event in __ALL_EVENTS if not event.is_wca]
 
-# Important! Don't change the order of these
+# Important! Don't change the order of these.
 __COLL_LIST = [
     'B1', 'B2', 'B3', 'B4', 'B5', 'B6',
     'C1', 'C2', 'C3', 'C4', 'C5', 'C6',

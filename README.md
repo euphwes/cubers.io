@@ -1,4 +1,5 @@
 ![Flake8 linting](https://github.com/euphwes/cubers.io/workflows/flake8/badge.svg)
+
 ![Pytest unit tests](https://github.com/euphwes/cubers.io/workflows/pytest/badge.svg)
 
 # cubers.io
