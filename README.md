@@ -1,3 +1,6 @@
+![Flake8 linting](https://github.com/euphwes/cubers.io/workflows/flake8/badge.svg)
+![Pytest unit tests](https://github.com/euphwes/cubers.io/workflows/pytest/badge.svg)
+
 # cubers.io
 
 [cubers.io](https//www.cubers.io) is a web app where you can participate in [WCA](https://www.worldcubeassociation.org)-style speedcubing competitions every week!
