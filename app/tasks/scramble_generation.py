@@ -35,7 +35,7 @@ def check_scramble_pool():
 
         # Don't pre-generate COLL scrambles. The fact we need a specific COLL each week, and that
         # rotates weekly, makes this more difficult than it needs to be. We'll just generate them
-        # on the fly during competition generation, since it's fast anyway
+        # on the fly during competition generation, since it's fast anyway.
         if event.name == EVENT_COLL.name:
             continue
 

@@ -128,12 +128,10 @@ def get_events_data(weekly_events, bonus_events, comp_gen_data):
 
             if event == EVENT_COLL:
                 coll = get_COLL_at_index(comp_gen_data.current_OLL_index)
-                coll_scrambles = [EVENT_COLL.get_scramble(coll) for _ in range(event.num_scrambles)]
                 events_data.append(dict({
-                    'name':               event.name,
-                    'event_id':           event_id,
-                    'scrambles':          [s[0] for s in coll_scrambles],
-                    'scrambles_for_post': [s[1] for s in coll_scrambles],
+                    'name':      event.name,
+                    'event_id':  event_id,
+                    'scrambles': [EVENT_COLL.get_scramble(coll) for _ in range(event.num_scrambles)],
                 }))
 
             else:

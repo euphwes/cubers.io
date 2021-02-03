@@ -1,48 +1,42 @@
-""" Utilities for providing COLL scrambles to setup the COLL case. """
+""" Utilities for providing COLL "scrambles" which setup the desired COLL case. """
 
 from random import choice
 
-# -------------------------------------------------------------------------------------------------
 
-def get_coll_scramble(coll):
-    """ Returns a random COLL "setup scramble" for the given COLL case. """
+def get_coll_scramble(coll: str) -> str:
+    """ Returns a random COLL "setup scramble" for the given COLL case. This includes links to speedsolving wiki to
+     explain what COLL is, as well as a link to algdb.net for the specific COLL case. """
 
     url = "http://algdb.net/puzzle/333/coll/{}".format(coll.lower())
     href_tag = '<a href="{}" target="_blank">COLL {}</a>'.format(url, coll)
-    md_tag = '[COLL {}]({})'.format(coll, url)
-    reddit_version = "This week we're doing {}.".format(md_tag)
-
-    # pylint: disable=C0301
-    coll_wiki_link = '<a href="https://www.speedsolving.com/wiki/index.php/COLL" target="_blank"><span class="far fa-question-circle"></span></a>'
+    coll_wiki_link = '<a href="https://www.speedsolving.com/wiki/index.php/COLL" target="_blank">'\
+                     '<span class="far fa-question-circle"></span></a>'
 
     message_components = [
         "This week we're doing {} {}".format(href_tag, coll_wiki_link),
         "Perform the algorithm below to setup the case.",
-        __scramble(coll)
+        __build_scramble(coll)
     ]
 
-    return '<br/>'.join(message_components), reddit_version
+    return '<br/>'.join(message_components)
 
 
-def __scramble(coll):
-    """ Returns a random COLL "setup scramble" for the given COLL case, with a random EPLL at the
-    beginning or end, since that doesn't matter for the COLL itself and it will help to train
-    recognition of the case. """
+def __build_scramble(coll):
+    """ Returns a random COLL "setup scramble" for the given COLL case, with a random EPLL at the beginning or end,
+    since that doesn't matter for the COLL itself and it will help to train recognition of the case. """
 
     setup = __inverse_scramble(choice(__COLL_EXEC_ALGS[coll])).strip()
     epll  = choice(__EPLLS).strip()
     return setup + " " + epll if choice([True, False]) else epll + " " + setup
 
-# -------------------------------------------------------------------------------------------------
 
-# lol - got this Rubik's Cube alg inversing function from a code-golf stackexchange post:
-# https://codegolf.stackexchange.com/a/130196
-# pylint: disable=C0103
-__inverse_scramble = lambda s:' '.join(i.strip("'")+"'"*(len(i)<2)for i in s.split()[::-1])
+def __inverse_scramble(s):
+    """ Inverses a scramble. From this code-golf StackExchange post: https://codegolf.stackexchange.com/a/130196 """
+    return ' '.join(i.strip("'") + "'" * (len(i) < 2) for i in s.split()[::-1])
 
-# These are all algs to execute the COLL case they are associated with, sourced from
-# http://algdb.net/puzzle/333/coll
-# As these algs are to solve the given COLL, they will need to be inversed to become "setup" algs
+
+# These all algs to execute the COLL case they are associated with, sourced from http://algdb.net/puzzle/333/coll.
+# As these algs are to solve the given COLL, they will need to be inversed to become "setup" algs.
 __COLL_EXEC_ALGS = {
     'B1': [
         "R' U' R U' R' U2 R",
