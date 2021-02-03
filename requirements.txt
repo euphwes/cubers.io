@@ -87,5 +87,5 @@ websocket-client==0.54.0
 Werkzeug==0.14.1
 win-unicode-console==0.5
 wrapt==1.10.11
-
 pytest~=6.2.2
+pytest-mock~=3.5.1

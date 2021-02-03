@@ -1,7 +1,6 @@
 """ Tests for events resources. """
 
 import pytest
-from pytest_mock import MockerFixture
 
 from app.util.events.resources import mbld_scrambler, attack_scrambler, redi_scrambler, fifteen_puzzle_scrambler,\
     fmc_scrambler, scrambler_234_relay, scrambler_333_relay, does_fmc_scramble_have_cancellations
@@ -37,7 +36,7 @@ def test_relays_have_correct_numbers_of_parts(relay_fn, num_parts):
     assert len(relay_fn().split('\n')) == num_parts
 
 
-def test_333_relay_of_3(mocker: MockerFixture):
+def test_333_relay_of_3(mocker):
     """ Tests that the 3x3 relay of 3 invokes scrambler333.get_WCA_scramble() and uses the returned values as the
     components of the combined scramble. """
 
@@ -50,7 +49,7 @@ def test_333_relay_of_3(mocker: MockerFixture):
     assert mocked_scrambler333.get_WCA_scramble.call_count == 3
 
 
-def test_234_relay_of_3(mocker: MockerFixture):
+def test_234_relay_of_3(mocker):
     """ Tests that the 2-3-4 relay invokes the 2x2, 3x3, and 4x4 scramblers and uses those as the components of the
      combined scramble. """
 
