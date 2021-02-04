@@ -6,7 +6,7 @@ from pyTwistyScrambler import scrambler333, scrambler222, scrambler444, scramble
     squareOneScrambler, megaminxScrambler, pyraminxScrambler, cuboidsScrambler, skewbScrambler, clockScrambler,\
     bigCubesScrambler, ftoScrambler
 
-from .coll import get_coll_scramble
+from .scramblers.coll import get_coll_scramble
 from .scramblers.internal import fmc_scrambler, mbld_scrambler, redi_scrambler, fifteen_puzzle_scrambler,\
     scrambler_333_relay, scrambler_234_relay, attack_scrambler
 
