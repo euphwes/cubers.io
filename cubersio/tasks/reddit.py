@@ -7,7 +7,7 @@ from cubersio.persistence.user_manager import get_user_by_id
 from cubersio.persistence.settings_manager import get_all_user_ids_with_setting_value, SettingCode,\
     TRUE_STR
 from cubersio.util.reddit import send_PM_to_user_with_title_and_body
-from cubersio.util.events.resources import get_all_bonus_events_names
+from cubersio.util.events.resources import BONUS_EVENTS
 
 from . import huey
 
@@ -82,7 +82,7 @@ def prepare_new_competition_notification(comp_id, is_all_events):
         all_events = get_all_comp_events_for_comp(comp_id)
         all_event_names = [event.Event.name for event in all_events]
 
-        all_bonus_event_names = get_all_bonus_events_names()
+        all_bonus_event_names = [e.name for e in BONUS_EVENTS]
         bonus_event_names = [name for name in all_event_names if name in all_bonus_event_names]
         bonus_event_names = naturally_join(bonus_event_names)
 

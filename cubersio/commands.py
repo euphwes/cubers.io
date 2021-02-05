@@ -1,11 +1,8 @@
 """ Utility Flask commands for administrating the app. """
-# pylint: disable=multiple-statements
 
 from random import randrange, choice
 
 import click
-
-from slugify import slugify
 
 from cubersio import app
 from cubersio.persistence.models import UserSolve, UserEventResults
@@ -25,7 +22,6 @@ from cubersio.business.user_results.creation import process_event_results
 from cubersio.tasks.competition_management import post_results_thread_task,\
     generate_new_competition_task, wrap_weekly_competition, run_user_site_rankings
 from cubersio.tasks.scramble_generation import check_scramble_pool
-from cubersio.util.events.resources import get_all_bonus_events_names
 
 # -------------------------------------------------------------------------------------------------
 # Below are admin commands for creating new competitions, and scoring previous ones
@@ -276,22 +272,3 @@ def generate_fake_comp_results():
 
             process_event_results(results, comp_event, user)
             save_event_results(results)
-
-# -------------------------------------------------------------------------------------------------
-# Other useful stuff
-# -------------------------------------------------------------------------------------------------
-
-@app.cli.command()
-def show_slugified_event_names():
-    """ Utility command to slugify all event names and display them in the terminal. """
-
-    for event in get_all_events():
-        print(slugify(event.name))
-
-
-@app.cli.command()
-def show_bonus_events_in_order():
-    """ Utility command to show all bonus events in rotation order. """
-
-    for i, event in enumerate(get_all_bonus_events_names()):
-        print("{}: {}".format(i+1, event))

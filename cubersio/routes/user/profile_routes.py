@@ -8,12 +8,12 @@ from flask_login import current_user
 from cubersio import app
 from cubersio.business.user_history import get_user_competition_history
 from cubersio.persistence.comp_manager import get_user_participated_competitions_count
-from cubersio.persistence.user_manager import get_user_by_username, verify_user, unverify_user,\
+from cubersio.persistence.events_manager import get_all_events
+from cubersio.persistence.user_manager import verify_user, unverify_user,\
     set_perma_blacklist_for_user, unset_perma_blacklist_for_user, get_user_by_id,\
     get_user_by_username_case_insensitive
 from cubersio.persistence.user_results_manager import get_user_completed_solves_count,\
     get_user_medals_count
-from cubersio.persistence.events_manager import get_events_id_name_mapping
 from cubersio.persistence.user_site_rankings_manager import get_site_rankings_for_user
 from cubersio.persistence.settings_manager import get_boolean_setting_for_user, SettingCode
 
@@ -51,13 +51,14 @@ def profile(username):
     comps_count = get_user_participated_competitions_count(user.id)
 
     # Get a dictionary of event ID to names, to facilitate rendering some stuff in the template
-    event_id_name_map = get_events_id_name_mapping()
+    event_id_name_map = {e.id: e.name for e in get_all_events()}
 
     # See if the user has any recorded site rankings. If they do, extract the data as a dict so we
     # can build their site ranking table
     site_rankings_record = get_site_rankings_for_user(user.id)
     if site_rankings_record:
-        site_rankings = site_rankings_record.get_site_rankings_and_pbs(event_id_name_map)
+        # TODO -- get the raw site rankings record back, sort those, then convert to dict for front-end
+        site_rankings = site_rankings_record.get_site_rankings_and_pbs()
 
         # Get sum of ranks
         sor_all     = site_rankings_record.get_combined_sum_of_ranks()

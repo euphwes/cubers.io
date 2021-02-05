@@ -9,9 +9,8 @@ from cubersio.persistence.comp_manager import get_competition_gen_resources,\
 from cubersio.persistence.events_manager import retrieve_from_scramble_pool_for_event,\
     get_events_name_id_mapping, delete_from_scramble_pool
 from cubersio.persistence.models import CompetitionGenResources
-from cubersio.util.events.resources import get_all_weekly_events, get_all_bonus_events,\
-    get_bonus_events_rotation_starting_at, get_COLL_at_index, get_num_COLLs, get_num_bonus_events,\
-    EVENT_COLL
+from cubersio.util.events.resources import get_bonus_events_rotation_starting_at,\
+    BONUS_EVENTS, EVENT_COLL, COLL_LIST, WEEKLY_EVENTS
 
 # -------------------------------------------------------------------------------------------------
 
@@ -51,11 +50,10 @@ def generate_new_competition():
         comp_name = get_comp_name_from_date()
 
     # Get the weekly and bonus events for this week
-    weekly_events = get_all_weekly_events()
     bonus_events  = get_bonus_events(comp_gen_data)
 
     # Get the list of events data/scrambles for every event
-    event_data = get_events_data(weekly_events, bonus_events, comp_gen_data)
+    event_data = get_events_data(WEEKLY_EVENTS, bonus_events, comp_gen_data)
 
     # Save new competition to database
     new_db_competition = save_new_competition(comp_name, event_data)
@@ -94,14 +92,14 @@ def get_bonus_events(comp_gen_data):
     if comp_gen_data.all_events:
         comp_gen_data.all_events = False
         update_coll_info(comp_gen_data)  # Make sure the COLL index has been updated
-        return get_all_bonus_events()
+        return BONUS_EVENTS
 
     # Update start index for bonus events by moving the start index up by BONUS_EVENT_COUNT
     # and then doing a modulus on number of bonus events, to make sure we're starting within
     # the bounds of the bonus events. Get the next BONUS_EVENT_COUNT bonus events starting at
     # the new starting index
     else:
-        new_index = (comp_gen_data.current_bonus_index + BONUS_EVENT_COUNT) % get_num_bonus_events()
+        new_index = (comp_gen_data.current_bonus_index + BONUS_EVENT_COUNT) % len(BONUS_EVENTS)
         comp_gen_data.current_bonus_index = new_index
         bonus_events = get_bonus_events_rotation_starting_at(new_index, BONUS_EVENT_COUNT)
         if EVENT_COLL in bonus_events:
@@ -112,7 +110,7 @@ def get_bonus_events(comp_gen_data):
 def update_coll_info(comp_gen_data):
     """ Updates the comp_gen_data's COLL info to point to the next. """
 
-    comp_gen_data.current_OLL_index = (comp_gen_data.current_OLL_index + 1) % get_num_COLLs()
+    comp_gen_data.current_OLL_index = (comp_gen_data.current_OLL_index + 1) % len(COLL_LIST)
 
 
 def get_events_data(weekly_events, bonus_events, comp_gen_data):
@@ -127,7 +125,7 @@ def get_events_data(weekly_events, bonus_events, comp_gen_data):
             event_id = events_name_id_map[event.name]
 
             if event == EVENT_COLL:
-                coll = get_COLL_at_index(comp_gen_data.current_OLL_index)
+                coll = COLL_LIST[comp_gen_data.current_OLL_index]
                 events_data.append(dict({
                     'name':      event.name,
                     'event_id':  event_id,

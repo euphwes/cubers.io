@@ -5,10 +5,8 @@ from functools import lru_cache
 
 from cubersio import DB
 from cubersio.persistence.models import Event, CompetitionEvent, UserEventResults, ScramblePool
-from cubersio.util.events.resources import get_WCA_event_names, get_non_WCA_event_names,\
-    get_all_bonus_events_names
+from cubersio.util.events.resources import WCA_EVENTS, NON_WCA_EVENTS, BONUS_EVENTS
 
-# -------------------------------------------------------------------------------------------------
 
 def get_event_by_name(name):
     """ Returns an event by name. """
@@ -40,32 +38,22 @@ def get_event_format_for_event(event_id):
 def get_all_WCA_events():
     """ Returns a list of all WCA events. """
 
-    wca_names = set(get_WCA_event_names())
+    wca_names = set(WCA_EVENTS)
     return [e for e in get_all_events() if e.name in wca_names]
 
 
 def get_all_non_WCA_events():
     """ Returns a list of all non-WCA events. """
 
-    non_wca_names = set(get_non_WCA_event_names())
+    non_wca_names = set(e.name for e in NON_WCA_EVENTS)
     return [e for e in get_all_events() if e.name in non_wca_names]
 
 
 def get_all_bonus_events():
     """ Returns a list of all bonus events. """
 
-    bonus_event_names = set(get_all_bonus_events_names())
+    bonus_event_names = set(e.name for e in BONUS_EVENTS)
     return [e for e in get_all_events() if e.name in bonus_event_names]
-
-
-def get_events_id_name_mapping():
-    """ Returns a dictionary of event ID to name mappings. """
-
-    mapping = OrderedDict()
-    for event in get_all_events():
-        mapping[event.id] = event.name
-
-    return mapping
 
 
 def get_events_name_id_mapping():

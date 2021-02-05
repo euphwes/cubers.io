@@ -8,23 +8,17 @@ from flask import render_template, redirect, url_for
 from flask_login import current_user
 
 from cubersio import app
-from cubersio.util.events.resources import sort_event_id_name_map_by_global_sort_order
-from cubersio.persistence.events_manager import get_events_id_name_mapping
+from cubersio.util.events.resources import sort_events_by_global_sort_order
+from cubersio.persistence.events_manager import get_all_events
 from cubersio.persistence.user_manager import get_user_by_username, get_all_active_usernames
 from cubersio.persistence.user_site_rankings_manager import get_site_rankings_for_user
-from cubersio.persistence.user_results_manager import get_user_completed_solves_count,\
-    get_user_medals_count
+from cubersio.persistence.user_results_manager import get_user_completed_solves_count, get_user_medals_count
 from cubersio.persistence.comp_manager import get_user_participated_competitions_count
 
-# -------------------------------------------------------------------------------------------------
 
 NO_SUCH_USER_ERR_MSG = 'There is no user named {}! I picked {} at random instead.'
-
 EVENT_NOT_PARTICIPATED = (None, None, None, None)
 
-# -------------------------------------------------------------------------------------------------
-# Standard routes, to be removed once React components + API endpoints are finalized and being used
-# -------------------------------------------------------------------------------------------------
 
 @app.route('/versus/')
 def versus_search():
@@ -68,17 +62,16 @@ def __render_versus_page_for_users(user1, user2, errors):
     """ Renders and returns a user versus page for the specified two users. """
 
     # Get a map of event ID to event name, to facilitate rendering the template.
-    # Sort it by the global sort order so the event records table has the same ordering
-    # as everywhere else.
-    event_id_name_map = get_events_id_name_mapping()
-    event_id_name_map = sort_event_id_name_map_by_global_sort_order(event_id_name_map)
+    # Sort it by the global sort order so the event records table has the same ordering as everywhere else.
+    all_sorted_events = sort_events_by_global_sort_order(get_all_events())
+    event_id_name_map = {e.id: e.name for e in all_sorted_events}
 
-    # Get site rankings info for both users
+    # Get site rankings info for both users.
     # Get users' medal counts, number of total solves, number of competitions participated in
     rankings1, user1_stats = __get_versus_page_info_for_user(user1)
     rankings2, user2_stats = __get_versus_page_info_for_user(user2)
 
-    # Remove any events which neither user has participated in
+    # Remove any events which neither user has participated in.
     __remove_events_not_participated_in(event_id_name_map, rankings1, rankings2)
 
     return render_template("user/versus.html", username1=user1.username, username2=user2.username,
@@ -141,14 +134,19 @@ def __get_versus_page_info_for_user(user):
 def __get_user_site_rankings(user_id):
     """ Retrieves a user site rankings record by user id. """
 
-    event_id_name_map = get_events_id_name_mapping()
+    # Get a map of event ID to event name, to facilitate rendering the template.
+    # Sort it by the global sort order so the event records table has the same ordering as everywhere else.
+    all_sorted_events = sort_events_by_global_sort_order(get_all_events())
+    event_id_name_map = {e.id: e.name for e in all_sorted_events}
+
     site_rankings = dict()
 
     # See if the user has any recorded site rankings. If they do, extract the data as a dict so we
     # can build their site ranking table
     site_rankings_record = get_site_rankings_for_user(user_id)
     if site_rankings_record:
-        site_rankings = site_rankings_record.get_site_rankings_and_pbs(event_id_name_map)
+        # TODO -- get the raw site rankings record back, sort those, then convert to dict for front-end
+        site_rankings = site_rankings_record.get_site_rankings_and_pbs()
 
     # Iterate over all events, making sure there's an entry in the user site rankings for everything,
     # even events they haven't participated in, in case the other user has done that event.

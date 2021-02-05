@@ -12,8 +12,7 @@ from cubersio.persistence.comp_manager import get_comp_event_by_id
 from cubersio.persistence.settings_manager import SettingCode, SettingType, TRUE_STR,\
     get_default_values_for_settings, get_bulk_settings_for_user_as_dict, get_setting_type
 from cubersio.persistence.user_results_manager import get_event_results_for_user
-from cubersio.util.events.resources import get_event_names_without_scramble_previews, EVENT_FMC,\
-    EVENT_MBLD
+from cubersio.util.events.resources import EVENTS_NO_SCRAMBLE_PREVIEW, EVENT_FMC, EVENT_MBLD
 
 # -------------------------------------------------------------------------------------------------
 
@@ -161,7 +160,7 @@ def timer_page(comp_event_id, gather_info_for_live_refresh=False):
                                                    comp_title=comp.title)
 
     # Determine if we should display a scramble preview for this event
-    show_scramble_preview = event_name not in get_event_names_without_scramble_previews()
+    show_scramble_preview = event_name not in [e.name for e in EVENTS_NO_SCRAMBLE_PREVIEW]
 
     # Determine button states
     button_state_info = __determine_button_states(user_results, scramble_index)

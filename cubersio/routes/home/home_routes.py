@@ -5,7 +5,7 @@ from flask_login import current_user
 
 from cubersio import app
 from cubersio.persistence import comp_manager
-from cubersio.persistence.events_manager import get_all_bonus_events_names
+from cubersio.persistence.events_manager import get_all_bonus_events
 from cubersio.persistence.user_results_manager import get_all_user_results_for_comp_and_user
 from cubersio.util.events.resources import sort_comp_events_by_global_sort_order
 from cubersio.persistence.settings_manager import get_setting_for_user, SettingCode, TRUE_STR
@@ -41,7 +41,7 @@ def index():
     comp_events = sort_comp_events_by_global_sort_order(comp.events)
 
     # Build a set of comp event IDs that are bonus events so we can mark them on the main page
-    bonus_event_names = set(get_all_bonus_events_names())
+    bonus_event_names = set(e.name for e in get_all_bonus_events())
     bonus_events_ids = set(c.id for c in comp_events if c.Event.name in bonus_event_names)
 
     # Determine whether to show moving shapes background
