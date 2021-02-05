@@ -1,14 +1,13 @@
-""" Functions for retrieving a random-state scramble for sliding tile puzzles. This is based on
-https://github.com/asarandi/n-puzzle, heavily modified and streamlined for our use case. """
-# pylint: disable=invalid-name,too-many-nested-blocks
+""" Functions for retrieving random-state or random-moves scramble for sliding tile puzzles. The random-state scramble
+code is based on https://github.com/asarandi/n-puzzle, heavily modified and streamlined for our use case. """
+
+# TODO -- unit tests for the 'private functions' below, whenever I feel up to it.
 
 from collections import deque
 from itertools import groupby
 from math import inf
-from random import shuffle, choice
+from random import sample, choice
 from typing import List
-
-# -------------------------------------------------------------------------------------------------
 
 __EMPTY_TILE = 0
 
@@ -23,23 +22,26 @@ __MOVE_INVERSE_MAP = {
 def get_random_moves_scramble(n: int, total_moves: int = 50) -> str:
     """ Retrieves a random-move scramble for an `n` x `n` sliding tile puzzle."""
 
-    n -= 1 # Make n zero-indexed
+    # Make n zero-indexed
+    n -= 1
+
     # Maintain the position of the empty space, so we know which moves are possible at any given
     # point in time. For example, the first move of the scramble can only ever be D or R, since
     # there is not tile in the D or R position to move.
     space_x, space_y = n, n
 
-    def __get_possible_moves(n:int, x: int, y: int, previous_move: str) -> List[str]:
-        """ Return a list of possible moves based the x, y coordinates of the empty space,
-        excluding the move that's opposite of the previous one so we don't just undo the last. """
+    def __get_possible_moves(m: int, x: int, y: int, previous_move: str) -> List[str]:
+        """ Return a list of possible moves based the x, y coordinates of the empty space, excluding the move that's
+        opposite of the previous one so we don't just undo the last. """
 
         moves = list()
-        moves.extend( ['D'] if y == n else ['U'] if y == 0 else ['D', 'U'] )
-        moves.extend( ['R'] if x == n else ['L'] if x == 0 else ['R', 'L'] )
+        moves.extend(['D'] if y == m else ['U'] if y == 0 else ['D', 'U'])
+        moves.extend(['R'] if x == m else ['L'] if x == 0 else ['R', 'L'])
 
         if previous_move:
             opposite_move = __MOVE_INVERSE_MAP[previous_move]
             moves.remove(opposite_move)
+
         return moves
 
     scramble = list()
@@ -58,23 +60,20 @@ def get_random_moves_scramble(n: int, total_moves: int = 50) -> str:
     return ' '.join(f"{x}{__smart_reduce(y)}" for x, y in groupby(scramble))
 
 
-def get_random_state_scramble(n):
-    """ Retrieves a random-state scramble for an `n` x `n` sliding tile puzzle.
+def get_random_state_scramble(n: int) -> str:
+    """ Retrieves a random-state scramble for an `n` x `n` sliding tile puzzle. This assumes the solved state for the
+    puzzle is in numerical order, with the blank space in the bottom-right corner. """
 
-    This assumes the solved state for the puzzle is in numerical order, with the blank space in the
-    bottom-right corner. """
-
-    # The solved state is the full range of tiles in numerical order, with the empty tile at the end
+    # The solved state is the full range of tiles in numerical order, with the empty tile at the end.
     solved_state = list(range(1, n**2)) + [__EMPTY_TILE]
 
     # Keep generating a random state of the puzzle until one is found that's solvable.
     puzzle = list(range(n**2))
-    shuffle(puzzle)
+    puzzle = sample(puzzle, len(puzzle))
     while not __is_solvable(puzzle, solved_state, n):
-        shuffle(puzzle)
+        puzzle = sample(puzzle, len(puzzle))
 
-    # Make sure everything's a tuple, because the swaps that happen later end up making the puzzle
-    # intermediate states as tuples.
+    # Make sure everything's a tuple, because the swaps later end up making the puzzle intermediate states as tuples.
     puzzle       = tuple(puzzle)
     solved_state = tuple(solved_state)
 
@@ -88,21 +87,20 @@ def get_random_state_scramble(n):
 
 
 def __convert_steps_to_scramble(steps):
-    """ Takes the sequence of puzzle states from scrambled to solved, and ultimately returns a
-    nicely-formatted scramble to reach the scrambled state from solve.
+    """ Takes the sequence of puzzle states from scrambled to solved, and ultimately returns a nicely-formatted scramble
+    to reach the scrambled state from solve.
 
-    For each puzzle state transition, figure out which move was applied (U, D, L, R), and then
-    take the inverse of the solution as the scramble. Reduce this (U U --> U2) so it reads a
-    little more nicely. """
+    For each puzzle state transition, figure out which move was applied (U, D, L, R), and then take the inverse of the
+    solution as the scramble. Reduce this (U U --> U2) so it reads a little more nicely. """
 
     def __get_move_between(state1, state2):
         """ Figure out which move was applied between two adjacent puzzle states """
 
         # Figure out the indices of tiles which were swapped between the states
         swapped_ixs = list()
-        for i, val in enumerate(state1):
-            if val != state2[i]:
-                swapped_ixs.append(i)
+        for j, val in enumerate(state1):
+            if val != state2[j]:
+                swapped_ixs.append(j)
 
         # It should just be a single pair of tiles that swapped, otherwise something is wrong
         if len(swapped_ixs) != 2:
@@ -136,14 +134,13 @@ def __convert_steps_to_scramble(steps):
         move = __get_move_between(start_pos, final_pos)
         inverse.insert(0, __MOVE_INVERSE_MAP[move])
 
-    # Turn the inversed solution into a nicely-formatted string.
-    # This is the scramble we'll surface to the user.
+    # Turn the inversed solution into a nicely-formatted string. This is the scramble we'll surface to the user.
     return ' '.join(f"{x}{__smart_reduce(y)}" for x, y in groupby(inverse))
 
 
 def __count_inversions(puzzle, solved, size):
-    """ Counts the number of inversions in the scrambled puzzle. An inversion is if, for any two
-    tiles in the puzzle, the numerically higher tile appears before a numerically lower tile.
+    """ Counts the number of inversions in the scrambled puzzle. An inversion is if, for any two tiles in the puzzle,
+    the numerically higher tile appears before a numerically lower tile.
 
     Ex: [1, 3, 2, 4] --> 1 inversion  (3 is before 2)
     Ex: [3, 1, 4, 2] --> 3 inversions (3 is before 2 and 1, 4 is before 2) """
@@ -173,15 +170,14 @@ def __is_solvable(puzzle, solved, size):
     taxicab = abs(puzzle_zero_row - solved_zero_row) + abs(puzzle_zero_column - solved_zero_column)
 
     # Compare the inversions in the scrambled puzzle to its parity. If they are the same,
-    # the puzzle is solveable. Otherwise, the puzzle cannot be solved.
+    # the puzzle is solvable. Otherwise, the puzzle cannot be solved.
     return (taxicab % 2) == (__count_inversions(puzzle, solved, size) % 2)
 
 
 def __manhattan_distance(candidate, solved, size):
-    """ A heuristic when solving sliding tile puzzles, which calculates the total
-    'Manhattan distance' for the provided state of the puzzle compared to the solved state.
-    This is the sum of the Manhattan distance between a tile's position in the scrambled state
-    and the solved state, for all tiles except the empty tile. """
+    """ A heuristic when solving sliding tile puzzles, which calculates the total 'Manhattan distance' for the provided
+    state of the puzzle compared to the solved state. This is the sum of the Manhattan distance between a tile's
+    position in the scrambled state and the solved state, for all tiles except the empty tile. """
 
     distance = 0
     for i in range(size*size):
@@ -194,33 +190,31 @@ def __manhattan_distance(candidate, solved, size):
 
 
 def __linear_conflicts(candidate, solved, size):
-    """ A heuristic used in when solving sliding tile puzzles, which is added on top of the
-    Manhattan distance. A linear conflict is when any two tiles appear in the same correct row
-    or column, but are inverted with respect to each other. For example, the first row of a
-    15 Puzzle [x, 3, 1, x] has a linear conflict between the 1 and 3 tiles.
+    """ A heuristic used in when solving sliding tile puzzles, which is added on top of the Manhattan distance. A linear
+    conflict is when any two tiles appear in the same correct row or column, but are inverted with respect to each
+    other. For example, the first row of a 15 Puzzle [x, 3, 1, x] has a linear conflict between the 1 and 3 tiles.
 
-    A linear conflict requires at least two moves to resolve. This heuristic counts the number of
-    linear conflicts for a given puzzle state, multiplies this value by two, and adds it to
-    puzzle's Manhattan distance. """
+    A linear conflict requires at least two moves to resolve. This heuristic counts the number of linear conflicts for a
+    given puzzle state, multiplies this value by two, and adds it to puzzle's Manhattan distance. """
 
-    def __count_conflicts(candidate_row, solved_row, size, ans=0):
-        counts = [0 for x in range(size)]
-        for i, tile_1 in enumerate(candidate_row):
+    def __count_conflicts(candidate_row, solved_row, i_size, ans=0):
+        counts = [0 for _ in range(i_size)]
+        for k, tile_1 in enumerate(candidate_row):
             if tile_1 in solved_row and tile_1 != 0:
                 for j, tile_2 in enumerate(candidate_row):
                     if tile_2 in solved_row and tile_2 != 0:
                         if tile_1 != tile_2:
-                            if (solved_row.index(tile_1) > solved_row.index(tile_2)) and i < j:
-                                counts[i] += 1
-                            if (solved_row.index(tile_1) < solved_row.index(tile_2)) and i > j:
-                                counts[i] += 1
+                            if (solved_row.index(tile_1) > solved_row.index(tile_2)) and k < j:
+                                counts[k] += 1
+                            if (solved_row.index(tile_1) < solved_row.index(tile_2)) and k > j:
+                                counts[k] += 1
         if max(counts) == 0:
             return ans * 2
 
-        i = counts.index(max(counts))
-        candidate_row[i] = -1
+        k = counts.index(max(counts))
+        candidate_row[k] = -1
         ans += 1
-        return __count_conflicts(candidate_row, solved_row, size, ans)
+        return __count_conflicts(candidate_row, solved_row, i_size, ans)
 
     candidate_rows    = [list() for _ in range(size)]
     candidate_columns = [list() for _ in range(size)]
@@ -245,6 +239,7 @@ def __linear_conflicts(candidate, solved, size):
 
 def __smart_reduce(grouping):
     """ Reduce the scramble (R R R -> R3, U U -> U2, etc) and turn into a string to return """
+
     group_sum = sum(1 for _ in grouping)
     return '' if group_sum == 1 else group_sum
 
@@ -299,24 +294,24 @@ def __ida_star_search(puzzle, solved, size):
         for m in __possible_moves(node, size):
             if m not in path:
                 path.appendleft(m)
-                t, evaluated = __search(path, g + 1, bound, evaluated)
-                if t is True:
+                p, evaluated = __search(path, g + 1, bound, evaluated)
+                if p is True:
                     return True, evaluated
-                if t < ret:
-                    ret = t
+                if p < ret:
+                    ret = p
                 path.popleft()
         return ret, evaluated
 
-    bound = __linear_conflicts(puzzle, solved, size)
-    path = deque([puzzle])
-    evaluated = 0
-    while path:
-        t, evaluated = __search(path, 0, bound, evaluated)
+    conflicts = __linear_conflicts(puzzle, solved, size)
+    search_path = deque([puzzle])
+    n_evaluated = 0
+    while search_path:
+        t, n_evaluated = __search(search_path, 0, conflicts, n_evaluated)
         if t is True:
-            path.reverse()
-            return path
+            search_path.reverse()
+            return search_path
 
         if t is inf:
             return list()
 
-        bound = t
+        conflicts = t
