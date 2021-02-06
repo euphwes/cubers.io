@@ -12,10 +12,13 @@ from cubersio.util.events.scramblers.internal import fmc_scrambler, mbld_scrambl
 from cubersio.persistence.models import CompetitionEvent, Event
 
 
-class EventResource:
+class EventDefinition:
     """ Encapsulates everything we need to know about an event. """
 
-    def __init__(self, name, scramble_func, num_scrambles, is_weekly, is_wca, is_rotating=False):
+    def __init__(self, name, scramble_func, num_scrambles=5, is_weekly=True, is_wca=True, is_rotating=False):
+        # TODO do we really need num_scrambles, and the is_weekly, is_wca_, is_rotating flags? Can this be in the event
+        # database records instead?
+
         self.name = name
         self.scramble_func = scramble_func
         self.num_scrambles = num_scrambles
@@ -29,49 +32,66 @@ class EventResource:
         return self.scramble_func(*args)
 
 
-# Weekly event definitions (current count = 21)
-EVENT_2x2 = EventResource("2x2", scrambler222.get_WCA_scramble, 5, True, True)
-EVENT_3x3 = EventResource("3x3", scrambler333.get_WCA_scramble, 5, True, True)
-EVENT_4x4 = EventResource("4x4", scrambler444.get_random_state_scramble, 5, True, True)
-EVENT_5x5 = EventResource("5x5", scrambler555.get_WCA_scramble, 5, True, True)
-EVENT_6x6 = EventResource("6x6", scrambler666.get_WCA_scramble, 3, True, True)
-EVENT_7x7 = EventResource("7x7", scrambler777.get_WCA_scramble, 3, True, True)
-EVENT_3BLD = EventResource("3BLD", scrambler333.get_3BLD_scramble, 3, True, True)
-EVENT_3x3OH = EventResource("3x3OH", scrambler333.get_WCA_scramble, 5, True, True)
-EVENT_Square1 = EventResource("Square-1", squareOneScrambler.get_WCA_scramble, 5, True, True)
-EVENT_Pyraminx = EventResource("Pyraminx", pyraminxScrambler.get_WCA_scramble, 5, True, True)
-EVENT_Megaminx = EventResource("Megaminx", megaminxScrambler.get_WCA_scramble, 5, True, True)
-EVENT_Skewb = EventResource("Skewb", skewbScrambler.get_WCA_scramble, 5, True, True)
-EVENT_Clock = EventResource("Clock", clockScrambler.get_WCA_scramble, 5, True, True)
-EVENT_3x3_Feet = EventResource("3x3 With Feet", scrambler333.get_WCA_scramble, 5, True, True)
-EVENT_FMC = EventResource("FMC", fmc_scrambler, 3, True, True)
-EVENT_2GEN = EventResource("2GEN", scrambler333.get_2genRU_scramble, 5, True, False)
-EVENT_LSE = EventResource("LSE", scrambler333.get_2genMU_scramble, 5, True, False)
-EVENT_4BLD = EventResource("4BLD", scrambler444.get_4BLD_scramble, 3, True, True)
-EVENT_5BLD = EventResource("5BLD", scrambler555.get_5BLD_scramble, 3, True, True)
-EVENT_MBLD = EventResource("MBLD", mbld_scrambler, 3, True, True)
-EVENT_FTO = EventResource("FTO", ftoScrambler.get_multiple_random_state_scrambles, 5, True, False)
+class WCAEventDefinition(EventDefinition):
+    def __init__(self, name, scramble_func, num_scrambles=5):
+        super().__init__(name, scramble_func, num_scrambles, is_weekly=True, is_wca=True, is_rotating=False)
 
-# Bonus event definitions (current count = 19)
-EVENT_COLL = EventResource("COLL", get_coll_scramble, 5, False, False, is_rotating=True)
-EVENT_F2L = EventResource("F2L", scrambler333.get_WCA_scramble, 5, False, False, is_rotating=True)
-EVENT_Void = EventResource("Void Cube", scrambler333.get_3BLD_scramble, 5, False, False, is_rotating=True)
-EVENT_Mirror = EventResource("3x3 Mirror Blocks/Bump", scrambler333.get_WCA_scramble, 5, False, False, is_rotating=True)
-EVENT_Kilominx = EventResource("Kilominx", megaminxScrambler.get_WCA_scramble, 5, False, False, is_rotating=True)
-EVENT_4x4OH = EventResource("4x4 OH", scrambler444.get_random_state_scramble, 5, False, False, is_rotating=True)
-EVENT_3x3x2 = EventResource("3x3x2", cuboidsScrambler.get_3x3x2_scramble, 5, False, False, is_rotating=True)
-EVENT_3x3x4 = EventResource("3x3x4", cuboidsScrambler.get_3x3x4_scramble, 5, False, False, is_rotating=True)
-EVENT_3x3x5 = EventResource("3x3x5", cuboidsScrambler.get_3x3x5_scramble, 5, False, False, is_rotating=True)
-EVENT_234Relay = EventResource("2-3-4 Relay", scrambler_234_relay, 1, False, False, is_rotating=True)
-EVENT_333Relay = EventResource("3x3 Relay of 3", scrambler_333_relay, 1, False, False, is_rotating=True)
-EVENT_PLLAttack = EventResource("PLL Time Attack", attack_scrambler, 1, False, False, is_rotating=True)
-EVENT_2BLD = EventResource("2BLD", scrambler222.get_WCA_scramble, 3, False, False, is_rotating=True)
-EVENT_REDI = EventResource("Redi Cube", redi_scrambler, 5, False, False, is_rotating=True)
-EVENT_DINO = EventResource("Dino Cube", lambda: redi_scrambler(5), 5, False, False, is_rotating=True)
-EVENT_2x2x3 = EventResource("2x2x3", cuboidsScrambler.get_2x2x3_scramble, 5, False, False, is_rotating=True)
-EVENT_Fifteen = EventResource("15 Puzzle", fifteen_puzzle_scrambler, 5, False, False, is_rotating=True)
-EVENT_8x8 = EventResource("8x8", bigCubesScrambler.get_8x8x8_scramble, 1, False, False, is_rotating=True)
-EVENT_9x9 = EventResource("9x9", bigCubesScrambler.get_9x9x9_scramble, 1, False, False, is_rotating=True)
+
+class WeeklyEventDefinition(EventDefinition):
+    def __init__(self, name, scramble_func, num_scrambles=5):
+        super().__init__(name, scramble_func, num_scrambles, is_weekly=True, is_wca=False, is_rotating=False)
+
+
+class BonusEventDefinition(EventDefinition):
+    def __init__(self, name, scramble_func, num_scrambles=5):
+        super().__init__(name, scramble_func, num_scrambles, is_weekly=False, is_wca=False, is_rotating=True)
+
+
+# WCA event definitions (current count = 18)
+EVENT_2x2      = WCAEventDefinition("2x2", scrambler222.get_WCA_scramble)
+EVENT_3x3      = WCAEventDefinition("3x3", scrambler333.get_WCA_scramble)
+EVENT_4x4      = WCAEventDefinition("4x4", scrambler444.get_random_state_scramble)
+EVENT_5x5      = WCAEventDefinition("5x5", scrambler555.get_WCA_scramble)
+EVENT_6x6      = WCAEventDefinition("6x6", scrambler666.get_WCA_scramble, num_scrambles=3)
+EVENT_7x7      = WCAEventDefinition("7x7", scrambler777.get_WCA_scramble, num_scrambles=3)
+EVENT_3x3OH    = WCAEventDefinition("3x3OH", scrambler333.get_WCA_scramble)
+EVENT_Square1  = WCAEventDefinition("Square-1", squareOneScrambler.get_WCA_scramble)
+EVENT_Pyraminx = WCAEventDefinition("Pyraminx", pyraminxScrambler.get_WCA_scramble)
+EVENT_Megaminx = WCAEventDefinition("Megaminx", megaminxScrambler.get_WCA_scramble)
+EVENT_Skewb    = WCAEventDefinition("Skewb", skewbScrambler.get_WCA_scramble)
+EVENT_Clock    = WCAEventDefinition("Clock", clockScrambler.get_WCA_scramble)
+EVENT_3x3_Feet = WCAEventDefinition("3x3 With Feet", scrambler333.get_WCA_scramble)
+EVENT_FMC      = WCAEventDefinition("FMC", fmc_scrambler, num_scrambles=3)
+EVENT_3BLD     = WCAEventDefinition("3BLD", scrambler333.get_3BLD_scramble, num_scrambles=3)
+EVENT_4BLD     = WCAEventDefinition("4BLD", scrambler444.get_4BLD_scramble, num_scrambles=3)
+EVENT_5BLD     = WCAEventDefinition("5BLD", scrambler555.get_5BLD_scramble, num_scrambles=3)
+EVENT_MBLD     = WCAEventDefinition("MBLD", mbld_scrambler, num_scrambles=3)
+
+# Weekly non-WCA event definitions (current count = 3)
+EVENT_2GEN = WeeklyEventDefinition("2GEN", scrambler333.get_2genRU_scramble)
+EVENT_LSE  = WeeklyEventDefinition("LSE", scrambler333.get_2genMU_scramble)
+EVENT_FTO  = WeeklyEventDefinition("FTO", ftoScrambler.get_multiple_random_state_scrambles)
+
+# Rotating bonus event definitions (current count = 19)
+EVENT_COLL      = BonusEventDefinition("COLL", get_coll_scramble)
+EVENT_F2L       = BonusEventDefinition("F2L", scrambler333.get_WCA_scramble)
+EVENT_Void      = BonusEventDefinition("Void Cube", scrambler333.get_3BLD_scramble)
+EVENT_Mirror    = BonusEventDefinition("3x3 Mirror Blocks/Bump", scrambler333.get_WCA_scramble)
+EVENT_Kilominx  = BonusEventDefinition("Kilominx", megaminxScrambler.get_WCA_scramble)
+EVENT_4x4OH     = BonusEventDefinition("4x4 OH", scrambler444.get_random_state_scramble)
+EVENT_3x3x2     = BonusEventDefinition("3x3x2", cuboidsScrambler.get_3x3x2_scramble)
+EVENT_3x3x4     = BonusEventDefinition("3x3x4", cuboidsScrambler.get_3x3x4_scramble)
+EVENT_3x3x5     = BonusEventDefinition("3x3x5", cuboidsScrambler.get_3x3x5_scramble)
+EVENT_234Relay  = BonusEventDefinition("2-3-4 Relay", scrambler_234_relay, num_scrambles=1)
+EVENT_333Relay  = BonusEventDefinition("3x3 Relay of 3", scrambler_333_relay, num_scrambles=1)
+EVENT_PLLAttack = BonusEventDefinition("PLL Time Attack", attack_scrambler, num_scrambles=1)
+EVENT_2BLD      = BonusEventDefinition("2BLD", scrambler222.get_WCA_scramble, num_scrambles=3)
+EVENT_REDI      = BonusEventDefinition("Redi Cube", redi_scrambler)
+EVENT_DINO      = BonusEventDefinition("Dino Cube", lambda: redi_scrambler(5))
+EVENT_2x2x3     = BonusEventDefinition("2x2x3", cuboidsScrambler.get_2x2x3_scramble)
+EVENT_Fifteen   = BonusEventDefinition("15 Puzzle", fifteen_puzzle_scrambler)
+EVENT_8x8       = BonusEventDefinition("8x8", bigCubesScrambler.get_8x8x8_scramble, num_scrambles=1)
+EVENT_9x9       = BonusEventDefinition("9x9", bigCubesScrambler.get_9x9x9_scramble, num_scrambles=1)
 
 # Important! Only add new events to the end, regardless of WCA or non-WCA status. We rely on the order here.
 __ALL_EVENTS = [
