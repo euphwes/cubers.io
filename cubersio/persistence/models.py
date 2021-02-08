@@ -7,8 +7,8 @@ from flask_login import LoginManager, UserMixin, AnonymousUserMixin
 from sqlalchemy.orm import relationship, reconstructor
 
 from cubersio import DB, app
-from cubersio.util.events import build_mbld_results
 from cubersio.util.times import convert_centiseconds_to_friendly_time
+from cubersio.util.events.mbld import build_mbld_results
 
 Text       = DB.Text
 Enum       = DB.Enum

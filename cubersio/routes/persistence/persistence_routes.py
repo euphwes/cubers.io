@@ -13,7 +13,7 @@ from cubersio.persistence.models import UserSolve, UserEventResults
 from cubersio.persistence.comp_manager import get_comp_event_by_id
 from cubersio.persistence.user_results_manager import save_event_results, get_event_results_for_user,\
     delete_user_solve, delete_event_results, get_user_solve_for_scramble_id
-from cubersio.util.events import get_mbld_successful_and_attempted
+from cubersio.util.events.mbld import get_mbld_successful_and_attempted
 from cubersio.routes.timer import timer_page
 from cubersio.routes import api_login_required
 

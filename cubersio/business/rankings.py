@@ -7,7 +7,7 @@ import json
 from ranking import Ranking
 
 from cubersio import DB
-from cubersio.util.events import get_mbld_total_points, get_mbld_fraction_of_hour_remaining
+from cubersio.util.events.mbld import get_mbld_total_points, get_mbld_fraction_of_hour_remaining
 from cubersio.persistence.models import Competition, CompetitionEvent, Event, UserEventResults, User,\
     UserSiteRankings, EventFormat
 from cubersio.persistence.events_manager import get_all_events, get_all_WCA_events

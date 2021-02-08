@@ -2,7 +2,7 @@
 from arrow import now
 
 from cubersio import app
-from cubersio.util.events import get_mbld_total_points
+from cubersio.util.events.mbld import get_mbld_total_points
 from cubersio.persistence.comp_manager import get_comp_event_name_by_id
 
 # -------------------------------------------------------------------------------------------------

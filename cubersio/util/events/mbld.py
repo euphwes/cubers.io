@@ -1,4 +1,4 @@
-from cubersio import convert_centiseconds_to_friendly_time
+from cubersio.util.times import convert_centiseconds_to_friendly_time
 
 
 def build_mbld_results(coded_value):

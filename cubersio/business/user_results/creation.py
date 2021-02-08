@@ -1,10 +1,10 @@
 """ Methods related to creating UserEventResults. """
 
-from sys import maxsize as MAX
+from sys import maxsize
 
 from cubersio.persistence.models import EventFormat
-from cubersio.util.events import build_mbld_results
 from cubersio.util.times import convert_centiseconds_to_friendly_time
+from cubersio.util.events.mbld import build_mbld_results
 from cubersio.business.user_results import DNF, DNS
 from cubersio.business.user_results.personal_bests import set_pb_flags
 from cubersio.business.user_results.blacklisting import take_blacklist_action_if_necessary
@@ -140,7 +140,7 @@ def __build_times_string(results, event_format, is_fmc, is_blind, is_mbld):
 
     # Initialize some variables to hold the current best and worst times, and the index at which they
     # reside, so we mark those with parentheses
-    curr_best   = MAX
+    curr_best   = maxsize
     curr_worst  = -1
     best_index  = -1
     worst_index = -1
