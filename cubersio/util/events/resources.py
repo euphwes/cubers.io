@@ -1,6 +1,6 @@
 """ Resources for data related to events. """
 
-from typing import List
+from typing import List, Optional
 
 from pyTwistyScrambler import scrambler333, scrambler222, scrambler444, scrambler555, scrambler666, scrambler777,\
     squareOneScrambler, megaminxScrambler, pyraminxScrambler, cuboidsScrambler, skewbScrambler, clockScrambler,\
@@ -252,7 +252,7 @@ def sort_events_by_global_sort_order(events: List[Event]) -> List[Event]:
     return ordered_events
 
 
-def get_bonus_events_rotation_starting_at(starting_index, count=5):
+def get_bonus_events_rotation_starting_at(starting_index: int, count: int = 5) -> List[BonusEventDefinition]:
     """ Gets a list of `count` bonus events starting at the specified index. Use a doubled list
     of bonus events as a 'trick' to wrap around to the beginning if the starting index and count
     bring us past the end of the list. """
@@ -261,14 +261,14 @@ def get_bonus_events_rotation_starting_at(starting_index, count=5):
     return double_wide[starting_index: starting_index + count]
 
 
-def get_bonus_events_without_current(bonus_events):
+def get_bonus_events_without_current(bonus_events: List[BonusEventDefinition]) -> List[BonusEventDefinition]:
     """ Gets a list of the bonus events except for the current ones. """
 
     return [e for e in BONUS_EVENTS if e not in bonus_events]
 
 
-def get_event_resource_for_name(event_name):
-    """ Returns the event resource for the specified event name. """
+def get_event_definition_for_name(event_name: str) -> Optional[EventDefinition]:
+    """ Returns the event definition for the specified event name. """
 
     for event in __ALL_EVENTS:
         if event.name == event_name:
