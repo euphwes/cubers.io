@@ -2,7 +2,7 @@
 from arrow import now
 
 from cubersio import app
-from cubersio.util.events.mbld import get_mbld_total_points
+from cubersio.util.events.mbld import MbldResults
 from cubersio.persistence.comp_manager import get_comp_event_name_by_id
 
 # -------------------------------------------------------------------------------------------------
@@ -108,7 +108,7 @@ def take_blacklist_action_if_necessary(results, user):
     # We're only checking single, and we need to convert the 'time' (encoded value) into MBLD points
     # so we can compare it against the MBLD points threshold
     if comp_event_name == 'MBLD':
-        user_points = get_mbld_total_points(results.single)
+        user_points = MbldResults(results.single).points
         if user_points < thresholds:
             return __ensure_clean_unblacklisted(results), False
         return __blacklist_results_with_note(results, __MBLD_BLACKLIST_NOTE_TEMPLATE, points=user_points), True

@@ -13,7 +13,7 @@ from cubersio.persistence.models import UserSolve, UserEventResults
 from cubersio.persistence.comp_manager import get_comp_event_by_id
 from cubersio.persistence.user_results_manager import save_event_results, get_event_results_for_user,\
     delete_user_solve, delete_event_results, get_user_solve_for_scramble_id
-from cubersio.util.events.mbld import get_mbld_successful_and_attempted
+from cubersio.util.events.mbld import MbldResults
 from cubersio.routes.timer import timer_page
 from cubersio.routes import api_login_required
 
@@ -95,8 +95,7 @@ def post_solve():
 
     # Double-check that if the solve is MBLD, the number of attempted cubes is > 1
     if comp_event.Event.name == "MBLD":
-        _, num_attempted = get_mbld_successful_and_attempted(centiseconds)
-        if num_attempted < 2:
+        if MbldResults(centiseconds).attempted < 2:
             return (ERR_MSG_MBLD_TOO_FEW_ATTEMPTED, HTTPStatus.BAD_REQUEST)
 
     # Retrieve the user's results record for this event if they exist, or else create a new record

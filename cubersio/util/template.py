@@ -6,7 +6,7 @@ from babel.dates import format_date
 from slugify import slugify
 
 from cubersio import app
-from cubersio.util.events.mbld import build_mbld_results
+from cubersio.util.events.mbld import MbldResults
 from cubersio.util.times import convert_centiseconds_to_friendly_time
 
 
@@ -90,4 +90,4 @@ def format_mbld_result(value):
     if not value:
         return ''
 
-    return build_mbld_results(value)
+    return str(MbldResults(value))
