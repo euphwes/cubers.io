@@ -2,10 +2,7 @@
 
 from functools import wraps
 
-from http import HTTPStatus
-
 from flask import abort
-from flask_login import current_user
 
 
 def api_login_required(func):
@@ -23,18 +20,23 @@ def api_login_required(func):
     return decorated_function
 
 
-from .auth import logout
-from .auth.wca import wca_login, wca_authorize, wca_assoc
-from .auth.reddit import reddit_login, reddit_authorize, reddit_assoc, admin_login
-from .home import index, prompt_login
-from .admin import confirm_gift_code_recipient, deny_gift_code_recipient, add_gift_codes
-from .results import results_list
-from .user import profile
-from .user.settings.reddit_settings_routes import reddit_settings
-from .user.settings.wca_settings_routes import wca_settings
-from .user.settings.timer_settings_routes import timer_settings
-from .user.settings.event_settings_routes import events_settings
-from .user.settings.custom_colors_settings_routes import colors_settings
-from .events import event_results, sum_of_ranks, event_results_export
-from .timer import timer_page
-from .export import export
+from cubersio.routes.admin.gift_codes import *
+from cubersio.routes.auth import *
+from cubersio.routes.auth.reddit import *
+from cubersio.routes.auth.wca import *
+from cubersio.routes.events.event_routes import *
+from cubersio.routes.events.kinchranks_routes import *
+from cubersio.routes.events.sum_of_ranks_routes import *
+from cubersio.routes.export.export_routes import *
+from cubersio.routes.home.home_routes import *
+from cubersio.routes.persistence.persistence_routes import *
+from cubersio.routes.results.results_routes import *
+from cubersio.routes.timer.timer_routes import *
+from cubersio.routes.user.profile_routes import *
+from cubersio.routes.user.versus_routes import *
+from cubersio.routes.user.settings import *
+from cubersio.routes.user.settings.custom_colors_settings_routes import *
+from cubersio.routes.user.settings.event_settings_routes import *
+from cubersio.routes.user.settings.reddit_settings_routes import *
+from cubersio.routes.user.settings.timer_settings_routes import *
+from cubersio.routes.user.settings.wca_settings_routes import *
