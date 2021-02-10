@@ -31,4 +31,4 @@ def __task_error_handler(_, task, exc):
 
     title = __TASK_FAILED_TITLE.format(task_name=task.name)
 
-    send_PM_to_user_with_title_and_body(__TASK_STATUS_REDDIT_USER, title, body)
+    send_pm_to_user(__TASK_STATUS_REDDIT_USER, title, body)

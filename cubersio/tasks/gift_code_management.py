@@ -8,7 +8,7 @@ from cubersio.persistence.comp_manager import get_random_reddit_participant_for_
 from cubersio.persistence.gift_code_manager import create_confirm_deny_record, get_gift_code_by_id,\
     get_unused_gift_code, get_unused_gift_code_count
 from cubersio.persistence.user_manager import get_user_by_id
-from cubersio.util.reddit import send_PM_to_user_with_title_and_body
+from cubersio.util.reddit import send_pm_to_user
 
 from . import huey
 
@@ -93,7 +93,7 @@ def check_gift_code_pool():
             codes_left      = available_code_count,
             code_refill_url = __CODE_REFILL_ADMIN_URL
         )
-        send_PM_to_user_with_title_and_body(__CODE_TOP_OFF_REDDIT_USER, __CODES_REFILL_TITLE, msg)
+        send_pm_to_user(__CODE_TOP_OFF_REDDIT_USER, __CODES_REFILL_TITLE, msg)
 
 
 @huey.task()
@@ -112,7 +112,7 @@ def send_gift_code_winner_approval_pm(comp_id):
             comp_title      = competition.title,
             code_refill_url = __CODE_REFILL_ADMIN_URL
         )
-        send_PM_to_user_with_title_and_body(__CODE_TOP_OFF_REDDIT_USER, __NO_CODES_LEFT_TITLE, msg)
+        send_pm_to_user(__CODE_TOP_OFF_REDDIT_USER, __NO_CODES_LEFT_TITLE, msg)
         send_gift_code_winner_approval_pm.schedule((comp_id,), delay=__GIFT_CODE_SELECTION_RETRY_DELAY)
 
     confirm_deny_record = create_confirm_deny_record(gift_code.id, winner.id, comp_id)
@@ -126,7 +126,7 @@ def send_gift_code_winner_approval_pm(comp_id):
         unused_codes_count = get_unused_gift_code_count()
     )
 
-    send_PM_to_user_with_title_and_body(__CODE_CONFIRM_REDDIT_USER, __CODE_CONFIRM_DENY_TITLE, msg)
+    send_pm_to_user(__CODE_CONFIRM_REDDIT_USER, __CODE_CONFIRM_DENY_TITLE, msg)
 
 
 @huey.task()
@@ -140,4 +140,4 @@ def send_gift_code_to_winner(user_id: int, gift_code_id: int, comp_id: int) -> N
         comp_title = get_competition(comp_id).title
     )
 
-    send_PM_to_user_with_title_and_body(user.reddit_id, __GIFT_CODE_RECIPIENT_TITLE, msg)
+    send_pm_to_user(user.reddit_id, __GIFT_CODE_RECIPIENT_TITLE, msg)

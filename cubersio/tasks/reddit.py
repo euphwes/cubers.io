@@ -6,7 +6,7 @@ from cubersio.persistence.comp_manager import get_competition, get_all_comp_even
 from cubersio.persistence.user_manager import get_user_by_id
 from cubersio.persistence.settings_manager import get_all_user_ids_with_setting_value, SettingCode,\
     TRUE_STR
-from cubersio.util.reddit import send_PM_to_user_with_title_and_body
+from cubersio.util.reddit import send_pm_to_user
 from cubersio.util.events.resources import BONUS_EVENTS
 
 from . import huey
@@ -104,7 +104,7 @@ def prepare_new_competition_notification(comp_id, is_all_events):
 def send_competition_notification_pm(username, message_body):
     """ Sends a new competition notification PM to the specified user. """
 
-    send_PM_to_user_with_title_and_body(username, NEW_COMP_TITLE, message_body)
+    send_pm_to_user(username, NEW_COMP_TITLE, message_body)
 
 
 @huey.task()
@@ -175,4 +175,4 @@ def send_end_of_competition_message(user_id, comp_id, comp_title):
 
     message_title = END_OF_COMP_TITLE_TEMPLATE.format(comp_title=comp_title)
 
-    send_PM_to_user_with_title_and_body(user.username, message_title, message_body)
+    send_pm_to_user(user.username, message_title, message_body)
