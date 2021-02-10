@@ -8,7 +8,7 @@ from sqlalchemy.orm import relationship, reconstructor
 
 from cubersio import DB, app
 from cubersio.util.times import convert_centiseconds_to_friendly_time
-from cubersio.util.events.mbld import MbldResults
+from cubersio.util.events.mbld import MbldSolve
 
 Text       = DB.Text
 Enum       = DB.Enum
@@ -202,7 +202,7 @@ class UserEventResults(Model):
             return converted_value
 
         if self.is_mbld:
-            return str(MbldResults(value))
+            return str(MbldSolve(value))
 
         return convert_centiseconds_to_friendly_time(value)
 
@@ -398,7 +398,7 @@ class UserSolve(Model):
             return converted_value
 
         if self.UserEventResults.is_mbld:
-            return str(MbldResults(total_time))
+            return str(MbldSolve(total_time))
 
         converted_to_friendly = convert_centiseconds_to_friendly_time(total_time)
         if self.is_plus_two:

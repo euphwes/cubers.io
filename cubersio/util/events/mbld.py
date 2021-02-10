@@ -5,8 +5,8 @@ from typing import Union
 from cubersio.util.times import convert_centiseconds_to_friendly_time
 
 
-class MbldResults:
-    """ A representation of MBLD results, including number of attempted and successful cubes, seconds elapsed, total
+class MbldSolve:
+    """ A representation of an MBLD solve, including number of attempted and successful cubes, seconds elapsed, total
     points, and string representation of results. """
 
     def __init__(self, coded_value: Union[str, int]):
@@ -16,7 +16,7 @@ class MbldResults:
         while len(coded_value) < 8:
             coded_value = '0' + coded_value
 
-        # The format of coded results is XXYYYYZZ
+        # The format of a coded solve is XXYYYYZZ
         #   XX   = (99 - number of points)
         #   YYYY = elapsed seconds (4 digits, padded with insignificant zeros)
         #   ZZ   = number missed (2 digits, padded with insignificant zeros)

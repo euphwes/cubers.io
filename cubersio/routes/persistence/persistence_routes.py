@@ -13,7 +13,7 @@ from cubersio.persistence.models import UserSolve, UserEventResults
 from cubersio.persistence.comp_manager import get_comp_event_by_id
 from cubersio.persistence.user_results_manager import save_event_results, get_event_results_for_user,\
     delete_user_solve, delete_event_results, get_user_solve_for_scramble_id
-from cubersio.util.events.mbld import MbldResults
+from cubersio.util.events.mbld import MbldSolve
 from cubersio.routes.timer import timer_page
 from cubersio.routes import api_login_required
 
@@ -30,23 +30,23 @@ SCRAMBLE_ID       = 'scramble_id'
 COMP_EVENT_ID     = 'comp_event_id'
 CENTISECONDS      = 'elapsed_centiseconds'
 IS_INSPECTION_DNF = 'is_inspection_dnf'
-EXPECTED_FIELDS = (IS_DNF, IS_PLUS_TWO, SCRAMBLE_ID, COMP_EVENT_ID, CENTISECONDS)
 SOLVE_ID          = 'solve_id'
 PENALTY_TO_TOGGLE = 'penalty_to_toggle'
 PENALTY_DNF       = 'penalty_dnf'
 PENALTY_PLUS_TWO  = 'penalty_plus_two'
 FMC_COMMENT       = 'fmc_comment'
+EXPECTED_FIELDS   = (IS_DNF, IS_PLUS_TWO, SCRAMBLE_ID, COMP_EVENT_ID, CENTISECONDS)
 
 COMMENT = 'comment'
 
-ERR_MSG_MISSING_INFO = 'Some required information is missing from your solve.'
-ERR_MSG_NO_SUCH_EVENT = "Can't find a competition event with ID {}."
-ERR_MSG_INACTIVE_COMP = 'This event belongs to a competition which has ended.'
-ERR_MSG_NO_RESULTS    = "Can't find user results for competition event with ID {}."
-ERR_MSG_NO_SOLVE      = "Can't find solve with ID {} that belongs to {}."
+ERR_MSG_MISSING_INFO           = 'Some required information is missing from your solve.'
+ERR_MSG_NO_SUCH_EVENT          = "Can't find a competition event with ID {}."
+ERR_MSG_INACTIVE_COMP          = 'This event belongs to a competition which has ended.'
+ERR_MSG_NO_RESULTS             = "Can't find user results for competition event with ID {}."
+ERR_MSG_NO_SOLVE               = "Can't find solve with ID {} that belongs to {}."
+ERR_MSG_NOT_VALID_FOR_FMC      = 'This operation is not valid for FMC!'
+ERR_MSG_NON_POSITIVE_TIME      = 'Solve time cannot be zero or negative!'
 ERR_MSG_MBLD_TOO_FEW_ATTEMPTED = "You must attempt at least 2 cubes for MBLD!"
-ERR_MSG_NOT_VALID_FOR_FMC = 'This operation is not valid for FMC!'
-ERR_MSG_NON_POSITIVE_TIME = 'Solve time cannot be zero or negative!'
 
 # -------------------------------------------------------------------------------------------------
 # Below are routes called during standard usage of the timer pages
@@ -95,7 +95,7 @@ def post_solve():
 
     # Double-check that if the solve is MBLD, the number of attempted cubes is > 1
     if comp_event.Event.name == "MBLD":
-        if MbldResults(centiseconds).attempted < 2:
+        if MbldSolve(centiseconds).attempted < 2:
             return (ERR_MSG_MBLD_TOO_FEW_ATTEMPTED, HTTPStatus.BAD_REQUEST)
 
     # Retrieve the user's results record for this event if they exist, or else create a new record

@@ -4,7 +4,7 @@ from sys import maxsize
 
 from cubersio.persistence.models import EventFormat
 from cubersio.util.times import convert_centiseconds_to_friendly_time
-from cubersio.util.events.mbld import MbldResults
+from cubersio.util.events.mbld import MbldSolve
 from cubersio.business.user_results import DNF, DNS
 from cubersio.business.user_results.personal_bests import set_pb_flags
 from cubersio.business.user_results.blacklisting import take_blacklist_action_if_necessary
@@ -115,15 +115,12 @@ def __build_times_string(results, event_format, is_fmc, is_blind, is_mbld):
         if first_solve.is_dnf:
             return DNF
         else:
-            if is_mbld:
-                return str(MbldResults(first_solve.get_total_time()))
-            else:
-                return convert_centiseconds_to_friendly_time(first_solve.get_total_time())
+            return convert_centiseconds_to_friendly_time(first_solve.get_total_time())
 
     # Build a list which contains the user-friendly representation of the total solve time for each solve
     if not is_fmc:
         if is_mbld:
-            friendly_times = [str(MbldResults(solve.get_total_time())) for solve in solves]
+            friendly_times = [str(MbldSolve(solve.get_total_time())) for solve in solves]
         else:
             friendly_times = [convert_centiseconds_to_friendly_time(solve.get_total_time()) for solve in solves]
 

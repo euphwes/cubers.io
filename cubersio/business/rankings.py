@@ -7,7 +7,7 @@ import json
 from ranking import Ranking
 
 from cubersio import DB
-from cubersio.util.events.mbld import MbldResults
+from cubersio.util.events.mbld import MbldSolve
 from cubersio.persistence.models import Competition, CompetitionEvent, Event, UserEventResults, User,\
     UserSiteRankings, EventFormat
 from cubersio.persistence.events_manager import get_all_events, get_all_WCA_events
@@ -135,10 +135,10 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
         # TODO: add explanations below
         if event.name == 'MBLD':
             best_mbld = int(ranked_singles[0].personal_best)
-            baseline_mbld = MbldResults(best_mbld).sort_value
+            baseline_mbld = MbldSolve(best_mbld).sort_value
             if pb_single and pb_single != 'DNF':
                 coded_mbld = int(pb_single)
-                this_mbld  = MbldResults(coded_mbld).sort_value
+                this_mbld  = MbldSolve(coded_mbld).sort_value
                 event_kinch = round((this_mbld / baseline_mbld) * 100, 3)
         elif event.name in ('FMC', '3BLD'):
             single_kinch = 0
