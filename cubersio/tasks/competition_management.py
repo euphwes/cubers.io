@@ -6,8 +6,8 @@ from cubersio import app
 from cubersio.business.rankings import precalculate_user_site_rankings
 from cubersio.business.user_results import set_medals_on_best_event_results
 from cubersio.persistence.comp_manager import get_active_competition, get_all_comp_events_for_comp
-from cubersio.util.competition.generation import generate_new_competition
-from cubersio.util.competition.scoring import post_results_thread
+from cubersio.business.competition.generation import generate_new_competition
+from cubersio.business.competition.scoring import post_results_thread
 # from app.tasks.gift_code_management import send_gift_code_winner_approval_pm
 from cubersio.tasks.reddit import prepare_new_competition_notification,\
     prepare_end_of_competition_info_notifications
