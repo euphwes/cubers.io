@@ -7,7 +7,7 @@ from cubersio import app
 from cubersio.persistence.user_manager import update_or_create_user_for_reddit,\
     add_reddit_info_to_user, get_user_by_reddit_id
 
-from cubersio.util.reddit import get_username_and_refresh_token_from_code, get_reddit_auth_url,\
+from cubersio.integrations.reddit import get_username_and_refresh_token_from_code, get_reddit_auth_url,\
     get_app_account_auth_url
 
 from . import __encrypt_state, __decrypt_state, __OAUTH_CODE, __OAUTH_DENIED, __OAUTH_ERROR,\

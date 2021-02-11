@@ -1,12 +1,10 @@
 """ Business logic for reading comments in a competition's Reddit thread, parsing submissions,
 scoring users, and posting the results. """
 
-from os import environ
-
 from cubersio import app
 from cubersio.persistence.comp_manager import get_competition, save_competition
 from cubersio.persistence.user_results_manager import get_all_complete_user_results_for_comp_event
-from cubersio.util.reddit import submit_post, update_post
+from cubersio.integrations.reddit import submit_post, update_post
 from cubersio.util.sorting import sort_user_results_with_rankings
 from cubersio.util.events.resources import sort_comp_events_by_global_sort_order
 

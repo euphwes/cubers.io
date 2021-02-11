@@ -8,7 +8,7 @@ from cubersio.persistence.comp_manager import get_random_reddit_participant_for_
 from cubersio.persistence.gift_code_manager import create_confirm_deny_record, get_gift_code_by_id,\
     get_unused_gift_code, get_unused_gift_code_count
 from cubersio.persistence.user_manager import get_user_by_id
-from cubersio.util.reddit import send_pm_to_user
+from cubersio.integrations.reddit import send_pm_to_user
 
 from . import huey
 

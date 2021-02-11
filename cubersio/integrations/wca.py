@@ -1,4 +1,4 @@
-""" Utility functions for dealing with WCA OAuth. """
+""" Utility functions for interacting with WCA via OAuth """
 
 from urllib.parse import urlencode
 
@@ -6,13 +6,6 @@ from requests import post as post_request, get as get_request
 
 from cubersio import app
 
-# -------------------------------------------------------------------------------------------------
-
-class WCAAuthException(Exception):
-    """ Generic exception indicating there was an error code return in a WCA OAuth response. """
-    pass
-
-# -------------------------------------------------------------------------------------------------
 
 __REDIRECT      = app.config['WCA_REDIRECT_URI']
 __CLIENT_ID     = app.config['WCA_CLIENT_ID']
@@ -23,13 +16,16 @@ __RESPONSE_TYPE = 'code'
 
 __OAUTH_SCOPES = ['public']
 
-__AUTH_URL_BASE = 'https://www.worldcubeassociation.org/oauth/authorize?'
+__AUTH_URL_BASE    = 'https://www.worldcubeassociation.org/oauth/authorize?'
+__WCA_ME_API_URL   = 'https://www.worldcubeassociation.org/api/v0/me'
 __ACCESS_TOKEN_URL = 'https://www.worldcubeassociation.org/oauth/token'
-__WCA_ME_API_URL = 'https://www.worldcubeassociation.org/api/v0/me'
 
-# -------------------------------------------------------------------------------------------------
 
-def get_wca_auth_url(state='...'):
+class WCAAuthException(Exception):
+    """ Generic exception indicating there was an error code return in a WCA OAuth response. """
+
+
+def get_wca_auth_url(state: str = '...') -> str:
     """ Returns a url for authenticating with the WCA. """
 
     wca_auth_query_params = urlencode({
@@ -43,9 +39,9 @@ def get_wca_auth_url(state='...'):
     return __AUTH_URL_BASE + wca_auth_query_params
 
 
-def get_wca_access_token_from_auth_code(auth_code):
-    """ Calls to the WCA with the auth code, and cubers.io client ID and secret, to retrieve
-    the access token for the authenticated user. """
+def get_wca_access_token_from_auth_code(auth_code: str) -> str:
+    """ Calls to the WCA with the auth code, and cubers.io client ID and secret, to retrieve the access token for the
+    authenticated user. """
 
     payload = {
         'grant_type': 'authorization_code',
@@ -64,7 +60,7 @@ def get_wca_access_token_from_auth_code(auth_code):
     return response['access_token']
 
 
-def get_wca_id_from_access_token(access_token):
+def get_wca_id_from_access_token(access_token: str) -> str:
     """ Returns the user's WCA ID from the /me WCA API endpoint. """
 
     headers = {"Authorization": "Bearer " + access_token}

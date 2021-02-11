@@ -8,7 +8,7 @@ from cubersio import app
 from cubersio.persistence.user_manager import update_or_create_user_for_wca, add_wca_info_to_user,\
     get_user_by_wca_id
 
-from cubersio.util.wca import get_wca_auth_url, get_wca_access_token_from_auth_code,\
+from cubersio.integrations.wca import get_wca_auth_url, get_wca_access_token_from_auth_code,\
     get_wca_id_from_access_token, WCAAuthException
 
 from . import __encrypt_state, __decrypt_state, __OAUTH_CODE, __OAUTH_DENIED, __OAUTH_ERROR,\

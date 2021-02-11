@@ -6,7 +6,7 @@ from cubersio.persistence.comp_manager import get_competition, get_all_comp_even
 from cubersio.persistence.user_manager import get_user_by_id
 from cubersio.persistence.settings_manager import get_all_user_ids_with_setting_value, SettingCode,\
     TRUE_STR
-from cubersio.util.reddit import send_pm_to_user
+from cubersio.integrations.reddit import send_pm_to_user
 from cubersio.util.events.resources import BONUS_EVENTS
 
 from . import huey
