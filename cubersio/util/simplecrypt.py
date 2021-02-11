@@ -1,7 +1,7 @@
 """ Copy of simple-crypt from https://github.com/andrewcooke/simple-crypt.
-Using this copied, rather than as a pip package, because the pip install requires PyCrypto.
-I'd prefer to use PyCryptodome, as a drop-in replacement. Lowered expansion count to speed
-it up a bit. """
+
+Using this copied, rather than as a pip package, because the pip install requires PyCrypto. I'd prefer to use
+PyCryptodome as a drop-in replacement. Lowered expansion count to speed it up a bit. """
 
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256, HMAC
