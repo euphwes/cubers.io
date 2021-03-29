@@ -55,7 +55,7 @@ pycparser==2.18
 pycryptodome==3.9.7
 PyExecJS==1.5.1
 pyflakes==2.1.1
-Pygments==2.2.0
+Pygments==2.7.4
 pylint==2.2.2
 pyparsing==2.2.0
 pypng==0.0.20
