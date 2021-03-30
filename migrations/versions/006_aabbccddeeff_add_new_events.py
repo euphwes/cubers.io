@@ -7,7 +7,7 @@ Create Date: 2018-10-26 15:41:00.257969
 """
 from alembic import op
 import sqlalchemy as sa
-from app.persistence.models import EventFormat, Event
+from cubersio.persistence.models import EventFormat, Event
 
 # revision identifiers, used by Alembic.
 revision = 'aabbccddeeff'
