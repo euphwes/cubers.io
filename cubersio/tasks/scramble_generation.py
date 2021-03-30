@@ -7,7 +7,7 @@ from huey import crontab
 
 from cubersio import app
 from cubersio.persistence.events_manager import get_all_events, add_scramble_to_scramble_pool
-from cubersio.util.events.resources import get_event_definition_for_name, EVENT_COLL
+from cubersio.util.events.resources import get_event_definition_for_name, EVENT_COLL, EVENT_FTO, EVENT_REX
 
 from . import huey
 
@@ -64,8 +64,8 @@ def top_off_scramble_pool(top_off_info):
 
     event_resource = get_event_definition_for_name(top_off_info.event_name)
 
-    if event_resource.name == 'FTO':
-        # FTO's scrambler will actually return multiple scrambles at once, since that's faster than
+    if event_resource.name in (EVENT_REX.name, EVENT_FTO.name):
+        # FTO and Rex's scrambler will actually return multiple scrambles at once, since that's faster than
         # generating one at a time.
         scrambles = event_resource.get_scramble(top_off_info.num_scrambles)
     else:

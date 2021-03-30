@@ -8,7 +8,7 @@ from pyTwistyScrambler import scrambler333, scrambler222, scrambler444, scramble
 
 from cubersio.util.events.scramblers.coll import get_coll_scramble
 from cubersio.util.events.scramblers.internal import fmc_scrambler, mbld_scrambler, redi_scrambler, attack_scrambler,\
-    fifteen_puzzle_scrambler, scrambler_333_relay, scrambler_234_relay
+    fifteen_puzzle_scrambler, scrambler_333_relay, scrambler_234_relay, rex_cube_scrambler
 from cubersio.persistence.models import CompetitionEvent, Event
 
 
@@ -72,7 +72,7 @@ EVENT_2GEN = WeeklyEventDefinition("2GEN", scrambler333.get_2genRU_scramble)
 EVENT_LSE  = WeeklyEventDefinition("LSE", scrambler333.get_2genMU_scramble)
 EVENT_FTO  = WeeklyEventDefinition("FTO", ftoScrambler.get_multiple_random_state_scrambles)
 
-# Rotating bonus event definitions (current count = 19)
+# Rotating bonus event definitions (current count = 20)
 EVENT_COLL      = BonusEventDefinition("COLL", get_coll_scramble)
 EVENT_F2L       = BonusEventDefinition("F2L", scrambler333.get_WCA_scramble)
 EVENT_Void      = BonusEventDefinition("Void Cube", scrambler333.get_3BLD_scramble)
@@ -88,6 +88,7 @@ EVENT_PLLAttack = BonusEventDefinition("PLL Time Attack", attack_scrambler, num_
 EVENT_2BLD      = BonusEventDefinition("2BLD", scrambler222.get_WCA_scramble, num_scrambles=3)
 EVENT_REDI      = BonusEventDefinition("Redi Cube", redi_scrambler)
 EVENT_DINO      = BonusEventDefinition("Dino Cube", lambda: redi_scrambler(5))
+EVENT_REX       = BonusEventDefinition("Rex Cube", rex_cube_scrambler)
 EVENT_2x2x3     = BonusEventDefinition("2x2x3", cuboidsScrambler.get_2x2x3_scramble)
 EVENT_Fifteen   = BonusEventDefinition("15 Puzzle", fifteen_puzzle_scrambler)
 EVENT_8x8       = BonusEventDefinition("8x8", bigCubesScrambler.get_8x8x8_scramble, num_scrambles=1)
@@ -134,7 +135,8 @@ __ALL_EVENTS = [
     EVENT_DINO,
     EVENT_2x2x3,
     EVENT_Fifteen,
-    EVENT_FTO
+    EVENT_FTO,
+    EVENT_REX
 ]
 
 # Important! Don't change how these weekly and bonus lists are built, we rely on the order.
@@ -216,6 +218,7 @@ __GLOBAL_SORT_ORDER = [
     EVENT_F2L,
     EVENT_REDI,
     EVENT_DINO,
+    EVENT_REX,
     EVENT_Fifteen,
     EVENT_8x8,
     EVENT_9x9,
