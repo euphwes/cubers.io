@@ -93,7 +93,7 @@ __EVENT_MSGS_MAPPING = {
         'Customize the scramble preview for FTO by choosing custom colors below!'
     ],
     'cube': [
-        'Cubes (NxN and Skewb)',
+        'Cubes (NxN, Skewb, Rex Cube)',
         'Customize the scramble preview for cube events by choosing custom colors below!'
     ],
     'pyraminx': [
