@@ -181,4 +181,5 @@ def static_from_root():
 
 from cubersio.routes import *
 from cubersio.util.template import *
+from cubersio.commands import *
 from queue_config import huey
