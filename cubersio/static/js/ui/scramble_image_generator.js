@@ -1503,6 +1503,154 @@
             }
         })();
 
+        var rexImage = (function() {
+            var width = 45;
+            var gap = width / 10;
+            var posit = [];
+
+            var colors = null;
+
+            var ftrans = [
+                [width * hsq3, width * hsq3, (width * 4 + gap * 1.5) * hsq3, -width / 2, width / 2, width],
+                [width * hsq3, 0, (width * 7 + gap * 3) * hsq3, -width / 2, width, width * 1.5],
+                [width * hsq3, 0, (width * 5 + gap * 2) * hsq3, -width / 2, width, width * 2.5 + 0.5 * gap],
+                [0, -width * hsq3, (width * 3 + gap * 1) * hsq3, width, -width / 2, width * 4.5 + 1.5 * gap],
+                [width * hsq3, 0, (width * 3 + gap * 1) * hsq3, width / 2, width, width * 2.5 + 0.5 * gap],
+                [width * hsq3, 0, width * hsq3, width / 2, width, width * 1.5]
+            ];
+
+            function doMove(axis, power) {
+                for (var p = 0; p < power; p++) {
+                    switch (axis) {
+                        case 0: //R
+                            mathlib.circle(posit, 2 * 5 + 0, 1 * 5 + 0, 3 * 5 + 0);
+                            mathlib.circle(posit, 2 * 5 + 4, 1 * 5 + 3, 3 * 5 + 2);
+                            mathlib.circle(posit, 2 * 5 + 2, 1 * 5 + 4, 3 * 5 + 1);
+                            mathlib.circle(posit, 2 * 5 + 3, 1 * 5 + 1, 3 * 5 + 4);
+                            mathlib.circle(posit, 4 * 5 + 4, 0 * 5 + 4, 5 * 5 + 3);
+                            break;
+                        case 1: //U
+                            mathlib.circle(posit, 0 * 5 + 0, 5 * 5 + 0, 1 * 5 + 0);
+                            mathlib.circle(posit, 0 * 5 + 2, 5 * 5 + 1, 1 * 5 + 2);
+                            mathlib.circle(posit, 0 * 5 + 4, 5 * 5 + 2, 1 * 5 + 4);
+                            mathlib.circle(posit, 0 * 5 + 1, 5 * 5 + 3, 1 * 5 + 1);
+                            mathlib.circle(posit, 4 * 5 + 1, 3 * 5 + 4, 2 * 5 + 2);
+                            break;
+                        case 2: //L
+                            mathlib.circle(posit, 4 * 5 + 0, 3 * 5 + 0, 5 * 5 + 0);
+                            mathlib.circle(posit, 4 * 5 + 3, 3 * 5 + 3, 5 * 5 + 4);
+                            mathlib.circle(posit, 4 * 5 + 1, 3 * 5 + 1, 5 * 5 + 3);
+                            mathlib.circle(posit, 4 * 5 + 4, 3 * 5 + 4, 5 * 5 + 2);
+                            mathlib.circle(posit, 2 * 5 + 3, 1 * 5 + 4, 0 * 5 + 1);
+                            break;
+                        case 3: //B
+                            mathlib.circle(posit, 1 * 5 + 0, 5 * 5 + 0, 3 * 5 + 0);
+                            mathlib.circle(posit, 1 * 5 + 4, 5 * 5 + 3, 3 * 5 + 4);
+                            mathlib.circle(posit, 1 * 5 + 3, 5 * 5 + 1, 3 * 5 + 3);
+                            mathlib.circle(posit, 1 * 5 + 2, 5 * 5 + 4, 3 * 5 + 2);
+                            mathlib.circle(posit, 0 * 5 + 2, 4 * 5 + 3, 2 * 5 + 4);
+                            break;
+                    }
+                }
+            }
+
+            function face(f) {
+
+                if (!colors) {
+                    setColors();
+                    colors = skewb_colors;
+                    colors[7] = '#000';
+                }
+
+                var transform = ftrans[f];
+
+                // === Edges ===
+
+                // f * 9 + 0
+                drawPolygon(ctx, colors[f], [
+                    [-1, 1, 0],
+                    [-1, -1, 0]
+                ], transform);
+
+                // f * 9 + 1
+                drawPolygon(ctx, colors[f], [
+                    [1, 1, 0],
+                    [-1, 1, 0]
+                ], transform);
+
+                // f * 9 + 2
+                drawPolygon(ctx, colors[f], [
+                    [1, -1, 0],
+                    [1, 1, 0]
+                ], transform);
+
+                // f * 9 + 3
+                drawPolygon(ctx, colors[f], [
+                    [-1, -1, 0],
+                    [1, -1, 0]
+                ], transform);
+
+                // === Petals ===
+
+                // curve reference: https://bit.ly/3sHjYl8
+
+                // f * 9 + 4
+                drawPolygon(ctx, colors[f], [
+                    [-1,  -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0, 0, -0.45, -0.5275, -0.6, -0.666, -0.726, -0.784, -0.835, -0.882, -0.926],
+                    [1, 0.965, 0.926, 0.882, 0.835, 0.784, 0.726, 0.666, 0.6, 0.5275, 0.45, 0, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+                ], transform);
+
+                // f * 9 + 5
+                drawPolygon(ctx, colors[f], [
+                    [1,  0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0, 0, 0.45, 0.5275, 0.6, 0.666, 0.726, 0.784, 0.835, 0.882, 0.926],
+                    [1, 0.965, 0.926, 0.882, 0.835, 0.784, 0.726, 0.666, 0.6, 0.5275, 0.45, 0, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+                ], transform);
+
+                // f * 9 + 6
+                drawPolygon(ctx, colors[f], [
+                    [1,  0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0, 0, 0.45, 0.5275, 0.6, 0.666, 0.726, 0.784, 0.835, 0.882, 0.926],
+                    [-1, -0.965, -0.926, -0.882, -0.835, -0.784, -0.726, -0.666, -0.6, -0.5275, -0.45, 0, 0, -0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9]
+                ], transform);
+
+                // f * 9 + 7
+                drawPolygon(ctx, colors[f], [
+                    [-1,  -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0, 0, -0.45, -0.5275, -0.6, -0.666, -0.726, -0.784, -0.835, -0.882, -0.926],
+                    [-1, -0.965, -0.926, -0.882, -0.835, -0.784, -0.726, -0.666, -0.6, -0.5275, -0.45, 0, 0, -0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9]
+                ], transform);
+
+                // === Center ===
+
+                // f * 9 + 8
+                drawPolygon(ctx, colors[f], [
+                    [0, 0.1125, 0.225, 0.3375, 0.45, 0.3375, 0.225, 0.1125, 0, -0.1125, -0.225, -0.3375, -0.45, -0.3375, -0.225, -0.1125, 0],
+                    [0.45, 0.353, 0.246, 0.13, 0, -0.13, -0.246, -0.353, -0.45, -0.353, -0.246, -0.13, 0, 0.13, 0.246, 0.353, 0.45]
+                ], transform);
+            }
+
+            return function(moveseq) {
+                var cnt = 0;
+                for (var i = 0; i < 6; i++) {
+                    for (var f = 0; f < 5; f++) {
+                        posit[cnt++] = i;
+                    }
+                }
+                var scramble = parseScramble(moveseq, 'RULB');
+                for (var i = 0; i < scramble.length; i++) {
+                    //doMove(scramble[i][0], scramble[i][2] == 1 ? 1 : 2);
+                }
+                var imgSize = scalingFactor / 10;
+                canvas.width((8 * hsq3 + 0.3) * imgSize + 'em');
+                canvas.height(6.2 * imgSize + 'em');
+
+                canvas.attr('width', (8 * hsq3 + 0.3) * width + 1);
+                canvas.attr('height', 6.2 * width + 1);
+
+                for (var i = 0; i < 6; i++) {
+                    face(i);
+                }
+            }
+        })();
+
         /*
 
     face:
@@ -3419,6 +3567,10 @@
             }
             if (type == "Skewb") {
                 skewbImage(scrambleText);
+                return true;
+            }
+            if (type == "Rex Cube") {
+                rexImage(scrambleText);
                 return true;
             }
             if (type == "Square-1") {
