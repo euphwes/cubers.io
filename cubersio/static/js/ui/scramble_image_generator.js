@@ -7,6 +7,7 @@
 
     // Order is          U,      B,      R,      D,      F       L
     var skewb_colors = ['#fff', '#00f', '#f00', '#ff0', '#0f0', '#f80'];
+    var rex_colors   = ['#fff', '#00f', '#f00', '#ff0', '#0f0', '#f80'];
 
     var default_sq1_colors = {
         'U': '#333333',
@@ -100,6 +101,14 @@
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_F)
             ];
             skewb_colors = [
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_U),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_B),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_R),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_D),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_F),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_L)
+            ];
+            rex_colors = [
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_U),
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_B),
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_R),
@@ -1519,38 +1528,70 @@
                 [width * hsq3, 0, width * hsq3, width / 2, width, width * 1.5]
             ];
 
-            function doMove(axis, power) {
-                for (var p = 0; p < power; p++) {
-                    switch (axis) {
-                        case 0: //R
-                            mathlib.circle(posit, 2 * 5 + 0, 1 * 5 + 0, 3 * 5 + 0);
-                            mathlib.circle(posit, 2 * 5 + 4, 1 * 5 + 3, 3 * 5 + 2);
-                            mathlib.circle(posit, 2 * 5 + 2, 1 * 5 + 4, 3 * 5 + 1);
-                            mathlib.circle(posit, 2 * 5 + 3, 1 * 5 + 1, 3 * 5 + 4);
-                            mathlib.circle(posit, 4 * 5 + 4, 0 * 5 + 4, 5 * 5 + 3);
-                            break;
-                        case 1: //U
-                            mathlib.circle(posit, 0 * 5 + 0, 5 * 5 + 0, 1 * 5 + 0);
-                            mathlib.circle(posit, 0 * 5 + 2, 5 * 5 + 1, 1 * 5 + 2);
-                            mathlib.circle(posit, 0 * 5 + 4, 5 * 5 + 2, 1 * 5 + 4);
-                            mathlib.circle(posit, 0 * 5 + 1, 5 * 5 + 3, 1 * 5 + 1);
-                            mathlib.circle(posit, 4 * 5 + 1, 3 * 5 + 4, 2 * 5 + 2);
-                            break;
-                        case 2: //L
-                            mathlib.circle(posit, 4 * 5 + 0, 3 * 5 + 0, 5 * 5 + 0);
-                            mathlib.circle(posit, 4 * 5 + 3, 3 * 5 + 3, 5 * 5 + 4);
-                            mathlib.circle(posit, 4 * 5 + 1, 3 * 5 + 1, 5 * 5 + 3);
-                            mathlib.circle(posit, 4 * 5 + 4, 3 * 5 + 4, 5 * 5 + 2);
-                            mathlib.circle(posit, 2 * 5 + 3, 1 * 5 + 4, 0 * 5 + 1);
-                            break;
-                        case 3: //B
-                            mathlib.circle(posit, 1 * 5 + 0, 5 * 5 + 0, 3 * 5 + 0);
-                            mathlib.circle(posit, 1 * 5 + 4, 5 * 5 + 3, 3 * 5 + 4);
-                            mathlib.circle(posit, 1 * 5 + 3, 5 * 5 + 1, 3 * 5 + 3);
-                            mathlib.circle(posit, 1 * 5 + 2, 5 * 5 + 4, 3 * 5 + 2);
-                            mathlib.circle(posit, 0 * 5 + 2, 4 * 5 + 3, 2 * 5 + 4);
-                            break;
-                    }
+            function doMove(move) {
+                if (move == 'F') {
+                    mathlib.circle(posit, 8, 26, 44); // centers
+                    mathlib.circle(posit, 7, 24, 41); // left petals
+                    mathlib.circle(posit, 5, 22, 43); // right petals
+                    mathlib.circle(posit, 4, 25, 42); // inner petals
+                    mathlib.circle(posit, 3, 18, 37); // left edges
+                    mathlib.circle(posit, 2, 21, 36); // right edges
+                }
+                if (move == 'R') {
+                    mathlib.circle(posit, 8, 17, 26); // centers
+                    mathlib.circle(posit, 4, 15, 23); // left petals
+                    mathlib.circle(posit, 6, 13, 25); // right petals
+                    mathlib.circle(posit, 5, 16, 24); // inner petals
+                    mathlib.circle(posit, 2, 9, 19); // left edges
+                    mathlib.circle(posit, 1, 12, 18); // right edges}
+                }
+                if (move == 'L') {
+                    mathlib.circle(posit, 8, 44, 53); // centers
+                    mathlib.circle(posit, 6, 42, 50); // left petals
+                    mathlib.circle(posit, 4, 40, 52); // right petals
+                    mathlib.circle(posit, 7, 43, 51); // inner petals
+                    mathlib.circle(posit, 0, 36, 46); // left edges
+                    mathlib.circle(posit, 3, 39, 45); // right edges}
+                }
+                if (move == 'B') {
+                    mathlib.circle(posit, 8, 53, 17); // centers
+                    mathlib.circle(posit, 5, 51, 14); // left petals
+                    mathlib.circle(posit, 7, 49, 16); // right petals
+                    mathlib.circle(posit, 6, 52, 15); // inner petals
+                    mathlib.circle(posit, 1, 45, 10); // left edges
+                    mathlib.circle(posit, 0, 48, 9); // right edges}
+                }
+                if (move == 'f') {
+                    mathlib.circle(posit, 44, 26, 35); // centers
+                    mathlib.circle(posit, 40, 25, 33); // left petals
+                    mathlib.circle(posit, 42, 23, 31); // right petals
+                    mathlib.circle(posit, 41, 22, 34); // inner petals
+                    mathlib.circle(posit, 38, 21, 27); // left edges
+                    mathlib.circle(posit, 37, 20, 30); // right edges
+                }
+                if (move == 'r') {
+                    mathlib.circle(posit, 26, 17, 35); // centers
+                    mathlib.circle(posit, 22, 16, 32); // left petals
+                    mathlib.circle(posit, 34, 24, 14); // right petals
+                    mathlib.circle(posit, 33, 23, 13); // inner petals
+                    mathlib.circle(posit, 28, 20, 12); // left edges
+                    mathlib.circle(posit, 27, 19, 11); // right edges}
+                }
+                if (move == 'l') {
+                    mathlib.circle(posit, 53, 44, 35); // centers
+                    mathlib.circle(posit, 49, 43, 34); // left petals
+                    mathlib.circle(posit, 51, 41, 32); // right petals
+                    mathlib.circle(posit, 50, 40, 31); // inner petals
+                    mathlib.circle(posit, 47, 39, 30); // left edges
+                    mathlib.circle(posit, 46, 38, 29); // right edges}
+                }
+                if (move == 'b') {
+                    mathlib.circle(posit, 17, 53, 35); // centers
+                    mathlib.circle(posit, 52, 31, 13); // left petals
+                    mathlib.circle(posit, 50, 33, 15); // right petals
+                    mathlib.circle(posit, 49, 32, 14); // inner petals
+                    mathlib.circle(posit, 48, 29, 11); // left edges
+                    mathlib.circle(posit, 47, 28, 10); // right edges}
                 }
             }
 
@@ -1558,34 +1599,29 @@
 
                 if (!colors) {
                     setColors();
-                    colors = skewb_colors;
-                    colors[7] = '#000';
+                    colors = rex_colors;
                 }
 
                 var transform = ftrans[f];
 
                 // === Edges ===
 
-                // f * 9 + 0
-                drawPolygon(ctx, colors[f], [
+                drawPolygon(ctx, colors[posit[f * 9 + 0]], [
                     [-1, 1, 0],
                     [-1, -1, 0]
                 ], transform);
 
-                // f * 9 + 1
-                drawPolygon(ctx, colors[f], [
+                drawPolygon(ctx, colors[posit[f * 9 + 1]], [
                     [1, 1, 0],
                     [-1, 1, 0]
                 ], transform);
 
-                // f * 9 + 2
-                drawPolygon(ctx, colors[f], [
+                drawPolygon(ctx, colors[posit[f * 9 + 2]], [
                     [1, -1, 0],
                     [1, 1, 0]
                 ], transform);
 
-                // f * 9 + 3
-                drawPolygon(ctx, colors[f], [
+                drawPolygon(ctx, colors[posit[f * 9 + 3]], [
                     [-1, -1, 0],
                     [1, -1, 0]
                 ], transform);
@@ -1594,34 +1630,29 @@
 
                 // curve reference: https://bit.ly/3sHjYl8
 
-                // f * 9 + 4
-                drawPolygon(ctx, colors[f], [
+                drawPolygon(ctx, colors[posit[f * 9 + 4]], [
                     [-1,  -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0, 0, -0.45, -0.5275, -0.6, -0.666, -0.726, -0.784, -0.835, -0.882, -0.926],
                     [1, 0.965, 0.926, 0.882, 0.835, 0.784, 0.726, 0.666, 0.6, 0.5275, 0.45, 0, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
                 ], transform);
 
-                // f * 9 + 5
-                drawPolygon(ctx, colors[f], [
+                drawPolygon(ctx, colors[posit[f * 9 + 5]], [
                     [1,  0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0, 0, 0.45, 0.5275, 0.6, 0.666, 0.726, 0.784, 0.835, 0.882, 0.926],
                     [1, 0.965, 0.926, 0.882, 0.835, 0.784, 0.726, 0.666, 0.6, 0.5275, 0.45, 0, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
                 ], transform);
 
-                // f * 9 + 6
-                drawPolygon(ctx, colors[f], [
+                drawPolygon(ctx, colors[posit[f * 9 + 6]], [
                     [1,  0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0, 0, 0.45, 0.5275, 0.6, 0.666, 0.726, 0.784, 0.835, 0.882, 0.926],
                     [-1, -0.965, -0.926, -0.882, -0.835, -0.784, -0.726, -0.666, -0.6, -0.5275, -0.45, 0, 0, -0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9]
                 ], transform);
 
-                // f * 9 + 7
-                drawPolygon(ctx, colors[f], [
+                drawPolygon(ctx, colors[posit[f * 9 + 7]], [
                     [-1,  -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0, 0, -0.45, -0.5275, -0.6, -0.666, -0.726, -0.784, -0.835, -0.882, -0.926],
                     [-1, -0.965, -0.926, -0.882, -0.835, -0.784, -0.726, -0.666, -0.6, -0.5275, -0.45, 0, 0, -0.1, -0.2, -0.3, -0.4, -0.5, -0.6, -0.7, -0.8, -0.9]
                 ], transform);
 
                 // === Center ===
 
-                // f * 9 + 8
-                drawPolygon(ctx, colors[f], [
+                drawPolygon(ctx, colors[posit[f * 9 + 8]], [
                     [0, 0.1125, 0.225, 0.3375, 0.45, 0.3375, 0.225, 0.1125, 0, -0.1125, -0.225, -0.3375, -0.45, -0.3375, -0.225, -0.1125, 0],
                     [0.45, 0.353, 0.246, 0.13, 0, -0.13, -0.246, -0.353, -0.45, -0.353, -0.246, -0.13, 0, 0.13, 0.246, 0.353, 0.45]
                 ], transform);
@@ -1630,14 +1661,24 @@
             return function(moveseq) {
                 var cnt = 0;
                 for (var i = 0; i < 6; i++) {
-                    for (var f = 0; f < 5; f++) {
+                    for (var f = 0; f < 9; f++) {
                         posit[cnt++] = i;
                     }
                 }
-                var scramble = parseScramble(moveseq, 'RULB');
+
+                var scramble = moveseq.split(' ');
                 for (var i = 0; i < scramble.length; i++) {
-                    //doMove(scramble[i][0], scramble[i][2] == 1 ? 1 : 2);
+                    var move = scramble[i];
+                    if (move.endsWith("'")) {
+                        move = move.replace("'", "");
+                        // U' == U U
+                        doMove(move);
+                        doMove(move);
+                    } else {
+                        doMove(move);
+                    }
                 }
+
                 var imgSize = scalingFactor / 10;
                 canvas.width((8 * hsq3 + 0.3) * imgSize + 'em');
                 canvas.height(6.2 * imgSize + 'em');
