@@ -81,9 +81,18 @@ class SettingCode():
     CUSTOM_SQUAN_COLOR_B    = 'custom_squan_color_B'
     CUSTOM_SQUAN_COLOR_L    = 'custom_squan_color_L'
 
+    # Custom Rex Cube colors
+    USE_CUSTOM_REX_COLORS = 'use_custom_rex_colors'
+    CUSTOM_REX_COLOR_U    = 'custom_rex_color_U'
+    CUSTOM_REX_COLOR_F    = 'custom_rex_color_F'
+    CUSTOM_REX_COLOR_R    = 'custom_rex_color_R'
+    CUSTOM_REX_COLOR_D    = 'custom_rex_color_D'
+    CUSTOM_REX_COLOR_B    = 'custom_rex_color_B'
+    CUSTOM_REX_COLOR_L    = 'custom_rex_color_L'
+
 
 # Denotes the type of setting, aka boolean, free-form text, etc
-class SettingType():
+class SettingType:
     BOOLEAN        = 'boolean'
     HEX_COLOR      = 'hex_color'      # hex color code aka "#FFC1D2"
     EVENT_ID_LIST  = 'event_id_list'  # comma-delimited list of integers
@@ -153,6 +162,15 @@ DEFAULT_SQUAN_COLORS = {
     'F': '#0000FF',
     'R': '#FF0000',
     'B': '#00FF00',
+}
+
+DEFAULT_REX_COLORS = {
+    'U': '#FFFFFF',
+    'F': '#00FF00',
+    'R': '#FF0000',
+    'D': '#FFFF00',
+    'B': '#0000FF',
+    'L': '#FF8800',
 }
 
 
@@ -534,6 +552,58 @@ SETTING_INFO_MAP = {
         validator     = hex_color_validator,
         setting_type  = SettingType.HEX_COLOR,
         default_value = DEFAULT_FTO_COLORS["BL"]
+    ),
+
+    SettingCode.USE_CUSTOM_REX_COLORS: SettingInfo(
+        title         = "Use Custom Rex Cube Colors",
+        validator     = boolean_validator,
+        setting_type  = SettingType.BOOLEAN,
+        default_value = FALSE_STR,
+        affects       = [SettingCode.CUSTOM_REX_COLOR_B, SettingCode.CUSTOM_REX_COLOR_D,
+                         SettingCode.CUSTOM_REX_COLOR_F, SettingCode.CUSTOM_REX_COLOR_L,
+                         SettingCode.CUSTOM_REX_COLOR_R, SettingCode.CUSTOM_REX_COLOR_U]
+    ),
+
+    SettingCode.CUSTOM_REX_COLOR_U: SettingInfo(
+        title         = "U Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_REX_COLORS["U"]
+    ),
+
+    SettingCode.CUSTOM_REX_COLOR_F: SettingInfo(
+        title         = "F Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_REX_COLORS["F"]
+    ),
+
+    SettingCode.CUSTOM_REX_COLOR_R: SettingInfo(
+        title         = "R Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_REX_COLORS["R"]
+    ),
+
+    SettingCode.CUSTOM_REX_COLOR_D: SettingInfo(
+        title         = "D Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_REX_COLORS["D"]
+    ),
+
+    SettingCode.CUSTOM_REX_COLOR_B: SettingInfo(
+        title         = "B Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_REX_COLORS["B"]
+    ),
+
+    SettingCode.CUSTOM_REX_COLOR_L: SettingInfo(
+        title         = "L Face",
+        validator     = hex_color_validator,
+        setting_type  = SettingType.HEX_COLOR,
+        default_value = DEFAULT_REX_COLORS["L"]
     ),
 
     # Square-1 colors notes: you might notice the F, R, B, L face titles don't line up with the
