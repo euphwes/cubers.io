@@ -444,6 +444,13 @@ SETTINGS_TO_POPULATE = [
     SettingCode.CUSTOM_SQUAN_COLOR_D,
     SettingCode.CUSTOM_SQUAN_COLOR_B,
     SettingCode.CUSTOM_SQUAN_COLOR_L,
+    SettingCode.USE_CUSTOM_REX_COLORS,
+    SettingCode.CUSTOM_REX_COLOR_U,
+    SettingCode.CUSTOM_REX_COLOR_F,
+    SettingCode.CUSTOM_REX_COLOR_R,
+    SettingCode.CUSTOM_REX_COLOR_D,
+    SettingCode.CUSTOM_REX_COLOR_B,
+    SettingCode.CUSTOM_REX_COLOR_L,
 ]
 
 def __get_user_settings(user):

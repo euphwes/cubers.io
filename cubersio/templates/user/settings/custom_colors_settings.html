@@ -144,6 +144,28 @@
                     newColors[settingIndexMap[setting]] = color;
                 }
             }
+            if (window.app.eventName == "Rex Cube") {
+                // [U, B, R, D, F, L];
+                newColors = [
+                    $(".input-group input[name='custom_rex_color_U']").val(),
+                    $(".input-group input[name='custom_rex_color_B']").val(),
+                    $(".input-group input[name='custom_rex_color_R']").val(),
+                    $(".input-group input[name='custom_rex_color_D']").val(),
+                    $(".input-group input[name='custom_rex_color_F']").val(),
+                    $(".input-group input[name='custom_rex_color_L']").val(),
+                ];
+                if (color != null) {
+                    var settingIndexMap = {
+                        'custom_rex_color_U': 0,
+                        'custom_rex_color_B': 1,
+                        'custom_rex_color_R': 2,
+                        'custom_rex_color_D': 3,
+                        'custom_rex_color_F': 4,
+                        'custom_rex_color_L': 5,
+                    }
+                    newColors[settingIndexMap[setting]] = color;
+                }
+            }
             if (window.app.eventName == "Megaminx") {
                 newColors = [
                     $(".input-group input[name='custom_mega_color_1']").val(),
@@ -247,6 +269,9 @@
         var injectColors = function() {
             if (window.app.eventName == "3x3") {
                 imageGenerator.injectCubeColors(newColors);
+            }
+            if (window.app.eventName == "Rex Cube") {
+                imageGenerator.injectRexColors(newColors);
             }
             if (window.app.eventName == "Megaminx") {
                 imageGenerator.injectMegaColors(newColors);

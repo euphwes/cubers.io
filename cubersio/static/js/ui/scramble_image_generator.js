@@ -108,13 +108,16 @@
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_F),
                 window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_L)
             ];
+        }
+
+        if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_REX_COLORS)) {
             rex_colors = [
-                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_U),
-                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_B),
-                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_R),
-                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_D),
-                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_F),
-                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_CUBE_COLOR_L)
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_REX_COLOR_U),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_REX_COLOR_B),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_REX_COLOR_R),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_REX_COLOR_D),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_REX_COLOR_F),
+                window.app.userSettingsManager.get_setting(app.Settings.CUSTOM_REX_COLOR_L)
             ];
         }
 
@@ -1597,10 +1600,8 @@
 
             function face(f) {
 
-                if (!colors) {
-                    setColors();
-                    colors = rex_colors;
-                }
+                setColors();
+                colors = rex_colors;
 
                 var transform = ftrans[f];
 
@@ -3873,6 +3874,10 @@
 
     ScrambleImageGenerator.prototype.injectSq1Colors = function(newColors) {
         sq1_colors = newColors;
+    };
+
+    ScrambleImageGenerator.prototype.injectRexColors = function(newColors) {
+        rex_colors = newColors;
     };
 
 

@@ -71,17 +71,29 @@ __CUSTOM_SQUAN_COLOR_SETTINGS = [
     SettingCode.CUSTOM_SQUAN_COLOR_L,
 ]
 
+__CUSTOM_REX_COLOR_SETTINGS = [
+    SettingCode.USE_CUSTOM_REX_COLORS,
+    SettingCode.CUSTOM_REX_COLOR_U,
+    SettingCode.CUSTOM_REX_COLOR_F,
+    SettingCode.CUSTOM_REX_COLOR_R,
+    SettingCode.CUSTOM_REX_COLOR_D,
+    SettingCode.CUSTOM_REX_COLOR_B,
+    SettingCode.CUSTOM_REX_COLOR_L,
+]
+
 __EVENT_SETTINGS_MAPPING = {
     'fto':      __CUSTOM_FTO_COLOR_SETTINGS,
     'cube':     __CUSTOM_CUBE_COLOR_SETTINGS,
+    'rex':      __CUSTOM_REX_COLOR_SETTINGS,
     'pyraminx': __CUSTOM_PYRAMINX_COLOR_SETTINGS,
     'megaminx': __CUSTOM_MEGAMINX_COLOR_SETTINGS,
-    'squan': __CUSTOM_SQUAN_COLOR_SETTINGS,
+    'squan':    __CUSTOM_SQUAN_COLOR_SETTINGS,
 }
 
 __EVENT_SETTINGS_EVENT_NAME_MAPPING = {
     'fto':      "FTO",
     'cube':     "3x3",
+    'rex':      "Rex Cube",
     'pyraminx': "Pyraminx",
     'megaminx': "Megaminx",
     'squan':    "Square-1",
@@ -93,8 +105,12 @@ __EVENT_MSGS_MAPPING = {
         'Customize the scramble preview for FTO by choosing custom colors below!'
     ],
     'cube': [
-        'Cubes (NxN, Skewb, Rex Cube)',
+        'Cubes (NxN, Skewb)',
         'Customize the scramble preview for cube events by choosing custom colors below!'
+    ],
+    'rex': [
+        'Rex Cube',
+        'Customize the scramble preview for Rex Cube by choosing custom colors below!'
     ],
     'pyraminx': [
         'Pyraminx',
@@ -144,4 +160,4 @@ def save_colors_settings():
     new_settings = {SettingCode.HIDDEN_EVENTS: ','.join(hidden_event_ids)}
     set_new_settings_for_user(current_user.id, new_settings)
 
-    return ('', HTTPStatus.OK)
+    return '', HTTPStatus.OK
