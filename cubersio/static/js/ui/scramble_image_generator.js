@@ -56,8 +56,7 @@
 
     var cornerRadiusMap = {
         "2x2":    [nxnRadius, nxnRadius],
-        "3x3":    [nxnRadius, nxnRadius],
-        "3x3":    [nxnRadius, nxnRadius],
+        "3x3":    [12, 12],
         "3x3OH":  [nxnRadius, nxnRadius],
         "2GEN":   [nxnRadius, nxnRadius],
         "LSE":    [nxnRadius, nxnRadius],
@@ -69,6 +68,8 @@
         "15 Puzzle": [nxnRadius, nxnRadius],
         "Void Cube":     [nxnRadius, nxnRadius],
         "3x3 With Feet": [nxnRadius, nxnRadius],
+        "FTO": [8, 8],
+        "Rex Cube": [22, 22],
 
         "5x5":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
         "6x6":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
@@ -900,11 +901,11 @@
             return ret;
         }
 
-        function drawRoundedPolygon(ctx, pts, radius, color) {
+        function drawRoundedPolygon(ctx, pts, radius, color, doTransparentEdge) {
             ctx.beginPath();
 
             ctx.fillStyle = color;
-            if(color == TRANSPARENT) {
+            if(color == TRANSPARENT || doTransparentEdge) {
                 ctx.strokeStyle = TRANSPARENT;
             } else {
                 ctx.strokeStyle = "#000";
@@ -962,13 +963,15 @@
         }
 
         // trans: [size, offx, offy] == [size, 0, offx * size, 0, size, offy * size] or [a11 a12 a13 a21 a22 a23]
-        function drawPolygon(ctx, color, arr, trans, text) {
+        function drawPolygon(ctx, color, arr, trans, text, ignoreCornerRadius, doTransparentEdge) {
             if (!ctx) {
                 return;
             }
 
             trans = trans || [1, 0, 0, 0, 1, 0];
             arr = Transform(arr, trans);
+            ignoreCornerRadius = ignoreCornerRadius || false;
+            doTransparentEdge = doTransparentEdge || false;
 
             var ptsByXY = [];
             var xPts = arr[0];
@@ -977,7 +980,11 @@
                 ptsByXY[i] = [xPts[i], yPts[i]];
             }
 
-            drawRoundedPolygon(ctx, ptsByXY, eventCornerRadius, color);
+            if (ignoreCornerRadius) {
+                drawRoundedPolygon(ctx, ptsByXY, 0, color, doTransparentEdge);
+            } else {
+                drawRoundedPolygon(ctx, ptsByXY, eventCornerRadius, color, doTransparentEdge);
+            }
 
             if (text) {
                 ctx.fillStyle = '#000';
@@ -2453,8 +2460,8 @@
                     // var ly = (Math.min(...shifted[1]) + Math.max(...shifted[1])) / 2;
                     // renderChar(fraction, lx, ly, i-1);
                 }
-                drawHeavyLine(0, 3, 6, 9, fraction);
-                drawHeavyLine(6, 3, 0, 9, fraction);
+//                drawHeavyLine(0, 3, 6, 9, fraction);
+//                drawHeavyLine(6, 3, 0, 9, fraction);
 
                 
                 for (var i = 37; i < 73; i++) {
@@ -2469,8 +2476,8 @@
                     // var ly = (Math.min(...shifted[1]) + Math.max(...shifted[1])) / 2;
                     // renderChar(fraction, lx, ly, i-1);
                 }
-                drawHeavyLine(6, 3, 12, 9, fraction);
-                drawHeavyLine(12, 3, 6, 9, fraction);
+//                drawHeavyLine(6, 3, 12, 9, fraction);
+//                drawHeavyLine(12, 3, 6, 9, fraction);
 
                 drawHeavyLine(2, 0, 4, 2, fraction);
                 drawHeavyLine(4, 0, 2, 2, fraction);
@@ -3008,9 +3015,23 @@
                 var adjustedOffy = 0;
                 var initialOffy = offy;
 
-                for (var i = 0; i < size; i++) {
-                    var x = (f == 1 || f == 2) ? size - 1 - i : i;
-                    for (var j = 0; j < size; j++) {
+                if (size == 3) {
+                    var pieceCoords = [
+                        [1, 0], // edges
+                        [0, 1],
+                        [2, 1],
+                        [1, 2],
+                        [0, 0], // corners
+                        [0, 2],
+                        [2, 0],
+                        [2, 2],
+                        [1, 1] // center
+                    ];
+                    for (var n = 0; n < 9; n++) {
+                        var piece = pieceCoords[n];
+                        var i = piece[0];
+                        var j = piece[1];
+                        var x = (f == 1 || f == 2) ? size - 1 - i : i;
                         var y = (f == 0) ? size - 1 - j : j;
 
                         // set color as normal, unless the void cube flag is set and the piece we're coloring
@@ -3034,12 +3055,121 @@
                                 }
                             }
                             offy = adjustedOffy;
+                            drawPolygon(ctx, color, [
+                                [i, i, i + 1, i + 1],
+                                [j, j + 1, j + 1, j]
+                            ], [width, offx, offy]);
+                        } else {
+                            face333poly(color, width, offx, offy, i, j);
+                            face333poly(color, width, offx, offy, i, j);
                         }
+                    }
+                } else {
+                    for (var i = 0; i < size; i++) {
+                        var x = (f == 1 || f == 2) ? size - 1 - i : i;
+                        for (var j = 0; j < size; j++) {
+                            var y = (f == 0) ? size - 1 - j : j;
 
+                            var color = colors[posit[(f * size + y) * size + x]];
+                            drawPolygon(ctx, color, [
+                                [i, i, i + 1, i + 1],
+                                [j, j + 1, j + 1, j]
+                            ], [width, offx, offy]);
+                        }
+                    }
+                }
+            }
+
+            function face333poly(color, width, offx, offy, i, j) {
+                var n = "" + i + "" + j;
+                var isCorner = ["00","02","20","22"].includes(n);
+                var isCenter = n == "11";
+
+                if (isCorner) {
+                    drawPolygon(ctx, color, [
+                        [i, i, i + 1, i + 1],
+                        [j, j + 1, j + 1, j]
+                    ], [width, offx, offy], "", true);
+                } else if (isCenter) {
+                    drawPolygon(ctx, color, [
+                        [i, i, i + 1, i + 1],
+                        [j, j + 1, j + 1, j]
+                    ], [width, offx, offy], "", false);
+                } else {
+                    // is edge
+                    // cut the poly in half, draw twice, only round corner on inside near center
+                    if (n == "10") { // upper edge
+                        // full rounded edge
                         drawPolygon(ctx, color, [
                             [i, i, i + 1, i + 1],
                             [j, j + 1, j + 1, j]
-                        ], [width, offx, offy]);
+                        ], [width, offx, offy], "", false);
+
+                        // upper half square
+                        drawPolygon(ctx, color, [
+                            [i, i, i + 1, i + 1],
+                            [j, j + 0.5, j + 0.5, j]
+                        ], [width, offx, offy], "", true);
+
+                        // middle sliver with transparent borders to cover the border from the 2nd poly
+                        drawPolygon(ctx, color, [
+                            [i, i, i + 1, i + 1],
+                            [j + 0.25, j + 0.75, j + 0.75, j + 0.25]
+                        ], [width, offx, offy], "", false, true);
+                    } else if (n == "01") { // left edge
+                        // full rounded
+                        drawPolygon(ctx, color, [
+                            [i, i, i + 1, i + 1],
+                            [j, j + 1, j + 1, j]
+                        ], [width, offx, offy], "", false);
+
+                        // left half square
+                        drawPolygon(ctx, color, [
+                            [i, i, i + 0.5, i + 0.5],
+                            [j, j + 1, j + 1, j]
+                        ], [width, offx, offy], "", true);
+
+                        // middle sliver with transparent borders to cover the border from the 2nd poly
+                        drawPolygon(ctx, color, [
+                            [i + 0.25, i + 0.25, i + 0.75, i + 0.75],
+                            [j, j + 1, j + 1, j]
+                        ], [width, offx, offy], "", false, true);
+                    } else if (n == "21") {  // right edge
+                        // full rounded
+                        drawPolygon(ctx, color, [
+                            [i, i, i + 1, i + 1],
+                            [j, j + 1, j + 1, j]
+                        ], [width, offx, offy], "", false);
+
+                        // right half square
+                        drawPolygon(ctx, color, [
+                            [i + 0.5, i + 0.5, i + 1, i + 1],
+                            [j, j + 1, j + 1, j]
+                        ], [width, offx, offy], "", true);
+
+                        // middle sliver with transparent borders to cover the border from the 2nd poly
+                        drawPolygon(ctx, color, [
+                            [i + 0.25, i + 0.25, i + 0.75, i + 0.75],
+                            [j, j + 1, j + 1, j]
+                        ], [width, offx, offy], "", false, true);
+                    } else { // bottom edge
+                        // full rounded edge
+                        drawPolygon(ctx, color, [
+                            [i, i, i + 1, i + 1],
+                            [j, j + 1, j + 1, j]
+                        ], [width, offx, offy], "", false);
+
+                        // upper half square
+                        drawPolygon(ctx, color, [
+                            [i, i, i + 1, i + 1],
+                            [j + 0.5, j + 1, j + 1, j + 0.5]
+                        ], [width, offx, offy], "", true);
+
+                        // middle sliver with transparent borders to cover the border from the 2nd poly
+                        drawPolygon(ctx, color, [
+                            [i, i, i + 1, i + 1],
+                            [j + 0.25, j + 0.75, j + 0.75, j + 0.25]
+                        ], [width, offx, offy], "", false, true);
                     }
                 }
             }
