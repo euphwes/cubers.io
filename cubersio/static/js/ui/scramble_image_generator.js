@@ -53,6 +53,7 @@
 
     var nxnRadius = 8;
     var cuboidRadius = 4;
+    var ftoRadius = 8;
 
     var cornerRadiusMap = {
         "2x2":    [nxnRadius, nxnRadius],
@@ -88,6 +89,8 @@
 
         "Redi Cube": [5, 5],
         "Dino Cube": [12, 12],
+
+        "FTO": [ftoRadius, ftoRadius],
     }
 
     var setColors = function() {
@@ -2453,8 +2456,8 @@
                     // var ly = (Math.min(...shifted[1]) + Math.max(...shifted[1])) / 2;
                     // renderChar(fraction, lx, ly, i-1);
                 }
-                drawHeavyLine(0, 3, 6, 9, fraction);
-                drawHeavyLine(6, 3, 0, 9, fraction);
+                // drawHeavyLine(0, 3, 6, 9, fraction);
+                // drawHeavyLine(6, 3, 0, 9, fraction);
 
                 
                 for (var i = 37; i < 73; i++) {
@@ -2469,8 +2472,8 @@
                     // var ly = (Math.min(...shifted[1]) + Math.max(...shifted[1])) / 2;
                     // renderChar(fraction, lx, ly, i-1);
                 }
-                drawHeavyLine(6, 3, 12, 9, fraction);
-                drawHeavyLine(12, 3, 6, 9, fraction);
+                // drawHeavyLine(6, 3, 12, 9, fraction);
+                // drawHeavyLine(12, 3, 6, 9, fraction);
 
                 drawHeavyLine(2, 0, 4, 2, fraction);
                 drawHeavyLine(4, 0, 2, 2, fraction);
