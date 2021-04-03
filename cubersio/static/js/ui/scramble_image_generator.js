@@ -7,6 +7,7 @@
 
     // Order is          U,      B,      R,      D,      F       L
     var skewb_colors = ['#fff', '#00f', '#f00', '#ff0', '#0f0', '#f80'];
+    var default_rex_colors   = ['#fff', '#00f', '#f00', '#ff0', '#0f0', '#f80'];
     var rex_colors   = ['#fff', '#00f', '#f00', '#ff0', '#0f0', '#f80'];
 
     var default_sq1_colors = {
@@ -3890,6 +3891,7 @@
         pyra_colors = default_pyra_colors;
         fto_colors = default_fto_colors;
         sq1_colors = default_sq1_colors;
+        rex_colors = default_rex_colors;
     };
 
     // Make ScrambleImageGenerator visible at app scope
