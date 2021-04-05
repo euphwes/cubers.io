@@ -129,25 +129,3 @@ def scrambler_333_relay() -> str:
     s3 = scrambler333.get_WCA_scramble()
 
     return f'1: {s1}\n2: {s2}\n3: {s3}'
-
-
-def rex_cube_scrambler(n: int = 5) -> List[str]:
-    """ Get a list of scrambles for Rex Cube. Since FTO and Rex Cube are mechanically identical, this is actually an
-    FTO random-state scramble mapped to the common Rex Cube notation until a real Rex scrambler is written. """
-
-    fto_rex_notation_map = {
-        "U": "F",
-        "R": "R",
-        "F": "f",
-        "L": "L",
-        "D": "b",
-        "BR": "r",
-        "B": "B",
-        "BL": "l",
-    }
-    fto_rex_notation_map.update({f"{k}'": f"{v}'" for k, v in fto_rex_notation_map.items()})
-
-    def _translate(fto_scramble):
-        return ' '.join(fto_rex_notation_map[move] for move in fto_scramble.split())
-
-    return [_translate(scramble) for scramble in ftoScrambler.get_multiple_random_state_scrambles(n)]

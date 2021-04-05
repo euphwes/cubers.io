@@ -4,11 +4,11 @@ from typing import List, Optional
 
 from pyTwistyScrambler import scrambler333, scrambler222, scrambler444, scrambler555, scrambler666, scrambler777,\
     squareOneScrambler, megaminxScrambler, pyraminxScrambler, cuboidsScrambler, skewbScrambler, clockScrambler,\
-    bigCubesScrambler, ftoScrambler
+    bigCubesScrambler, ftoScrambler, rexScrambler
 
 from cubersio.util.events.scramblers.coll import get_coll_scramble
 from cubersio.util.events.scramblers.internal import fmc_scrambler, mbld_scrambler, redi_scrambler, attack_scrambler,\
-    fifteen_puzzle_scrambler, scrambler_333_relay, scrambler_234_relay, rex_cube_scrambler
+    fifteen_puzzle_scrambler, scrambler_333_relay, scrambler_234_relay
 from cubersio.persistence.models import CompetitionEvent, Event
 
 
@@ -88,7 +88,7 @@ EVENT_PLLAttack = BonusEventDefinition("PLL Time Attack", attack_scrambler, num_
 EVENT_2BLD      = BonusEventDefinition("2BLD", scrambler222.get_WCA_scramble, num_scrambles=3)
 EVENT_REDI      = BonusEventDefinition("Redi Cube", redi_scrambler)
 EVENT_DINO      = BonusEventDefinition("Dino Cube", lambda: redi_scrambler(5))
-EVENT_REX       = BonusEventDefinition("Rex Cube", rex_cube_scrambler)
+EVENT_REX       = BonusEventDefinition("Rex Cube", rexScrambler.get_multiple_random_state_scrambles)
 EVENT_2x2x3     = BonusEventDefinition("2x2x3", cuboidsScrambler.get_2x2x3_scramble)
 EVENT_Fifteen   = BonusEventDefinition("15 Puzzle", fifteen_puzzle_scrambler)
 EVENT_8x8       = BonusEventDefinition("8x8", bigCubesScrambler.get_8x8x8_scramble, num_scrambles=1)
