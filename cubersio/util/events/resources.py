@@ -72,7 +72,7 @@ EVENT_2GEN = WeeklyEventDefinition("2GEN", scrambler333.get_2genRU_scramble)
 EVENT_LSE  = WeeklyEventDefinition("LSE", scrambler333.get_2genMU_scramble)
 EVENT_FTO  = WeeklyEventDefinition("FTO", ftoScrambler.get_multiple_random_state_scrambles)
 
-# Rotating bonus event definitions (current count = 20)
+# Rotating bonus event definitions (current count = 21)
 EVENT_COLL      = BonusEventDefinition("COLL", get_coll_scramble)
 EVENT_F2L       = BonusEventDefinition("F2L", scrambler333.get_WCA_scramble)
 EVENT_Void      = BonusEventDefinition("Void Cube", scrambler333.get_3BLD_scramble)
@@ -93,8 +93,8 @@ EVENT_2x2x3     = BonusEventDefinition("2x2x3", cuboidsScrambler.get_2x2x3_scram
 EVENT_Fifteen   = BonusEventDefinition("15 Puzzle", fifteen_puzzle_scrambler)
 EVENT_8x8       = BonusEventDefinition("8x8", bigCubesScrambler.get_8x8x8_scramble, num_scrambles=1)
 EVENT_9x9       = BonusEventDefinition("9x9", bigCubesScrambler.get_9x9x9_scramble, num_scrambles=1)
+EVENT_10x10     = BonusEventDefinition("10x10", bigCubesScrambler.get_10x10x10_scramble, num_scrambles=1)
 
-# Important! Only add new events to the end, regardless of WCA or non-WCA status. We rely on the order here.
 __ALL_EVENTS = [
     EVENT_2x2,
     EVENT_3x3,
@@ -136,7 +136,8 @@ __ALL_EVENTS = [
     EVENT_2x2x3,
     EVENT_Fifteen,
     EVENT_FTO,
-    EVENT_REX
+    EVENT_REX,
+    EVENT_10x10
 ]
 
 # Important! Don't change how these weekly and bonus lists are built, we rely on the order.
@@ -222,6 +223,7 @@ __GLOBAL_SORT_ORDER = [
     EVENT_Fifteen,
     EVENT_8x8,
     EVENT_9x9,
+    EVENT_10x10
 ]
 
 
