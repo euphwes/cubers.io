@@ -38,6 +38,8 @@ BTN_DNF      = 'btn_dnf'
 BTN_UNDO     = 'btn_undo'
 BTN_COMMENT  = 'btn_comment'
 BTN_PLUS_TWO = 'btn_plus_two'
+BTN_MODE_TOGGLE = 'btn_mode_toggle'
+BTN_MODE_IS_TIMER = 'btn_mode_is_timer'
 
 BTN_ACTIVE  = 'btn_active'
 BTN_ENABLED = 'btn_enabled'
@@ -163,7 +165,7 @@ def timer_page(comp_event_id, gather_info_for_live_refresh=False):
     show_scramble_preview = event_name not in [e.name for e in EVENTS_NO_SCRAMBLE_PREVIEW]
 
     # Determine button states
-    button_state_info = __determine_button_states(user_results, scramble_index)
+    button_state_info = __determine_button_states(user_results, scramble_index, settings)
 
     # Grab the comment (if any) from the user results (if any), otherwise default to an empty string
     comment = user_results.comment if user_results else ''
@@ -201,7 +203,7 @@ def timer_page(comp_event_id, gather_info_for_live_refresh=False):
         last_centis=last_centis, hide_timer_dot=hide_timer_dot, comment=comment,
         is_complete=is_complete, settings=settings, page_subtype=page_subtype,
         hide_scramble_preview=hide_scramble_preview, show_shapes_background=show_shapes_background,
-        event_description=event_description)
+        event_description=event_description, is_mobile=request.MOBILE)
 
 # -------------------------------------------------------------------------------------------------
 
@@ -276,7 +278,7 @@ def __determine_scramble_id_text_index(user_results, user_solves_list, scrambles
     return scramble_id, scramble_text, first_unsolved_idx
 
 
-def __determine_button_states(user_results, scramble_index):
+def __determine_button_states(user_results, scramble_index, settings):
     """ Determine the states (enabled/disabled, and active/inactive) of all control buttons
     (undo, +2, DNF, comment) depending on the current state of the user's event results and the
     individual solves. """
@@ -303,37 +305,47 @@ def __determine_button_states(user_results, scramble_index):
         previous_was_plus_two       = solves[previous_idx].is_plus_two
         previous_was_inspection_dnf = solves[previous_idx].is_inspection_dnf
 
-    # Let's determine the comment button's state
     comment_btn_state = {
-        BTN_ENABLED: bool(user_results),  # can enter comments once they have a results record
-        BTN_ACTIVE:  False                # comment button isn't a toggle, no need to be active
+        # can enter comments once they have a results record
+        BTN_ENABLED: bool(user_results),
+        # comment button isn't a toggle, no need to be active
+        BTN_ACTIVE:  False
     }
 
-    # Let's determine the undo button's state
     undo_btn_state = {
-        BTN_ENABLED: bool(solves),  # can undo when there's at least one solve
-        BTN_ACTIVE:  False          # undo button isn't a toggle, no need to be active
+        # can undo when there's at least one solve
+        BTN_ENABLED: bool(solves),
+        # undo button isn't a toggle, no need to be active
+        BTN_ACTIVE:  False
     }
 
-    # Let's determine the DNF button's state
     dnf_btn_state = {
         # can apply DNF when there's at least one solve, and the previous wasn't an inspection DNF
         BTN_ENABLED: bool(solves) and (not previous_was_inspection_dnf),
-        BTN_ACTIVE:  previous_was_dnf  # DNF button is toggled on if previous solve was DNF
+        # DNF button is toggled on if previous solve was DNF
+        BTN_ACTIVE:  previous_was_dnf
     }
 
-    # Let's determine the plus two button's state
     plus_two_btn_state = {
         # can apply +2 when there's at least one solve, and the previous wasn't an inspection DNF
         BTN_ENABLED: bool(solves) and (not previous_was_inspection_dnf),
-        BTN_ACTIVE:  previous_was_plus_two  # +2 button is toggled on if previous solve was +2
+        # +2 button is toggled on if previous solve was +2
+        BTN_ACTIVE:  previous_was_plus_two
+    }
+
+    mode_toggle_button_state = {
+        # always allow the user to toggle between timer modes
+        BTN_ENABLED: True,
+        # timer mode toggle is a toggle, yes, but instead we'll show state by the icon
+        BTN_MODE_IS_TIMER: not settings[SettingCode.DEFAULT_TO_MANUAL_TIME]
     }
 
     return {
-        BTN_DNF:      dnf_btn_state,
-        BTN_UNDO:     undo_btn_state,
-        BTN_COMMENT:  comment_btn_state,
+        BTN_DNF: dnf_btn_state,
+        BTN_UNDO: undo_btn_state,
+        BTN_COMMENT: comment_btn_state,
         BTN_PLUS_TWO: plus_two_btn_state,
+        BTN_MODE_TOGGLE: mode_toggle_button_state
     }
 
 
