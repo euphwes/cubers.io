@@ -73,6 +73,7 @@ __AUTO_BLACKLIST_THRESHOLDS = {
     'PLL Time Attack': (2200, 1),
     '8x8':             (21000, 1),
     '9x9':             (31500, 1),
+    '10x10':           (42000, 1),
     '15 Puzzle':       (125, 250),
     'FTO':             (1300, 1800),
     'Rex Cube':        (3200, 4000),
