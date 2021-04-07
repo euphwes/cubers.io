@@ -72,11 +72,13 @@
         "Void Cube":     [nxnRadius, nxnRadius],
         "3x3 With Feet": [nxnRadius, nxnRadius],
 
-        "5x5":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
-        "6x6":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
-        "7x7":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
-        "8x8":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
-        "9x9":    [0, nxnRadius],  // curved corners on large NxN don't look great in small canvas
+        // curved corners on large NxN don't look great in small canvas
+        "5x5":    [0, nxnRadius],
+        "6x6":    [0, nxnRadius],
+        "7x7":    [0, nxnRadius],
+        "8x8":    [0, nxnRadius],
+        "9x9":    [0, nxnRadius],
+        "10x10":  [0, nxnRadius],
 
         "2x2x3": [cuboidRadius, cuboidRadius],
         "3x3x2": [cuboidRadius, cuboidRadius],
@@ -3544,7 +3546,7 @@
             }
         })();
 
-        var types_nnn = ['', '', '2x2', '3x3', '4x4', '5x5', '6x6', '7x7', '8x8', '9x9'];
+        var types_nnn = ['', '', '2x2', '3x3', '4x4', '5x5', '6x6', '7x7', '8x8', '9x9', '10x10'];
 
         function setBorderRadius(type, canvasSize) {
             cornerRadiusOptions = cornerRadiusMap[type] || defaultCornerRadiusOptions;
@@ -3565,7 +3567,7 @@
             setBorderRadius(type, canvasSize);
 
             var size;
-            for (size = 0; size <= 9; size++) {
+            for (size = 0; size <= 10; size++) {
                 if (type == types_nnn[size]) {
                     nnnImage(size, scrambleText);
                     return true;
