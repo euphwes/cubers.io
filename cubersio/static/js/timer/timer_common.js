@@ -76,6 +76,21 @@
         });
     })
 
+    // Wire up timer mode toggle
+    $('#BTN_MODE_TOGGLE').click(function() {
+        $.ajax({
+            url: '/settings/toggle_timer_mode',
+            type: "POST",
+            contentType: "application/json",
+            success: function (xhr) {
+                setTimeout(function() { location.reload(); }, 50);
+            },
+            error: function (xhr) {
+                bootbox.alert("Something unexpected happened: " + xhr.responseText);
+            }
+        });
+    })
+
     var wirePartialScramblePreviewEvents = function() {
 
         var resetScrambleTimeout;

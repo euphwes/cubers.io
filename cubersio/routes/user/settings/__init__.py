@@ -7,8 +7,8 @@ from flask import render_template, request
 from flask_login import current_user
 
 from cubersio import app
-from cubersio.persistence.settings_manager import get_settings_for_user_for_edit,\
-    set_new_settings_for_user, SettingType, FALSE_STR, TRUE_STR
+from cubersio.persistence.settings_manager import get_settings_for_user_for_edit, \
+    set_new_settings_for_user, SettingType, FALSE_STR, TRUE_STR, get_boolean_setting_for_user, SettingCode
 from cubersio.routes import api_login_required
 
 # -------------------------------------------------------------------------------------------------
@@ -47,4 +47,14 @@ def save_settings():
     """ Saves the user's provided settings. """
 
     set_new_settings_for_user(current_user.id, loads(request.data))
-    return ('', HTTPStatus.OK)
+    return '', HTTPStatus.OK
+
+
+@app.route('/settings/toggle_timer_mode', methods=['POST'])
+@api_login_required
+def toggle_settings():
+    """ Toggles the user's current timer mode preference between manual and timer. """
+
+    new_setting = not get_boolean_setting_for_user(current_user.id, SettingCode.DEFAULT_TO_MANUAL_TIME)
+    set_new_settings_for_user(current_user.id, {SettingCode.DEFAULT_TO_MANUAL_TIME: new_setting})
+    return '', HTTPStatus.OK
