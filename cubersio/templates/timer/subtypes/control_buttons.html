@@ -5,11 +5,9 @@
         {% set BTN_UNDO     = 'btn_undo' %}
         {% set BTN_COMMENT  = 'btn_comment' %}
         {% set BTN_PLUS_TWO = 'btn_plus_two' %}
-        {% set BTN_MODE_TOGGLE = 'btn_mode_toggle' %}
 
         {% set BTN_ACTIVE  = 'btn_active' %}
         {% set BTN_ENABLED = 'btn_enabled' %}
-        {% set BTN_MODE_IS_TIMER = 'btn_mode_is_timer' %}
 
         {% set disabled_val = '' if button_states[BTN_UNDO][BTN_ENABLED] else 'disabled' %}
         {% set active_val   = 'active' if button_states[BTN_UNDO][BTN_ACTIVE] else '' %}
@@ -26,10 +24,5 @@
         {% set disabled_val = '' if button_states[BTN_COMMENT][BTN_ENABLED] else 'disabled' %}
         {% set active_val   = 'active' if button_states[BTN_COMMENT][BTN_ACTIVE] else '' %}
         <div class="control_icon"><button id="BTN_COMMENT" class="btn btn-outline-light btn-timer-control {{active_val}}" {{disabled_val}}><i class="far fa-comment"></i></button></i></div>
-
-        {% if not is_mobile %}
-            {% set toggle_text = 'Manual Entry' if button_states[BTN_MODE_TOGGLE][BTN_MODE_IS_TIMER] else 'Timer Entry' %}
-            <div class="control_icon"><button id="BTN_MODE_TOGGLE" class="btn btn-outline-light btn-timer-control xwide">{{toggle_text}}</button></div>
-        {% endif %}
     </div>
 </div>

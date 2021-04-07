@@ -98,6 +98,10 @@
                 {% include "timer/subtypes/mbld_entry.html" %}
             {% endif %}
 
+            {% set toggle_text = 'Switch to manual entry' if button_states['btn_mode_toggle']['btn_mode_is_timer'] else 'Switch to timer' %}
+            <div class="toggle_wrapper">
+                <div class="control_icon"><button id="BTN_MODE_TOGGLE" class="btn btn-outline-light btn-timer-control">{{toggle_text}}</button></div>
+            </div>
         </div>
     </div>
 </div>

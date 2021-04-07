@@ -203,7 +203,7 @@ def timer_page(comp_event_id, gather_info_for_live_refresh=False):
         last_centis=last_centis, hide_timer_dot=hide_timer_dot, comment=comment,
         is_complete=is_complete, settings=settings, page_subtype=page_subtype,
         hide_scramble_preview=hide_scramble_preview, show_shapes_background=show_shapes_background,
-        event_description=event_description, is_mobile=request.MOBILE)
+        event_description=event_description)
 
 # -------------------------------------------------------------------------------------------------
 
@@ -333,10 +333,7 @@ def __determine_button_states(user_results, scramble_index, settings):
         BTN_ACTIVE:  previous_was_plus_two
     }
 
-    mode_toggle_button_state = {
-        # always allow the user to toggle between timer modes
-        BTN_ENABLED: True,
-        # timer mode toggle is a toggle, yes, but instead we'll show state by the icon
+    mode_toggle_btn_state = {
         BTN_MODE_IS_TIMER: not settings[SettingCode.DEFAULT_TO_MANUAL_TIME]
     }
 
@@ -345,7 +342,7 @@ def __determine_button_states(user_results, scramble_index, settings):
         BTN_UNDO: undo_btn_state,
         BTN_COMMENT: comment_btn_state,
         BTN_PLUS_TWO: plus_two_btn_state,
-        BTN_MODE_TOGGLE: mode_toggle_button_state
+        BTN_MODE_TOGGLE: mode_toggle_btn_state
     }
 
 
