@@ -38,7 +38,7 @@ def get_event_format_for_event(event_id):
 def get_all_WCA_events():
     """ Returns a list of all WCA events. """
 
-    wca_names = set(WCA_EVENTS)
+    wca_names = set(e.name for e in WCA_EVENTS)
     return [e for e in get_all_events() if e.name in wca_names]
 
 
