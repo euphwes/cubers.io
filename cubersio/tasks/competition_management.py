@@ -5,7 +5,10 @@ from huey import crontab
 from cubersio import app
 from cubersio.business.rankings import calculate_user_site_rankings
 from cubersio.business.user_results import set_medals_on_best_event_results
+from cubersio.business.user_results.personal_bests import calculate_latest_user_pbs_for_event
 from cubersio.persistence.comp_manager import get_active_competition, get_all_comp_events_for_comp
+from cubersio.persistence.events_manager import get_all_events
+from cubersio.persistence.user_manager import get_all_users
 from cubersio.business.competition.generation import generate_new_competition
 from cubersio.business.competition.scoring import post_results_thread
 # from app.tasks.gift_code_management import send_gift_code_winner_approval_pm
@@ -74,3 +77,17 @@ def generate_new_competition_task():
 
     competition, was_all_events = generate_new_competition()
     prepare_new_competition_notification(competition.id, was_all_events)
+
+
+@huey.task()
+def update_pbs():
+
+    all_users = get_all_users()
+    user_count = len(all_users)
+
+    all_events = get_all_events()
+
+    for i, user in enumerate(all_users):
+        print("Calculating latest PBs for {} ({}/{})".format(user.username, i + 1, user_count))
+        for event in all_events:
+            calculate_latest_user_pbs_for_event(user.id, event.id)

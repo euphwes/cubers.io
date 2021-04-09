@@ -42,6 +42,32 @@ def set_pb_flags(user_id, event_result, event_id, event_format):
     return event_result
 
 
+def calculate_latest_user_pbs_for_event(user_id, event_id):
+    """ Calculates latest PBs for the specified user and event. """
+
+    # Get the user's event results for this event. If they don't have any, we can just bail
+    results = get_all_complete_user_results_for_user_and_event(user_id, event_id)
+    if not results:
+        return
+
+    results_to_update = list()
+
+    for result in reversed(results):
+        if result.was_pb_single:
+            result.is_latest_pb_single = True
+            results_to_update.append(result)
+            break
+
+    for result in reversed(results):
+        if result.was_pb_average:
+            result.is_latest_pb_average = True
+            results_to_update.append(result)
+            break
+
+    # Save all the UserEventResults with the modified PB flags
+    bulk_save_event_results(results_to_update)
+
+
 def recalculate_user_pbs_for_event(user_id, event_id):
     """ Recalculates PBs for all UserEventResults for the specified user and event. """
 

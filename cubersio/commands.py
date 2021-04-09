@@ -20,7 +20,7 @@ from cubersio.persistence.user_manager import get_all_users, get_all_admins, set
 from cubersio.business.user_results import set_medals_on_best_event_results
 from cubersio.business.user_results.creation import process_event_results
 from cubersio.tasks.competition_management import post_results_thread_task,\
-    generate_new_competition_task, wrap_weekly_competition, run_user_site_rankings
+    generate_new_competition_task, wrap_weekly_competition, run_user_site_rankings, update_pbs
 from cubersio.tasks.scramble_generation import check_scramble_pool
 
 # -------------------------------------------------------------------------------------------------
@@ -155,6 +155,13 @@ def recalculate_pbs():
         print("Recalculating PBs for {} ({}/{})".format(user.username, i + 1, user_count))
         for event in all_events:
             recalculate_user_pbs_for_event(user.id, event.id)
+
+
+@app.cli.command()
+def calculate_latest_pbs():
+    """ Works through every user, every event type, and calculates latest PB averages and singles. """
+
+    update_pbs()
 
 # -------------------------------------------------------------------------------------------------
 # Below are utility commands intended to just be one-offs, to backfill or fix broken data
