@@ -3,6 +3,7 @@
 from collections import OrderedDict
 from datetime import datetime
 import json
+from timeit import default_timer
 
 from ranking import Ranking
 
@@ -36,7 +37,11 @@ def calculate_user_site_rankings():
     # All user IDs seen, so we only iterate over users that have participated in something
     all_user_ids = set()
 
+    t0 = default_timer()
+
     for event in all_events:
+
+        e0 = default_timer()
 
         # Retrieve the the ordered list of PersonalBestRecords for singles for this event
         ordered_pb_singles = get_ordered_pb_singles_for_event(event.id)
@@ -71,8 +76,12 @@ def calculate_user_site_rankings():
 
         events_pb_averages_ix[event] = user_average_ix_map
 
+        e1 = default_timer()
+        print(f"[RANKINGS] {e1-e0}s elapsed to retrieve ordered PB data for {event.name}.")
+
     # Iterate through all users to determine their site rankings and PBs
     for user_id in all_user_ids:
+        u0 = default_timer()
         # Calculate site rankings for the user
         rankings = _calculate_site_rankings_for_user(user_id, events_pb_singles, events_pb_singles_ix,
                                                      events_singles_len, events_pb_averages, events_pb_averages_ix,
@@ -80,6 +89,11 @@ def calculate_user_site_rankings():
 
         # Save to the database
         save_or_update_site_rankings_for_user(user_id, rankings)
+        u1 = default_timer()
+        print(f"[RANKINGS] {u1 - u0}s elapsed to calculate site rankings for user ID {user_id}.")
+
+    t1 = default_timer()
+    print(f"[RANKINGS] {t1 - t0}s elapsed to fully complete site rankings.")
 
 
 def _calculate_site_rankings_for_user(user_id, event_singles_map, event_singles_ix_map, events_singles_len,
