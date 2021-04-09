@@ -3,7 +3,7 @@
 from huey import crontab
 
 from cubersio import app
-from cubersio.business.rankings import precalculate_user_site_rankings
+from cubersio.business.rankings import calculate_user_site_rankings
 from cubersio.business.user_results import set_medals_on_best_event_results
 from cubersio.persistence.comp_manager import get_active_competition, get_all_comp_events_for_comp
 from cubersio.business.competition.generation import generate_new_competition
@@ -42,7 +42,7 @@ def run_user_site_rankings():
     # Let's keep the timing stuff handy, I want to probably send this via Reddit PM later
     # start = utcnow()
     # user_count = get_user_count()
-    precalculate_user_site_rankings()
+    calculate_user_site_rankings()
     # end = utcnow()
 
 

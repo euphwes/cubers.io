@@ -15,18 +15,14 @@ from cubersio.persistence.user_manager import get_all_users
 from cubersio.persistence.user_site_rankings_manager import save_or_update_site_rankings_for_user
 from cubersio.util.sorting import sort_personal_best_records
 
-# -------------------------------------------------------------------------------------------------
-#                   Stuff for pre-calculating user PB records with site rankings
-# -------------------------------------------------------------------------------------------------
 
-def precalculate_user_site_rankings():
-    """ Precalculate user site rankings for event PBs for all users. """
+def calculate_user_site_rankings():
+    """ Calculate user event site rankings based on PBs. """
 
     all_events = get_all_events()
     wca_events = get_all_WCA_events()
 
-    # Each of these dicts are of the following form:
-    #    dict[Event][ordered list of PersonalBestRecords]
+    # These are of the form dict[Event, [ordered list of PersonalBestRecords]]
     events_pb_singles = dict()
     events_pb_averages = dict()
 
@@ -208,13 +204,13 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
 #                        Stuff for retrieving ordered lists of PB records
 # -------------------------------------------------------------------------------------------------
 
-# We don't wan't to use a dictionary here, that defeats the purpose of developer-readable objects.
+
+# We don't want to use a dictionary here, that defeats the purpose of developer-readable objects.
 # Can't use a namedtuple, because the values set there are immutable, and we need to be able to modify the rank,
 # which isn't known until after these records are created.
-class PersonalBestRecord():
-    """ Propery bag class for encapsulating a user's PB record. """
+class PersonalBestRecord:
+    """ Property bag class for encapsulating a user's PB record. """
 
-    # pylint: disable=R0913
     def __init__(self, **kwargs):
         self.user_id          = kwargs.get('user_id')
         self.comp_id          = kwargs.get('comp_id')
@@ -227,30 +223,13 @@ class PersonalBestRecord():
         self.numerical_rank   = '-1'
 
 
-def _build_PersonalBestRecord(query_tuple):
+def _build_personal_best_record(query_tuple):
     """ Builds a PersonalBestRecord from the 5-tuple returned from the ordered PB queries below.
     The tuple looks like (user_id, single/average, comp_id, comp_title, username). """
 
     user_id, result, comp_id, comp_title, username, comment, user_is_verified = query_tuple
     return PersonalBestRecord(personal_best=result, user_id=user_id, username=username, comp_id=comp_id,
-        comp_title=comp_title, comment=comment, user_is_verified=user_is_verified)
-
-
-def _filter_one_pb_per_user(personal_bests):
-    """ Filters the incoming list of PersonalBestRecords so there's just one per user.
-    It's assumed that the first record for each user is the fastest (which is what we want)
-    since the queries should order the UserEventResults in descending id order. """
-
-    found_users = set()
-    filtered_pbs = list()
-
-    for personal_best in personal_bests:
-        if personal_best.user_id in found_users:
-            continue
-        found_users.add(personal_best.user_id)
-        filtered_pbs.append(personal_best)
-
-    return filtered_pbs
+                              comp_title=comp_title, comment=comment, user_is_verified=user_is_verified)
 
 
 def _determine_ranks(personal_bests):
@@ -296,7 +275,6 @@ def get_ordered_pb_singles_for_event(event_id):
     """ Gets a list of PersonalBestRecords, comprised of the fastest single which doesn't belong to
     a blacklisted result, one per user, for the specified event, sorted by single value. """
 
-    # pylint: disable=C0301
     results = DB.session.\
         query(UserEventResults).\
         join(User).\
@@ -305,19 +283,18 @@ def get_ordered_pb_singles_for_event(event_id):
         join(Competition).\
         filter(Event.id == event_id).\
         filter(UserEventResults.is_complete).\
-        filter(UserEventResults.was_pb_single).\
+        filter(UserEventResults.is_latest_pb_single).\
         filter(UserEventResults.is_blacklisted.isnot(True)).\
-        group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username, User.is_verified).\
-        order_by(UserEventResults.id.desc()).\
-        values(UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username, UserEventResults.comment, User.is_verified)
-    # pylint: enable=C0301
+        group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.single, Competition.id,
+                 Competition.title, User.username, User.is_verified).\
+        values(UserEventResults.user_id, UserEventResults.single, Competition.id, Competition.title, User.username,
+               UserEventResults.comment, User.is_verified)
 
     # NOTE: if adding anything to this tuple being selected in values(...) above, add it to the
     # end so that code indexing this tuple doesn't get all jacked. Make sure to make an identical
     # addition to `get_ordered_pb_averages_for_event` and update `_build_PersonalBestRecord`
 
-    personal_bests = [_build_PersonalBestRecord(result) for result in results]
-    personal_bests = _filter_one_pb_per_user(personal_bests)
+    personal_bests = [_build_personal_best_record(result) for result in results]
     personal_bests.sort(key=sort_personal_best_records)
     personal_bests = _determine_ranks(personal_bests)
 
@@ -328,7 +305,6 @@ def get_ordered_pb_averages_for_event(event_id):
     """ Gets a list of PersonalBestRecords, comprised of the fastest average which doesn't belong to
     a blacklisted result, one per user, for the specified event, sorted by average value.  """
 
-    # pylint: disable=C0301
     results = DB.session.\
         query(UserEventResults).\
         join(User).\
@@ -337,18 +313,18 @@ def get_ordered_pb_averages_for_event(event_id):
         join(Competition).\
         filter(Event.id == event_id).\
         filter(UserEventResults.is_complete).\
-        filter(UserEventResults.was_pb_average).\
+        filter(UserEventResults.is_latest_pb_average).\
         filter(UserEventResults.is_blacklisted.isnot(True)).\
-        group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.average, Competition.id, Competition.title, User.username, User.is_verified).\
-        order_by(UserEventResults.id.desc()).\
-        values(UserEventResults.user_id, UserEventResults.average, Competition.id, Competition.title, User.username, UserEventResults.comment, User.is_verified)
-    # pylint: enable=C0301
+        group_by(UserEventResults.id, UserEventResults.user_id, UserEventResults.average, Competition.id,
+                 Competition.title, User.username, User.is_verified).\
+        values(UserEventResults.user_id, UserEventResults.average, Competition.id, Competition.title, User.username,
+               UserEventResults.comment, User.is_verified)
 
     # NOTE: if adding anything to this tuple being selected in values(...) above, add it to the
     # end so that code indexing this tuple doesn't get all jacked. Make sure to make an identical
     # addition to `get_ordered_pb_singles_for_event` and update `_build_PersonalBestRecord`
 
-    personal_bests = [_build_PersonalBestRecord(result) for result in results]
+    personal_bests = [_build_personal_best_record(result) for result in results]
 
     # Some events don't have averages, so it's ok to just return an empty list. Checking here
     # instead of checking `results` above, because `results` is a generator and the contents have't
@@ -356,7 +332,6 @@ def get_ordered_pb_averages_for_event(event_id):
     if not personal_bests:
         return list()
 
-    personal_bests = _filter_one_pb_per_user(personal_bests)
     personal_bests.sort(key=sort_personal_best_records)
     personal_bests = _determine_ranks(personal_bests)
 
