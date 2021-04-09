@@ -129,25 +129,27 @@ class UserEventResults(Model):
     the competitionEvent, the single and average result for the event. These values are either in
     centiseconds (ex: "1234" = 12.34s), 10x units for FMC (ex: "2833" = 28.33 moves) or "DNF". """
 
-    __tablename__     = 'user_event_results'
-    id                = Column(Integer, primary_key=True)
-    user_id           = Column(Integer, ForeignKey('users.id'))
-    comp_event_id     = Column(Integer, ForeignKey('competition_event.id'), index=True)
-    single            = Column(String(10))
-    average           = Column(String(10))
-    result            = Column(String(10))
-    comment           = Column(Text)
-    solves            = relationship('UserSolve', order_by=lambda: UserSolve.scramble_id)
-    reddit_comment    = Column(String(10))
-    is_complete       = Column(Boolean)
-    times_string      = Column(Text)
-    was_pb_single     = Column(Boolean)
-    was_pb_average    = Column(Boolean)
-    is_blacklisted    = Column(Boolean)
-    blacklist_note    = Column(String(256))
-    was_gold_medal    = Column(Boolean)
-    was_silver_medal  = Column(Boolean)
-    was_bronze_medal  = Column(Boolean)
+    __tablename__        = 'user_event_results'
+    id                   = Column(Integer, primary_key=True)
+    user_id              = Column(Integer, ForeignKey('users.id'))
+    comp_event_id        = Column(Integer, ForeignKey('competition_event.id'), index=True)
+    single               = Column(String(10))
+    average              = Column(String(10))
+    result               = Column(String(10))
+    comment              = Column(Text)
+    solves               = relationship('UserSolve', order_by=lambda: UserSolve.scramble_id)
+    reddit_comment       = Column(String(10))
+    is_complete          = Column(Boolean)
+    times_string         = Column(Text)
+    was_pb_single        = Column(Boolean)
+    was_pb_average       = Column(Boolean)
+    is_latest_pb_single  = Column(Boolean)
+    is_latest_pb_average = Column(Boolean)
+    is_blacklisted       = Column(Boolean)
+    blacklist_note       = Column(String(256))
+    was_gold_medal       = Column(Boolean)
+    was_silver_medal     = Column(Boolean)
+    was_bronze_medal     = Column(Boolean)
 
     @reconstructor
     def init_on_load(self):
