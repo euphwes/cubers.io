@@ -12,7 +12,7 @@ from cubersio.util.events.mbld import MbldSolve
 from cubersio.persistence.models import Competition, CompetitionEvent, Event, UserEventResults, User,\
     UserSiteRankings, EventFormat
 from cubersio.persistence.events_manager import get_all_events, get_all_WCA_events
-from cubersio.persistence.user_site_rankings_manager import save_or_update_site_rankings_for_user
+from cubersio.persistence.user_site_rankings_manager import bulk_update_site_rankings
 from cubersio.util.sorting import sort_personal_best_records
 
 
@@ -80,6 +80,8 @@ def calculate_user_site_rankings():
         print(f"[RANKINGS] {e1-e0}s elapsed to retrieve ordered PB data for {event.name}.")
 
     # Iterate through all users to determine their site rankings and PBs
+    bulk_update_count = 0
+    bulk_site_rankings = list()
     for user_id in all_user_ids:
         u0 = default_timer()
         # Calculate site rankings for the user
@@ -87,10 +89,22 @@ def calculate_user_site_rankings():
                                                      events_singles_len, events_pb_averages, events_pb_averages_ix,
                                                      events_averages_len, wca_event_ids, all_events)
 
-        # Save to the database
-        save_or_update_site_rankings_for_user(user_id, rankings)
+        bulk_site_rankings.append(rankings)
+        bulk_update_count += 1
         u1 = default_timer()
         print(f"[RANKINGS] {u1 - u0}s elapsed to calculate site rankings for user ID {user_id}.")
+
+        if bulk_update_count == 250:
+            db0 = default_timer()
+            # Save to the database
+            bulk_update_site_rankings(bulk_site_rankings)
+            db1 = default_timer()
+            print(f"[RANKINGS] {db1 - db0}s elapsed to update rankings for {bulk_update_count} users in database.")
+            bulk_update_count = 0
+            bulk_site_rankings = list()
+
+    if bulk_site_rankings:
+        bulk_update_site_rankings(bulk_site_rankings)
 
     t1 = default_timer()
     print(f"[RANKINGS] {t1 - t0}s elapsed to fully complete site rankings.")
@@ -99,7 +113,7 @@ def calculate_user_site_rankings():
 def _calculate_site_rankings_for_user(user_id, event_singles_map, event_singles_ix_map, events_singles_len,
                                       event_averages_map, event_averages_ix_map, events_averages_len, wca_event_ids,
                                       all_events):
-    """ TODO update this.
+    """ TODO update this description for correct return type.
     Returns a dict of the user's PB singles and averages for all events they've participated in,
     as well as their rankings amongst the site's users. Format is:
     dict[event ID][(single, single_site_ranking, average, average_site_ranking)] """
@@ -110,6 +124,7 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_singles_
     # Create the actual UserSiteRankings object to stick the data in when we're done, which will hold both the raw
     # ranking data as well as sum of ranks, total Kinchranks, etc
     user_site_rankings = UserSiteRankings()
+    user_site_rankings.user_id = user_id
 
     # Start off all sum of ranks stats at 0
     # [single, average]

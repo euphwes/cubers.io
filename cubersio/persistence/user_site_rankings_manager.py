@@ -1,21 +1,32 @@
 """ Utility module for persisting and retrieving UserSiteRankings. """
 
 import json
+from typing import List, Optional, Dict
 
 from sqlalchemy.sql import func
 
 from cubersio import DB
 from cubersio.persistence.models import UserSiteRankings, User
 
-# -------------------------------------------------------------------------------------------------
 
-def get_site_rankings_for_user(user_id):
+def get_site_rankings_for_user(user_id) -> Optional[UserSiteRankings]:
     """ Retrieves a UserSiteRankings record for the specified user. """
 
     return DB.session.\
         query(UserSiteRankings).\
         filter(UserSiteRankings.user_id == user_id).\
         first()
+
+
+def get_site_rankings_for_users(user_ids) -> Dict[int, UserSiteRankings]:
+    """ Retrieves UserSiteRankings records for the specified user IDs. """
+
+    rankings = DB.session.\
+        query(UserSiteRankings).\
+        filter(UserSiteRankings.user_id.in_(user_ids)).\
+        all()
+
+    return {ranking.user_id: ranking for ranking in rankings}
 
 
 def get_user_site_rankings_all_sorted_single():
@@ -156,36 +167,33 @@ def get_user_kinchranks_all_sorted():
         all()
 
 
-def save_or_update_site_rankings_for_user(user_id, new_user_site_rankings):
-    """ Create or update a UserSiteRankings record for the specified user. """
+def bulk_update_site_rankings(site_rankings: List[UserSiteRankings]):
+    """ Create or update UserSiteRankings records in bulk """
 
-    # TODO: We can speed this up by querying for all site rankings at once, instead of 1 at a time
-    # Stick that in a dict[user_id] = site_rankings
-    # Accept all the calculated site rankings above instead of just one at a time
-    # Do the logic below to update or create
-    # Add all the records to a list then bulk session add and commit
+    user_ids = [rankings.user_id for rankings in site_rankings]
+    user_ids_rankings_map = get_site_rankings_for_users(user_ids)
 
-    rankings_record = get_site_rankings_for_user(user_id)
+    for new_user_site_rankings in site_rankings:
+        existing_ranking = user_ids_rankings_map.get(new_user_site_rankings.user_id, None)
 
-    # If this user already has a site rankings record, just update it
-    if rankings_record:
-        rankings_record.data                = new_user_site_rankings.data
-        rankings_record.timestamp           = new_user_site_rankings.timestamp
-        rankings_record.sum_all_single      = new_user_site_rankings.sum_all_single
-        rankings_record.sum_all_average     = new_user_site_rankings.sum_all_average
-        rankings_record.sum_wca_single      = new_user_site_rankings.sum_wca_single
-        rankings_record.sum_wca_average     = new_user_site_rankings.sum_wca_average
-        rankings_record.sum_non_wca_single  = new_user_site_rankings.sum_non_wca_single
-        rankings_record.sum_non_wca_average = new_user_site_rankings.sum_non_wca_average
-        rankings_record.all_kinchrank       = new_user_site_rankings.all_kinchrank
-        rankings_record.wca_kinchrank       = new_user_site_rankings.wca_kinchrank
-        rankings_record.non_wca_kinchrank   = new_user_site_rankings.non_wca_kinchrank
-        DB.session.add(rankings_record)
+        # If this user already has a site rankings record, just update it
+        if existing_ranking:
+            existing_ranking.data                = new_user_site_rankings.data
+            existing_ranking.timestamp           = new_user_site_rankings.timestamp
+            existing_ranking.sum_all_single      = new_user_site_rankings.sum_all_single
+            existing_ranking.sum_all_average     = new_user_site_rankings.sum_all_average
+            existing_ranking.sum_wca_single      = new_user_site_rankings.sum_wca_single
+            existing_ranking.sum_wca_average     = new_user_site_rankings.sum_wca_average
+            existing_ranking.sum_non_wca_single  = new_user_site_rankings.sum_non_wca_single
+            existing_ranking.sum_non_wca_average = new_user_site_rankings.sum_non_wca_average
+            existing_ranking.all_kinchrank       = new_user_site_rankings.all_kinchrank
+            existing_ranking.wca_kinchrank       = new_user_site_rankings.wca_kinchrank
+            existing_ranking.non_wca_kinchrank   = new_user_site_rankings.non_wca_kinchrank
+            DB.session.add(existing_ranking)
 
-    # If not, create a new one
-    else:
-        new_user_site_rankings.user_id = user_id
-        DB.session.add(new_user_site_rankings)
+        # If not, create a new one
+        else:
+            DB.session.add(new_user_site_rankings)
 
     DB.session.commit()
 
