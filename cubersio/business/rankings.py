@@ -4,19 +4,38 @@ from collections import OrderedDict
 from datetime import datetime
 import json
 from timeit import default_timer
+from typing import Dict, List, Set
 
 from ranking import Ranking
 
 from cubersio import DB
 from cubersio.util.events.mbld import MbldSolve
-from cubersio.persistence.models import Competition, CompetitionEvent, Event, UserEventResults, User,\
-    UserSiteRankings, EventFormat
+from cubersio.persistence.models import Competition, CompetitionEvent, Event, UserEventResults, User, UserSiteRankings,\
+    EventFormat
 from cubersio.persistence.events_manager import get_all_events, get_all_WCA_events
 from cubersio.persistence.user_site_rankings_manager import bulk_update_site_rankings
 from cubersio.util.sorting import sort_personal_best_records
 
 
-def calculate_user_site_rankings():
+# We don't want to use a dictionary here, that defeats the purpose of developer-readable objects.
+# Can't use a namedtuple, because the values set there are immutable, and we need to be able to modify the rank, which
+# isn't known until after these records are created.
+class PersonalBestRecord:
+    """ Property bag class for encapsulating a user's PB record. """
+
+    def __init__(self, **kwargs):
+        self.user_id          = kwargs.get('user_id')
+        self.comp_id          = kwargs.get('comp_id')
+        self.username         = kwargs.get('username')
+        self.comp_title       = kwargs.get('comp_title')
+        self.personal_best    = kwargs.get('personal_best')
+        self.comment          = kwargs.get('comment')
+        self.user_is_verified = kwargs.get('user_is_verified')
+        self.rank             = '-1'
+        self.numerical_rank   = '-1'
+
+
+def calculate_user_site_rankings() -> None:
     """ Calculate user event site rankings based on PBs. """
 
     all_events = [e for e in get_all_events() if e.name != "COLL"]
@@ -41,8 +60,6 @@ def calculate_user_site_rankings():
 
     for event in all_events:
 
-        e0 = default_timer()
-
         # Retrieve the the ordered list of PersonalBestRecords for singles for this event
         ordered_pb_singles = get_ordered_pb_singles_for_event(event.id)
 
@@ -54,7 +71,8 @@ def calculate_user_site_rankings():
         events_singles_len[event] = len(ordered_pb_singles)
 
         # Iterate the ordered PB singles, recording which users we've seen, and also building a map of the user ID to
-        # their index in the ordered PB singles list, so we don't have to iterate that list for every user to find them
+        # their index in the ordered PB singles list, so we can retrieve the specific PersonalBestRecord for a user
+        # directly by their index in this list rather than having to iterate it again.
         user_single_ix_map = dict()
         for i, pb_record in enumerate(ordered_pb_singles):
             user_single_ix_map[pb_record.user_id] = i
@@ -68,7 +86,8 @@ def calculate_user_site_rankings():
         events_averages_len[event] = len(ordered_pb_averages)
 
         # Iterate the ordered PB averages, recording which users we've seen, and also building a map of the user ID to
-        # their index in the ordered PB averages list, so we don't have to iterate that list for every user to find them
+        # their index in the ordered PB averages list, so we can retrieve the specific PersonalBestRecord for a user
+        # directly by their index in this list rather than having to iterate it again.
         user_average_ix_map = dict()
         for i, pb_record in enumerate(ordered_pb_averages):
             user_average_ix_map[pb_record.user_id] = i
@@ -76,47 +95,57 @@ def calculate_user_site_rankings():
 
         events_pb_averages_ix[event] = user_average_ix_map
 
-        e1 = default_timer()
-        print(f"[RANKINGS] {e1-e0}s elapsed to retrieve ordered PB data for {event.name}.")
+    # We'll update the users' site rankings in bulk.
+    site_rankings = list()
+    bulk_update_count = 0
+    bulk_update_limit = 250
 
     # Iterate through all users to determine their site rankings and PBs
-    bulk_update_count = 0
-    bulk_site_rankings = list()
     for user_id in all_user_ids:
-        u0 = default_timer()
-        # Calculate site rankings for the user
         rankings = _calculate_site_rankings_for_user(user_id, events_pb_singles, events_pb_singles_ix,
                                                      events_singles_len, events_pb_averages, events_pb_averages_ix,
                                                      events_averages_len, wca_event_ids, all_events)
 
-        bulk_site_rankings.append(rankings)
+        site_rankings.append(rankings)
         bulk_update_count += 1
-        u1 = default_timer()
-        print(f"[RANKINGS] {u1 - u0}s elapsed to calculate site rankings for user ID {user_id}.")
 
-        if bulk_update_count == 250:
-            db0 = default_timer()
-            # Save to the database
-            bulk_update_site_rankings(bulk_site_rankings)
-            db1 = default_timer()
-            print(f"[RANKINGS] {db1 - db0}s elapsed to update rankings for {bulk_update_count} users in database.")
+        # Save/update site rankings in bulk
+        if bulk_update_count == bulk_update_limit:
+            bulk_update_site_rankings(site_rankings)
+            site_rankings = list()
             bulk_update_count = 0
-            bulk_site_rankings = list()
 
-    if bulk_site_rankings:
-        bulk_update_site_rankings(bulk_site_rankings)
+    # If there's any left that didn't get updated in bulk, do that now.
+    if site_rankings:
+        bulk_update_site_rankings(site_rankings)
 
     t1 = default_timer()
-    print(f"[RANKINGS] {t1 - t0}s elapsed to fully complete site rankings.")
+    print(f"[RANKINGS] {t1 - t0}s elapsed to calculate site rankings for {len(all_user_ids)} users.")
 
 
-def _calculate_site_rankings_for_user(user_id, event_singles_map, event_singles_ix_map, events_singles_len,
-                                      event_averages_map, event_averages_ix_map, events_averages_len, wca_event_ids,
-                                      all_events):
-    """ TODO update this description for correct return type.
-    Returns a dict of the user's PB singles and averages for all events they've participated in,
-    as well as their rankings amongst the site's users. Format is:
-    dict[event ID][(single, single_site_ranking, average, average_site_ranking)] """
+def _calculate_site_rankings_for_user(user_id: int,
+                                      event_singles_map: Dict[Event, List[PersonalBestRecord]],
+                                      event_singles_ix_map: Dict[Event, Dict[int, int]],
+                                      events_singles_len: Dict[Event, int],
+                                      event_averages_map: Dict[Event, List[PersonalBestRecord]],
+                                      event_averages_ix_map: Dict[Event, Dict[int, int]],
+                                      events_averages_len: Dict[Event, int],
+                                      wca_event_ids: Set[int],
+                                      all_events: List[Event]) -> UserSiteRankings:
+    """ Calculates the user's site rankings for all events, and returns a UserSiteRankings object which contains the raw
+    data (for each event, PB single and average, the site rank for those results, and Kinchranks), and also wraps up
+    the user's combined sum of ranks, separate sum of ranks for WCA and non-WCA events, and overall Kinchrank.
+
+    :param user_id: user ID of the user whose site rankings are being calculated
+    :param event_singles_map: map from Event to ordered list of single PBs
+    :param event_singles_ix_map: map from Event to map of user ID to index of that user's single PB record
+    :param events_singles_len: map from Event to the number of people with single records
+    :param event_averages_map: map from Event to ordered list of average PBs
+    :param event_averages_ix_map: map from Event to map of user ID to index of that user's average PB record
+    :param events_averages_len: map from Event to the number of people with average records
+    :param wca_event_ids: set of WCA event IDs
+    :param all_events: list of Events
+    :return: UserSiteRankings record for the specified user"""
 
     # Holds the user's various types of rankings for each event
     user_rankings_data = OrderedDict()
@@ -248,28 +277,6 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_singles_
         user_site_rankings.non_wca_kinchrank = 0
 
     return user_site_rankings
-
-# -------------------------------------------------------------------------------------------------
-#                        Stuff for retrieving ordered lists of PB records
-# -------------------------------------------------------------------------------------------------
-
-
-# We don't want to use a dictionary here, that defeats the purpose of developer-readable objects.
-# Can't use a namedtuple, because the values set there are immutable, and we need to be able to modify the rank,
-# which isn't known until after these records are created.
-class PersonalBestRecord:
-    """ Property bag class for encapsulating a user's PB record. """
-
-    def __init__(self, **kwargs):
-        self.user_id          = kwargs.get('user_id')
-        self.comp_id          = kwargs.get('comp_id')
-        self.username         = kwargs.get('username')
-        self.comp_title       = kwargs.get('comp_title')
-        self.personal_best    = kwargs.get('personal_best')
-        self.comment          = kwargs.get('comment')
-        self.user_is_verified = kwargs.get('user_is_verified')
-        self.rank             = '-1'
-        self.numerical_rank   = '-1'
 
 
 def _build_personal_best_record(query_tuple):
