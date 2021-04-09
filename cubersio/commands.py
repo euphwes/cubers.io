@@ -152,7 +152,7 @@ def recalculate_pbs():
     all_events = get_all_events()
 
     for i, user in enumerate(all_users):
-        print("\nRecalculating PBs for {} ({}/{})".format(user.username, i + 1, user_count))
+        print("Recalculating PBs for {} ({}/{})".format(user.username, i + 1, user_count))
         for event in all_events:
             recalculate_user_pbs_for_event(user.id, event.id)
 

@@ -1,4 +1,5 @@
 """ Utility module for persisting and retrieving UserEventResults """
+from typing import List
 
 from sqlalchemy.orm import joinedload
 
@@ -283,7 +284,7 @@ def get_all_user_results_for_comp_and_user(comp_id, user_id):
         filter(User.id == user_id)
 
 
-def get_all_complete_user_results_for_user_and_event(user_id, event_id):
+def get_all_complete_user_results_for_user_and_event(user_id, event_id) -> List[UserEventResults]:
     """ Gets all complete UserEventResults for the specified event and user. """
 
     return DB.session.\

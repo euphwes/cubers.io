@@ -52,21 +52,19 @@ def recalculate_user_pbs_for_event(user_id, event_id):
 
     event_format = get_event_format_for_event(event_id)
 
-    # Store the results to save all at once at the end
-    event_results_to_save_at_end = list()
-    event_results_to_save_at_end.extend(results)
-
     # Start off at the beginning assuming no PBs
     pb_single_so_far  = __NO_PB_YET
     pb_average_so_far = __NO_PB_YET
 
-    # Iterate over each result from earliest to latest, checking the singles and averages to see
-    # if they are faster than the current fastest to date. Update the UserEventResult PB flags
-    # as appropriate
+    # Iterate over each result from earliest to latest, checking the singles and averages to see if they are faster than
+    # the current fastest to date. Update the UserEventResult PB flags as appropriate.
     for result in results:
 
+        result.is_latest_pb_single = False
+        result.is_latest_pb_average = False
+
         # If the result is blacklisted, it's not under consideration for PBs.
-        # Make sure the PB flags are False and skip to the next result
+        # Make sure the PB flags are False and skip to the next result.
         if result.is_blacklisted:
             result.was_pb_single  = False
             result.was_pb_average = False
@@ -76,7 +74,7 @@ def recalculate_user_pbs_for_event(user_id, event_id):
         current_average = __pb_representation(result.average)
 
         # If the current single or average are tied with, or faster than, the user's current PB,
-        # then flag this result as a PB. Tied PBs count as PBs in WCA rules
+        # then flag this result as a PB. Tied PBs count as PBs in WCA rules.
         if __DNF_AS_PB == pb_single_so_far and __DNF_AS_PB == current_single:
             result.was_pb_single = False
         elif current_single <= pb_single_so_far:
@@ -97,8 +95,18 @@ def recalculate_user_pbs_for_event(user_id, event_id):
         else:
             result.was_pb_average = False
 
+    for result in reversed(results):
+        if result.was_pb_single:
+            result.is_latest_pb_single = True
+            break
+
+    for result in reversed(results):
+        if result.was_pb_average:
+            result.is_latest_pb_average = True
+            break
+
     # Save all the UserEventResults with the modified PB flags
-    bulk_save_event_results(event_results_to_save_at_end)
+    bulk_save_event_results(results)
 
 # -------------------------------------------------------------------------------------------------
 # Functions and types below are not meant to be used directly; instead these are just dependencies
