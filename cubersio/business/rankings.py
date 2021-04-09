@@ -11,7 +11,6 @@ from cubersio.util.events.mbld import MbldSolve
 from cubersio.persistence.models import Competition, CompetitionEvent, Event, UserEventResults, User,\
     UserSiteRankings, EventFormat
 from cubersio.persistence.events_manager import get_all_events, get_all_WCA_events
-from cubersio.persistence.user_manager import get_all_users
 from cubersio.persistence.user_site_rankings_manager import save_or_update_site_rankings_for_user
 from cubersio.util.sorting import sort_personal_best_records
 
@@ -19,18 +18,25 @@ from cubersio.util.sorting import sort_personal_best_records
 def calculate_user_site_rankings():
     """ Calculate user event site rankings based on PBs. """
 
-    all_events = get_all_events()
-    wca_events = get_all_WCA_events()
+    all_events = [e for e in get_all_events() if e.name != "COLL"]
+    wca_event_ids = set(e.id for e in get_all_WCA_events())
 
     # These are of the form dict[Event, [ordered list of PersonalBestRecords]]
     events_pb_singles = dict()
     events_pb_averages = dict()
 
-    for event in all_events:
+    # These are of the form dict[Event, dict[user ID, index in ordered PB records list]]
+    events_pb_singles_ix = dict()
+    events_pb_averages_ix = dict()
 
-        # It doesn't make sense to keep COLL records, since it's a single alg that changes weekly
-        if event.name == "COLL":
-            continue
+    # These are of the form dict[Event, int]
+    events_singles_len = dict()
+    events_averages_len = dict()
+
+    # All user IDs seen, so we only iterate over users that have participated in something
+    all_user_ids = set()
+
+    for event in all_events:
 
         # Retrieve the the ordered list of PersonalBestRecords for singles for this event
         ordered_pb_singles = get_ordered_pb_singles_for_event(event.id)
@@ -40,41 +46,62 @@ def calculate_user_site_rankings():
             continue
 
         events_pb_singles[event] = ordered_pb_singles
+        events_singles_len[event] = len(ordered_pb_singles)
+
+        # Iterate the ordered PB singles, recording which users we've seen, and also building a map of the user ID to
+        # their index in the ordered PB singles list, so we don't have to iterate that list for every user to find them
+        user_single_ix_map = dict()
+        for i, pb_record in enumerate(ordered_pb_singles):
+            user_single_ix_map[pb_record.user_id] = i
+            all_user_ids.add(pb_record.user_id)
+
+        events_pb_singles_ix[event] = user_single_ix_map
 
         # Retrieve the the ordered list of PersonalBestRecords for averages for this event
         ordered_pb_averages = get_ordered_pb_averages_for_event(event.id)
         events_pb_averages[event] = ordered_pb_averages
+        events_averages_len[event] = len(ordered_pb_averages)
+
+        # Iterate the ordered PB averages, recording which users we've seen, and also building a map of the user ID to
+        # their index in the ordered PB averages list, so we don't have to iterate that list for every user to find them
+        user_average_ix_map = dict()
+        for i, pb_record in enumerate(ordered_pb_averages):
+            user_average_ix_map[pb_record.user_id] = i
+            all_user_ids.add(pb_record.user_id)
+
+        events_pb_averages_ix[event] = user_average_ix_map
 
     # Iterate through all users to determine their site rankings and PBs
-    for user in get_all_users():
+    for user_id in all_user_ids:
         # Calculate site rankings for the user
-        # pylint: disable=C0301
-        rankings = _calculate_site_rankings_for_user(user.id, events_pb_singles, events_pb_averages, wca_events, all_events)
+        rankings = _calculate_site_rankings_for_user(user_id, events_pb_singles, events_pb_singles_ix,
+                                                     events_singles_len, events_pb_averages, events_pb_averages_ix,
+                                                     events_averages_len, wca_event_ids, all_events)
 
         # Save to the database
-        save_or_update_site_rankings_for_user(user.id, rankings)
+        save_or_update_site_rankings_for_user(user_id, rankings)
 
 
-# pylint: disable=C0301
-def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages_map, wca_events, all_events):
-    """ Returns a dict of the user's PB singles and averages for all events they've participated in,
+def _calculate_site_rankings_for_user(user_id, event_singles_map, event_singles_ix_map, events_singles_len,
+                                      event_averages_map, event_averages_ix_map, events_averages_len, wca_event_ids,
+                                      all_events):
+    """ TODO update this.
+    Returns a dict of the user's PB singles and averages for all events they've participated in,
     as well as their rankings amongst the site's users. Format is:
     dict[event ID][(single, single_site_ranking, average, average_site_ranking)] """
 
+    # Holds the user's various types of rankings for each event
     user_rankings_data = OrderedDict()
 
-    # Get the IDs of the WCA events in a set, to make lookup fast later when accumulating sums
-    # for the various sum of ranks status
-    wca_event_ids = set(e.id for e in wca_events)
+    # Create the actual UserSiteRankings object to stick the data in when we're done, which will hold both the raw
+    # ranking data as well as sum of ranks, total Kinchranks, etc
+    user_site_rankings = UserSiteRankings()
 
     # Start off all sum of ranks stats at 0
     # [single, average]
     sor_all     = [0, 0]
     sor_wca     = [0, 0]
     sor_non_wca = [0, 0]
-
-    # Create the actual UserSiteRankings object to stick the data in when we're done
-    user_site_rankings = UserSiteRankings()
 
     # Hold site-wide Kinchrank (for WCA-only, non-WCA-only, and all events) for this user
     overall_kinchranks = list()
@@ -90,42 +117,35 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
 
         event_is_wca = event.id in wca_event_ids
 
-        # It doesn't make sense to keep COLL records, since it's a single alg that changes weekly
-        if event.name == "COLL":
-            continue
-
-        # Get the lists ranked singles and averages for the current event. If there's nothing
-        # in the map for that event, nobody has competed in it yet, so we can skip to the next.
+        # Get the lists ranked singles and averages for the current event. If there's nothing in the map for that event,
+        # nobody has competed in it yet, so we can skip to the next.
         ranked_singles = event_singles_map.get(event, None)
         if not ranked_singles:
             continue
         ranked_averages = event_averages_map[event]
+        singles_ix_map = event_singles_ix_map[event]
+        averages_ix_map = event_averages_ix_map[event]
 
         # See if there's a result for our user in the singles
-        for personal_best in ranked_singles:
-            if personal_best.user_id == user_id:
-                pb_single   = personal_best.personal_best
-                single_rank = personal_best.numerical_rank
-                break
+        single_ix = singles_ix_map.get(user_id, None)
+        if single_ix:
+            pb_single   = ranked_singles[single_ix].personal_best
+            single_rank = ranked_singles[single_ix].numerical_rank
 
-        # If our user has no single for this event, their site ranking is
-        # (1 + total number of people with a rank for this event)
+        # If our user has no single for this event, their site ranking is (1 + number of people in this event)
         if not pb_single:
-            single_rank = len(ranked_singles) + 1
+            single_rank = events_singles_len[event] + 1
 
-        # See if there's a result for our user in the averages. It's ok if there isn't, either
-        # because the user doesn't have an average or this event doesn't have averages. we'll just
-        # record blank values
-        for personal_best in ranked_averages:
-            if personal_best.user_id == user_id:
-                pb_average   = personal_best.personal_best
-                average_rank = personal_best.numerical_rank
-                break
+        # See if there's a result for our user in the averages. It's ok if there isn't, either because the user doesn't
+        # have an average or this event doesn't have averages. We'll just record blank values.
+        average_ix = averages_ix_map.get(user_id, None)
+        if average_ix:
+            pb_average   = ranked_averages[average_ix].personal_best
+            average_rank = ranked_averages[average_ix].numerical_rank
 
-        # If our user has no average for this event, their site ranking is
-        # (1 + total number of people with a rank for this event)
-        if not pb_single:
-            average_rank = len(ranked_averages) + 1
+        # If our user has no average for this event, their site ranking is (1 + number of people in this event)
+        if not pb_average:
+            average_rank = events_averages_len[event] + 1
 
         # Determine Kinchrank component for this event
         # TODO: add explanations below
@@ -171,7 +191,7 @@ def _calculate_site_rankings_for_user(user_id, event_singles_map, event_averages
             sor_non_wca[0] += single_rank
             sor_non_wca[1] += average_rank if average_rank else 0
 
-    # Save the event site rankings data as serialized json into the UserSiteRankigns
+    # Save the event site rankings data as serialized json into the UserSiteRankings
     # Set values for Sum Of Ranks, single and average, for combined, WCA, and non-WCA
     # Set values for Kinchranks, for combined, WCA, and non-WCA
     user_site_rankings.data                = json.dumps(user_rankings_data)
@@ -244,7 +264,7 @@ def _determine_ranks(personal_bests):
 
     # Build a list of just the time values of the personal bests, to be fed into the ranking
     # mechanism. If the PB time value cannot be interpreted as an int, it's probably a DNF so
-    # just pretend it's some humongous value which would sorted at the end
+    # just pretend it's some humongous value which would sorted to the end
     times_values = list()
     for personal_best in personal_bests:
         try:
