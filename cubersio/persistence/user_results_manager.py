@@ -1,5 +1,5 @@
 """ Utility module for persisting and retrieving UserEventResults """
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy.orm import joinedload
 
@@ -7,8 +7,6 @@ from cubersio import DB
 from cubersio.persistence.comp_manager import get_active_competition
 from cubersio.persistence.models import Competition, CompetitionEvent, Event, UserEventResults,\
     User, UserSolve
-
-from psycopg2.errors import UniqueViolation
 
 # -------------------------------------------------------------------------------------------------
 
@@ -289,11 +287,10 @@ def get_all_complete_user_results_for_user_and_event(user_id, event_id) -> List[
 
     return DB.session.\
         query(UserEventResults).\
-        join(User).\
         join(CompetitionEvent).\
         join(Event).\
         filter(Event.id == event_id).\
-        filter(User.id == user_id).\
+        filter(UserEventResults.user_id == user_id).\
         filter(UserEventResults.is_complete).\
         order_by(UserEventResults.id).\
         all()
@@ -315,24 +312,41 @@ def get_all_user_results_for_user(user_id):
         all()
 
 
-def save_event_results(comp_event_results):
+def save_event_results(new_results: UserEventResults, event_id: int):
     """ Saves a UserEventResults record. """
 
-    DB.session.add(comp_event_results)
+    DB.session.add(new_results)
+    DB.session.commit()
 
-    try:
-        DB.session.commit()
-    except UniqueViolation as ex:
-        # This is probably because of duplicate UserSolve records with same scramble_id
-        # and user_event_results_id.
-        # Since we're rewriting all this soon anyway, this is good enough for now.
-        # Let's do it better next time.
-        print(str(ex))
-        pass
+    # Make sure the latest PB flags are appropriately set for all UserEventResults for this user and event
+    calculate_latest_user_pbs_for_event(new_results.user_id, event_id)
 
-    DB.session.expunge(comp_event_results)
+    return new_results
 
-    return comp_event_results
+
+def calculate_latest_user_pbs_for_event(user_id, event_id):
+    """ Calculates latest PBs for the specified user and event. """
+
+    # Get the user's event results for this event. If they don't have any, we can just bail
+    results = get_all_complete_user_results_for_user_and_event(user_id, event_id)
+    if not results:
+        return
+
+    for result in results:
+        result.is_latest_pb_single = False
+        result.is_latest_pb_average = False
+
+    for result in reversed(results):
+        if result.was_pb_single:
+            result.is_latest_pb_single = True
+            break
+
+    for result in reversed(results):
+        if result.was_pb_average:
+            result.is_latest_pb_average = True
+            break
+
+    bulk_save_event_results(results)
 
 
 def delete_event_results(comp_event_results):

@@ -1,6 +1,6 @@
 """ Stuff related to handling user PBs (personal bests) in user event results. """
 
-from cubersio.persistence.models import EventFormat
+from cubersio.persistence.models import EventFormat, UserEventResults
 from cubersio.persistence.events_manager import get_event_format_for_event, get_events_name_id_mapping
 from cubersio.persistence.user_results_manager import get_pb_single_event_results_except_current_comp,\
     bulk_save_event_results, get_pb_average_event_results_except_current_comp,\
@@ -17,7 +17,7 @@ EVENT_FORMATS_TO_SKIP_PB_AVERAGE_CHECK = [EventFormat.Bo1]
 # Functions and types below are intended to be used directly.
 # -------------------------------------------------------------------------------------------------
 
-def set_pb_flags(user_id, event_result, event_id, event_format):
+def set_pb_flags(user_id: int, event_result: UserEventResults, event_id: int, event_format: EventFormat):
     """ Sets the appropriate flag if either the single or average for this event is a PB. """
 
     pb_single, pb_average = __get_pbs_for_user_and_event_excluding_latest(user_id, event_id)
@@ -39,33 +39,14 @@ def set_pb_flags(user_id, event_result, event_id, event_format):
         else:
             event_result.was_pb_average = __pb_representation(event_result.average) <= pb_average
 
+    # We're only processing new results (aka results for the current/active competition), so anything flagged as a PB
+    # here is inherently the latest PB as well.
+    if event_result.was_pb_single:
+        event_result.is_latest_pb_single = True
+    if event_result.was_pb_average:
+        event_result.is_latest_pb_average = True
+
     return event_result
-
-
-def calculate_latest_user_pbs_for_event(user_id, event_id):
-    """ Calculates latest PBs for the specified user and event. """
-
-    # Get the user's event results for this event. If they don't have any, we can just bail
-    results = get_all_complete_user_results_for_user_and_event(user_id, event_id)
-    if not results:
-        return
-
-    results_to_update = list()
-
-    for result in reversed(results):
-        if result.was_pb_single:
-            result.is_latest_pb_single = True
-            results_to_update.append(result)
-            break
-
-    for result in reversed(results):
-        if result.was_pb_average:
-            result.is_latest_pb_average = True
-            results_to_update.append(result)
-            break
-
-    # Save all the UserEventResults with the modified PB flags
-    bulk_save_event_results(results_to_update)
 
 
 def recalculate_user_pbs_for_event(user_id, event_id):

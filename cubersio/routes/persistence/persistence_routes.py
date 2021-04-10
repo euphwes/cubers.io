@@ -113,7 +113,7 @@ def post_solve():
     # Process through the user's event results, ensuring PB flags, best single, average, overall
     # event result, etc are all up-to-date.
     process_event_results(user_event_results, comp_event, current_user)
-    save_event_results(user_event_results)
+    save_event_results(user_event_results, comp_event.Event.id)
 
     return timer_page(comp_event_id, gather_info_for_live_refresh=True)
 
@@ -172,7 +172,7 @@ def toggle_prev_penalty():
     # Process through the user's event results, ensuring PB flags, best single, average, overall
     # event result, etc are all up-to-date.
     process_event_results(user_event_results, comp_event, current_user)
-    save_event_results(user_event_results)
+    save_event_results(user_event_results, comp_event.Event.id)
 
     return timer_page(comp_event_id, gather_info_for_live_refresh=True)
 
@@ -221,7 +221,7 @@ def delete_prev_solve():
     # overall event result, etc are all up-to-date.
     else:
         process_event_results(user_event_results, comp_event, current_user)
-        save_event_results(user_event_results)
+        save_event_results(user_event_results, comp_event.Event.id)
 
     return timer_page(comp_event_id, gather_info_for_live_refresh=True)
 
@@ -257,7 +257,7 @@ def apply_comment():
 
     # Apply the new comment and save the results
     user_event_results.comment = comment
-    save_event_results(user_event_results)
+    save_event_results(user_event_results, comp_event.Event.id)
 
     return timer_page(comp_event_id, gather_info_for_live_refresh=True)
 
@@ -301,7 +301,7 @@ def set_time():
     target_solve.is_dnf = False
 
     process_event_results(user_event_results, comp_event, current_user)
-    save_event_results(user_event_results)
+    save_event_results(user_event_results, comp_event.Event.id)
 
     return timer_page(comp_event.id, gather_info_for_live_refresh=True)
 
@@ -327,7 +327,7 @@ def set_plus_two():
     target_solve.is_dnf = False
 
     process_event_results(user_event_results, comp_event, current_user)
-    save_event_results(user_event_results)
+    save_event_results(user_event_results, comp_event.Event.id)
 
     return timer_page(comp_event.id, gather_info_for_live_refresh=True)
 
@@ -353,7 +353,7 @@ def set_dnf():
     target_solve.is_plus_two = False
 
     process_event_results(user_event_results, comp_event, current_user)
-    save_event_results(user_event_results)
+    save_event_results(user_event_results, comp_event.Event.id)
 
     return timer_page(comp_event.id, gather_info_for_live_refresh=True)
 
@@ -379,7 +379,7 @@ def clear_penalty():
     target_solve.is_dnf = False
 
     process_event_results(user_event_results, comp_event, current_user)
-    save_event_results(user_event_results)
+    save_event_results(user_event_results, comp_event.Event.id)
 
     return timer_page(comp_event.id, gather_info_for_live_refresh=True)
 
@@ -411,7 +411,7 @@ def delete_solve():
     # overall event result, etc are all up-to-date.
     else:
         process_event_results(user_event_results, comp_event, current_user)
-        save_event_results(user_event_results)
+        save_event_results(user_event_results, comp_event.Event.id)
 
     return timer_page(comp_event.id, gather_info_for_live_refresh=True)
 

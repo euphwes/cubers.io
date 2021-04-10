@@ -187,25 +187,6 @@ def backfill_results_medals():
         print('\nBackfilling for comp {} ({}/{})'.format(comp.id, i + 1, total_num))
         set_medals_on_best_event_results(get_all_comp_events_for_comp(comp.id))
 
-
-@app.cli.command()
-@click.option('--username', '-u', type=str)
-@click.option('--comp_event_id', '-i', type=int)
-def reprocess_results_for_user_and_comp_event(username, comp_event_id):
-    """ Reprocesses the event results for the specified user and competition event. """
-
-    user = get_user_by_username(username)
-    if not user:
-        print("Oops, that user doesn't exist.")
-
-    comp_event = get_comp_event_by_id(comp_event_id)
-    if not comp_event:
-        print("Oops, that comp event doesn't exist.")
-
-    results = get_event_results_for_user(comp_event_id, user)
-    results = process_event_results(results, comp_event, user)
-    save_event_results(results)
-
 # -------------------------------------------------------------------------------------------------
 # Below are utility commands intended just for development use
 # -------------------------------------------------------------------------------------------------
