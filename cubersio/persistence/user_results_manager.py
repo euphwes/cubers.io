@@ -321,6 +321,17 @@ def save_event_results(new_results: UserEventResults, event_id: int):
     # Make sure the latest PB flags are appropriately set for all UserEventResults for this user and event
     calculate_latest_user_pbs_for_event(new_results.user_id, event_id)
 
+    # Need to do this! When posting the first solve for an event, a new UserEventResults is created. This record only
+    # has a comp_event_id, but the associated CompetitionEvent is not loaded with it. If we do not expunge the record
+    # then when we go refresh the timer page, query again for this record, it gets loaded from the session directly.
+    # The CompetitionEvent is not populated, the UserEventResults::init_on_load isn't run, and the `is_fmc` and other
+    # attributes aren't populated. This causes us not to be able to build the list of times (from the solves associated
+    # with the UserEventResults) because we can't check if it's for FMC, MBLD, etc.
+    #
+    # Expunging here makes the follow-up query reload from the database, so UserEventResults::init_on_load runs, and
+    # those helper attributes get populated.
+    DB.session.expunge(new_results)
+
     return new_results
 
 
