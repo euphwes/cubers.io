@@ -1,8 +1,6 @@
 """ Functions for retrieving random-state or random-moves scramble for sliding tile puzzles. The random-state scramble
 code is based on https://github.com/asarandi/n-puzzle, heavily modified and streamlined for our use case. """
 
-# TODO -- unit tests for the 'private functions' below, whenever I feel up to it.
-
 from collections import deque
 from itertools import groupby
 from math import inf
@@ -86,44 +84,45 @@ def get_random_state_scramble(n: int) -> str:
     return __convert_steps_to_scramble(steps_to_solved)
 
 
+def __get_move_between(state1, state2):
+    """ Figure out which move was applied between two adjacent puzzle states """
+
+    # Figure out the indices of tiles which were swapped between the states
+    swapped_ixs = list()
+    for j, val in enumerate(state1):
+        if val != state2[j]:
+            swapped_ixs.append(j)
+
+    # It should just be a single pair of tiles that swapped, otherwise something is wrong
+    if len(swapped_ixs) != 2:
+        msg = "It seems like {} pieces swapped, which shouldn't be possible!"
+        raise Exception(msg.format(len(swapped_ixs)))
+
+    # Figure out which index represents the blank tile in the state2 state of the puzzle
+    ix1, ix2 = swapped_ixs[0], swapped_ixs[1]
+    if state2[ix1] == 0:
+        blank_ix, number_ix = ix1, ix2
+    else:
+        blank_ix, number_ix = ix2, ix1
+
+    # If the index difference between the swapped tiles is 1, the move was either L or R.
+    # It's R if the blank tile is left of the numbered tile that moved.
+    # It's L if the blank tile is right of the numbered tile that moved.
+    if abs(blank_ix - number_ix) == 1:
+        return 'R' if blank_ix < number_ix else 'L'
+
+    # Otherwise the move must have been U or D.
+    # It's D if the blank tile is above (lower in index) than the numbered tile that moved.
+    # It's U if the blank tile is below (higher in index) than the numbered tile that moved.
+    return 'D' if blank_ix < number_ix else 'U'
+
+
 def __convert_steps_to_scramble(steps):
     """ Takes the sequence of puzzle states from scrambled to solved, and ultimately returns a nicely-formatted scramble
     to reach the scrambled state from solve.
 
     For each puzzle state transition, figure out which move was applied (U, D, L, R), and then take the inverse of the
     solution as the scramble. Reduce this (U U --> U2) so it reads a little more nicely. """
-
-    def __get_move_between(state1, state2):
-        """ Figure out which move was applied between two adjacent puzzle states """
-
-        # Figure out the indices of tiles which were swapped between the states
-        swapped_ixs = list()
-        for j, val in enumerate(state1):
-            if val != state2[j]:
-                swapped_ixs.append(j)
-
-        # It should just be a single pair of tiles that swapped, otherwise something is wrong
-        if len(swapped_ixs) != 2:
-            msg = "It seems like {} pieces swapped, which shouldn't be possible!"
-            raise Exception(msg.format(len(swapped_ixs)))
-
-        # Figure out which index represents the blank tile in the state2 state of the puzzle
-        ix1, ix2 = swapped_ixs[0], swapped_ixs[1]
-        if state2[ix1] == 0:
-            blank_ix, number_ix = ix1, ix2
-        else:
-            blank_ix, number_ix = ix2, ix1
-
-        # If the index difference between the swapped tiles is 1, the move was either L or R.
-        # It's R if the blank tile is left of the numbered tile that moved.
-        # It's L if the blank tile is right of the numbered tile that moved.
-        if abs(blank_ix - number_ix) == 1:
-            return 'R' if blank_ix < number_ix else 'L'
-
-        # Otherwise the move must have been U or D.
-        # It's D if the blank tile is above (lower in index) than the numbered tile that moved.
-        # It's U if the blank tile is below (higher in index) than the numbered tile that moved.
-        return 'D' if blank_ix < number_ix else 'U'
 
     # Iterate each adjacent pair of puzzle steps and figure out the move that was performed.
     # Inverse that move and stick it at the front of the list. The result is the inverted solution.
