@@ -1,0 +1,6 @@
+[run]
+dynamic_context = test_function
+omit =
+    cubersio/util/simplecrypt.py
+    */__init__.py
+    tst/*

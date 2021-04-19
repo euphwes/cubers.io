@@ -14,13 +14,20 @@ def __build_coded_result(successful, attempted, time_seconds):
     points = 2*successful - attempted
     seconds = str(int(time_seconds)).zfill(4)
     missed = str(attempted - successful).zfill(2)
-    return str(99 - points) + seconds + missed
+    result = str(99 - points) + seconds + missed
+
+    # Trim off leading zeros, to make sure that we exercise the zero-padding logic in MbldSolve
+    while result.startswith('0'):
+        result = result[1:]
+
+    return result
 
 
 @pytest.mark.parametrize('coded_value, expected_attempted', [
     (__build_coded_result(1, 1, 456), 1),
     (__build_coded_result(8, 10, 456), 10),
-    (__build_coded_result(15, 25, 456), 25)
+    (__build_coded_result(15, 25, 456), 25),
+    (__build_coded_result(95, 95, 3500), 95)
 ])
 def test_mbld_solve_parses_correct_attempted(coded_value, expected_attempted):
     """ Test that MbldSolve properly parses the number of attempted cubes from a coded MBLD solve value, for MBLD
@@ -34,7 +41,7 @@ def test_mbld_solve_parses_correct_attempted(coded_value, expected_attempted):
     (__build_coded_result(10, 10, 456), 10),
     (__build_coded_result(15, 25, 456), 15)
 ])
-def test_mbld_solve_parses_correct_attempted(coded_value, expected_successful):
+def test_mbld_solve_parses_correct_successful(coded_value, expected_successful):
     """ Test that MbldSolve properly parses the number of successful cubes from a coded MBLD solve value, for MBLD
     attempts which are not DNFs. """
 
