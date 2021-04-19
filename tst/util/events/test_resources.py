@@ -6,8 +6,9 @@ from unittest.mock import Mock
 import pytest
 
 from cubersio.util.events.resources import sort_comp_events_by_global_sort_order, sort_events_by_global_sort_order, \
-    get_bonus_events_rotation_starting_at, get_bonus_events_without_current, get_event_definition_for_name, EVENT_3x3,\
-    EVENT_4x4, EVENT_5x5, EVENT_FTO, EVENT_REDI, BONUS_EVENTS, EVENT_Mirror, EVENT_333Relay, EVENT_3x3_Feet
+    get_bonus_events_rotation_starting_at, get_bonus_events_without_current, get_event_definition_for_name, EVENT_3x3, \
+    EVENT_4x4, EVENT_5x5, EVENT_FTO, EVENT_REDI, BONUS_EVENTS, EVENT_Mirror, EVENT_333Relay, EVENT_3x3_Feet, \
+    EventDefinition
 from cubersio.persistence.models import Event
 
 
@@ -109,3 +110,20 @@ def test_get_event_definition_for_name(event_name, expected_event_definition):
     """ Tests that get_event_definition_for_name returns the expected event definition. """
 
     assert get_event_definition_for_name(event_name) == expected_event_definition
+
+
+def test_event_definition_get_scramble():
+    """ Tests that EventDefinition.get_scramble invokes the provided scramble function with the supplied arguments
+    and returns the expected value. """
+
+    expected_scramble = "da scramble"
+    expected_args = [1, 2, 3]
+
+    mock_scramble_fn = Mock()
+    mock_scramble_fn.return_value = expected_scramble
+
+    event_def = EventDefinition("name", mock_scramble_fn)
+    scramble = event_def.get_scramble(*expected_args)
+
+    assert scramble == expected_scramble
+    mock_scramble_fn.assert_called_once_with(*expected_args)
