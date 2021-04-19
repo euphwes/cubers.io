@@ -1,9 +1,8 @@
 """ Hand-written scramblers and scramble-related utility functions. """
 
 from random import choice
-from typing import List
 
-from pyTwistyScrambler import scrambler333, scrambler222, scrambler444, ftoScrambler
+from pyTwistyScrambler import scrambler333, scrambler222, scrambler444
 
 from cubersio import app
 from .sliding_tile import get_random_moves_scramble, get_random_state_scramble
