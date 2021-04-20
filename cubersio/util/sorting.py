@@ -3,9 +3,9 @@
 from functools import cmp_to_key
 from typing import List, Tuple
 
-from cubersio.persistence.models import EventFormat, PersonalBestRecord, UserEventResults
-
 from ranking import Ranking
+
+from cubersio.persistence.models import EventFormat, PersonalBestRecord, UserEventResults
 
 
 @cmp_to_key

@@ -1,7 +1,5 @@
 """ Tests for custom sorting functions for sorting cubers.io domain objects. """
 
-# TODO test docstrings
-
 import pytest
 from itertools import permutations
 

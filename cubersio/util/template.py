@@ -1,4 +1,4 @@
-""" TODO """
+""" Utility functions for rendering data in Jinja HTML templates. """
 
 from urllib.parse import urlencode
 
@@ -15,14 +15,14 @@ def link_to_algcubingnet():
     """ Generates an anchor with a link to alg.cubing.net for the specified set and algorithm/moves. """
 
     def __link_to_algcubingnet(setup, alg, moves_count):
-        """ Generates an anchor with a link to alg.cubing.net for the specified set and algorithm/moves. """
-
-        # If no solution was provided, the solve probably predated the required FMC solutions feature
-        # Don't render a link to alg.cubing.net; instead just render the moves count
+        # If no solution was provided, the solve predates required FMC solutions.
+        # Don't render a link to alg.cubing.net; instead just render the moves count.
         if not alg:
-            return moves_count
+            return str(moves_count)
 
-        anchor = '<a href="https://alg.cubing.net/?{}" style="font-size: 14px;" target="_blank">{} <i class="fas fa-external-link-alt"></i></a>'
+        anchor = '<a href="https://alg.cubing.net/?{}" style="font-size: 14px;"'\
+                 'target="_blank">{} <i class="fas fa-external-link-alt"></i></a>'
+
         querystring = urlencode([
             ('setup', setup),
             ('alg', alg),
@@ -35,7 +35,7 @@ def link_to_algcubingnet():
 
 
 @app.template_filter('slugify')
-def slugify_filter(value):
+def slugify_filter(value: str) -> str:
     """ Jinja custom filter to slugify a string. """
 
     return slugify(value)
@@ -83,9 +83,6 @@ def format_fmc_result(value):
 @app.template_filter('format_mbld_result')
 def format_mbld_result(value):
     """ Jinja custom filter to convert a fake 'centisecond' result to MBLD results. """
-
-    if value is None:
-        return ''
 
     if not value:
         return ''
