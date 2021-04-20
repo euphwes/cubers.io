@@ -1,7 +1,6 @@
 """ Tests for internal scramblers and scramble-related utility functions. """
 
 import pytest
-from pytest_mock import MockerFixture
 
 from cubersio.util.events.scramblers.internal import mbld_scrambler, attack_scrambler, redi_scrambler, fmc_scrambler,\
     fifteen_puzzle_scrambler, scrambler_234_relay, scrambler_333_relay, does_fmc_scramble_have_cancellations,\
@@ -98,13 +97,6 @@ def test_fmc_scrambler_pads_wca_scramble():
     assert scramble.endswith("R' U' F")
 
 
-def test_does_fmc_scramble_have_cancellations_no_cancellations():
-    """ Tests that the function returns false if the provided scramble does not have a cancellation with the standard
-    WCA FMC scramble padding. """
-
-    assert not does_fmc_scramble_have_cancellations(_333_SCRAMBLE)
-
-
 @pytest.mark.parametrize('scramble, expected_result', [
     ("F2 rest of scramble does not matter", True),
     ("rest of scramble does not matter R", True),
@@ -119,6 +111,15 @@ def test_does_fmc_scramble_have_cancellations(scramble, expected_result):
     assert does_fmc_scramble_have_cancellations(scramble) == expected_result
 
 
+def test_fmc_scramblers_runs_until_no_cancellations(mocker):
+
+    module = "cubersio.util.events.scramblers.internal."
+    mocked_has_cancellations = mocker.patch(module + 'does_fmc_scramble_have_cancellations', side_effect=[True, False])
+
+    fmc_scrambler()
+    assert mocked_has_cancellations.call_count == 2
+
+
 @pytest.fixture
 def mock_15_scramblers(mocker):
     mocked_random_moves = mocker.patch('cubersio.util.events.scramblers.internal.get_random_moves_scramble')
@@ -126,18 +127,19 @@ def mock_15_scramblers(mocker):
     return mocked_random_moves, mocked_random_state
 
 
-@MockerFixture
 @pytest.mark.usefixtures('mock_15_scramblers')
 @pytest.mark.parametrize('is_devo, random_state_calls, random_moves_calls', [
     (True, 0, 1),
     (False, 1, 0),
 ])
 def test_fifteen_puzzle_scrambler_calls_correct_impl(is_devo, random_state_calls, random_moves_calls,
-                                                     mocked_random_moves, mocked_random_state, mocker):
+                                                     mock_15_scramblers, mocker):
     """ Tests that the 15 Puzzle scrambler uses a random-moves implementation in devo, and uses a random-state
     implementation in prod. Also tests that the scramblers are called with a value of '4' indicating a 4x4 grid, aka
     a 15 Puzzle and not an 8 Puzzle (n=3), etc. """
-    mocker.patch.dict("cubersio.util.events.scramblers.internal.app.config", {'IS_DEVO': True})
+
+    mocked_random_moves, mocked_random_state = mock_15_scramblers
+    mocker.patch.dict("cubersio.util.events.scramblers.internal.app.config", {'IS_DEVO': is_devo})
 
     fifteen_puzzle_scrambler()
 

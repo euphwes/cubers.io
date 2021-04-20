@@ -10,6 +10,25 @@ from cubersio import DB, app
 from cubersio.util.times import convert_centiseconds_to_friendly_time
 from cubersio.util.events.mbld import MbldSolve
 
+
+# We don't want to use a dictionary here, that defeats the purpose of developer-readable objects.
+# Can't use a namedtuple, because the values set there are immutable, and we need to be able to modify the rank, which
+# isn't known until after these records are created.
+class PersonalBestRecord:
+    """ Property bag class for encapsulating a user's PB record. """
+
+    def __init__(self, **kwargs):
+        self.user_id          = kwargs.get('user_id')
+        self.comp_id          = kwargs.get('comp_id')
+        self.username         = kwargs.get('username')
+        self.comp_title       = kwargs.get('comp_title')
+        self.personal_best    = kwargs.get('personal_best')
+        self.comment          = kwargs.get('comment')
+        self.user_is_verified = kwargs.get('user_is_verified')
+        self.rank             = '-1'
+        self.numerical_rank   = '-1'
+
+
 Text       = DB.Text
 Enum       = DB.Enum
 Model      = DB.Model
