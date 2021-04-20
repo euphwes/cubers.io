@@ -11,28 +11,10 @@ from ranking import Ranking
 from cubersio import DB
 from cubersio.util.events.mbld import MbldSolve
 from cubersio.persistence.models import Competition, CompetitionEvent, Event, UserEventResults, User, UserSiteRankings,\
-    EventFormat
+    EventFormat, PersonalBestRecord
 from cubersio.persistence.events_manager import get_all_events, get_all_WCA_events
 from cubersio.persistence.user_site_rankings_manager import bulk_update_site_rankings
 from cubersio.util.sorting import sort_personal_best_records
-
-
-# We don't want to use a dictionary here, that defeats the purpose of developer-readable objects.
-# Can't use a namedtuple, because the values set there are immutable, and we need to be able to modify the rank, which
-# isn't known until after these records are created.
-class PersonalBestRecord:
-    """ Property bag class for encapsulating a user's PB record. """
-
-    def __init__(self, **kwargs):
-        self.user_id          = kwargs.get('user_id')
-        self.comp_id          = kwargs.get('comp_id')
-        self.username         = kwargs.get('username')
-        self.comp_title       = kwargs.get('comp_title')
-        self.personal_best    = kwargs.get('personal_best')
-        self.comment          = kwargs.get('comment')
-        self.user_is_verified = kwargs.get('user_is_verified')
-        self.rank             = '-1'
-        self.numerical_rank   = '-1'
 
 
 def calculate_user_site_rankings() -> None:
