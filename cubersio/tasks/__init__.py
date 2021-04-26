@@ -1,8 +1,7 @@
 """ Core task setup. """
 
-from huey.signals import SIGNAL_ERROR, SIGNAL_COMPLETE
+from huey.signals import SIGNAL_ERROR
 
-from cubersio import app
 from queue_config import huey
 
 from .gift_code_management import *
@@ -10,14 +9,12 @@ from .competition_management import *
 from .reddit import *
 from .scramble_generation import *
 
-#--------------------------------------------------------------------------------------------------
 
 __TASK_STATUS_REDDIT_USER = app.config['TASK_STATUS_REDDIT_USER']
 
 __TASK_FAILED_BODY  = 'Task {task_name}{task_args} failed due to the following error: {error}'
 __TASK_FAILED_TITLE = 'Task {task_name} failed'
 
-#--------------------------------------------------------------------------------------------------
 
 @huey.signal(SIGNAL_ERROR)
 def __task_error_handler(_, task, exc):

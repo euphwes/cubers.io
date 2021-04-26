@@ -2,6 +2,7 @@
 
 from collections import OrderedDict
 from functools import lru_cache
+from typing import List
 
 from cubersio import DB
 from cubersio.persistence.models import Event, CompetitionEvent, UserEventResults, ScramblePool
@@ -16,7 +17,7 @@ def get_event_by_name(name):
         first()
 
 
-def get_all_events():
+def get_all_events() -> List[Event]:
     """ Returns a list of all events. """
 
     return DB.session.\
@@ -98,7 +99,7 @@ def delete_from_scramble_pool(scrambles):
     DB.session.commit()
 
 
-def add_scramble_to_scramble_pool(scramble, event_id):
+def add_scramble_to_scramble_pool(scramble: str, event_id: int) -> None:
     """ Adds a scramble to the scramble pool for the specified event. """
 
     DB.session.add(ScramblePool(scramble=scramble, event_id=event_id))

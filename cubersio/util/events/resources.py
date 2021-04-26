@@ -26,9 +26,12 @@ class EventDefinition:
         self.is_wca = is_wca
         self.is_rotating = is_rotating
 
-    def get_scramble(self, *args):
+    def get_scramble(self, *args) -> str:
         """ Returns a scramble for this event. """
+        return self.scramble_func(*args)
 
+    def get_multiple_scrambles(self, *args) -> List[str]:
+        """ Returns a scramble for this event. """
         return self.scramble_func(*args)
 
 
