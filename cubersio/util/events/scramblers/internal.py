@@ -83,10 +83,10 @@ def does_fmc_scramble_have_cancellations(scramble: str) -> bool:
     and end, as FMC regulations require. """
 
     # Turn it into a list of moves
-    scramble = scramble.split(' ')
+    moves = scramble.split(' ')
 
     # Check if there are any obvious cancellations: F touch F at the beginning, or R touching R at the end
-    first, last = scramble[0], scramble[-1]
+    first, last = moves[0], moves[-1]
     if first in ("F", "F2", "F'") or last in ("R", "R'", "R2"):
         return True
 
@@ -98,12 +98,12 @@ def does_fmc_scramble_have_cancellations(scramble: str) -> bool:
     if first in ("B", "B'", "B2"):
         # If the first or last move is a B or L respectively, it's possible the 2nd or next-to-last moves form a
         # cancellation with the padding
-        if scramble[1] in ("F", "F2", "F'"):
+        if moves[1] in ("F", "F2", "F'"):
             return True
 
     # If the last move is a L, then the preceding move being an R would result in a cancellation.
     if last in ("L", "L'", "L2"):
-        if scramble[-2] in ("R", "R'", "R2"):
+        if moves[-2] in ("R", "R'", "R2"):
             return True
 
     # No cancellations! Woohoo, we can use this scramble.

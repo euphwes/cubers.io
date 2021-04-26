@@ -1,7 +1,8 @@
 """ Utility functions for working with times. """
+from typing import Union
 
 
-def convert_centiseconds_to_friendly_time(centiseconds):
+def convert_centiseconds_to_friendly_time(centiseconds: Union[int, str]) -> str:
     """ Converts centiseconds to a human-readable friendly time.
     Ex: 2345 --> 23.45
     Ex: 12345 --> 2:03.45 """

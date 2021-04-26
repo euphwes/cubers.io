@@ -39,7 +39,7 @@ def test_get_random_state_scramble_success(mocker):
 
     n = 3
     seed = 113
-    expected_solved_state = list(range(1, n**2)) + [0]
+    expected_solved_state = tuple(list(range(1, n**2)) + [0])
     expected_shuffled_state = [0, 4, 8, 3, 7, 2, 6, 1, 5]
     steps_to_solved = ['content', 'here', 'doesnt', 'matter', 'for', 'mocks']
     expected_scramble = 'U2 D L R'
@@ -64,7 +64,7 @@ def test_get_random_state_scramble_no_solution(mocker):
 
     n = 3
     seed = 113
-    expected_solved_state = list(range(1, n**2)) + [0]
+    expected_solved_state = tuple(list(range(1, n**2)) + [0])
     expected_shuffled_state = [0, 4, 8, 3, 7, 2, 6, 1, 5]
 
     module = 'cubersio.util.events.scramblers.sliding_tile.'
@@ -85,7 +85,7 @@ def test_get_random_state_scramble_reshuffles_if_unsolvable(mocker):
 
     n = 3
     seed = 113
-    expected_solved_state = list(range(1, n**2)) + [0]
+    expected_solved_state = tuple(list(range(1, n**2)) + [0])
     shuffled_state_1 = [0, 4, 8, 3, 7, 2, 6, 1, 5]
     shuffled_state_2 = [4, 7, 5, 1, 8, 3, 6, 2, 0]
     expected_call_args = [

@@ -35,7 +35,7 @@ def link_to_algcubingnet():
 
 
 @app.template_filter('slugify')
-def slugify_filter(value: str) -> str:
+def slugify_filter(value):
     """ Jinja custom filter to slugify a string. """
 
     return slugify(value)

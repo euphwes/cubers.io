@@ -260,7 +260,7 @@ def sort_events_by_global_sort_order(events: List[Event]) -> List[Event]:
     return ordered_events
 
 
-def get_bonus_events_rotation_starting_at(starting_index: int, count: int = 5) -> List[BonusEventDefinition]:
+def get_bonus_events_rotation_starting_at(starting_index: int, count: int = 5) -> List[EventDefinition]:
     """ Gets a list of `count` bonus events starting at the specified index. Use a doubled list
     of bonus events as a 'trick' to wrap around to the beginning if the starting index and count
     bring us past the end of the list. """
@@ -269,7 +269,7 @@ def get_bonus_events_rotation_starting_at(starting_index: int, count: int = 5) -
     return double_wide[starting_index: starting_index + count]
 
 
-def get_bonus_events_without_current(bonus_events: List[BonusEventDefinition]) -> List[BonusEventDefinition]:
+def get_bonus_events_without_current(bonus_events: List[EventDefinition]) -> List[EventDefinition]:
     """ Gets a list of the bonus events except for the current ones. """
 
     return [e for e in BONUS_EVENTS if e not in bonus_events]

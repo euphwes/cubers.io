@@ -5,7 +5,7 @@ from collections import deque
 from itertools import groupby
 from math import inf
 from random import sample, choice
-from typing import List
+from typing import List, Optional
 
 __EMPTY_TILE = 0
 
@@ -28,7 +28,7 @@ def get_random_moves_scramble(n: int, total_moves: int = 50) -> str:
     # there is not tile in the D or R position to move.
     space_x, space_y = n, n
 
-    def __get_possible_moves(m: int, x: int, y: int, previous_move: str) -> List[str]:
+    def __get_possible_moves(m: int, x: int, y: int, previous_move: Optional[str]) -> List[str]:
         """ Return a list of possible moves based the x, y coordinates of the empty space, excluding the move that's
         opposite of the previous one so we don't just undo the last. """
 
@@ -63,17 +63,17 @@ def get_random_state_scramble(n: int) -> str:
     puzzle is in numerical order, with the blank space in the bottom-right corner. """
 
     # The solved state is the full range of tiles in numerical order, with the empty tile at the end.
-    solved_state = list(range(1, n**2)) + [__EMPTY_TILE]
+    # Needs to be a tuple, since the swaps later end up with tuples as a result and we're doing equality checks.
+    solved_state = tuple(list(range(1, n**2)) + [__EMPTY_TILE])
 
     # Keep generating a random state of the puzzle until one is found that's solvable.
-    puzzle = list(range(n**2))
-    puzzle = sample(puzzle, len(puzzle))
-    while not __is_solvable(puzzle, solved_state, n):
-        puzzle = sample(puzzle, len(puzzle))
+    puzzle_candidate = list(range(n**2))
+    puzzle_candidate = sample(puzzle_candidate, len(puzzle_candidate))
+    while not __is_solvable(puzzle_candidate, solved_state, n):
+        puzzle_candidate = sample(puzzle_candidate, len(puzzle_candidate))
 
-    # Make sure everything's a tuple, because the swaps later end up making the puzzle intermediate states as tuples.
-    puzzle       = tuple(puzzle)
-    solved_state = tuple(solved_state)
+    # Convert the puzzle to a tuple, because the swaps later end up making the puzzle intermediate states as tuples.
+    puzzle = tuple(puzzle_candidate)
 
     # Find a solution to the scrambled puzzle using an IDA* search with Linear Conflicts heuristic.
     # This can take a while; grab a cup of coffee.
