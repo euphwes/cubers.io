@@ -12,6 +12,10 @@ class MbldSolve:
     def __init__(self, coded_value: Union[str, int]):
         coded_value = str(coded_value)
 
+        self.is_dnf = coded_value == 'DNF'
+        if self.is_dnf:
+            return
+
         # The coded value must always be an 8-digit value
         while len(coded_value) < 8:
             coded_value = '0' + coded_value
@@ -40,6 +44,9 @@ class MbldSolve:
         self.sort_value = self.points + self.fractional_hour_remaining
 
     def __str__(self):
+        if self.is_dnf:
+            return 'DNF'
+
         time = convert_centiseconds_to_friendly_time(self.seconds * 100)
         time_no_fractions = time[:len(time) - 3]
         return '{}/{} {}'.format(self.successful, self.attempted, time_no_fractions)
