@@ -84,3 +84,9 @@ def test_mbld_solve_str(mocker):
 
     assert str(MbldSolve(__build_coded_result(2, 3, 123))) == '2/3 2:03'
     mocked_convert_centis.assert_called_once_with(12300)
+
+
+def test_mbld_dnf():
+    """ Tests that a DNF result returns DNF. """
+
+    assert str(MbldSolve('DNF')) == 'DNF'
