@@ -31,26 +31,26 @@ __AVERAGE  = 'average'
 __KEY_DATE = 'date'
 
 # Dictionary of event name to tuple of (WR single, WR average) in centiseconds
-# WCA WRs as of 12 Apr 2019
+# WCA WRs as of 10 Jan 2022
 __AUTO_BLACKLIST_THRESHOLDS = {
-    '2x2':           (49, 121),
-    '3x3':           (347, 580),
-    '4x4':           (1842, 2113),
-    '5x5':           (3728, 4236),
-    '6x6':           (7382, 7710),
-    '7x7':           (10789, 11163),
-    '3BLD':          (1450, 1800),
-    '4BLD':          (8641, 1),   # very low dummy average because WCA doesn't track 4BLD WR average
-    '5BLD':          (16942, 1),  # very low dummy average because WCA doesn't track 5BLD WR average
-    'Square-1':      (500, 673),
-    'Clock':         (340, 456),
-    '3x3OH':         (688, 942),
-    'Pyraminx':      (91, 187),
-    'Megaminx':      (2781, 3203),
-    'Skewb':         (110, 203),
-    'FMC':           (1700, 2400),  # in "centi-moves"
+    '2x2':           (49, 105),
+    '3x3':           (347, 509),
+    '4x4':           (1686, 2094),
+    '5x5':           (3492, 3949),
+    '6x6':           (6951, 7590),
+    '7x7':           (10089, 10657),
+    '3BLD':          (1450, 1524),
+    '4BLD':          (5787, 6876),
+    '5BLD':          (14162, 14763),
+    'Square-1':      (459, 606),
+    'Clock':         (287, 386),
+    '3x3OH':         (682, 934),
+    'Pyraminx':      (91, 183),
+    'Megaminx':      (2722, 3039),
+    'Skewb':         (93, 186),
+    'FMC':           (1600, 2100),  # in "centi-moves"
     '3x3 With Feet': (1696, 2222),
-    'MBLD':          48,            # points
+    'MBLD':          58,            # points
 
     # "Reasonable values" sourced from
     # https://www.speedsolving.com/wiki/index.php/List_of_Unofficial_World_Records
@@ -58,8 +58,8 @@ __AUTO_BLACKLIST_THRESHOLDS = {
     # submitted to the site over the months before the auto-blacklist concept was implemented.
     'Kilominx':        (1400, 1600),
     '2BLD':            (350, 450),
-    'Redi Cube':       (400, 600),
-    'Dino Cube':       (198, 465),
+    'Redi Cube':       (320, 580),
+    'Dino Cube':       (198, 400),
     'Void Cube':       (500, 700),
     '4x4 OH':          (4500, 5000),
     '2x2x3':           (50, 90),
@@ -75,7 +75,7 @@ __AUTO_BLACKLIST_THRESHOLDS = {
     '9x9':             (31500, 1),
     '10x10':           (42000, 1),
     '15 Puzzle':       (125, 250),
-    'FTO':             (1300, 1800),
+    'FTO':             (1000, 1400),
     'Rex Cube':        (3200, 4000),
     '3x3 Mirror Blocks/Bump': (800, 1100)
 }

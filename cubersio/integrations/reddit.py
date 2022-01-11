@@ -53,7 +53,8 @@ def submit_post(title: str, post_body: str) -> str:
     """ Submits a Reddit post, and returns a Reddit submission ID. """
 
     cubers = __get_admin_praw_instance().subreddit(__TARGET_SUBREDDIT)
-    return cubers.submit(title=title, selftext=post_body, send_replies=False).id
+    return cubers.submit(title=title, selftext=post_body, send_replies=False,
+                         flair_id="0ca49f0a-ee7b-11e4-a5ae-22000b698ca7").id
 
 
 def update_post(post_body: str, thread_id: str) -> str:
