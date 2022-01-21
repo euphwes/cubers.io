@@ -31,7 +31,7 @@ gunicorn==19.8.1
 huey==2.3.0
 idna==2.6
 iniconfig==1.1.1
-ipython==7.19.0
+ipython==7.31.1
 ipython-genutils==0.2.0
 isort==4.3.21
 itsdangerous==1.1.0
