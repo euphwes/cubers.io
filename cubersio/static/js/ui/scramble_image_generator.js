@@ -906,9 +906,8 @@
             return ret;
         }
 
-        function drawRoundedPolygon(ctx, pts, radius, color) {
+        function drawRoundedPolygon(ctx, pts, radius, color, do_override, overrides) {
             ctx.beginPath();
-
             ctx.fillStyle = color;
             if(color == TRANSPARENT) {
                 ctx.strokeStyle = TRANSPARENT;
@@ -916,8 +915,10 @@
                 ctx.strokeStyle = "#000";
             }
 
+            console.log(pts);
+
             if (radius > 0) {
-                pts = getRoundedPoints(pts, radius);
+                pts = getRoundedPoints(pts, radius, do_override, overrides);
             }
 
             var i, pt, len = pts.length;
@@ -938,7 +939,7 @@
             ctx.stroke();
         }
 
-        function getRoundedPoints(pts, radius) {
+        function getRoundedPoints(pts, radius, do_override, overrides) {
             var i1, i2, i3, p1, p2, p3, prevPt, nextPt,
                 len = pts.length,
                 res = new Array(len);
@@ -954,10 +955,19 @@
               p1 = pts[i1];
               p2 = pts[i2];
               p3 = pts[i3];
-              prevPt = getRoundedPoint(p1[0], p1[1], p2[0], p2[1], radius, false);
-              nextPt = getRoundedPoint(p2[0], p2[1], p3[0], p3[1], radius, true);
+
+              if (do_override) {
+                used_radius = overrides[i2];
+              } else {
+                used_radius = radius;
+              }
+
+              prevPt = getRoundedPoint(p1[0], p1[1], p2[0], p2[1], used_radius, false);
+              nextPt = getRoundedPoint(p2[0], p2[1], p3[0], p3[1], used_radius, true);
               res[i2] = [prevPt[0], prevPt[1], p2[0], p2[1], nextPt[0], nextPt[1]];
             }
+            console.log(res);
+            console.log('\n');
             return res;
         };
 
@@ -968,10 +978,13 @@
         }
 
         // trans: [size, offx, offy] == [size, 0, offx * size, 0, size, offy * size] or [a11 a12 a13 a21 a22 a23]
-        function drawPolygon(ctx, color, arr, trans, text) {
+        function drawPolygon(ctx, color, arr, trans, text, do_override, overrides) {
             if (!ctx) {
                 return;
             }
+
+            do_override = do_override || false;
+            overrides = overrides || [];
 
             trans = trans || [1, 0, 0, 0, 1, 0];
             arr = Transform(arr, trans);
@@ -983,7 +996,7 @@
                 ptsByXY[i] = [xPts[i], yPts[i]];
             }
 
-            drawRoundedPolygon(ctx, ptsByXY, eventCornerRadius, color);
+            drawRoundedPolygon(ctx, ptsByXY, eventCornerRadius, color, do_override, overrides);
 
             if (text) {
                 ctx.fillStyle = '#000';
@@ -3014,10 +3027,28 @@
                 var adjustedOffy = 0;
                 var initialOffy = offy;
 
+                do_override = false;
+                overrides = null;
+                if (size == 3) {
+                    do_override = true;
+                    overrides = [0, 0, 0, 0];
+                }
+
+                center_override = [15, 15, 15, 15];
+                edges_override = [0, 0, 0, 0];
+                corners_override = [0, 0, 0, 0];
+
                 for (var i = 0; i < size; i++) {
                     var x = (f == 1 || f == 2) ? size - 1 - i : i;
                     for (var j = 0; j < size; j++) {
                         var y = (f == 0) ? size - 1 - j : j;
+
+                        var c = "" + x + "," + y;
+
+                        overrides = [0, 0, 0, 0];
+                        if (x == 1 && y == 1) {
+                            overrides = center_override;
+                        }
 
                         // set color as normal, unless the void cube flag is set and the piece we're coloring
                         // is not an edge or corner
@@ -3045,7 +3076,7 @@
                         drawPolygon(ctx, color, [
                             [i, i, i + 1, i + 1],
                             [j, j + 1, j + 1, j]
-                        ], [width, offx, offy]);
+                        ], [width, offx, offy], c, do_override, overrides);
                     }
                 }
             }
