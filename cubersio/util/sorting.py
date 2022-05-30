@@ -94,6 +94,13 @@ def sort_user_results_with_rankings(results: List[UserEventResults],
             single = 9999999999999
         times_values.append((average, single))
 
+    # Ensure sort is valid after building the tuples with DNF/None reprs, and sort again.
+    if event_format in [EventFormat.Bo1, EventFormat.Bo3]:
+        times_values.sort(key=lambda x: x[1])
+    else:
+        times_values.sort(key=lambda x: x[1])
+        times_values.sort(key=lambda x: x[0])
+
     # Rank the list of times tuples. Legitimately tied results will have the same rank, so we also send back a
     # "visible rank" which facilitates showing the results nicely. Ranks with ties will look something like this:
     #
