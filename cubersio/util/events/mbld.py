@@ -14,6 +14,8 @@ class MbldSolve:
 
         self.is_dnf = coded_value == 'DNF'
         if self.is_dnf:
+            self.points = 0
+            self.sort_value = 0
             return
 
         # The coded value must always be an 8-digit value

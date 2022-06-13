@@ -90,3 +90,11 @@ def test_mbld_dnf():
     """ Tests that a DNF result returns DNF. """
 
     assert str(MbldSolve('DNF')) == 'DNF'
+
+
+def test_mbld_dnf_has_points_and_sort_value():
+    """ Tests that a DNF result has a points value and sort value. """
+
+    dnf_mbld = MbldSolve('DNF')
+    assert dnf_mbld.points == 0
+    assert dnf_mbld.sort_value == 0
