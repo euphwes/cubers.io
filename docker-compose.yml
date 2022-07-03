@@ -36,6 +36,9 @@ services:
       CUBERS_CLIENT_ID: ${CUBERS_CLIENT_ID}
       CUBERS_SECRET: ${CUBERS_SECRET}
       REDDIT_OAUTH_REDIRECT_URI: http://localhost:5000/authorize
+      WCA_CLIENT_ID: ${WCA_CLIENT_ID}
+      WCA_SECRET: ${WCA_SECRET}
+      WCA_OAUTH_REDIRECT_URI: http://localhost:5000/authorize
     volumes:
       - .:/app
     networks:
