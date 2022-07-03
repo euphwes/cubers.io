@@ -1,5 +1,10 @@
 {
     "dependencies" : {
         "less" : "3.8.1"
+    },
+    "scripts": {
+        "docker-db-update": "docker-compose run --rm backend flask db upgrade",
+        "docker-start-worker": "docker-compose run --rm backend huey_consumer.py app.huey -k thread -w 4",
+        "docker-create-comp": "docker-compose run --rm backend flask generate_new_comp_only"
     }
 }
