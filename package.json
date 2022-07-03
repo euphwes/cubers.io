@@ -3,8 +3,9 @@
         "less" : "3.8.1"
     },
     "scripts": {
-        "docker-db-update": "docker-compose run --rm backend flask db upgrade",
+        "docker-db-upgrade": "docker-compose run --rm backend flask db upgrade",
         "docker-start-worker": "docker-compose run --rm backend huey_consumer.py app.huey -k thread -w 4",
-        "docker-create-comp": "docker-compose run --rm backend flask generate_new_comp_only"
+        "docker-generate-comp-only": "docker-compose run --rm backend flask generate_new_comp_only",
+        "docker-set-admin": "docker-compose run --rm backend flask set_admin --username"
     }
 }
