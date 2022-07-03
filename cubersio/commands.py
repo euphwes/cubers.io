@@ -27,7 +27,7 @@ from cubersio.tasks.scramble_generation import check_scramble_pool
 # Below are admin commands for creating new competitions, and scoring previous ones
 # -------------------------------------------------------------------------------------------------
 
-@app.cli.command()
+@app.cli.command('set_all_events_flags')
 @click.option('--all_events', is_flag=True, default=False)
 def set_all_events_flags(all_events):
     """ Sets the all-events flag next competition. """
@@ -35,7 +35,7 @@ def set_all_events_flags(all_events):
     set_all_events_flag_for_next_comp(all_events)
 
 
-@app.cli.command()
+@app.cli.command('set_title_override')
 @click.option('--title', '-t', type=str)
 def set_title_override(title):
     """ Sets an override title for the next competition. """
@@ -44,7 +44,7 @@ def set_title_override(title):
     override_title_for_next_comp(title)
 
 
-@app.cli.command()
+@app.cli.command('score_and_generate_new_comp')
 @click.option('--all_events', is_flag=True, default=False)
 @click.option('--title', '-t', type=str)
 def score_and_generate_new_comp(all_events, title):
@@ -57,7 +57,7 @@ def score_and_generate_new_comp(all_events, title):
     wrap_weekly_competition()
 
 
-@app.cli.command()
+@app.cli.command('score_comp_only')
 @click.option('--comp_id', '-i', type=int)
 @click.option('--rerun', '-r', is_flag=True, default=False)
 def score_comp_only(comp_id, rerun):
@@ -67,7 +67,7 @@ def score_comp_only(comp_id, rerun):
     post_results_thread_task(comp.id, is_rerun=rerun)
 
 
-@app.cli.command()
+@app.cli.command('generate_new_comp_only')
 @click.option('--all_events', is_flag=True, default=False)
 @click.option('--title', '-t', type=str, default=None)
 def generate_new_comp_only(all_events, title):
@@ -81,14 +81,14 @@ def generate_new_comp_only(all_events, title):
     run_user_site_rankings()
 
 
-@app.cli.command()
+@app.cli.command('calculate_all_user_site_rankings')
 def calculate_all_user_site_rankings():
     """ Calculates UserSiteRankings for all users as of the current comp. """
 
     run_user_site_rankings()
 
 
-@app.cli.command()
+@app.cli.command('top_off_scrambles')
 def top_off_scrambles():
     """ Kicks off a task to check the scramble pool and generate scrambles. """
 
@@ -98,7 +98,7 @@ def top_off_scrambles():
 # Below are admin commands for one-off app administration needs
 # -------------------------------------------------------------------------------------------------
 
-@app.cli.command()
+@app.cli.command('add_gift_codes')
 @click.option('--codes', '-c', type=str)
 def add_gift_codes(codes : str):
     """ Adds gift codes to the database. `codes` is a comma-delimited list of SCS gift codes. """
@@ -106,7 +106,7 @@ def add_gift_codes(codes : str):
     bulk_add_gift_codes(codes.split(','))
 
 
-@app.cli.command()
+@app.cli.command('set_admin')
 @click.option('--username', '-u', type=str)
 def set_admin(username):
     """ Sets the specified user as an admin. """
@@ -117,7 +117,7 @@ def set_admin(username):
         print(ex)
 
 
-@app.cli.command()
+@app.cli.command('remove_admin')
 @click.option('--username', '-u', type=str)
 def remove_admin(username):
     """ Removes admin status for the specified user. """
@@ -128,7 +128,7 @@ def remove_admin(username):
         print(ex)
 
 
-@app.cli.command()
+@app.cli.command('list_admins')
 def list_admins():
     """ Lists all the admin users. """
 
@@ -141,7 +141,7 @@ def list_admins():
             print(user.username)
 
 
-@app.cli.command()
+@app.cli.command('recalculate_pbs')
 def recalculate_pbs():
     """ Works through every user, every event type, and re-calculates PB averages and singles
     and sets appropriate flags on UserEventResults. """
@@ -157,7 +157,7 @@ def recalculate_pbs():
             recalculate_user_pbs_for_event(user.id, event.id)
 
 
-@app.cli.command()
+@app.cli.command('calculate_latest_pbs')
 def calculate_latest_pbs():
     """ Works through every user, every event type, and calculates latest PB averages and singles. """
 
@@ -167,7 +167,7 @@ def calculate_latest_pbs():
 # Below are utility commands intended to just be one-offs, to backfill or fix broken data
 # -------------------------------------------------------------------------------------------------
 
-@app.cli.command()
+@app.cli.command('rerun_podiums_for_comp')
 @click.option('--comp_id', '-i', type=int)
 def rerun_podiums_for_comp(comp_id):
     """ Utility command to backfill all UserEventResults for a specific past competitions with
@@ -176,7 +176,7 @@ def rerun_podiums_for_comp(comp_id):
     set_medals_on_best_event_results(get_all_comp_events_for_comp(comp_id))
 
 
-@app.cli.command()
+@app.cli.command('backfill_results_medals')
 def backfill_results_medals():
     """ Utility command to backfill all UserEventResults for past competitions with
     gold, silver, bronze medal flags. """
@@ -235,7 +235,7 @@ def __build_solve(user_num, wr_average, event_name, scramble_id):
         scramble_id=scramble_id, is_inspection_dnf=False)
 
 
-@app.cli.command()
+@app.cli.command('generate_fake_comp_results')
 def generate_fake_comp_results():
     """ Generates a bunch of fake results for the current competition with realistic-ish results. """
 
