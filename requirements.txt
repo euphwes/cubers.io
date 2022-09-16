@@ -42,7 +42,7 @@ jedi==0.18.1
 Jinja2==2.11.3
 jsmin==3.0.1
 lazy-object-proxy==1.3.1
-Mako==1.1.2
+Mako==1.2.2
 MarkupSafe==1.1.1
 matplotlib-inline==0.1.3
 mccabe==0.6.1
