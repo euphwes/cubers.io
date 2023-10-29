@@ -28,7 +28,7 @@ dominate==2.5.1
 entrypoints==0.3
 executing==0.8.2
 flake8==3.7.7
-Flask==3.0.0
+Flask==2.3.3
 Flask-Assets==2.0
 Flask-Bootstrap==3.3.7.1
 Flask-HTTPAuth==4.7.0
