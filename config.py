@@ -71,6 +71,8 @@ class Config(object):
     # Get the database URI. Assume there's a PostGRES DB connection URI in the env variables
     # If there isn't, fall back to just pointing at a sqlite database in the app root directory
     SQLALCHEMY_DATABASE_URI = environ.get('DATABASE_URL')
+    if SQLALCHEMY_DATABASE_URI and SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
+        SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)
     if not SQLALCHEMY_DATABASE_URI:
         basedir = abspath(dirname(__file__))
         SQLALCHEMY_DATABASE_URI = 'sqlite:///' + path_join(basedir, 'cube_competitions.sqlite')
