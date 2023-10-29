@@ -1,4 +1,4 @@
-alembic==0.9.9
+alembic==1.12.1
 appdirs==1.4.3
 appnope==0.1.0
 arrow==0.12.1
@@ -33,7 +33,7 @@ Flask-Assets==2.0
 Flask-Bootstrap==3.3.7.1
 Flask-HTTPAuth==4.7.0
 Flask-Login==0.4.1
-Flask-Migrate==2.1.1
+Flask-Migrate==4.0.5
 Flask-Mobility==0.1.1
 flask-profiler==1.7
 Flask-SQLAlchemy==2.4.1
@@ -41,6 +41,7 @@ gunicorn==19.8.1
 huey==2.5.0
 idna==2.6
 importlib-metadata==6.8.0
+importlib-resources==6.1.0
 iniconfig==1.1.1
 ipython==7.31.1
 ipython-genutils==0.2.0
