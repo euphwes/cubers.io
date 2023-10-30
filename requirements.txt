@@ -13,7 +13,7 @@ Babel==2.9.1
 backcall==0.1.0
 black==21.12b0
 blinker==1.6.3
-certifi==2018.4.16
+certifi==2023.7.22
 chardet==3.0.4
 charset-normalizer==2.0.3
 click==8.1.7
