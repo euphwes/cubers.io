@@ -44,7 +44,7 @@ idna==2.6
 importlib-metadata==6.8.0
 importlib-resources==6.1.0
 iniconfig==1.1.1
-ipython==7.31.1
+ipython==8.10.0
 ipython-genutils==0.2.0
 isort==4.3.21
 itsdangerous==2.1.2
