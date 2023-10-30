@@ -119,7 +119,7 @@ visitor==0.1.3
 wcwidth==0.1.7
 webassets==2.0
 websocket-client==0.54.0
-Werkzeug==2.3.7
+Werkzeug==3.0.1
 whitenoise==6.6.0
 win-unicode-console==0.5
 wrapt==1.10.11
