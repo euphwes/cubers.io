@@ -34,60 +34,62 @@ else:
 @huey.periodic_task(RUN_RANKINGS_SCHEDULE)
 def run_weekly_site_rankings():
     """ A periodic task to run the site rankings stuff weekly. """
-
-    run_user_site_rankings()
+    with app.app_context():
+        run_user_site_rankings()
 
 
 @huey.task()
 def run_user_site_rankings():
     """ A task to run the calculations to update user site rankings based on the latest data. """
-
-    # Let's keep the timing stuff handy, I want to probably send this via Reddit PM later
-    # start = utcnow()
-    # user_count = get_user_count()
-    calculate_user_site_rankings()
-    # end = utcnow()
+    with app.app_context():
+        # Let's keep the timing stuff handy, I want to probably send this via Reddit PM later
+        # start = utcnow()
+        # user_count = get_user_count()
+        calculate_user_site_rankings()
+        # end = utcnow()
 
 
 @huey.periodic_task(WRAP_WEEKLY_COMP_SCHEDULE)
 def wrap_weekly_competition():
-    """ A periodic task to schedule sub-tasks related to wrapping up the weekly competitions. """
+    """ A periodic task to schedule sub-tasks related to wrapping up the weekly competitions.
+    """
 
-    current_comp = get_active_competition()
+    with app.app_context():
+        current_comp = get_active_competition()
 
-    comp_events_in_comp = get_all_comp_events_for_comp(current_comp.id)
-    set_medals_on_best_event_results(comp_events_in_comp)
+        comp_events_in_comp = get_all_comp_events_for_comp(current_comp.id)
+        set_medals_on_best_event_results(comp_events_in_comp)
 
-    post_results_thread_task(current_comp.id)
-    prepare_end_of_competition_info_notifications(current_comp.id)
-    generate_new_competition_task()
-    # send_gift_code_winner_approval_pm(current_comp.id)
+        post_results_thread_task(current_comp.id)
+        prepare_end_of_competition_info_notifications(current_comp.id)
+        generate_new_competition_task()
+        # send_gift_code_winner_approval_pm(current_comp.id)
 
 
 @huey.task()
 def post_results_thread_task(comp_id, is_rerun=False):
     """ A task to score the specified competition's Reddit thread. """
-
-    post_results_thread(comp_id, is_rerun=is_rerun)
+    with app.app_context():
+        post_results_thread(comp_id, is_rerun=is_rerun)
 
 
 @huey.task()
 def generate_new_competition_task():
     """ A task to generate a new competition. """
-
-    competition, was_all_events = generate_new_competition()
-    prepare_new_competition_notification(competition.id, was_all_events)
+    with app.app_context():
+        competition, was_all_events = generate_new_competition()
+        prepare_new_competition_notification(competition.id, was_all_events)
 
 
 @huey.task()
 def update_pbs():
+    with app.app_context():
+        all_users = get_all_users()
+        user_count = len(all_users)
 
-    all_users = get_all_users()
-    user_count = len(all_users)
+        all_events = get_all_events()
 
-    all_events = get_all_events()
-
-    for i, user in enumerate(all_users):
-        print("Calculating latest PBs for {} ({}/{})".format(user.username, i + 1, user_count))
-        for event in all_events:
-            calculate_latest_user_pbs_for_event(user.id, event.id)
+        for i, user in enumerate(all_users):
+            print("Calculating latest PBs for {} ({}/{})".format(user.username, i + 1, user_count))
+            for event in all_events:
+                calculate_latest_user_pbs_for_event(user.id, event.id)

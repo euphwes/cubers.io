@@ -86,7 +86,7 @@ else:
 def check_gift_code_pool():
     """ Periodically checks the available gift code count and if it's too low, send a PM to a
     configurable user to top it off. """
-
+    return
     available_code_count = get_unused_gift_code_count()
     if available_code_count < __CODE_TOP_OFF_THRESHOLD:
         msg = __CODES_REFILL_TEMPLATE.format(
@@ -101,7 +101,7 @@ def send_gift_code_winner_approval_pm(comp_id):
     """ Chooses a random participant from the competition provided, and builds a
     WeeklyCodeRecipientConfirmDeny record. Sends a PM to the configured admin user to approve or
     deny that user. """
-
+    return
     winner      = get_random_reddit_participant_for_competition(comp_id)
     competition = get_competition(comp_id)
     gift_code   = get_unused_gift_code()
@@ -132,7 +132,7 @@ def send_gift_code_winner_approval_pm(comp_id):
 @huey.task()
 def send_gift_code_to_winner(user_id: int, gift_code_id: int, comp_id: int) -> None:
     """ Sends a PM to recipient of a weekly SCS gift code. """
-
+    return
     user = get_user_by_id(user_id)
     msg  = __GIFT_CODE_RECIPIENT_TEMPLATE.format(
         username   = user.reddit_id,

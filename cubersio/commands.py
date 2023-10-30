@@ -54,7 +54,8 @@ def score_and_generate_new_comp(all_events, title):
     override_title_for_next_comp(title)
     set_all_events_flag_for_next_comp(all_events)
 
-    wrap_weekly_competition()
+    with app.app_context():
+        wrap_weekly_competition()
 
 
 @app.cli.command()
