@@ -141,7 +141,7 @@ def curr_leaders():
     """ Redirects to the current competition's leaderboards. """
 
     comp = get_active_competition()
-    return redirect("leaderboards/{}".format(comp.id))
+    return redirect("/leaderboards/{}".format(comp.id))
 
 
 @app.route('/redirect_prev/')
@@ -149,7 +149,7 @@ def prev_leaders():
     """ Redirects to the current competition's leaderboards. """
 
     comp = get_previous_competition()
-    return redirect("leaderboards/{}".format(comp.id))
+    return redirect("/leaderboards/{}".format(comp.id))
 
 
 @app.route('/leaderboards/')
