@@ -76,7 +76,7 @@ pure-eval==0.2.2
 py==1.10.0
 pycodestyle==2.5.0
 pycparser==2.18
-pycryptodome==3.9.7
+pycryptodome==3.19.1
 PyExecJS==1.5.1
 pyflakes==2.1.1
 Pygments==2.7.4
