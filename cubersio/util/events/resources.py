@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from pyTwistyScrambler import scrambler333, scrambler222, scrambler444, scrambler555, scrambler666, scrambler777,\
     squareOneScrambler, megaminxScrambler, pyraminxScrambler, cuboidsScrambler, skewbScrambler, clockScrambler,\
-    bigCubesScrambler, ftoScrambler, rexScrambler
+    bigCubesScrambler, ftoScrambler, rexScrambler, miscScrambler
 
 from cubersio.util.events.scramblers.coll import get_coll_scramble
 from cubersio.util.events.scramblers.internal import fmc_scrambler, mbld_scrambler, redi_scrambler, attack_scrambler,\
@@ -75,7 +75,7 @@ EVENT_2GEN = WeeklyEventDefinition("2GEN", scrambler333.get_2genRU_scramble)
 EVENT_LSE  = WeeklyEventDefinition("LSE", scrambler333.get_2genMU_scramble)
 EVENT_FTO  = WeeklyEventDefinition("FTO", ftoScrambler.get_multiple_random_state_scrambles)
 
-# Rotating bonus event definitions (current count = 21)
+# Rotating bonus event definitions (current count = 22)
 EVENT_COLL      = BonusEventDefinition("COLL", get_coll_scramble)
 EVENT_F2L       = BonusEventDefinition("F2L", scrambler333.get_WCA_scramble)
 EVENT_Void      = BonusEventDefinition("Void Cube", scrambler333.get_3BLD_scramble)
@@ -97,6 +97,7 @@ EVENT_Fifteen   = BonusEventDefinition("15 Puzzle", fifteen_puzzle_scrambler)
 EVENT_8x8       = BonusEventDefinition("8x8", bigCubesScrambler.get_8x8x8_scramble, num_scrambles=1)
 EVENT_9x9       = BonusEventDefinition("9x9", bigCubesScrambler.get_9x9x9_scramble, num_scrambles=1)
 EVENT_10x10     = BonusEventDefinition("10x10", bigCubesScrambler.get_10x10x10_scramble, num_scrambles=1)
+EVENT_BICUBE    = BonusEventDefinition("BiCube", miscScrambler.get_bicube_scramble)
 
 __ALL_EVENTS = [
     EVENT_2x2,
@@ -140,7 +141,8 @@ __ALL_EVENTS = [
     EVENT_Fifteen,
     EVENT_FTO,
     EVENT_REX,
-    EVENT_10x10
+    EVENT_10x10,
+    EVENT_BICUBE
 ]
 
 # Important! Don't change how these weekly and bonus lists are built, we rely on the order.
@@ -206,6 +208,7 @@ __GLOBAL_SORT_ORDER = [
     EVENT_LSE,
 
     # Bonus
+    EVENT_BICUBE,
     EVENT_2BLD,
     EVENT_Kilominx,
     EVENT_Mirror,
@@ -226,7 +229,7 @@ __GLOBAL_SORT_ORDER = [
     EVENT_Fifteen,
     EVENT_8x8,
     EVENT_9x9,
-    EVENT_10x10
+    EVENT_10x10,
 ]
 
 
