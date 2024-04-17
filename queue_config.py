@@ -22,4 +22,4 @@ else:
     # peewee is required for SqliteHuey
     # If this import fails, install peewee directly. Don't add to requirements.txt.
     import peewee
-    huey = SqliteHuey(filename='huey.db')
+    huey = SqliteHuey(filename='huey.db', immediate=True)
