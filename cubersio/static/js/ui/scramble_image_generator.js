@@ -60,7 +60,6 @@
         "2x2":    [nxnRadius, nxnRadius],
         "3x3":    [nxnRadius, nxnRadius],
         "3x3":    [nxnRadius, nxnRadius],
-        "BiCube": [nxnRadius, nxnRadius],
         "3x3OH":  [nxnRadius, nxnRadius],
         "2GEN":   [nxnRadius, nxnRadius],
         "LSE":    [nxnRadius, nxnRadius],
@@ -84,6 +83,7 @@
         "2x2x3": [cuboidRadius, cuboidRadius],
         "3x3x2": [cuboidRadius, cuboidRadius],
         "3x3x4": [cuboidRadius, cuboidRadius],
+        "BiCube": [cuboidRadius, cuboidRadius],
 
         "Pyraminx": [8, 8],
         "Skewb":    [5, 5],
@@ -907,7 +907,7 @@
             return ret;
         }
 
-        function drawRoundedPolygon(ctx, pts, radius, color) {
+        function drawRoundedPolygon(ctx, pts, radius, color, ignoreRadius) {
             ctx.beginPath();
 
             ctx.fillStyle = color;
@@ -917,7 +917,7 @@
                 ctx.strokeStyle = "#000";
             }
 
-            if (radius > 0) {
+            if (radius > 0 && !ignoreRadius) {
                 pts = getRoundedPoints(pts, radius);
             }
 
@@ -969,7 +969,7 @@
         }
 
         // trans: [size, offx, offy] == [size, 0, offx * size, 0, size, offy * size] or [a11 a12 a13 a21 a22 a23]
-        function drawPolygon(ctx, color, arr, trans, text) {
+        function drawPolygon(ctx, color, arr, trans, text, ignoreRadius) {
             if (!ctx) {
                 return;
             }
@@ -984,12 +984,12 @@
                 ptsByXY[i] = [xPts[i], yPts[i]];
             }
 
-            drawRoundedPolygon(ctx, ptsByXY, eventCornerRadius, color);
+            drawRoundedPolygon(ctx, ptsByXY, eventCornerRadius, color, ignoreRadius);
 
             if (text) {
                 ctx.fillStyle = '#000';
                 ctx.strokeStyle = '#000';
-                ctx.fillText(text, arr[0][0], arr[1][0]);
+                ctx.fillText(text, arr[0][0] + 10, arr[1][0] + 15);
             }
         }
 
@@ -2981,6 +2981,35 @@
             var posit = [];
             var piecePosit = [];
 
+            var pairedPieces = [
+                [27, 28],
+                [30, 31],
+                [33, 34],
+                [29, 32],
+                [45, 46],
+                [48, 51],
+                [49, 52],
+                [50, 53],
+                [14, 17],
+                [13, 16],
+                [12, 15],
+                [39, 42],
+                [37, 38],
+                [40, 41],
+                [43, 44],
+                [18, 19],
+                [21, 24],
+                [22, 25],
+                [1, 4],
+                [2, 5],
+            ];
+
+            var bidirectionalDict = {};
+            pairedPieces.forEach(pair => {
+                bidirectionalDict[pair[0]] = pair[1];
+                bidirectionalDict[pair[1]] = pair[0];
+            });
+
             var colors = null;
 
             function face(f) {
@@ -2988,8 +3017,8 @@
                 setColors();
                 colors = cube_colors;
 
-                var offx = 9.8 / 9,
-                    offy = 9.8 / 9;
+                var offx = 9.5 / 9,
+                    offy = 9.5 / 9;
                 if (f == 0) { //D
                     offx *= 3;
                     offy *= 3 * 2;
@@ -3013,22 +3042,48 @@
                 offy += 0.1;
                 offx += 0.1;
 
-                var adjustedOffy = 0;
-                var initialOffy = offy;
+                drawPolygon(ctx, '#000000', [
+                    [0, 0, 3, 3],
+                    [0, 3, 3, 0]
+                ], [width, offx, offy], null, true);
 
                 for (var i = 0; i < 3; i++) {
                     var x = (f == 1 || f == 2) ? 3 - 1 - i : i;
                     for (var j = 0; j < 3; j++) {
                         var y = (f == 0) ? 3 - 1 - j : j;
 
-                        // set color as normal, unless the void cube flag is set and the piece we're coloring
-                        // is not an edge or corner
-                        var color = colors[posit[(f * 3 + y) * 3 + x]];
+                        var positIx = (f * 3 + y) * 3 + x;
+                        var color = colors[posit[positIx]];
 
-                        drawPolygon(ctx, color, [
-                            [i, i, i + 1, i + 1],
-                            [j, j + 1, j + 1, j]
-                        ], [width, offx, offy]);
+                        var pieceAtPosit = piecePosit[positIx];
+                        var pairedPiece = bidirectionalDict[pieceAtPosit];
+                        if (pairedPiece === undefined) {
+                            drawPolygon(ctx, color, [
+                                [i, i, i + 1, i + 1],
+                                [j, j + 1, j + 1, j]
+                            ], [width, offx, offy]);
+                        } else {
+                            var ii = i + 1;
+                            var xx = (f == 1 || f == 2) ? 3 - 1 - ii : ii;
+                            var rightPositIx = (f * 3 + y) * 3 + xx;
+                            if (piecePosit[rightPositIx] == pairedPiece) {
+                                drawPolygon(ctx, color, [
+                                    [i, i, i + 2, i + 2],
+                                    [j, j + 1, j + 1, j]
+                                ], [width, offx, offy]);
+                                continue;
+                            }
+                            var jj = j + 1;
+                            var yy = (f == 0) ? 3 - 1 - jj : jj;
+                            var downPositIx = (f * 3 + yy) * 3 + x;
+                            if (piecePosit[downPositIx] == pairedPiece) {
+                                drawPolygon(ctx, color, [
+                                    [i, i, i + 1, i + 1],
+                                    [j, j + 2, j + 2, j]
+                                ], [width, offx, offy]);
+                                continue;
+                            }
+                        }
                     }
                 }
             }
@@ -3041,7 +3096,7 @@
             function doslice(f, d, q, size) {
                 var f1, f2, f3, f4;
                 var s2 = size * size;
-                var c, i, j, k;
+                var c, i, j, k, pid;
                 if (f > 5) f -= 6;
                 for (k = 0; k < q; k++) {
                     for (i = 0; i < size; i++) {
@@ -3081,6 +3136,12 @@
                         posit[f2] = posit[f3];
                         posit[f3] = posit[f4];
                         posit[f4] = c;
+
+                        pid = piecePosit[f1];
+                        piecePosit[f1] = piecePosit[f2];
+                        piecePosit[f2] = piecePosit[f3];
+                        piecePosit[f3] = piecePosit[f4];
+                        piecePosit[f4] = pid;
                     }
                     if (d == 0) {
                         for (i = 0; i + i < size; i++) {
@@ -3099,6 +3160,12 @@
                                 posit[f2] = posit[f3];
                                 posit[f3] = posit[f4];
                                 posit[f4] = c;
+
+                                pid = piecePosit[f1];
+                                piecePosit[f1] = piecePosit[f2];
+                                piecePosit[f2] = piecePosit[f3];
+                                piecePosit[f3] = piecePosit[f4];
+                                piecePosit[f4] = pid;
                             }
                         }
                     }
