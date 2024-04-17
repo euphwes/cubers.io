@@ -33,35 +33,36 @@ __KEY_DATE = 'date'
 # Dictionary of event name to tuple of (WR single, WR average) in centiseconds
 # WCA WRs as of 10 Jan 2022
 __AUTO_BLACKLIST_THRESHOLDS = {
-    '2x2':           (49, 105),
-    '3x3':           (347, 509),
-    '4x4':           (1686, 2094),
-    '5x5':           (3492, 3949),
-    '6x6':           (6951, 7590),
-    '7x7':           (10089, 10657),
-    '3BLD':          (1450, 1524),
+    '2x2':           (43, 92),
+    '3x3':           (313, 448),
+    '4x4':           (1686, 1938),
+    '5x5':           (3252, 3594),
+    '6x6':           (5974, 6646),
+    '7x7':           (9568, 10178),
+    '3BLD':          (1200, 1415),
     '4BLD':          (5787, 6876),
     '5BLD':          (14162, 14763),
-    'Square-1':      (459, 606),
-    'Clock':         (287, 386),
-    '3x3OH':         (682, 934),
-    'Pyraminx':      (91, 183),
-    'Megaminx':      (2722, 3039),
-    'Skewb':         (93, 186),
+    'Square-1':      (341, 491),
+    'Clock':         (200, 250),
+    '3x3OH':         (620, 862),
+    'Pyraminx':      (73, 143),
+    'Megaminx':      (2318, 2684),
+    'Skewb':         (75, 153),
     'FMC':           (1600, 2100),  # in "centi-moves"
     '3x3 With Feet': (1696, 2222),
-    'MBLD':          58,            # points
+    'MBLD':          59,            # points
 
     # "Reasonable values" sourced from
     # https://www.speedsolving.com/wiki/index.php/List_of_Unofficial_World_Records
-    # with a little bit of wiggle room. Events which aren't there are based on times that have been
+    # with a little wiggle room. Events which aren't there are based on times that have been
     # submitted to the site over the months before the auto-blacklist concept was implemented.
     'Kilominx':        (1400, 1600),
     '2BLD':            (350, 450),
-    'Redi Cube':       (320, 580),
+    'Redi Cube':       (200, 580),
     'Dino Cube':       (198, 400),
     'Void Cube':       (500, 700),
     '4x4 OH':          (4500, 5000),
+    'BiCube':          (250, 700),
     '2x2x3':           (50, 90),
     '3x3x2':           (250, 400),
     '3x3x4':           (1400, 2000),
