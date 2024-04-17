@@ -60,6 +60,7 @@
         "2x2":    [nxnRadius, nxnRadius],
         "3x3":    [nxnRadius, nxnRadius],
         "3x3":    [nxnRadius, nxnRadius],
+        "BiCube": [nxnRadius, nxnRadius],
         "3x3OH":  [nxnRadius, nxnRadius],
         "2GEN":   [nxnRadius, nxnRadius],
         "LSE":    [nxnRadius, nxnRadius],
@@ -2974,6 +2975,172 @@
             }
         })();
 
+        var biCubeImage = (function() {
+            var width = 30;
+
+            var posit = [];
+            var piecePosit = [];
+
+            var colors = null;
+
+            function face(f) {
+
+                setColors();
+                colors = cube_colors;
+
+                var offx = 9.8 / 9,
+                    offy = 9.8 / 9;
+                if (f == 0) { //D
+                    offx *= 3;
+                    offy *= 3 * 2;
+                } else if (f == 1) { //L
+                    offx *= 0;
+                    offy *= 3;
+                } else if (f == 2) { //B
+                    offx *= 3 * 3;
+                    offy *= 3;
+                } else if (f == 3) { //U
+                    offx *= 3;
+                    offy *= 0;
+                } else if (f == 4) { //R
+                    offx *= 3 * 2;
+                    offy *= 3;
+                } else if (f == 5) { //F
+                    offx *= 3;
+                    offy *= 3;
+                }
+
+                offy += 0.1;
+                offx += 0.1;
+
+                var adjustedOffy = 0;
+                var initialOffy = offy;
+
+                for (var i = 0; i < 3; i++) {
+                    var x = (f == 1 || f == 2) ? 3 - 1 - i : i;
+                    for (var j = 0; j < 3; j++) {
+                        var y = (f == 0) ? 3 - 1 - j : j;
+
+                        // set color as normal, unless the void cube flag is set and the piece we're coloring
+                        // is not an edge or corner
+                        var color = colors[posit[(f * 3 + y) * 3 + x]];
+
+                        drawPolygon(ctx, color, [
+                            [i, i, i + 1, i + 1],
+                            [j, j + 1, j + 1, j]
+                        ], [width, offx, offy]);
+                    }
+                }
+            }
+
+            /**
+             *  f: face, [ D L B U R F ]
+             *  d: which slice, in [0, size-1)
+             *  q: [  2 ']
+             */
+            function doslice(f, d, q, size) {
+                var f1, f2, f3, f4;
+                var s2 = size * size;
+                var c, i, j, k;
+                if (f > 5) f -= 6;
+                for (k = 0; k < q; k++) {
+                    for (i = 0; i < size; i++) {
+                        if (f == 0) {
+                            f1 = 6 * s2 - size * d - size + i;
+                            f2 = 2 * s2 - size * d - 1 - i;
+                            f3 = 3 * s2 - size * d - 1 - i;
+                            f4 = 5 * s2 - size * d - size + i;
+                        } else if (f == 1) {
+                            f1 = 3 * s2 + d + size * i;
+                            f2 = 3 * s2 + d - size * (i + 1);
+                            f3 = s2 + d - size * (i + 1);
+                            f4 = 5 * s2 + d + size * i;
+                        } else if (f == 2) {
+                            f1 = 3 * s2 + d * size + i;
+                            f2 = 4 * s2 + size - 1 - d + size * i;
+                            f3 = d * size + size - 1 - i;
+                            f4 = 2 * s2 - 1 - d - size * i;
+                        } else if (f == 3) {
+                            f1 = 4 * s2 + d * size + size - 1 - i;
+                            f2 = 2 * s2 + d * size + i;
+                            f3 = s2 + d * size + i;
+                            f4 = 5 * s2 + d * size + size - 1 - i;
+                        } else if (f == 4) {
+                            f1 = 6 * s2 - 1 - d - size * i;
+                            f2 = size - 1 - d + size * i;
+                            f3 = 2 * s2 + size - 1 - d + size * i;
+                            f4 = 4 * s2 - 1 - d - size * i;
+                        } else if (f == 5) {
+                            f1 = 4 * s2 - size - d * size + i;
+                            f2 = 2 * s2 - size + d - size * i;
+                            f3 = s2 - 1 - d * size - i;
+                            f4 = 4 * s2 + d + size * i;
+                        }
+                        c = posit[f1];
+                        posit[f1] = posit[f2];
+                        posit[f2] = posit[f3];
+                        posit[f3] = posit[f4];
+                        posit[f4] = c;
+                    }
+                    if (d == 0) {
+                        for (i = 0; i + i < size; i++) {
+                            for (j = 0; j + j < size - 1; j++) {
+                                f1 = f * s2 + i + j * size;
+                                f3 = f * s2 + (size - 1 - i) + (size - 1 - j) * size;
+                                if (f < 3) {
+                                    f2 = f * s2 + (size - 1 - j) + i * size;
+                                    f4 = f * s2 + j + (size - 1 - i) * size;
+                                } else {
+                                    f4 = f * s2 + (size - 1 - j) + i * size;
+                                    f2 = f * s2 + j + (size - 1 - i) * size;
+                                }
+                                c = posit[f1];
+                                posit[f1] = posit[f2];
+                                posit[f2] = posit[f3];
+                                posit[f3] = posit[f4];
+                                posit[f4] = c;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return function(moveseq) {
+
+                var cnt = 0;
+                for (var i = 0; i < 6; i++) {
+                    for (var f = 0; f < 3 * 3; f++) {
+                        posit[cnt] = i;
+                        piecePosit[cnt] = cnt;
+                        cnt += 1;
+                    }
+                }
+                var moves = parseScramble(moveseq, "DLBURF");
+                for (var s = 0; s < moves.length; s++) {
+                    for (var d = 0; d < moves[s][1]; d++) {
+                        doslice(moves[s][0], d, moves[s][2], 3)
+                    }
+                    if (moves[s][1] == -1) {
+                        for (var d = 0; d < size - 1; d++) {
+                            doslice(moves[s][0], d, -moves[s][2], 3);
+                        }
+                        doslice((moves[s][0] + 3) % 6, 0, moves[s][2] + 4, 3);
+                    }
+                }
+
+                var imgSize = scalingFactor / 50;
+                canvas.width(39 * imgSize + 'em');
+                canvas.height(29 * imgSize + 'em');
+
+                canvas.attr('width', 39 * 3 / 9 * width + 1);
+                canvas.attr('height', 29 * 3 / 9 * width + 1);
+
+                for (var i = 0; i < 6; i++) {
+                    face(i);
+                }
+            }
+        })();
+
         var nnnImage = (function() {
             var width = 30;
 
@@ -3591,6 +3758,10 @@
             }
             if (type == "Redi Cube") {
                 rediImage(scrambleText);
+                return true;
+            }
+            if (type == "BiCube") {
+                biCubeImage(scrambleText);
                 return true;
             }
             if (type == "Dino Cube") {
