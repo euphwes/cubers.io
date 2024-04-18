@@ -989,7 +989,8 @@
             if (text) {
                 ctx.fillStyle = '#000';
                 ctx.strokeStyle = '#000';
-                ctx.fillText(text, arr[0][0] + 10, arr[1][0] + 15);
+                ctx.fillText(text, arr[0][0], arr[1][0]);
+                //ctx.fillText(text, arr[0][0] + 10, arr[1][0] + 15);  // useful to put piece IDs on the 3x3 drawings for debugging
             }
         }
 
