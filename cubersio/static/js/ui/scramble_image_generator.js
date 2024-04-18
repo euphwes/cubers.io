@@ -68,12 +68,12 @@
         "COLL":   [nxnRadius, nxnRadius],
         "4x4":    [nxnRadius, nxnRadius],
         "4x4 OH": [nxnRadius, nxnRadius],
+        "5x5":    [nxnRadius, nxnRadius],
         "15 Puzzle": [nxnRadius, nxnRadius],
         "Void Cube":     [nxnRadius, nxnRadius],
         "3x3 With Feet": [nxnRadius, nxnRadius],
 
         // curved corners on large NxN don't look great in small canvas
-        "5x5":    [0, nxnRadius],
         "6x6":    [0, nxnRadius],
         "7x7":    [0, nxnRadius],
         "8x8":    [0, 0],
@@ -150,6 +150,46 @@
               '3,3': [6, 2, 2, 2],
             }[coordString];
         }
+
+        if (size == 5) {
+            middle_pieces = [6, 6, 6, 6];
+
+            return {
+              // top row
+              '0,0': [2, 2, 6, 2],  // UL, DL, DR, UR
+              '1,0': [2, 10, 10, 2],
+              '2,0': [2, 10, 10, 2],
+              '3,0': [2, 10, 10, 2],
+              '4,0': [2, 6, 2, 2],
+
+              // middle rows, same each row
+              '0,1': [2, 2, 10, 10],  // UL, DL, DR, UR
+              '1,1': middle_pieces,
+              '2,1': middle_pieces,
+              '3,1': middle_pieces,
+              '4,1': [10, 10, 2, 2],
+
+              '0,2': [2, 2, 10, 10],  // UL, DL, DR, UR
+              '1,2': middle_pieces,
+              '2,2': middle_pieces,
+              '3,2': middle_pieces,
+              '4,2': [10, 10, 2, 2],
+
+              '0,3': [2, 2, 10, 10],  // UL, DL, DR, UR
+              '1,3': middle_pieces,
+              '2,3': middle_pieces,
+              '3,3': middle_pieces,
+              '4,3': [10, 10, 2, 2],
+
+              // bottom row
+              '0,4': [2, 2, 2, 6],  // UL, DL, DR, UR
+              '1,4': [10, 2, 2, 10],
+              '2,4': [10, 2, 2, 10],
+              '3,4': [10, 2, 2, 10],
+              '4,4': [6, 2, 2, 2],
+            }[coordString];
+        }
+
     };
 
     var setColors = function() {
@@ -3309,7 +3349,7 @@
                 var adjustedOffy = 0;
                 var initialOffy = offy;
 
-                if ([2,3,4].includes(size) && !is332) {
+                if ([2,3,4,5].includes(size) && !is332) {
                     drawPolygon(ctx, '#333333', [
                         [0, 0, size, size],
                         [0, size, size, 0]
@@ -3345,7 +3385,7 @@
                         }
 
                         var perPtRadii = undefined;
-                        if ([2,3,4].includes(size) && !is332) {
+                        if ([2,3,4,5].includes(size) && !is332) {
                             perPtRadii = getPerPtRadii(size, i, j);
                         }
 
