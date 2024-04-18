@@ -121,6 +121,7 @@ __ALL_EVENTS = [
     EVENT_Void,
     EVENT_333Relay,
     EVENT_F2L,
+    EVENT_BICUBE,
     EVENT_Mirror,
     EVENT_8x8,
     EVENT_3x3x4,
@@ -142,7 +143,6 @@ __ALL_EVENTS = [
     EVENT_FTO,
     EVENT_REX,
     EVENT_10x10,
-    EVENT_BICUBE
 ]
 
 # Important! Don't change how these weekly and bonus lists are built, we rely on the order.
