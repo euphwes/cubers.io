@@ -50,7 +50,7 @@ class BonusEventDefinition(EventDefinition):
         super().__init__(name, scramble_func, num_scrambles, is_weekly=False, is_wca=False, is_rotating=True)
 
 
-# WCA event definitions (current count = 18)
+# WCA event definitions (current count = 17)
 EVENT_2x2      = WCAEventDefinition("2x2", scrambler222.get_WCA_scramble)
 EVENT_3x3      = WCAEventDefinition("3x3", scrambler333.get_WCA_scramble)
 EVENT_4x4      = WCAEventDefinition("4x4", scrambler444.get_random_state_scramble)
@@ -63,7 +63,6 @@ EVENT_Pyraminx = WCAEventDefinition("Pyraminx", pyraminxScrambler.get_WCA_scramb
 EVENT_Megaminx = WCAEventDefinition("Megaminx", megaminxScrambler.get_WCA_scramble)
 EVENT_Skewb    = WCAEventDefinition("Skewb", skewbScrambler.get_WCA_scramble)
 EVENT_Clock    = WCAEventDefinition("Clock", clockScrambler.get_WCA_scramble)
-EVENT_3x3_Feet = WCAEventDefinition("3x3 With Feet", scrambler333.get_WCA_scramble)
 EVENT_FMC      = WCAEventDefinition("FMC", fmc_scrambler, num_scrambles=3)
 EVENT_3BLD     = WCAEventDefinition("3BLD", scrambler333.get_3BLD_scramble, num_scrambles=3)
 EVENT_4BLD     = WCAEventDefinition("4BLD", scrambler444.get_4BLD_scramble, num_scrambles=3)
@@ -75,7 +74,7 @@ EVENT_2GEN = WeeklyEventDefinition("2GEN", scrambler333.get_2genRU_scramble)
 EVENT_LSE  = WeeklyEventDefinition("LSE", scrambler333.get_2genMU_scramble)
 EVENT_FTO  = WeeklyEventDefinition("FTO", ftoScrambler.get_multiple_random_state_scrambles)
 
-# Rotating bonus event definitions (current count = 22)
+# Rotating bonus event definitions (current count = 23)
 EVENT_COLL      = BonusEventDefinition("COLL", get_coll_scramble)
 EVENT_F2L       = BonusEventDefinition("F2L", scrambler333.get_WCA_scramble)
 EVENT_Void      = BonusEventDefinition("Void Cube", scrambler333.get_3BLD_scramble)
@@ -98,6 +97,8 @@ EVENT_8x8       = BonusEventDefinition("8x8", bigCubesScrambler.get_8x8x8_scramb
 EVENT_9x9       = BonusEventDefinition("9x9", bigCubesScrambler.get_9x9x9_scramble, num_scrambles=1)
 EVENT_10x10     = BonusEventDefinition("10x10", bigCubesScrambler.get_10x10x10_scramble, num_scrambles=1)
 EVENT_BICUBE    = BonusEventDefinition("BiCube", miscScrambler.get_bicube_scramble)
+EVENT_3x3_Feet  = BonusEventDefinition("3x3 With Feet", scrambler333.get_WCA_scramble)
+
 
 __ALL_EVENTS = [
     EVENT_2x2,
@@ -192,7 +193,6 @@ __GLOBAL_SORT_ORDER = [
 
     # Weekly 3x3 variations
     EVENT_3x3OH,
-    EVENT_3x3_Feet,
 
     # Weekly other
     EVENT_Square1,
@@ -230,6 +230,7 @@ __GLOBAL_SORT_ORDER = [
     EVENT_8x8,
     EVENT_9x9,
     EVENT_10x10,
+    EVENT_3x3_Feet,
 ]
 
 
