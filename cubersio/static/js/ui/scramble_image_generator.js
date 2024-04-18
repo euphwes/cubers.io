@@ -76,9 +76,9 @@
         "5x5":    [0, nxnRadius],
         "6x6":    [0, nxnRadius],
         "7x7":    [0, nxnRadius],
-        "8x8":    [0, nxnRadius],
-        "9x9":    [0, nxnRadius],
-        "10x10":  [0, nxnRadius],
+        "8x8":    [0, 0],
+        "9x9":    [0, 0],
+        "10x10":  [0, 0],
 
         "2x2x3": [cuboidRadius, cuboidRadius],
         "3x3x2": [cuboidRadius, cuboidRadius],
@@ -96,6 +96,61 @@
 
         "FTO": [ftoRadius, ftoRadius],
     }
+
+    var getPerPtRadii = function(size, i, j) {
+        var coordString = '' + i + ',' + j;
+
+        if (size == 2) {
+            return {
+              '0,0': [2, 2, 14, 2],  // UL, DL, DR, UR
+              '1,0': [2, 14, 2, 2],
+              '0,1': [2, 2, 2, 14],
+              '1,1': [14, 2, 2, 2],
+            }[coordString];
+        }
+
+        if (size == 3) {
+            return {
+              '0,0': [2, 2, 6, 2],  // UL, DL, DR, UR
+              '1,0': [2, 10, 10, 2],
+              '2,0': [2, 6, 2, 2],
+              '0,1': [2, 2, 10, 10],
+              '1,1': [15, 15, 15, 15],
+              '2,1': [10, 10, 2, 2],
+              '0,2': [2, 2, 2, 6],
+              '1,2': [10, 2, 2, 10],
+              '2,2': [6, 2, 2, 2],
+            }[coordString];
+        }
+
+        if (size == 4) {
+            return {
+              // top row
+              '0,0': [2, 2, 6, 2],  // UL, DL, DR, UR
+              '1,0': [2, 10, 10, 2],
+              '2,0': [2, 10, 10, 2],
+              '3,0': [2, 6, 2, 2],
+
+              // 2nd row
+              '0,1': [2, 2, 10, 10],
+              '1,1': [10, 6, 6, 6],
+              '2,1': [6, 6, 6, 10],
+              '3,1': [10, 10, 2, 2],
+
+              // 3rd row
+              '0,2': [2, 2, 10, 10],
+              '1,2': [6, 10, 6, 6],
+              '2,2': [6, 6, 10, 6],
+              '3,2': [10, 10, 2, 2],
+
+              // bottom row
+              '0,3': [2, 2, 2, 6],  // UL, DL, DR, UR
+              '1,3': [10, 2, 2, 10],
+              '2,3': [10, 2, 2, 10],
+              '3,3': [6, 2, 2, 2],
+            }[coordString];
+        }
+    };
 
     var setColors = function() {
         if (window.app.userSettingsManager.get_setting(app.Settings.USE_CUSTOM_CUBE_COLORS)) {
@@ -907,7 +962,7 @@
             return ret;
         }
 
-        function drawRoundedPolygon(ctx, pts, radius, color, ignoreRadius) {
+        function drawRoundedPolygon(ctx, pts, radius, color, ignoreRadius, perPtRadii) {
             ctx.beginPath();
 
             ctx.fillStyle = color;
@@ -918,7 +973,7 @@
             }
 
             if (radius > 0 && !ignoreRadius) {
-                pts = getRoundedPoints(pts, radius);
+                pts = getRoundedPoints(pts, radius, perPtRadii);
             }
 
             var i, pt, len = pts.length;
@@ -939,7 +994,7 @@
             ctx.stroke();
         }
 
-        function getRoundedPoints(pts, radius) {
+        function getRoundedPoints(pts, radius, perPtRadii) {
             var i1, i2, i3, p1, p2, p3, prevPt, nextPt,
                 len = pts.length,
                 res = new Array(len);
@@ -955,6 +1010,11 @@
               p1 = pts[i1];
               p2 = pts[i2];
               p3 = pts[i3];
+
+              if (perPtRadii !== undefined) {
+                  radius = perPtRadii[i2];
+              }
+
               prevPt = getRoundedPoint(p1[0], p1[1], p2[0], p2[1], radius, false);
               nextPt = getRoundedPoint(p2[0], p2[1], p3[0], p3[1], radius, true);
               res[i2] = [prevPt[0], prevPt[1], p2[0], p2[1], nextPt[0], nextPt[1]];
@@ -969,7 +1029,7 @@
         }
 
         // trans: [size, offx, offy] == [size, 0, offx * size, 0, size, offy * size] or [a11 a12 a13 a21 a22 a23]
-        function drawPolygon(ctx, color, arr, trans, text, ignoreRadius) {
+        function drawPolygon(ctx, color, arr, trans, text, ignoreRadius, perPtRadii) {
             if (!ctx) {
                 return;
             }
@@ -984,7 +1044,7 @@
                 ptsByXY[i] = [xPts[i], yPts[i]];
             }
 
-            drawRoundedPolygon(ctx, ptsByXY, eventCornerRadius, color, ignoreRadius);
+            drawRoundedPolygon(ctx, ptsByXY, eventCornerRadius, color, ignoreRadius, perPtRadii);
 
             if (text) {
                 ctx.fillStyle = '#000';
@@ -3249,6 +3309,13 @@
                 var adjustedOffy = 0;
                 var initialOffy = offy;
 
+                if ([2,3,4].includes(size) && !is332) {
+                    drawPolygon(ctx, '#333333', [
+                        [0, 0, size, size],
+                        [0, size, size, 0]
+                    ], [width, offx, offy], null, true);
+                }
+
                 for (var i = 0; i < size; i++) {
                     var x = (f == 1 || f == 2) ? size - 1 - i : i;
                     for (var j = 0; j < size; j++) {
@@ -3277,10 +3344,15 @@
                             offy = adjustedOffy;
                         }
 
+                        var perPtRadii = undefined;
+                        if ([2,3,4].includes(size) && !is332) {
+                            perPtRadii = getPerPtRadii(size, i, j);
+                        }
+
                         drawPolygon(ctx, color, [
                             [i, i, i + 1, i + 1],
                             [j, j + 1, j + 1, j]
-                        ], [width, offx, offy]);
+                        ], [width, offx, offy], null, false, perPtRadii);
                     }
                 }
             }
