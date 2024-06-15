@@ -29,7 +29,7 @@ def event_results(event_name):
 
     event = __safe_get_event(event_name)
     if not event:
-        return ("I don't know what {} is.".format(event_name), 404)
+        return ("I don't know what Event this is.", 404)
 
     singles  = get_ordered_pb_singles_for_event(event.id)
     averages = get_ordered_pb_averages_for_event(event.id) if event.name != 'MBLD' else list()
@@ -47,7 +47,7 @@ def event_results_export(event_name):
 
     event = __safe_get_event(event_name)
     if not event:
-        return ("I don't know what {} is.".format(event_name), 404)
+        return ("I don't know what Event this is.", 404)
 
     singles  = get_ordered_pb_singles_for_event(event.id)
     averages = get_ordered_pb_averages_for_event(event.id)
