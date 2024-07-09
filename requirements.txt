@@ -123,4 +123,4 @@ Werkzeug==2.3.7
 whitenoise==6.6.0
 win-unicode-console==0.5
 wrapt==1.10.11
-zipp==3.17.0
+zipp==3.19.1
