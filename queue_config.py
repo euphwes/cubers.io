@@ -15,6 +15,11 @@ from huey import RedisHuey, SqliteHuey
 # Redis is the preferred Huey backend
 REDIS_URL = environ.get('REDIS_URL', None)
 if REDIS_URL:
+
+    # Heroku/Redis integration now defaults to requiring SSL certs
+    if not REDIS_URL.endswith('?ssl_cert_reqs=none'):
+        REDIS_URL += '?ssl_cert_reqs=none'
+
     huey = RedisHuey(url=REDIS_URL)
 
 # But in dev environments, fall back to SqliteHuey if Redis is not available
