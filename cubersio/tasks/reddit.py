@@ -10,7 +10,7 @@ from cubersio.persistence.settings_manager import get_all_user_ids_with_setting_
 from cubersio.integrations.reddit import send_pm_to_user
 from cubersio.util.events.resources import BONUS_EVENTS
 
-from . import huey
+from queue_config import huey
 
 # -------------------------------------------------------------------------------------------------
 

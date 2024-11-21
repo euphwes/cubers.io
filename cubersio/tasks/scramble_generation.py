@@ -8,7 +8,7 @@ from cubersio import app
 from cubersio.persistence.events_manager import get_all_events, add_scramble_to_scramble_pool
 from cubersio.util.events.resources import get_event_definition_for_name, EVENT_COLL, EVENT_FTO, EVENT_REX
 
-from . import huey
+from queue_config import huey
 
 
 ScramblePoolTopOffInfo = namedtuple('ScramblePoolTopOffInfo', ['event_id', 'event_name', 'num_scrambles'])

@@ -14,7 +14,7 @@ from cubersio.business.competition.scoring import post_results_thread
 from cubersio.tasks.reddit import prepare_new_competition_notification,\
     prepare_end_of_competition_info_notifications
 
-from . import huey
+from queue_config import huey
 
 # -------------------------------------------------------------------------------------------------
 
