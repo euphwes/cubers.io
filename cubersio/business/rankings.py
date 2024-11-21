@@ -290,6 +290,10 @@ def _determine_ranks(personal_bests):
         except ValueError:
             times_values.append(9999999999999)
 
+    # Some clowns are entering really enormous numbers, larger than 9999999999999 above,
+    # and so we need to sort `times_values` so the Ranking mech doesn't choke.
+    times_values.sort()
+
     # Rank the list of times. The result from this is (rank, time value) where the index
     # of the element for each time value doesn't change from the input to the output
     ranked_times = list(Ranking(times_values, start=1, reverse=True))
