@@ -20,7 +20,6 @@ def api_login_required(func):
     return decorated_function
 
 
-from cubersio.routes.admin.gift_codes import *
 from cubersio.routes.auth import *
 from cubersio.routes.auth.reddit import *
 from cubersio.routes.auth.wca import *

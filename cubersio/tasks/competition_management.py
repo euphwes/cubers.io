@@ -11,7 +11,6 @@ from cubersio.persistence.user_manager import get_all_users
 from cubersio.persistence.user_results_manager import calculate_latest_user_pbs_for_event
 from cubersio.business.competition.generation import generate_new_competition
 from cubersio.business.competition.scoring import post_results_thread
-# from app.tasks.gift_code_management import send_gift_code_winner_approval_pm
 from cubersio.tasks.reddit import prepare_new_competition_notification,\
     prepare_end_of_competition_info_notifications
 
@@ -63,7 +62,6 @@ def wrap_weekly_competition():
         post_results_thread_task(current_comp.id)
         prepare_end_of_competition_info_notifications(current_comp.id)
         generate_new_competition_task()
-        # send_gift_code_winner_approval_pm(current_comp.id)
 
 
 @huey.task()
