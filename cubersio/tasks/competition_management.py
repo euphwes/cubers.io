@@ -30,6 +30,11 @@ else:
 
 # -------------------------------------------------------------------------------------------------
 
+@huey.periodic_task(crontab(minute="*/5"))
+def task_heartbeat():
+    print("** Huey task heartbeat **")
+
+
 @huey.periodic_task(RUN_RANKINGS_SCHEDULE)
 def run_weekly_site_rankings():
     """ A periodic task to run the site rankings stuff weekly. """
